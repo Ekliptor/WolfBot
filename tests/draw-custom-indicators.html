@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+
+  body {
+    font: 10px sans-serif;
+  }
+
+  text {
+    fill: #000;
+  }
+
+  button {
+    position: absolute;
+    right: 20px;
+    top: 440px;
+    display: none;
+  }
+
+  path.candle {
+    stroke: #000000;
+  }
+
+  path.candle.body {
+    stroke-width: 0;
+  }
+
+  path.candle.up {
+    fill: #00AA00;
+    stroke: #00AA00;
+  }
+
+  path.candle.down {
+    fill: #FF0000;
+    stroke: #FF0000;
+  }
+
+  path.line {
+    fill: none;
+  }
+
+  #data_line1 {
+    stroke: #1f77b4;
+  }
+
+  #data_line2 {
+    stroke: #ff7f0e;
+  }
+
+</style>
+<body>
+<button>Update</button>
+<script src="http://d3js.org/d3.v4.min.js"></script>
+<script src="http://techanjs.org/techan.min.js"></script>
+<script>
+  // https://github.com/andredumas/techan.js/issues/195
+
+    var margin = {top: 20, right: 20, bottom: 30, left: 50},
+        width = 960 - margin.left - margin.right,
+        height = 500 - margin.top - margin.bottom;
+
+    var parseDate = d3.timeParse("%d-%b-%y");
+
+    var x = techan.scale.financetime()
+        .range([0, width]);
+
+    var y = d3.scaleLinear()
+        .range([height, 0]);
+
+    var candlestick = techan.plot.candlestick()
+        .xScale(x)
+        .yScale(y);
+
+    var plotLine1 = d3.line()
+        .defined(function(d) { return !isNaN(d.line1); })
+        .x(function(d) { return x(d.date); })
+        .y(function(d) { return y(d.line1); });
+
+    var plotLine2 = d3.line()
+        .defined(function(d) { return !isNaN(d.line2); })
+        .x(function(d) { return x(d.date); })
+        .y(function(d) { return y(d.line2); });
+
+    var xAxis = d3.axisBottom()
+        .scale(x);
+
+    var yAxis = d3.axisLeft()
+        .scale(y);
+
+    var svg = d3.select("body").append("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+        .append("g")
+        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+    d3.csv("data.csv", function(error, data) {
+        var accessor = candlestick.accessor();
+
+        data = data.slice(0, 200).map(function(d) {
+            return {
+                date: parseDate(d.Date),
+                open: +d.Open,
+                high: +d.High,
+                low: +d.Low,
+                close: +d.Close,
+                volume: +d.Volume,
+                //line1: (d.Line1 == null) ? NaN : +d.Line1,
+                //line2: (d.Line2 == null) ? NaN : +d.Line2
+                line1: +d.High + 10,
+                line2: +d.Low - 10
+            };
+        }).sort(function(a, b) { return d3.ascending(accessor.d(a), accessor.d(b)); });
+
+        svg.append("g")
+            .attr("class", "candlestick");
+
+        svg.append("g")
+            .attr("id", "data_line1")
+            .append("path")
+            .attr("class", "line");
+
+        svg.append("g")
+            .attr("id", "data_line2")
+            .append("path")
+            .attr("class", "line");
+
+        svg.append("g")
+            .attr("class", "x axis")
+            .attr("transform", "translate(0," + height + ")");
+
+        svg.append("g")
+            .attr("class", "y axis")
+            .append("text")
+            .attr("transform", "rotate(-90)")
+            .attr("y", 6)
+            .attr("dy", ".71em")
+            .style("text-anchor", "end")
+            .text("Price ($)");
+
+        // Data to display initially
+        draw(data.slice(0, data.length-20));
+        // Only want this button to be active if the data has loaded
+        d3.select("button").on("click", function() { draw(data); }).style("display", "inline");
+    });
+
+    function draw(data) {
+        x.domain(data.map(candlestick.accessor().d));
+        //y.domain(techan.scale.plot.ohlc(data, candlestick.accessor()).domain());
+
+        y.domain([
+            d3.min(data, function(d) { return Math.min(d.line1, d.line2); }),
+            d3.max(data, function(d) { return Math.max(d.line1, d.line2); })
+        ]);
+
+        svg.selectAll("g.candlestick").datum(data).call(candlestick);
+        svg.selectAll("g.x.axis").call(xAxis);
+        svg.selectAll("g.y.axis").call(yAxis);
+
+        svg.select("g#data_line1 path").datum(data).attr("d", plotLine1);
+        svg.select("g#data_line2 path").datum(data).attr("d", plotLine2);
+    }
+
+</script>
