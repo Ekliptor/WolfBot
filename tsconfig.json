@@ -1,0 +1,23 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "target": "es6",
+    "typeRoots": ["./node_modules/@types"],
+    "rootDir": "./",
+    "outDir": "./build",
+    "allowJs": true,
+    "sourceMap": true,
+    "pretty": true,
+    "alwaysStrict": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "watch": true
+  },
+  "compileOnSave": true,
+  "exclude": [
+    "node_modules",
+    "packages",
+    "build",
+    "public"
+  ]
+}
