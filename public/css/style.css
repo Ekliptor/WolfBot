@@ -1,0 +1,3107 @@
+@charset "UTF-8";
+/*!
+ *  Font Awesome 4.7.0 by @davegandy - http://fontawesome.io - @fontawesome
+ *  License - http://fontawesome.io/license (Font: SIL OFL 1.1, CSS: MIT License)
+ */
+/* FONT PATH
+ * -------------------------- */
+@import url(bootstrap-multiselect.css);
+@import url(libs/bootstrap-datetimepicker.min.css);
+@font-face {
+  font-family: 'FontAwesome';
+  src: url("../fonts/fontawesome-webfont.eot?v=4.7.0");
+  src: url("../fonts/fontawesome-webfont.eot?#iefix&v=4.7.0") format("embedded-opentype"), url("../fonts/fontawesome-webfont.woff2?v=4.7.0") format("woff2"), url("../fonts/fontawesome-webfont.woff?v=4.7.0") format("woff"), url("../fonts/fontawesome-webfont.ttf?v=4.7.0") format("truetype"), url("../fonts/fontawesome-webfont.svg?v=4.7.0#fontawesomeregular") format("svg");
+  font-weight: normal;
+  font-style: normal; }
+.fa {
+  display: inline-block;
+  font: normal normal normal 14px/1 FontAwesome;
+  font-size: inherit;
+  text-rendering: auto;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale; }
+
+/* makes the font 33% larger relative to the icon container */
+.fa-lg {
+  font-size: 1.33333em;
+  line-height: 0.75em;
+  vertical-align: -15%; }
+
+.fa-2x {
+  font-size: 2em; }
+
+.fa-3x {
+  font-size: 3em; }
+
+.fa-4x {
+  font-size: 4em; }
+
+.fa-5x {
+  font-size: 5em; }
+
+.fa-fw {
+  width: 1.28571em;
+  text-align: center; }
+
+.fa-ul {
+  padding-left: 0;
+  margin-left: 2.14286em;
+  list-style-type: none; }
+  .fa-ul > li {
+    position: relative; }
+
+.fa-li {
+  position: absolute;
+  left: -2.14286em;
+  width: 2.14286em;
+  top: 0.14286em;
+  text-align: center; }
+  .fa-li.fa-lg {
+    left: -1.85714em; }
+
+.fa-border {
+  padding: .2em .25em .15em;
+  border: solid 0.08em #eee;
+  border-radius: .1em; }
+
+.fa-pull-left {
+  float: left; }
+
+.fa-pull-right {
+  float: right; }
+
+.fa.fa-pull-left {
+  margin-right: .3em; }
+.fa.fa-pull-right {
+  margin-left: .3em; }
+
+/* Deprecated as of 4.4.0 */
+.pull-right {
+  float: right; }
+
+.pull-left {
+  float: left; }
+
+.fa.pull-left {
+  margin-right: .3em; }
+.fa.pull-right {
+  margin-left: .3em; }
+
+.fa-spin {
+  -webkit-animation: fa-spin 2s infinite linear;
+  animation: fa-spin 2s infinite linear; }
+
+.fa-pulse {
+  -webkit-animation: fa-spin 1s infinite steps(8);
+  animation: fa-spin 1s infinite steps(8); }
+
+@-webkit-keyframes fa-spin {
+  0% {
+    -webkit-transform: rotate(0deg);
+    transform: rotate(0deg); }
+  100% {
+    -webkit-transform: rotate(359deg);
+    transform: rotate(359deg); } }
+@keyframes fa-spin {
+  0% {
+    -webkit-transform: rotate(0deg);
+    transform: rotate(0deg); }
+  100% {
+    -webkit-transform: rotate(359deg);
+    transform: rotate(359deg); } }
+.fa-rotate-90 {
+  -ms-filter: "progid:DXImageTransform.Microsoft.BasicImage(rotation=1)";
+  -webkit-transform: rotate(90deg);
+  -ms-transform: rotate(90deg);
+  transform: rotate(90deg); }
+
+.fa-rotate-180 {
+  -ms-filter: "progid:DXImageTransform.Microsoft.BasicImage(rotation=2)";
+  -webkit-transform: rotate(180deg);
+  -ms-transform: rotate(180deg);
+  transform: rotate(180deg); }
+
+.fa-rotate-270 {
+  -ms-filter: "progid:DXImageTransform.Microsoft.BasicImage(rotation=3)";
+  -webkit-transform: rotate(270deg);
+  -ms-transform: rotate(270deg);
+  transform: rotate(270deg); }
+
+.fa-flip-horizontal {
+  -ms-filter: "progid:DXImageTransform.Microsoft.BasicImage(rotation=0, mirror=1)";
+  -webkit-transform: scale(-1, 1);
+  -ms-transform: scale(-1, 1);
+  transform: scale(-1, 1); }
+
+.fa-flip-vertical {
+  -ms-filter: "progid:DXImageTransform.Microsoft.BasicImage(rotation=2, mirror=1)";
+  -webkit-transform: scale(1, -1);
+  -ms-transform: scale(1, -1);
+  transform: scale(1, -1); }
+
+:root .fa-rotate-90,
+:root .fa-rotate-180,
+:root .fa-rotate-270,
+:root .fa-flip-horizontal,
+:root .fa-flip-vertical {
+  filter: none; }
+
+.fa-stack {
+  position: relative;
+  display: inline-block;
+  width: 2em;
+  height: 2em;
+  line-height: 2em;
+  vertical-align: middle; }
+
+.fa-stack-1x, .fa-stack-2x {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  text-align: center; }
+
+.fa-stack-1x {
+  line-height: inherit; }
+
+.fa-stack-2x {
+  font-size: 2em; }
+
+.fa-inverse {
+  color: #fff; }
+
+/* Font Awesome uses the Unicode Private Use Area (PUA) to ensure screen
+   readers do not read off random characters that represent icons */
+.fa-glass:before {
+  content: ""; }
+
+.fa-music:before {
+  content: ""; }
+
+.fa-search:before {
+  content: ""; }
+
+.fa-envelope-o:before {
+  content: ""; }
+
+.fa-heart:before {
+  content: ""; }
+
+.fa-star:before {
+  content: ""; }
+
+.fa-star-o:before {
+  content: ""; }
+
+.fa-user:before {
+  content: ""; }
+
+.fa-film:before {
+  content: ""; }
+
+.fa-th-large:before {
+  content: ""; }
+
+.fa-th:before {
+  content: ""; }
+
+.fa-th-list:before {
+  content: ""; }
+
+.fa-check:before {
+  content: ""; }
+
+.fa-remove:before,
+.fa-close:before,
+.fa-times:before {
+  content: ""; }
+
+.fa-search-plus:before {
+  content: ""; }
+
+.fa-search-minus:before {
+  content: ""; }
+
+.fa-power-off:before {
+  content: ""; }
+
+.fa-signal:before {
+  content: ""; }
+
+.fa-gear:before,
+.fa-cog:before {
+  content: ""; }
+
+.fa-trash-o:before {
+  content: ""; }
+
+.fa-home:before {
+  content: ""; }
+
+.fa-file-o:before {
+  content: ""; }
+
+.fa-clock-o:before {
+  content: ""; }
+
+.fa-road:before {
+  content: ""; }
+
+.fa-download:before {
+  content: ""; }
+
+.fa-arrow-circle-o-down:before {
+  content: ""; }
+
+.fa-arrow-circle-o-up:before {
+  content: ""; }
+
+.fa-inbox:before {
+  content: ""; }
+
+.fa-play-circle-o:before {
+  content: ""; }
+
+.fa-rotate-right:before,
+.fa-repeat:before {
+  content: ""; }
+
+.fa-refresh:before {
+  content: ""; }
+
+.fa-list-alt:before {
+  content: ""; }
+
+.fa-lock:before {
+  content: ""; }
+
+.fa-flag:before {
+  content: ""; }
+
+.fa-headphones:before {
+  content: ""; }
+
+.fa-volume-off:before {
+  content: ""; }
+
+.fa-volume-down:before {
+  content: ""; }
+
+.fa-volume-up:before {
+  content: ""; }
+
+.fa-qrcode:before {
+  content: ""; }
+
+.fa-barcode:before {
+  content: ""; }
+
+.fa-tag:before {
+  content: ""; }
+
+.fa-tags:before {
+  content: ""; }
+
+.fa-book:before {
+  content: ""; }
+
+.fa-bookmark:before {
+  content: ""; }
+
+.fa-print:before {
+  content: ""; }
+
+.fa-camera:before {
+  content: ""; }
+
+.fa-font:before {
+  content: ""; }
+
+.fa-bold:before {
+  content: ""; }
+
+.fa-italic:before {
+  content: ""; }
+
+.fa-text-height:before {
+  content: ""; }
+
+.fa-text-width:before {
+  content: ""; }
+
+.fa-align-left:before {
+  content: ""; }
+
+.fa-align-center:before {
+  content: ""; }
+
+.fa-align-right:before {
+  content: ""; }
+
+.fa-align-justify:before {
+  content: ""; }
+
+.fa-list:before {
+  content: ""; }
+
+.fa-dedent:before,
+.fa-outdent:before {
+  content: ""; }
+
+.fa-indent:before {
+  content: ""; }
+
+.fa-video-camera:before {
+  content: ""; }
+
+.fa-photo:before,
+.fa-image:before,
+.fa-picture-o:before {
+  content: ""; }
+
+.fa-pencil:before {
+  content: ""; }
+
+.fa-map-marker:before {
+  content: ""; }
+
+.fa-adjust:before {
+  content: ""; }
+
+.fa-tint:before {
+  content: ""; }
+
+.fa-edit:before,
+.fa-pencil-square-o:before {
+  content: ""; }
+
+.fa-share-square-o:before {
+  content: ""; }
+
+.fa-check-square-o:before {
+  content: ""; }
+
+.fa-arrows:before {
+  content: ""; }
+
+.fa-step-backward:before {
+  content: ""; }
+
+.fa-fast-backward:before {
+  content: ""; }
+
+.fa-backward:before {
+  content: ""; }
+
+.fa-play:before {
+  content: ""; }
+
+.fa-pause:before {
+  content: ""; }
+
+.fa-stop:before {
+  content: ""; }
+
+.fa-forward:before {
+  content: ""; }
+
+.fa-fast-forward:before {
+  content: ""; }
+
+.fa-step-forward:before {
+  content: ""; }
+
+.fa-eject:before {
+  content: ""; }
+
+.fa-chevron-left:before {
+  content: ""; }
+
+.fa-chevron-right:before {
+  content: ""; }
+
+.fa-plus-circle:before {
+  content: ""; }
+
+.fa-minus-circle:before {
+  content: ""; }
+
+.fa-times-circle:before {
+  content: ""; }
+
+.fa-check-circle:before {
+  content: ""; }
+
+.fa-question-circle:before {
+  content: ""; }
+
+.fa-info-circle:before {
+  content: ""; }
+
+.fa-crosshairs:before {
+  content: ""; }
+
+.fa-times-circle-o:before {
+  content: ""; }
+
+.fa-check-circle-o:before {
+  content: ""; }
+
+.fa-ban:before {
+  content: ""; }
+
+.fa-arrow-left:before {
+  content: ""; }
+
+.fa-arrow-right:before {
+  content: ""; }
+
+.fa-arrow-up:before {
+  content: ""; }
+
+.fa-arrow-down:before {
+  content: ""; }
+
+.fa-mail-forward:before,
+.fa-share:before {
+  content: ""; }
+
+.fa-expand:before {
+  content: ""; }
+
+.fa-compress:before {
+  content: ""; }
+
+.fa-plus:before {
+  content: ""; }
+
+.fa-minus:before {
+  content: ""; }
+
+.fa-asterisk:before {
+  content: ""; }
+
+.fa-exclamation-circle:before {
+  content: ""; }
+
+.fa-gift:before {
+  content: ""; }
+
+.fa-leaf:before {
+  content: ""; }
+
+.fa-fire:before {
+  content: ""; }
+
+.fa-eye:before {
+  content: ""; }
+
+.fa-eye-slash:before {
+  content: ""; }
+
+.fa-warning:before,
+.fa-exclamation-triangle:before {
+  content: ""; }
+
+.fa-plane:before {
+  content: ""; }
+
+.fa-calendar:before {
+  content: ""; }
+
+.fa-random:before {
+  content: ""; }
+
+.fa-comment:before {
+  content: ""; }
+
+.fa-magnet:before {
+  content: ""; }
+
+.fa-chevron-up:before {
+  content: ""; }
+
+.fa-chevron-down:before {
+  content: ""; }
+
+.fa-retweet:before {
+  content: ""; }
+
+.fa-shopping-cart:before {
+  content: ""; }
+
+.fa-folder:before {
+  content: ""; }
+
+.fa-folder-open:before {
+  content: ""; }
+
+.fa-arrows-v:before {
+  content: ""; }
+
+.fa-arrows-h:before {
+  content: ""; }
+
+.fa-bar-chart-o:before,
+.fa-bar-chart:before {
+  content: ""; }
+
+.fa-twitter-square:before {
+  content: ""; }
+
+.fa-facebook-square:before {
+  content: ""; }
+
+.fa-camera-retro:before {
+  content: ""; }
+
+.fa-key:before {
+  content: ""; }
+
+.fa-gears:before,
+.fa-cogs:before {
+  content: ""; }
+
+.fa-comments:before {
+  content: ""; }
+
+.fa-thumbs-o-up:before {
+  content: ""; }
+
+.fa-thumbs-o-down:before {
+  content: ""; }
+
+.fa-star-half:before {
+  content: ""; }
+
+.fa-heart-o:before {
+  content: ""; }
+
+.fa-sign-out:before {
+  content: ""; }
+
+.fa-linkedin-square:before {
+  content: ""; }
+
+.fa-thumb-tack:before {
+  content: ""; }
+
+.fa-external-link:before {
+  content: ""; }
+
+.fa-sign-in:before {
+  content: ""; }
+
+.fa-trophy:before {
+  content: ""; }
+
+.fa-github-square:before {
+  content: ""; }
+
+.fa-upload:before {
+  content: ""; }
+
+.fa-lemon-o:before {
+  content: ""; }
+
+.fa-phone:before {
+  content: ""; }
+
+.fa-square-o:before {
+  content: ""; }
+
+.fa-bookmark-o:before {
+  content: ""; }
+
+.fa-phone-square:before {
+  content: ""; }
+
+.fa-twitter:before {
+  content: ""; }
+
+.fa-facebook-f:before,
+.fa-facebook:before {
+  content: ""; }
+
+.fa-github:before {
+  content: ""; }
+
+.fa-unlock:before {
+  content: ""; }
+
+.fa-credit-card:before {
+  content: ""; }
+
+.fa-feed:before,
+.fa-rss:before {
+  content: ""; }
+
+.fa-hdd-o:before {
+  content: ""; }
+
+.fa-bullhorn:before {
+  content: ""; }
+
+.fa-bell:before {
+  content: ""; }
+
+.fa-certificate:before {
+  content: ""; }
+
+.fa-hand-o-right:before {
+  content: ""; }
+
+.fa-hand-o-left:before {
+  content: ""; }
+
+.fa-hand-o-up:before {
+  content: ""; }
+
+.fa-hand-o-down:before {
+  content: ""; }
+
+.fa-arrow-circle-left:before {
+  content: ""; }
+
+.fa-arrow-circle-right:before {
+  content: ""; }
+
+.fa-arrow-circle-up:before {
+  content: ""; }
+
+.fa-arrow-circle-down:before {
+  content: ""; }
+
+.fa-globe:before {
+  content: ""; }
+
+.fa-wrench:before {
+  content: ""; }
+
+.fa-tasks:before {
+  content: ""; }
+
+.fa-filter:before {
+  content: ""; }
+
+.fa-briefcase:before {
+  content: ""; }
+
+.fa-arrows-alt:before {
+  content: ""; }
+
+.fa-group:before,
+.fa-users:before {
+  content: ""; }
+
+.fa-chain:before,
+.fa-link:before {
+  content: ""; }
+
+.fa-cloud:before {
+  content: ""; }
+
+.fa-flask:before {
+  content: ""; }
+
+.fa-cut:before,
+.fa-scissors:before {
+  content: ""; }
+
+.fa-copy:before,
+.fa-files-o:before {
+  content: ""; }
+
+.fa-paperclip:before {
+  content: ""; }
+
+.fa-save:before,
+.fa-floppy-o:before {
+  content: ""; }
+
+.fa-square:before {
+  content: ""; }
+
+.fa-navicon:before,
+.fa-reorder:before,
+.fa-bars:before {
+  content: ""; }
+
+.fa-list-ul:before {
+  content: ""; }
+
+.fa-list-ol:before {
+  content: ""; }
+
+.fa-strikethrough:before {
+  content: ""; }
+
+.fa-underline:before {
+  content: ""; }
+
+.fa-table:before {
+  content: ""; }
+
+.fa-magic:before {
+  content: ""; }
+
+.fa-truck:before {
+  content: ""; }
+
+.fa-pinterest:before {
+  content: ""; }
+
+.fa-pinterest-square:before {
+  content: ""; }
+
+.fa-google-plus-square:before {
+  content: ""; }
+
+.fa-google-plus:before {
+  content: ""; }
+
+.fa-money:before {
+  content: ""; }
+
+.fa-caret-down:before {
+  content: ""; }
+
+.fa-caret-up:before {
+  content: ""; }
+
+.fa-caret-left:before {
+  content: ""; }
+
+.fa-caret-right:before {
+  content: ""; }
+
+.fa-columns:before {
+  content: ""; }
+
+.fa-unsorted:before,
+.fa-sort:before {
+  content: ""; }
+
+.fa-sort-down:before,
+.fa-sort-desc:before {
+  content: ""; }
+
+.fa-sort-up:before,
+.fa-sort-asc:before {
+  content: ""; }
+
+.fa-envelope:before {
+  content: ""; }
+
+.fa-linkedin:before {
+  content: ""; }
+
+.fa-rotate-left:before,
+.fa-undo:before {
+  content: ""; }
+
+.fa-legal:before,
+.fa-gavel:before {
+  content: ""; }
+
+.fa-dashboard:before,
+.fa-tachometer:before {
+  content: ""; }
+
+.fa-comment-o:before {
+  content: ""; }
+
+.fa-comments-o:before {
+  content: ""; }
+
+.fa-flash:before,
+.fa-bolt:before {
+  content: ""; }
+
+.fa-sitemap:before {
+  content: ""; }
+
+.fa-umbrella:before {
+  content: ""; }
+
+.fa-paste:before,
+.fa-clipboard:before {
+  content: ""; }
+
+.fa-lightbulb-o:before {
+  content: ""; }
+
+.fa-exchange:before {
+  content: ""; }
+
+.fa-cloud-download:before {
+  content: ""; }
+
+.fa-cloud-upload:before {
+  content: ""; }
+
+.fa-user-md:before {
+  content: ""; }
+
+.fa-stethoscope:before {
+  content: ""; }
+
+.fa-suitcase:before {
+  content: ""; }
+
+.fa-bell-o:before {
+  content: ""; }
+
+.fa-coffee:before {
+  content: ""; }
+
+.fa-cutlery:before {
+  content: ""; }
+
+.fa-file-text-o:before {
+  content: ""; }
+
+.fa-building-o:before {
+  content: ""; }
+
+.fa-hospital-o:before {
+  content: ""; }
+
+.fa-ambulance:before {
+  content: ""; }
+
+.fa-medkit:before {
+  content: ""; }
+
+.fa-fighter-jet:before {
+  content: ""; }
+
+.fa-beer:before {
+  content: ""; }
+
+.fa-h-square:before {
+  content: ""; }
+
+.fa-plus-square:before {
+  content: ""; }
+
+.fa-angle-double-left:before {
+  content: ""; }
+
+.fa-angle-double-right:before {
+  content: ""; }
+
+.fa-angle-double-up:before {
+  content: ""; }
+
+.fa-angle-double-down:before {
+  content: ""; }
+
+.fa-angle-left:before {
+  content: ""; }
+
+.fa-angle-right:before {
+  content: ""; }
+
+.fa-angle-up:before {
+  content: ""; }
+
+.fa-angle-down:before {
+  content: ""; }
+
+.fa-desktop:before {
+  content: ""; }
+
+.fa-laptop:before {
+  content: ""; }
+
+.fa-tablet:before {
+  content: ""; }
+
+.fa-mobile-phone:before,
+.fa-mobile:before {
+  content: ""; }
+
+.fa-circle-o:before {
+  content: ""; }
+
+.fa-quote-left:before {
+  content: ""; }
+
+.fa-quote-right:before {
+  content: ""; }
+
+.fa-spinner:before {
+  content: ""; }
+
+.fa-circle:before {
+  content: ""; }
+
+.fa-mail-reply:before,
+.fa-reply:before {
+  content: ""; }
+
+.fa-github-alt:before {
+  content: ""; }
+
+.fa-folder-o:before {
+  content: ""; }
+
+.fa-folder-open-o:before {
+  content: ""; }
+
+.fa-smile-o:before {
+  content: ""; }
+
+.fa-frown-o:before {
+  content: ""; }
+
+.fa-meh-o:before {
+  content: ""; }
+
+.fa-gamepad:before {
+  content: ""; }
+
+.fa-keyboard-o:before {
+  content: ""; }
+
+.fa-flag-o:before {
+  content: ""; }
+
+.fa-flag-checkered:before {
+  content: ""; }
+
+.fa-terminal:before {
+  content: ""; }
+
+.fa-code:before {
+  content: ""; }
+
+.fa-mail-reply-all:before,
+.fa-reply-all:before {
+  content: ""; }
+
+.fa-star-half-empty:before,
+.fa-star-half-full:before,
+.fa-star-half-o:before {
+  content: ""; }
+
+.fa-location-arrow:before {
+  content: ""; }
+
+.fa-crop:before {
+  content: ""; }
+
+.fa-code-fork:before {
+  content: ""; }
+
+.fa-unlink:before,
+.fa-chain-broken:before {
+  content: ""; }
+
+.fa-question:before {
+  content: ""; }
+
+.fa-info:before {
+  content: ""; }
+
+.fa-exclamation:before {
+  content: ""; }
+
+.fa-superscript:before {
+  content: ""; }
+
+.fa-subscript:before {
+  content: ""; }
+
+.fa-eraser:before {
+  content: ""; }
+
+.fa-puzzle-piece:before {
+  content: ""; }
+
+.fa-microphone:before {
+  content: ""; }
+
+.fa-microphone-slash:before {
+  content: ""; }
+
+.fa-shield:before {
+  content: ""; }
+
+.fa-calendar-o:before {
+  content: ""; }
+
+.fa-fire-extinguisher:before {
+  content: ""; }
+
+.fa-rocket:before {
+  content: ""; }
+
+.fa-maxcdn:before {
+  content: ""; }
+
+.fa-chevron-circle-left:before {
+  content: ""; }
+
+.fa-chevron-circle-right:before {
+  content: ""; }
+
+.fa-chevron-circle-up:before {
+  content: ""; }
+
+.fa-chevron-circle-down:before {
+  content: ""; }
+
+.fa-html5:before {
+  content: ""; }
+
+.fa-css3:before {
+  content: ""; }
+
+.fa-anchor:before {
+  content: ""; }
+
+.fa-unlock-alt:before {
+  content: ""; }
+
+.fa-bullseye:before {
+  content: ""; }
+
+.fa-ellipsis-h:before {
+  content: ""; }
+
+.fa-ellipsis-v:before {
+  content: ""; }
+
+.fa-rss-square:before {
+  content: ""; }
+
+.fa-play-circle:before {
+  content: ""; }
+
+.fa-ticket:before {
+  content: ""; }
+
+.fa-minus-square:before {
+  content: ""; }
+
+.fa-minus-square-o:before {
+  content: ""; }
+
+.fa-level-up:before {
+  content: ""; }
+
+.fa-level-down:before {
+  content: ""; }
+
+.fa-check-square:before {
+  content: ""; }
+
+.fa-pencil-square:before {
+  content: ""; }
+
+.fa-external-link-square:before {
+  content: ""; }
+
+.fa-share-square:before {
+  content: ""; }
+
+.fa-compass:before {
+  content: ""; }
+
+.fa-toggle-down:before,
+.fa-caret-square-o-down:before {
+  content: ""; }
+
+.fa-toggle-up:before,
+.fa-caret-square-o-up:before {
+  content: ""; }
+
+.fa-toggle-right:before,
+.fa-caret-square-o-right:before {
+  content: ""; }
+
+.fa-euro:before,
+.fa-eur:before {
+  content: ""; }
+
+.fa-gbp:before {
+  content: ""; }
+
+.fa-dollar:before,
+.fa-usd:before {
+  content: ""; }
+
+.fa-rupee:before,
+.fa-inr:before {
+  content: ""; }
+
+.fa-cny:before,
+.fa-rmb:before,
+.fa-yen:before,
+.fa-jpy:before {
+  content: ""; }
+
+.fa-ruble:before,
+.fa-rouble:before,
+.fa-rub:before {
+  content: ""; }
+
+.fa-won:before,
+.fa-krw:before {
+  content: ""; }
+
+.fa-bitcoin:before,
+.fa-btc:before {
+  content: ""; }
+
+.fa-file:before {
+  content: ""; }
+
+.fa-file-text:before {
+  content: ""; }
+
+.fa-sort-alpha-asc:before {
+  content: ""; }
+
+.fa-sort-alpha-desc:before {
+  content: ""; }
+
+.fa-sort-amount-asc:before {
+  content: ""; }
+
+.fa-sort-amount-desc:before {
+  content: ""; }
+
+.fa-sort-numeric-asc:before {
+  content: ""; }
+
+.fa-sort-numeric-desc:before {
+  content: ""; }
+
+.fa-thumbs-up:before {
+  content: ""; }
+
+.fa-thumbs-down:before {
+  content: ""; }
+
+.fa-youtube-square:before {
+  content: ""; }
+
+.fa-youtube:before {
+  content: ""; }
+
+.fa-xing:before {
+  content: ""; }
+
+.fa-xing-square:before {
+  content: ""; }
+
+.fa-youtube-play:before {
+  content: ""; }
+
+.fa-dropbox:before {
+  content: ""; }
+
+.fa-stack-overflow:before {
+  content: ""; }
+
+.fa-instagram:before {
+  content: ""; }
+
+.fa-flickr:before {
+  content: ""; }
+
+.fa-adn:before {
+  content: ""; }
+
+.fa-bitbucket:before {
+  content: ""; }
+
+.fa-bitbucket-square:before {
+  content: ""; }
+
+.fa-tumblr:before {
+  content: ""; }
+
+.fa-tumblr-square:before {
+  content: ""; }
+
+.fa-long-arrow-down:before {
+  content: ""; }
+
+.fa-long-arrow-up:before {
+  content: ""; }
+
+.fa-long-arrow-left:before {
+  content: ""; }
+
+.fa-long-arrow-right:before {
+  content: ""; }
+
+.fa-apple:before {
+  content: ""; }
+
+.fa-windows:before {
+  content: ""; }
+
+.fa-android:before {
+  content: ""; }
+
+.fa-linux:before {
+  content: ""; }
+
+.fa-dribbble:before {
+  content: ""; }
+
+.fa-skype:before {
+  content: ""; }
+
+.fa-foursquare:before {
+  content: ""; }
+
+.fa-trello:before {
+  content: ""; }
+
+.fa-female:before {
+  content: ""; }
+
+.fa-male:before {
+  content: ""; }
+
+.fa-gittip:before,
+.fa-gratipay:before {
+  content: ""; }
+
+.fa-sun-o:before {
+  content: ""; }
+
+.fa-moon-o:before {
+  content: ""; }
+
+.fa-archive:before {
+  content: ""; }
+
+.fa-bug:before {
+  content: ""; }
+
+.fa-vk:before {
+  content: ""; }
+
+.fa-weibo:before {
+  content: ""; }
+
+.fa-renren:before {
+  content: ""; }
+
+.fa-pagelines:before {
+  content: ""; }
+
+.fa-stack-exchange:before {
+  content: ""; }
+
+.fa-arrow-circle-o-right:before {
+  content: ""; }
+
+.fa-arrow-circle-o-left:before {
+  content: ""; }
+
+.fa-toggle-left:before,
+.fa-caret-square-o-left:before {
+  content: ""; }
+
+.fa-dot-circle-o:before {
+  content: ""; }
+
+.fa-wheelchair:before {
+  content: ""; }
+
+.fa-vimeo-square:before {
+  content: ""; }
+
+.fa-turkish-lira:before,
+.fa-try:before {
+  content: ""; }
+
+.fa-plus-square-o:before {
+  content: ""; }
+
+.fa-space-shuttle:before {
+  content: ""; }
+
+.fa-slack:before {
+  content: ""; }
+
+.fa-envelope-square:before {
+  content: ""; }
+
+.fa-wordpress:before {
+  content: ""; }
+
+.fa-openid:before {
+  content: ""; }
+
+.fa-institution:before,
+.fa-bank:before,
+.fa-university:before {
+  content: ""; }
+
+.fa-mortar-board:before,
+.fa-graduation-cap:before {
+  content: ""; }
+
+.fa-yahoo:before {
+  content: ""; }
+
+.fa-google:before {
+  content: ""; }
+
+.fa-reddit:before {
+  content: ""; }
+
+.fa-reddit-square:before {
+  content: ""; }
+
+.fa-stumbleupon-circle:before {
+  content: ""; }
+
+.fa-stumbleupon:before {
+  content: ""; }
+
+.fa-delicious:before {
+  content: ""; }
+
+.fa-digg:before {
+  content: ""; }
+
+.fa-pied-piper-pp:before {
+  content: ""; }
+
+.fa-pied-piper-alt:before {
+  content: ""; }
+
+.fa-drupal:before {
+  content: ""; }
+
+.fa-joomla:before {
+  content: ""; }
+
+.fa-language:before {
+  content: ""; }
+
+.fa-fax:before {
+  content: ""; }
+
+.fa-building:before {
+  content: ""; }
+
+.fa-child:before {
+  content: ""; }
+
+.fa-paw:before {
+  content: ""; }
+
+.fa-spoon:before {
+  content: ""; }
+
+.fa-cube:before {
+  content: ""; }
+
+.fa-cubes:before {
+  content: ""; }
+
+.fa-behance:before {
+  content: ""; }
+
+.fa-behance-square:before {
+  content: ""; }
+
+.fa-steam:before {
+  content: ""; }
+
+.fa-steam-square:before {
+  content: ""; }
+
+.fa-recycle:before {
+  content: ""; }
+
+.fa-automobile:before,
+.fa-car:before {
+  content: ""; }
+
+.fa-cab:before,
+.fa-taxi:before {
+  content: ""; }
+
+.fa-tree:before {
+  content: ""; }
+
+.fa-spotify:before {
+  content: ""; }
+
+.fa-deviantart:before {
+  content: ""; }
+
+.fa-soundcloud:before {
+  content: ""; }
+
+.fa-database:before {
+  content: ""; }
+
+.fa-file-pdf-o:before {
+  content: ""; }
+
+.fa-file-word-o:before {
+  content: ""; }
+
+.fa-file-excel-o:before {
+  content: ""; }
+
+.fa-file-powerpoint-o:before {
+  content: ""; }
+
+.fa-file-photo-o:before,
+.fa-file-picture-o:before,
+.fa-file-image-o:before {
+  content: ""; }
+
+.fa-file-zip-o:before,
+.fa-file-archive-o:before {
+  content: ""; }
+
+.fa-file-sound-o:before,
+.fa-file-audio-o:before {
+  content: ""; }
+
+.fa-file-movie-o:before,
+.fa-file-video-o:before {
+  content: ""; }
+
+.fa-file-code-o:before {
+  content: ""; }
+
+.fa-vine:before {
+  content: ""; }
+
+.fa-codepen:before {
+  content: ""; }
+
+.fa-jsfiddle:before {
+  content: ""; }
+
+.fa-life-bouy:before,
+.fa-life-buoy:before,
+.fa-life-saver:before,
+.fa-support:before,
+.fa-life-ring:before {
+  content: ""; }
+
+.fa-circle-o-notch:before {
+  content: ""; }
+
+.fa-ra:before,
+.fa-resistance:before,
+.fa-rebel:before {
+  content: ""; }
+
+.fa-ge:before,
+.fa-empire:before {
+  content: ""; }
+
+.fa-git-square:before {
+  content: ""; }
+
+.fa-git:before {
+  content: ""; }
+
+.fa-y-combinator-square:before,
+.fa-yc-square:before,
+.fa-hacker-news:before {
+  content: ""; }
+
+.fa-tencent-weibo:before {
+  content: ""; }
+
+.fa-qq:before {
+  content: ""; }
+
+.fa-wechat:before,
+.fa-weixin:before {
+  content: ""; }
+
+.fa-send:before,
+.fa-paper-plane:before {
+  content: ""; }
+
+.fa-send-o:before,
+.fa-paper-plane-o:before {
+  content: ""; }
+
+.fa-history:before {
+  content: ""; }
+
+.fa-circle-thin:before {
+  content: ""; }
+
+.fa-header:before {
+  content: ""; }
+
+.fa-paragraph:before {
+  content: ""; }
+
+.fa-sliders:before {
+  content: ""; }
+
+.fa-share-alt:before {
+  content: ""; }
+
+.fa-share-alt-square:before {
+  content: ""; }
+
+.fa-bomb:before {
+  content: ""; }
+
+.fa-soccer-ball-o:before,
+.fa-futbol-o:before {
+  content: ""; }
+
+.fa-tty:before {
+  content: ""; }
+
+.fa-binoculars:before {
+  content: ""; }
+
+.fa-plug:before {
+  content: ""; }
+
+.fa-slideshare:before {
+  content: ""; }
+
+.fa-twitch:before {
+  content: ""; }
+
+.fa-yelp:before {
+  content: ""; }
+
+.fa-newspaper-o:before {
+  content: ""; }
+
+.fa-wifi:before {
+  content: ""; }
+
+.fa-calculator:before {
+  content: ""; }
+
+.fa-paypal:before {
+  content: ""; }
+
+.fa-google-wallet:before {
+  content: ""; }
+
+.fa-cc-visa:before {
+  content: ""; }
+
+.fa-cc-mastercard:before {
+  content: ""; }
+
+.fa-cc-discover:before {
+  content: ""; }
+
+.fa-cc-amex:before {
+  content: ""; }
+
+.fa-cc-paypal:before {
+  content: ""; }
+
+.fa-cc-stripe:before {
+  content: ""; }
+
+.fa-bell-slash:before {
+  content: ""; }
+
+.fa-bell-slash-o:before {
+  content: ""; }
+
+.fa-trash:before {
+  content: ""; }
+
+.fa-copyright:before {
+  content: ""; }
+
+.fa-at:before {
+  content: ""; }
+
+.fa-eyedropper:before {
+  content: ""; }
+
+.fa-paint-brush:before {
+  content: ""; }
+
+.fa-birthday-cake:before {
+  content: ""; }
+
+.fa-area-chart:before {
+  content: ""; }
+
+.fa-pie-chart:before {
+  content: ""; }
+
+.fa-line-chart:before {
+  content: ""; }
+
+.fa-lastfm:before {
+  content: ""; }
+
+.fa-lastfm-square:before {
+  content: ""; }
+
+.fa-toggle-off:before {
+  content: ""; }
+
+.fa-toggle-on:before {
+  content: ""; }
+
+.fa-bicycle:before {
+  content: ""; }
+
+.fa-bus:before {
+  content: ""; }
+
+.fa-ioxhost:before {
+  content: ""; }
+
+.fa-angellist:before {
+  content: ""; }
+
+.fa-cc:before {
+  content: ""; }
+
+.fa-shekel:before,
+.fa-sheqel:before,
+.fa-ils:before {
+  content: ""; }
+
+.fa-meanpath:before {
+  content: ""; }
+
+.fa-buysellads:before {
+  content: ""; }
+
+.fa-connectdevelop:before {
+  content: ""; }
+
+.fa-dashcube:before {
+  content: ""; }
+
+.fa-forumbee:before {
+  content: ""; }
+
+.fa-leanpub:before {
+  content: ""; }
+
+.fa-sellsy:before {
+  content: ""; }
+
+.fa-shirtsinbulk:before {
+  content: ""; }
+
+.fa-simplybuilt:before {
+  content: ""; }
+
+.fa-skyatlas:before {
+  content: ""; }
+
+.fa-cart-plus:before {
+  content: ""; }
+
+.fa-cart-arrow-down:before {
+  content: ""; }
+
+.fa-diamond:before {
+  content: ""; }
+
+.fa-ship:before {
+  content: ""; }
+
+.fa-user-secret:before {
+  content: ""; }
+
+.fa-motorcycle:before {
+  content: ""; }
+
+.fa-street-view:before {
+  content: ""; }
+
+.fa-heartbeat:before {
+  content: ""; }
+
+.fa-venus:before {
+  content: ""; }
+
+.fa-mars:before {
+  content: ""; }
+
+.fa-mercury:before {
+  content: ""; }
+
+.fa-intersex:before,
+.fa-transgender:before {
+  content: ""; }
+
+.fa-transgender-alt:before {
+  content: ""; }
+
+.fa-venus-double:before {
+  content: ""; }
+
+.fa-mars-double:before {
+  content: ""; }
+
+.fa-venus-mars:before {
+  content: ""; }
+
+.fa-mars-stroke:before {
+  content: ""; }
+
+.fa-mars-stroke-v:before {
+  content: ""; }
+
+.fa-mars-stroke-h:before {
+  content: ""; }
+
+.fa-neuter:before {
+  content: ""; }
+
+.fa-genderless:before {
+  content: ""; }
+
+.fa-facebook-official:before {
+  content: ""; }
+
+.fa-pinterest-p:before {
+  content: ""; }
+
+.fa-whatsapp:before {
+  content: ""; }
+
+.fa-server:before {
+  content: ""; }
+
+.fa-user-plus:before {
+  content: ""; }
+
+.fa-user-times:before {
+  content: ""; }
+
+.fa-hotel:before,
+.fa-bed:before {
+  content: ""; }
+
+.fa-viacoin:before {
+  content: ""; }
+
+.fa-train:before {
+  content: ""; }
+
+.fa-subway:before {
+  content: ""; }
+
+.fa-medium:before {
+  content: ""; }
+
+.fa-yc:before,
+.fa-y-combinator:before {
+  content: ""; }
+
+.fa-optin-monster:before {
+  content: ""; }
+
+.fa-opencart:before {
+  content: ""; }
+
+.fa-expeditedssl:before {
+  content: ""; }
+
+.fa-battery-4:before,
+.fa-battery:before,
+.fa-battery-full:before {
+  content: ""; }
+
+.fa-battery-3:before,
+.fa-battery-three-quarters:before {
+  content: ""; }
+
+.fa-battery-2:before,
+.fa-battery-half:before {
+  content: ""; }
+
+.fa-battery-1:before,
+.fa-battery-quarter:before {
+  content: ""; }
+
+.fa-battery-0:before,
+.fa-battery-empty:before {
+  content: ""; }
+
+.fa-mouse-pointer:before {
+  content: ""; }
+
+.fa-i-cursor:before {
+  content: ""; }
+
+.fa-object-group:before {
+  content: ""; }
+
+.fa-object-ungroup:before {
+  content: ""; }
+
+.fa-sticky-note:before {
+  content: ""; }
+
+.fa-sticky-note-o:before {
+  content: ""; }
+
+.fa-cc-jcb:before {
+  content: ""; }
+
+.fa-cc-diners-club:before {
+  content: ""; }
+
+.fa-clone:before {
+  content: ""; }
+
+.fa-balance-scale:before {
+  content: ""; }
+
+.fa-hourglass-o:before {
+  content: ""; }
+
+.fa-hourglass-1:before,
+.fa-hourglass-start:before {
+  content: ""; }
+
+.fa-hourglass-2:before,
+.fa-hourglass-half:before {
+  content: ""; }
+
+.fa-hourglass-3:before,
+.fa-hourglass-end:before {
+  content: ""; }
+
+.fa-hourglass:before {
+  content: ""; }
+
+.fa-hand-grab-o:before,
+.fa-hand-rock-o:before {
+  content: ""; }
+
+.fa-hand-stop-o:before,
+.fa-hand-paper-o:before {
+  content: ""; }
+
+.fa-hand-scissors-o:before {
+  content: ""; }
+
+.fa-hand-lizard-o:before {
+  content: ""; }
+
+.fa-hand-spock-o:before {
+  content: ""; }
+
+.fa-hand-pointer-o:before {
+  content: ""; }
+
+.fa-hand-peace-o:before {
+  content: ""; }
+
+.fa-trademark:before {
+  content: ""; }
+
+.fa-registered:before {
+  content: ""; }
+
+.fa-creative-commons:before {
+  content: ""; }
+
+.fa-gg:before {
+  content: ""; }
+
+.fa-gg-circle:before {
+  content: ""; }
+
+.fa-tripadvisor:before {
+  content: ""; }
+
+.fa-odnoklassniki:before {
+  content: ""; }
+
+.fa-odnoklassniki-square:before {
+  content: ""; }
+
+.fa-get-pocket:before {
+  content: ""; }
+
+.fa-wikipedia-w:before {
+  content: ""; }
+
+.fa-safari:before {
+  content: ""; }
+
+.fa-chrome:before {
+  content: ""; }
+
+.fa-firefox:before {
+  content: ""; }
+
+.fa-opera:before {
+  content: ""; }
+
+.fa-internet-explorer:before {
+  content: ""; }
+
+.fa-tv:before,
+.fa-television:before {
+  content: ""; }
+
+.fa-contao:before {
+  content: ""; }
+
+.fa-500px:before {
+  content: ""; }
+
+.fa-amazon:before {
+  content: ""; }
+
+.fa-calendar-plus-o:before {
+  content: ""; }
+
+.fa-calendar-minus-o:before {
+  content: ""; }
+
+.fa-calendar-times-o:before {
+  content: ""; }
+
+.fa-calendar-check-o:before {
+  content: ""; }
+
+.fa-industry:before {
+  content: ""; }
+
+.fa-map-pin:before {
+  content: ""; }
+
+.fa-map-signs:before {
+  content: ""; }
+
+.fa-map-o:before {
+  content: ""; }
+
+.fa-map:before {
+  content: ""; }
+
+.fa-commenting:before {
+  content: ""; }
+
+.fa-commenting-o:before {
+  content: ""; }
+
+.fa-houzz:before {
+  content: ""; }
+
+.fa-vimeo:before {
+  content: ""; }
+
+.fa-black-tie:before {
+  content: ""; }
+
+.fa-fonticons:before {
+  content: ""; }
+
+.fa-reddit-alien:before {
+  content: ""; }
+
+.fa-edge:before {
+  content: ""; }
+
+.fa-credit-card-alt:before {
+  content: ""; }
+
+.fa-codiepie:before {
+  content: ""; }
+
+.fa-modx:before {
+  content: ""; }
+
+.fa-fort-awesome:before {
+  content: ""; }
+
+.fa-usb:before {
+  content: ""; }
+
+.fa-product-hunt:before {
+  content: ""; }
+
+.fa-mixcloud:before {
+  content: ""; }
+
+.fa-scribd:before {
+  content: ""; }
+
+.fa-pause-circle:before {
+  content: ""; }
+
+.fa-pause-circle-o:before {
+  content: ""; }
+
+.fa-stop-circle:before {
+  content: ""; }
+
+.fa-stop-circle-o:before {
+  content: ""; }
+
+.fa-shopping-bag:before {
+  content: ""; }
+
+.fa-shopping-basket:before {
+  content: ""; }
+
+.fa-hashtag:before {
+  content: ""; }
+
+.fa-bluetooth:before {
+  content: ""; }
+
+.fa-bluetooth-b:before {
+  content: ""; }
+
+.fa-percent:before {
+  content: ""; }
+
+.fa-gitlab:before {
+  content: ""; }
+
+.fa-wpbeginner:before {
+  content: ""; }
+
+.fa-wpforms:before {
+  content: ""; }
+
+.fa-envira:before {
+  content: ""; }
+
+.fa-universal-access:before {
+  content: ""; }
+
+.fa-wheelchair-alt:before {
+  content: ""; }
+
+.fa-question-circle-o:before {
+  content: ""; }
+
+.fa-blind:before {
+  content: ""; }
+
+.fa-audio-description:before {
+  content: ""; }
+
+.fa-volume-control-phone:before {
+  content: ""; }
+
+.fa-braille:before {
+  content: ""; }
+
+.fa-assistive-listening-systems:before {
+  content: ""; }
+
+.fa-asl-interpreting:before,
+.fa-american-sign-language-interpreting:before {
+  content: ""; }
+
+.fa-deafness:before,
+.fa-hard-of-hearing:before,
+.fa-deaf:before {
+  content: ""; }
+
+.fa-glide:before {
+  content: ""; }
+
+.fa-glide-g:before {
+  content: ""; }
+
+.fa-signing:before,
+.fa-sign-language:before {
+  content: ""; }
+
+.fa-low-vision:before {
+  content: ""; }
+
+.fa-viadeo:before {
+  content: ""; }
+
+.fa-viadeo-square:before {
+  content: ""; }
+
+.fa-snapchat:before {
+  content: ""; }
+
+.fa-snapchat-ghost:before {
+  content: ""; }
+
+.fa-snapchat-square:before {
+  content: ""; }
+
+.fa-pied-piper:before {
+  content: ""; }
+
+.fa-first-order:before {
+  content: ""; }
+
+.fa-yoast:before {
+  content: ""; }
+
+.fa-themeisle:before {
+  content: ""; }
+
+.fa-google-plus-circle:before,
+.fa-google-plus-official:before {
+  content: ""; }
+
+.fa-fa:before,
+.fa-font-awesome:before {
+  content: ""; }
+
+.fa-handshake-o:before {
+  content: ""; }
+
+.fa-envelope-open:before {
+  content: ""; }
+
+.fa-envelope-open-o:before {
+  content: ""; }
+
+.fa-linode:before {
+  content: ""; }
+
+.fa-address-book:before {
+  content: ""; }
+
+.fa-address-book-o:before {
+  content: ""; }
+
+.fa-vcard:before,
+.fa-address-card:before {
+  content: ""; }
+
+.fa-vcard-o:before,
+.fa-address-card-o:before {
+  content: ""; }
+
+.fa-user-circle:before {
+  content: ""; }
+
+.fa-user-circle-o:before {
+  content: ""; }
+
+.fa-user-o:before {
+  content: ""; }
+
+.fa-id-badge:before {
+  content: ""; }
+
+.fa-drivers-license:before,
+.fa-id-card:before {
+  content: ""; }
+
+.fa-drivers-license-o:before,
+.fa-id-card-o:before {
+  content: ""; }
+
+.fa-quora:before {
+  content: ""; }
+
+.fa-free-code-camp:before {
+  content: ""; }
+
+.fa-telegram:before {
+  content: ""; }
+
+.fa-thermometer-4:before,
+.fa-thermometer:before,
+.fa-thermometer-full:before {
+  content: ""; }
+
+.fa-thermometer-3:before,
+.fa-thermometer-three-quarters:before {
+  content: ""; }
+
+.fa-thermometer-2:before,
+.fa-thermometer-half:before {
+  content: ""; }
+
+.fa-thermometer-1:before,
+.fa-thermometer-quarter:before {
+  content: ""; }
+
+.fa-thermometer-0:before,
+.fa-thermometer-empty:before {
+  content: ""; }
+
+.fa-shower:before {
+  content: ""; }
+
+.fa-bathtub:before,
+.fa-s15:before,
+.fa-bath:before {
+  content: ""; }
+
+.fa-podcast:before {
+  content: ""; }
+
+.fa-window-maximize:before {
+  content: ""; }
+
+.fa-window-minimize:before {
+  content: ""; }
+
+.fa-window-restore:before {
+  content: ""; }
+
+.fa-times-rectangle:before,
+.fa-window-close:before {
+  content: ""; }
+
+.fa-times-rectangle-o:before,
+.fa-window-close-o:before {
+  content: ""; }
+
+.fa-bandcamp:before {
+  content: ""; }
+
+.fa-grav:before {
+  content: ""; }
+
+.fa-etsy:before {
+  content: ""; }
+
+.fa-imdb:before {
+  content: ""; }
+
+.fa-ravelry:before {
+  content: ""; }
+
+.fa-eercast:before {
+  content: ""; }
+
+.fa-microchip:before {
+  content: ""; }
+
+.fa-snowflake-o:before {
+  content: ""; }
+
+.fa-superpowers:before {
+  content: ""; }
+
+.fa-wpexplorer:before {
+  content: ""; }
+
+.fa-meetup:before {
+  content: ""; }
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0; }
+
+.sr-only-focusable:active, .sr-only-focusable:focus {
+  position: static;
+  width: auto;
+  height: auto;
+  margin: 0;
+  overflow: visible;
+  clip: auto; }
+
+/* Text Helpers */
+.strong {
+  font-weight: bold !important; }
+
+.sTxt {
+  font-weight: bold !important;
+  color: #337ab7; }
+
+.wrapWord {
+  word-wrap: break-word; }
+
+.scrollContainer {
+  overflow-y: auto; }
+
+/* Layout Helpers */
+.block {
+  display: block; }
+
+.samePage {
+  page-break-inside: avoid; }
+
+/* Margin Helpers */
+.top5 {
+  margin-top: 5px; }
+
+.top10 {
+  margin-top: 10px; }
+
+.top15 {
+  margin-top: 15px; }
+
+.top20 {
+  margin-top: 20px; }
+
+.top25 {
+  margin-top: 25px; }
+
+.top30 {
+  margin-top: 30px; }
+
+.top50 {
+  margin-top: 50px; }
+
+.top75 {
+  margin-top: 75px; }
+
+.top100 {
+  margin-top: 100px; }
+
+.bottom5 {
+  margin-bottom: 5px; }
+
+.bottom10 {
+  margin-bottom: 10px; }
+
+.bottom15 {
+  margin-bottom: 15px; }
+
+.bottom20 {
+  margin-bottom: 20px; }
+
+.bottom25 {
+  margin-bottom: 25px; }
+
+.bottom30 {
+  margin-bottom: 30px; }
+
+.bottom50 {
+  margin-bottom: 50px; }
+
+.bottom75 {
+  margin-bottom: 75px; }
+
+.bottom100 {
+  margin-bottom: 100px; }
+
+.left5 {
+  margin-left: 5px; }
+
+.left10 {
+  margin-left: 10px; }
+
+.right5 {
+  margin-right: 5px; }
+
+.right10 {
+  margin-right: 10px; }
+
+/*
+ * Table styles
+ */
+table.dataTable {
+  width: 100%;
+  margin: 0 auto;
+  clear: both;
+  border-collapse: separate;
+  border-spacing: 0;
+  /*
+   * Header and footer styles
+   */
+  /*
+   * Body styles
+   */ }
+  table.dataTable thead th,
+  table.dataTable tfoot th {
+    font-weight: bold; }
+  table.dataTable thead th,
+  table.dataTable thead td {
+    padding: 10px 18px;
+    border-bottom: 1px solid #111; }
+    table.dataTable thead th:active,
+    table.dataTable thead td:active {
+      outline: none; }
+  table.dataTable tfoot th,
+  table.dataTable tfoot td {
+    padding: 10px 18px 6px 18px;
+    border-top: 1px solid #111; }
+  table.dataTable thead .sorting,
+  table.dataTable thead .sorting_asc,
+  table.dataTable thead .sorting_desc,
+  table.dataTable thead .sorting_asc_disabled,
+  table.dataTable thead .sorting_desc_disabled {
+    cursor: pointer;
+    *cursor: hand;
+    background-repeat: no-repeat;
+    background-position: center right; }
+  table.dataTable thead .sorting {
+    background-image: url("../images/sort_both.png"); }
+  table.dataTable thead .sorting_asc {
+    background-image: url("../images/sort_asc.png"); }
+  table.dataTable thead .sorting_desc {
+    background-image: url("../images/sort_desc.png"); }
+  table.dataTable thead .sorting_asc_disabled {
+    background-image: url("../images/sort_asc_disabled.png"); }
+  table.dataTable thead .sorting_desc_disabled {
+    background-image: url("../images/sort_desc_disabled.png"); }
+  table.dataTable tbody tr {
+    background-color: #ffffff; }
+    table.dataTable tbody tr.selected {
+      background-color: #B0BED9; }
+  table.dataTable tbody th,
+  table.dataTable tbody td {
+    padding: 8px 10px; }
+  table.dataTable.row-border tbody th, table.dataTable.row-border tbody td, table.dataTable.display tbody th, table.dataTable.display tbody td {
+    border-top: 1px solid #ddd; }
+  table.dataTable.row-border tbody tr:first-child th,
+  table.dataTable.row-border tbody tr:first-child td, table.dataTable.display tbody tr:first-child th,
+  table.dataTable.display tbody tr:first-child td {
+    border-top: none; }
+  table.dataTable.cell-border tbody th, table.dataTable.cell-border tbody td {
+    border-top: 1px solid #ddd;
+    border-right: 1px solid #ddd; }
+  table.dataTable.cell-border tbody tr th:first-child,
+  table.dataTable.cell-border tbody tr td:first-child {
+    border-left: 1px solid #ddd; }
+  table.dataTable.cell-border tbody tr:first-child th,
+  table.dataTable.cell-border tbody tr:first-child td {
+    border-top: none; }
+  table.dataTable.stripe tbody tr.odd, table.dataTable.display tbody tr.odd {
+    background-color: #f9f9f9; }
+    table.dataTable.stripe tbody tr.odd.selected, table.dataTable.display tbody tr.odd.selected {
+      background-color: #acbad4; }
+  table.dataTable.hover tbody tr:hover, table.dataTable.display tbody tr:hover {
+    background-color: #f6f6f6; }
+    table.dataTable.hover tbody tr:hover.selected, table.dataTable.display tbody tr:hover.selected {
+      background-color: #aab7d1; }
+  table.dataTable.order-column tbody tr > .sorting_1,
+  table.dataTable.order-column tbody tr > .sorting_2,
+  table.dataTable.order-column tbody tr > .sorting_3, table.dataTable.display tbody tr > .sorting_1,
+  table.dataTable.display tbody tr > .sorting_2,
+  table.dataTable.display tbody tr > .sorting_3 {
+    background-color: #fafafa; }
+  table.dataTable.order-column tbody tr.selected > .sorting_1,
+  table.dataTable.order-column tbody tr.selected > .sorting_2,
+  table.dataTable.order-column tbody tr.selected > .sorting_3, table.dataTable.display tbody tr.selected > .sorting_1,
+  table.dataTable.display tbody tr.selected > .sorting_2,
+  table.dataTable.display tbody tr.selected > .sorting_3 {
+    background-color: #acbad5; }
+  table.dataTable.display tbody tr.odd > .sorting_1, table.dataTable.order-column.stripe tbody tr.odd > .sorting_1 {
+    background-color: #f1f1f1; }
+  table.dataTable.display tbody tr.odd > .sorting_2, table.dataTable.order-column.stripe tbody tr.odd > .sorting_2 {
+    background-color: #f3f3f3; }
+  table.dataTable.display tbody tr.odd > .sorting_3, table.dataTable.order-column.stripe tbody tr.odd > .sorting_3 {
+    background-color: whitesmoke; }
+  table.dataTable.display tbody tr.odd.selected > .sorting_1, table.dataTable.order-column.stripe tbody tr.odd.selected > .sorting_1 {
+    background-color: #a6b4cd; }
+  table.dataTable.display tbody tr.odd.selected > .sorting_2, table.dataTable.order-column.stripe tbody tr.odd.selected > .sorting_2 {
+    background-color: #a8b5cf; }
+  table.dataTable.display tbody tr.odd.selected > .sorting_3, table.dataTable.order-column.stripe tbody tr.odd.selected > .sorting_3 {
+    background-color: #a9b7d1; }
+  table.dataTable.display tbody tr.even > .sorting_1, table.dataTable.order-column.stripe tbody tr.even > .sorting_1 {
+    background-color: #fafafa; }
+  table.dataTable.display tbody tr.even > .sorting_2, table.dataTable.order-column.stripe tbody tr.even > .sorting_2 {
+    background-color: #fcfcfc; }
+  table.dataTable.display tbody tr.even > .sorting_3, table.dataTable.order-column.stripe tbody tr.even > .sorting_3 {
+    background-color: #fefefe; }
+  table.dataTable.display tbody tr.even.selected > .sorting_1, table.dataTable.order-column.stripe tbody tr.even.selected > .sorting_1 {
+    background-color: #acbad5; }
+  table.dataTable.display tbody tr.even.selected > .sorting_2, table.dataTable.order-column.stripe tbody tr.even.selected > .sorting_2 {
+    background-color: #aebcd6; }
+  table.dataTable.display tbody tr.even.selected > .sorting_3, table.dataTable.order-column.stripe tbody tr.even.selected > .sorting_3 {
+    background-color: #afbdd8; }
+  table.dataTable.display tbody tr:hover > .sorting_1, table.dataTable.order-column.hover tbody tr:hover > .sorting_1 {
+    background-color: #eaeaea; }
+  table.dataTable.display tbody tr:hover > .sorting_2, table.dataTable.order-column.hover tbody tr:hover > .sorting_2 {
+    background-color: #ececec; }
+  table.dataTable.display tbody tr:hover > .sorting_3, table.dataTable.order-column.hover tbody tr:hover > .sorting_3 {
+    background-color: #efefef; }
+  table.dataTable.display tbody tr:hover.selected > .sorting_1, table.dataTable.order-column.hover tbody tr:hover.selected > .sorting_1 {
+    background-color: #a2aec7; }
+  table.dataTable.display tbody tr:hover.selected > .sorting_2, table.dataTable.order-column.hover tbody tr:hover.selected > .sorting_2 {
+    background-color: #a3b0c9; }
+  table.dataTable.display tbody tr:hover.selected > .sorting_3, table.dataTable.order-column.hover tbody tr:hover.selected > .sorting_3 {
+    background-color: #a5b2cb; }
+  table.dataTable.no-footer {
+    border-bottom: 1px solid #111; }
+  table.dataTable.nowrap th, table.dataTable.nowrap td {
+    white-space: nowrap; }
+  table.dataTable.compact thead th,
+  table.dataTable.compact thead td {
+    padding: 4px 17px 4px 4px; }
+  table.dataTable.compact tfoot th,
+  table.dataTable.compact tfoot td {
+    padding: 4px; }
+  table.dataTable.compact tbody th,
+  table.dataTable.compact tbody td {
+    padding: 4px; }
+  table.dataTable th.dt-left,
+  table.dataTable td.dt-left {
+    text-align: left; }
+  table.dataTable th.dt-center,
+  table.dataTable td.dt-center,
+  table.dataTable td.dataTables_empty {
+    text-align: center; }
+  table.dataTable th.dt-right,
+  table.dataTable td.dt-right {
+    text-align: right; }
+  table.dataTable th.dt-justify,
+  table.dataTable td.dt-justify {
+    text-align: justify; }
+  table.dataTable th.dt-nowrap,
+  table.dataTable td.dt-nowrap {
+    white-space: nowrap; }
+  table.dataTable thead th.dt-head-left,
+  table.dataTable thead td.dt-head-left,
+  table.dataTable tfoot th.dt-head-left,
+  table.dataTable tfoot td.dt-head-left {
+    text-align: left; }
+  table.dataTable thead th.dt-head-center,
+  table.dataTable thead td.dt-head-center,
+  table.dataTable tfoot th.dt-head-center,
+  table.dataTable tfoot td.dt-head-center {
+    text-align: center; }
+  table.dataTable thead th.dt-head-right,
+  table.dataTable thead td.dt-head-right,
+  table.dataTable tfoot th.dt-head-right,
+  table.dataTable tfoot td.dt-head-right {
+    text-align: right; }
+  table.dataTable thead th.dt-head-justify,
+  table.dataTable thead td.dt-head-justify,
+  table.dataTable tfoot th.dt-head-justify,
+  table.dataTable tfoot td.dt-head-justify {
+    text-align: justify; }
+  table.dataTable thead th.dt-head-nowrap,
+  table.dataTable thead td.dt-head-nowrap,
+  table.dataTable tfoot th.dt-head-nowrap,
+  table.dataTable tfoot td.dt-head-nowrap {
+    white-space: nowrap; }
+  table.dataTable tbody th.dt-body-left,
+  table.dataTable tbody td.dt-body-left {
+    text-align: left; }
+  table.dataTable tbody th.dt-body-center,
+  table.dataTable tbody td.dt-body-center {
+    text-align: center; }
+  table.dataTable tbody th.dt-body-right,
+  table.dataTable tbody td.dt-body-right {
+    text-align: right; }
+  table.dataTable tbody th.dt-body-justify,
+  table.dataTable tbody td.dt-body-justify {
+    text-align: justify; }
+  table.dataTable tbody th.dt-body-nowrap,
+  table.dataTable tbody td.dt-body-nowrap {
+    white-space: nowrap; }
+
+table.dataTable,
+table.dataTable th,
+table.dataTable td {
+  box-sizing: content-box; }
+
+/*
+ * Control feature layout
+ */
+.dataTables_wrapper {
+  position: relative;
+  clear: both;
+  *zoom: 1;
+  zoom: 1; }
+  .dataTables_wrapper .dataTables_length {
+    float: left; }
+  .dataTables_wrapper .dataTables_filter {
+    float: right;
+    text-align: right; }
+    .dataTables_wrapper .dataTables_filter input {
+      margin-left: 0.5em; }
+  .dataTables_wrapper .dataTables_info {
+    clear: both;
+    float: left;
+    padding-top: 0.755em; }
+  .dataTables_wrapper .dataTables_paginate {
+    float: right;
+    text-align: right;
+    padding-top: 0.25em; }
+    .dataTables_wrapper .dataTables_paginate .paginate_button {
+      box-sizing: border-box;
+      display: inline-block;
+      min-width: 1.5em;
+      padding: 0.5em 1em;
+      margin-left: 2px;
+      text-align: center;
+      text-decoration: none !important;
+      cursor: pointer;
+      *cursor: hand;
+      color: #333 !important;
+      border: 1px solid transparent;
+      border-radius: 2px; }
+      .dataTables_wrapper .dataTables_paginate .paginate_button.current, .dataTables_wrapper .dataTables_paginate .paginate_button.current:hover {
+        color: #333 !important;
+        border: 1px solid #979797;
+        background-color: white;
+        background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, white), color-stop(100%, #dcdcdc));
+        /* Chrome,Safari4+ */
+        background: -webkit-linear-gradient(top, white 0%, #dcdcdc 100%);
+        /* Chrome10+,Safari5.1+ */
+        background: -moz-linear-gradient(top, white 0%, #dcdcdc 100%);
+        /* FF3.6+ */
+        background: -ms-linear-gradient(top, white 0%, #dcdcdc 100%);
+        /* IE10+ */
+        background: -o-linear-gradient(top, white 0%, #dcdcdc 100%);
+        /* Opera 11.10+ */
+        background: linear-gradient(to bottom, white 0%, #dcdcdc 100%);
+        /* W3C */ }
+      .dataTables_wrapper .dataTables_paginate .paginate_button.disabled, .dataTables_wrapper .dataTables_paginate .paginate_button.disabled:hover, .dataTables_wrapper .dataTables_paginate .paginate_button.disabled:active {
+        cursor: default;
+        color: #666 !important;
+        border: 1px solid transparent;
+        background: transparent;
+        box-shadow: none; }
+      .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+        color: white !important;
+        border: 1px solid #111;
+        background-color: #585858;
+        background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #585858), color-stop(100%, #111));
+        /* Chrome,Safari4+ */
+        background: -webkit-linear-gradient(top, #585858 0%, #111 100%);
+        /* Chrome10+,Safari5.1+ */
+        background: -moz-linear-gradient(top, #585858 0%, #111 100%);
+        /* FF3.6+ */
+        background: -ms-linear-gradient(top, #585858 0%, #111 100%);
+        /* IE10+ */
+        background: -o-linear-gradient(top, #585858 0%, #111 100%);
+        /* Opera 11.10+ */
+        background: linear-gradient(to bottom, #585858 0%, #111 100%);
+        /* W3C */ }
+      .dataTables_wrapper .dataTables_paginate .paginate_button:active {
+        outline: none;
+        background-color: #2b2b2b;
+        background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #2b2b2b), color-stop(100%, #0c0c0c));
+        /* Chrome,Safari4+ */
+        background: -webkit-linear-gradient(top, #2b2b2b 0%, #0c0c0c 100%);
+        /* Chrome10+,Safari5.1+ */
+        background: -moz-linear-gradient(top, #2b2b2b 0%, #0c0c0c 100%);
+        /* FF3.6+ */
+        background: -ms-linear-gradient(top, #2b2b2b 0%, #0c0c0c 100%);
+        /* IE10+ */
+        background: -o-linear-gradient(top, #2b2b2b 0%, #0c0c0c 100%);
+        /* Opera 11.10+ */
+        background: linear-gradient(to bottom, #2b2b2b 0%, #0c0c0c 100%);
+        /* W3C */
+        box-shadow: inset 0 0 3px #111; }
+    .dataTables_wrapper .dataTables_paginate .ellipsis {
+      padding: 0 1em; }
+  .dataTables_wrapper .dataTables_processing {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 100%;
+    height: 40px;
+    margin-left: -50%;
+    margin-top: -25px;
+    padding-top: 20px;
+    text-align: center;
+    font-size: 1.2em;
+    background-color: white;
+    background: -webkit-gradient(linear, left top, right top, color-stop(0%, rgba(255, 255, 255, 0)), color-stop(25%, rgba(255, 255, 255, 0.9)), color-stop(75%, rgba(255, 255, 255, 0.9)), color-stop(100%, rgba(255, 255, 255, 0)));
+    background: -webkit-linear-gradient(left, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.9) 25%, rgba(255, 255, 255, 0.9) 75%, rgba(255, 255, 255, 0) 100%);
+    background: -moz-linear-gradient(left, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.9) 25%, rgba(255, 255, 255, 0.9) 75%, rgba(255, 255, 255, 0) 100%);
+    background: -ms-linear-gradient(left, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.9) 25%, rgba(255, 255, 255, 0.9) 75%, rgba(255, 255, 255, 0) 100%);
+    background: -o-linear-gradient(left, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.9) 25%, rgba(255, 255, 255, 0.9) 75%, rgba(255, 255, 255, 0) 100%);
+    background: linear-gradient(to right, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.9) 25%, rgba(255, 255, 255, 0.9) 75%, rgba(255, 255, 255, 0) 100%); }
+  .dataTables_wrapper .dataTables_length,
+  .dataTables_wrapper .dataTables_filter,
+  .dataTables_wrapper .dataTables_info,
+  .dataTables_wrapper .dataTables_processing,
+  .dataTables_wrapper .dataTables_paginate {
+    color: #333; }
+  .dataTables_wrapper .dataTables_scroll {
+    clear: both; }
+    .dataTables_wrapper .dataTables_scroll div.dataTables_scrollBody {
+      *margin-top: -1px;
+      -webkit-overflow-scrolling: touch; }
+      .dataTables_wrapper .dataTables_scroll div.dataTables_scrollBody > table > thead > tr > th, .dataTables_wrapper .dataTables_scroll div.dataTables_scrollBody > table > thead > tr > td, .dataTables_wrapper .dataTables_scroll div.dataTables_scrollBody > table > tbody > tr > th, .dataTables_wrapper .dataTables_scroll div.dataTables_scrollBody > table > tbody > tr > td {
+        vertical-align: middle; }
+      .dataTables_wrapper .dataTables_scroll div.dataTables_scrollBody > table > thead > tr > th > div.dataTables_sizing,
+      .dataTables_wrapper .dataTables_scroll div.dataTables_scrollBody > table > thead > tr > td > div.dataTables_sizing, .dataTables_wrapper .dataTables_scroll div.dataTables_scrollBody > table > tbody > tr > th > div.dataTables_sizing,
+      .dataTables_wrapper .dataTables_scroll div.dataTables_scrollBody > table > tbody > tr > td > div.dataTables_sizing {
+        height: 0;
+        overflow: hidden;
+        margin: 0 !important;
+        padding: 0 !important; }
+  .dataTables_wrapper.no-footer .dataTables_scrollBody {
+    border-bottom: 1px solid #111; }
+  .dataTables_wrapper.no-footer div.dataTables_scrollHead table.dataTable,
+  .dataTables_wrapper.no-footer div.dataTables_scrollBody > table {
+    border-bottom: none; }
+  .dataTables_wrapper:after {
+    visibility: hidden;
+    display: block;
+    content: "";
+    clear: both;
+    height: 0; }
+
+@media screen and (max-width: 767px) {
+  .dataTables_wrapper .dataTables_info,
+  .dataTables_wrapper .dataTables_paginate {
+    float: none;
+    text-align: center; }
+  .dataTables_wrapper .dataTables_paginate {
+    margin-top: 0.5em; } }
+@media screen and (max-width: 640px) {
+  .dataTables_wrapper .dataTables_length,
+  .dataTables_wrapper .dataTables_filter {
+    float: none;
+    text-align: center; }
+  .dataTables_wrapper .dataTables_filter {
+    margin-top: 0.5em; } }
+table.dataTable {
+  clear: both;
+  margin-top: 6px !important;
+  margin-bottom: 6px !important;
+  max-width: none !important;
+  border-collapse: separate !important; }
+  table.dataTable td,
+  table.dataTable th {
+    -webkit-box-sizing: content-box;
+    box-sizing: content-box; }
+    table.dataTable td.dataTables_empty,
+    table.dataTable th.dataTables_empty {
+      text-align: center; }
+  table.dataTable.nowrap th,
+  table.dataTable.nowrap td {
+    white-space: nowrap; }
+
+div.dataTables_wrapper div.dataTables_length label {
+  font-weight: normal;
+  text-align: left;
+  white-space: nowrap; }
+div.dataTables_wrapper div.dataTables_length select {
+  width: 75px;
+  display: inline-block; }
+div.dataTables_wrapper div.dataTables_filter {
+  text-align: right; }
+  div.dataTables_wrapper div.dataTables_filter label {
+    font-weight: normal;
+    white-space: nowrap;
+    text-align: left; }
+  div.dataTables_wrapper div.dataTables_filter input {
+    margin-left: 0.5em;
+    display: inline-block;
+    width: auto; }
+div.dataTables_wrapper div.dataTables_info {
+  padding-top: 8px;
+  white-space: nowrap; }
+div.dataTables_wrapper div.dataTables_paginate {
+  margin: 0;
+  white-space: nowrap;
+  text-align: right; }
+  div.dataTables_wrapper div.dataTables_paginate ul.pagination {
+    margin: 2px 0;
+    white-space: nowrap; }
+div.dataTables_wrapper div.dataTables_processing {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 200px;
+  margin-left: -100px;
+  margin-top: -26px;
+  text-align: center;
+  padding: 1em 0; }
+
+table.dataTable thead > tr > th.sorting_asc, table.dataTable thead > tr > th.sorting_desc, table.dataTable thead > tr > th.sorting,
+table.dataTable thead > tr > td.sorting_asc,
+table.dataTable thead > tr > td.sorting_desc,
+table.dataTable thead > tr > td.sorting {
+  padding-right: 30px; }
+table.dataTable thead > tr > th:active,
+table.dataTable thead > tr > td:active {
+  outline: none; }
+table.dataTable thead .sorting,
+table.dataTable thead .sorting_asc,
+table.dataTable thead .sorting_desc,
+table.dataTable thead .sorting_asc_disabled,
+table.dataTable thead .sorting_desc_disabled {
+  cursor: pointer;
+  position: relative; }
+  table.dataTable thead .sorting:after,
+  table.dataTable thead .sorting_asc:after,
+  table.dataTable thead .sorting_desc:after,
+  table.dataTable thead .sorting_asc_disabled:after,
+  table.dataTable thead .sorting_desc_disabled:after {
+    position: absolute;
+    bottom: 8px;
+    right: 8px;
+    display: block;
+    font-family: 'Glyphicons Halflings';
+    opacity: 0.5; }
+table.dataTable thead .sorting:after {
+  opacity: 0.2;
+  content: "\e150";
+  /* sort */ }
+table.dataTable thead .sorting_asc:after {
+  content: "\e155";
+  /* sort-by-attributes */ }
+table.dataTable thead .sorting_desc:after {
+  content: "\e156";
+  /* sort-by-attributes-alt */ }
+table.dataTable thead .sorting_asc_disabled:after,
+table.dataTable thead .sorting_desc_disabled:after {
+  color: #eee; }
+
+div.dataTables_scrollHead table.dataTable {
+  margin-bottom: 0 !important; }
+
+div.dataTables_scrollBody > table {
+  border-top: none;
+  margin-top: 0 !important;
+  margin-bottom: 0 !important; }
+  div.dataTables_scrollBody > table > thead .sorting:after,
+  div.dataTables_scrollBody > table > thead .sorting_asc:after,
+  div.dataTables_scrollBody > table > thead .sorting_desc:after {
+    display: none; }
+  div.dataTables_scrollBody > table > tbody > tr:first-child > th,
+  div.dataTables_scrollBody > table > tbody > tr:first-child > td {
+    border-top: none; }
+
+div.dataTables_scrollFoot > .dataTables_scrollFootInner {
+  box-sizing: content-box; }
+  div.dataTables_scrollFoot > .dataTables_scrollFootInner > table {
+    margin-top: 0 !important;
+    border-top: none; }
+
+@media screen and (max-width: 767px) {
+  div.dataTables_wrapper div.dataTables_length,
+  div.dataTables_wrapper div.dataTables_filter,
+  div.dataTables_wrapper div.dataTables_info,
+  div.dataTables_wrapper div.dataTables_paginate {
+    text-align: center; } }
+table.dataTable.table-condensed > thead > tr > th {
+  padding-right: 20px; }
+table.dataTable.table-condensed .sorting:after,
+table.dataTable.table-condensed .sorting_asc:after,
+table.dataTable.table-condensed .sorting_desc:after {
+  top: 6px;
+  right: 6px; }
+
+table.table-bordered.dataTable th,
+table.table-bordered.dataTable td {
+  border-left-width: 0; }
+  table.table-bordered.dataTable th:last-child, table.table-bordered.dataTable th:last-child,
+  table.table-bordered.dataTable td:last-child,
+  table.table-bordered.dataTable td:last-child {
+    border-right-width: 0; }
+table.table-bordered.dataTable tbody th,
+table.table-bordered.dataTable tbody td {
+  border-bottom-width: 0; }
+
+div.dataTables_scrollHead table.table-bordered {
+  border-bottom-width: 0; }
+
+div.table-responsive > div.dataTables_wrapper > div.row {
+  margin: 0; }
+  div.table-responsive > div.dataTables_wrapper > div.row > div[class^="col-"]:first-child {
+    padding-left: 0; }
+  div.table-responsive > div.dataTables_wrapper > div.row > div[class^="col-"]:last-child {
+    padding-right: 0; }
+
+h1, .h1 {
+  font-size: 30px; }
+
+h2, .h2 {
+  font-size: 26px; }
+
+i.fa {
+  margin-right: 4px; }
+
+.red {
+  color: red; }
+
+.green {
+  color: #5cb85c; }
+
+.grey {
+  color: grey; }
+
+.blue {
+  color: #337ab7; }
+
+.yellow {
+  color: yellow; }
+
+.orange {
+  color: #f0ad4e; }
+
+#content, #messages {
+  padding: 10px 10px 10px 10px; }
+
+#modal-background {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: #000;
+  opacity: 0.5;
+  z-index: 20004; }
+
+.modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 600px;
+  min-height: 300px;
+  background-color: #fff;
+  display: block;
+  z-index: 20005; }
+
+.modal-inner {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  padding: 20px 50px 20px 20px;
+  overflow: auto; }
+
+#strategyState {
+  min-height: 70px; }
+
+.chartButtons {
+  margin-bottom: 10px;
+  float: right; }
+
+#editor {
+  position: absolute;
+  width: 90%;
+  height: 100%;
+  min-height: 400px; }
+
+.currencyHead {
+  font-size: 24px;
+  font-weight: bold; }
+
+.predictionTable {
+  min-width: 250px; }
+
+.predictionTable td, .predictionTable th {
+  border: 1px solid black; }
+
+.controlsPanel .form-group {
+  margin-right: 30px; }
+
+#tradeAnalysisTable {
+  width: 70%;
+  margin-right: 30px;
+  margin-left: 30px;
+  border: 1px solid #337ab7;
+  border-collapse: collapse; }
+
+#tradeAnalysisTable th, #tradeAnalysisTable td {
+  border: 1px solid #337ab7; }
+
+#tradeAnalysisTable td {
+  padding-left: 5px; }
+
+#tradeAnalysisTable td.iCol {
+  width: 10px !important; }
+
+.dateTimePick {
+  max-width: 250px; }
+
+.backtestPanel {
+  margin-right: 30px;
+  margin-left: 30px; }
+
+#backtestImport, #backtestProgress {
+  margin-left: 20px;
+  margin-right: 20px; }
+
+#backtestResult button {
+  margin-right: 10px;
+  margin-bottom: 10px; }
+
+#toggleLogs {
+  position: fixed;
+  right: 10px;
+  bottom: 10px;
+  display: block;
+  z-index: 20000; }
+
+#logs {
+  position: fixed;
+  bottom: 1px;
+  width: 100%;
+  display: none;
+  padding: 10px 10px 0px 10px;
+  z-index: 19999; }
+
+#logs * {
+  z-index: 19999; }
+
+.logTabs li {
+  background-color: #ddd; }
+
+.logtext {
+  height: 13em;
+  overflow: scroll; }
+
+.userChart {
+  width: 100%;
+  max-width: 1200px;
+  min-height: 600px; }
+
+.chartHint {
+  color: #cbcbcb; }
+
+.jsTable, .jsAjaxTable {
+  width: 100%; }
+
+.jsTable th.number, .jsAjaxTable th.number {
+  max-width: 60px; }
+
+table.jsTable > tbody > tr:nth-child(odd) {
+  background: #f9f9f9 !important; }
+
+table.jsTable > tbody > tr:nth-child(even) {
+  background: white !important; }
+
+.jsTable th.tiny {
+  max-width: 50px; }
+
+@media (max-width: 480px) {
+  /*phones*/ }
+@media (min-width: 992px) {
+  .wideTableRow {
+    display: table-cell; }
+
+  .textContent {
+    width: 55%;
+    margin-left: 200px; }
+
+  .rightMdMargin {
+    margin-right: 500px; }
+
+  .rightMdMarginSmall {
+    margin-right: 220px; } }
+@media (min-width: 1200px) {
+  .xWideTableRow {
+    display: table-cell; } }
+
+/*# sourceMappingURL=style.css.map */

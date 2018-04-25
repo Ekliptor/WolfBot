@@ -1,0 +1,37 @@
+@media (max-width: 480px) { /*phones*/
+}
+
+@media(max-width:767px) /*xs only*/ {
+}
+
+@media(min-width:768px) /*>= sm*/ {
+}
+
+@media(min-width:768px) and (max-width:991px) /*sm only*/ {
+}
+
+@media(min-width:992px) /*>= md*/ {
+  .wideTableRow {
+    display: table-cell;
+  }
+  .textContent {
+    width: 55%;
+    margin-left: 200px;
+  }
+  .rightMdMargin {
+    margin-right: 500px;
+  }
+  .rightMdMarginSmall {
+    margin-right: 220px;
+  }
+}
+
+@media(min-width:992px) and (max-width:1199px) /*md only*/ {
+  // ...
+}
+
+@media(min-width:1200px) /*>= lg*/ {
+  .xWideTableRow {
+    display: table-cell;
+  }
+}

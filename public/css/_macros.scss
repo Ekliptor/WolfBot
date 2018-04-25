@@ -1,0 +1,49 @@
+/* Text Helpers */
+.strong {
+  font-weight: bold!important;
+}
+.sTxt {
+  font-weight: bold !important;
+  color: darken(#428bca, 6.5%); //$brand-primary;
+}
+.wrapWord {
+  word-wrap: break-word;
+}
+.scrollContainer {
+  overflow-y: auto
+}
+
+/* Layout Helpers */
+.block {
+  display: block;
+}
+.samePage {
+  page-break-inside: avoid;
+}
+
+/* Margin Helpers */
+.top5 {margin-top: 5px;}
+.top10 {margin-top: 10px;}
+.top15 {margin-top: 15px;}
+.top20 {margin-top: 20px;}
+.top25 {margin-top: 25px;}
+.top30 {margin-top: 30px;}
+.top50 {margin-top: 50px;}
+.top75 {margin-top: 75px;}
+.top100 {margin-top: 100px;}
+
+.bottom5 {margin-bottom: 5px;}
+.bottom10 {margin-bottom: 10px;}
+.bottom15 {margin-bottom: 15px;}
+.bottom20 {margin-bottom: 20px;}
+.bottom25 {margin-bottom: 25px;}
+.bottom30 {margin-bottom: 30px;}
+.bottom50 {margin-bottom: 50px;}
+.bottom75 {margin-bottom: 75px;}
+.bottom100 {margin-bottom: 100px;}
+
+.left5 {margin-left: 5px;}
+.left10 {margin-left: 10px;}
+
+.right5 {margin-right: 5px;}
+.right10 {margin-right: 10px;}

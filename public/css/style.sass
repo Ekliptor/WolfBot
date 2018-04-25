@@ -1,0 +1,162 @@
+//@import '_bootstrap'
+@import 'fa/font-awesome'
+@import 'bootstrap-multiselect.css'
+@import '_macros'
+@import '_sprites'
+@import 'jquery.dataTables'
+@import 'dataTables.bootstrap'
+@import 'libs/bootstrap-datetimepicker.min.css'
+
+h1, .h1
+  font-size: 30px
+h2, .h2
+  font-size: 26px
+i.fa
+  margin-right: 4px
+
+.red
+  color: red
+.green
+  color: #5cb85c //$brand-success
+.grey
+  color: grey
+.blue
+  color: darken(#428bca, 6.5%) //$brand-primary
+.yellow
+  color: yellow
+.orange
+  color: #f0ad4e //$brand-warning
+
+#content, #messages
+  padding: 10px 10px 10px 10px
+
+// disable page
+#modal-background
+  position: fixed
+  top: 0
+  bottom: 0
+  left: 0
+  right: 0
+  background-color: #000
+  opacity: 0.5
+  z-index: 20004
+.modal
+  position: fixed
+  top: 50%
+  left: 50%
+  transform: translate(-50%,-50%)
+  width: 600px
+  min-height: 300px
+  background-color: #fff
+  display: block
+  z-index: 20005
+.modal-inner
+  position: absolute
+  top: 0
+  left: 0
+  width: 100%
+  height: 100%
+  padding: 20px 50px 20px 20px
+  overflow: auto
+
+// Status
+#strategyState
+  min-height: 70px
+
+// Strategies
+.chartButtons
+  margin-bottom: 10px
+  float: right
+
+// Config
+#editor
+  position: absolute
+  width: 90%
+  height: 100%
+  min-height: 400px
+
+
+// Oracle
+.currencyHead
+  font-size: 24px
+  font-weight: bold
+.predictionTable
+  min-width: 250px
+.predictionTable td, .predictionTable th
+  border: 1px solid black
+
+// History
+.controlsPanel .form-group
+  margin-right: 30px
+#tradeAnalysisTable
+  width: 70%
+  margin-right: 30px
+  margin-left: 30px
+  border: 1px solid #337ab7
+  border-collapse: collapse
+#tradeAnalysisTable th, #tradeAnalysisTable td
+  border: 1px solid #337ab7
+#tradeAnalysisTable td
+  padding-left: 5px
+#tradeAnalysisTable td.iCol
+  width: 10px !important
+
+// Backtesting
+.dateTimePick
+  max-width: 250px
+.backtestPanel
+  margin-right: 30px
+  margin-left: 30px
+#backtestImport, #backtestProgress
+  margin-left: 20px
+  margin-right: 20px
+#backtestResult button
+  margin-right: 10px
+  margin-bottom: 10px
+
+// Logs
+#toggleLogs
+  position: fixed
+  right: 10px
+  bottom: 10px
+  //width: 100%
+  //text-align: right
+  display: block
+  z-index: 20000
+#logs
+  position: fixed
+  bottom: 1px
+  width: 100%
+  display: none
+  padding: 10px 10px 0px 10px
+  z-index: 19999
+#logs *
+  z-index: 19999
+.logTabs li
+  background-color: #ddd
+.logtext
+  height: 13em
+  overflow: scroll
+
+// Charts
+.userChart
+  width: 100%
+  max-width: 1200px
+  min-height: 600px
+.chartHint
+  color: #cbcbcb
+
+// Data Tables
+.jsTable, .jsAjaxTable
+  width: 100%
+.jsTable th.number, .jsAjaxTable th.number
+  max-width: 60px
+table.jsTable > tbody > tr:nth-child(odd)
+  background: #f9f9f9 !important
+table.jsTable > tbody > tr:nth-child(even)
+  background: rgb(255, 255, 255) !important
+.jsTable th.tiny
+  max-width: 50px
+
+// add this at the end to overwrite default definitions
+@import '_responsive'

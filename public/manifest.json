@@ -1,0 +1,24 @@
+{
+  "short_name": "BitBrain Sensor",
+  "name": "BitBrain trading bot",
+  "icons": [
+    {
+      "src": "/icons/fav/icon_72.png",
+      "sizes": "72x72",
+      "type": "image/png"
+    },
+    {
+      "src": "/images/img_320x460.png",
+      "sizes": "320x460",
+      "type": "image/png"
+    },
+    {
+      "src": "/images/img_640x920.png",
+      "sizes": "640x920",
+      "type": "image/png"
+    }
+  ],
+  "start_url": "/?start=webapp",
+  "display": "fullscreen",
+  "orientation": "portrait"
+}
