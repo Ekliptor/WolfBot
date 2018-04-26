@@ -1,0 +1,89 @@
+<!-- main -->
+<!-- /main -->
+<!-- tabs -->
+<ul id="configTabs" class="nav nav-tabs bottom30">
+  <li role="presentation" id="tabGeneral" class="{active}configTab"><a href="javascript:;">{tr:general}</a></li>
+  <li role="presentation" id="tabTrading" class="{active}configTab"><a href="javascript:;">{tr:trading}</a></li>
+  <li role="presentation" id="tabTradingDev" class="{active}configTab"><a href="javascript:;">{tr:tradingDev}</a></li>
+</ul>
+<div id="tabContent" class="bottom30"></div>
+<!-- /tabs -->
+<!-- general -->
+<span id="tradingModeCtrl" class="right10">
+    <span>{tr:tradingMode}{tr:colon}</span>
+  <select id="tradingMode" name="tradingMode" class="multiSel"></select>
+  </span>
+<span>{tr:config}{tr:colon} </span>
+<select id="configs" class="multiSel" name="configs"></select>
+<span class="traderCtrl">
+    <span class="left10">{tr:trader}{tr:colon} </span>
+    <select id="traders" class="multiSel" name="traders"></select>
+</span>
+<div class="checkbox bottom30">
+  <label id="debugCtrls"><input type="checkbox" name="debug" value="" id="debug">{tr:debugMode}</label>
+  <label id="devModeCtrls"><input type="checkbox" name="devMode" value="" id="devMode">{tr:devMode}</label>
+</div>
+<div class="panel panel-primary">
+  <div class="panel-heading">{tr:exchangeKeys}</div>
+  <div class="panel-body">
+    <form id="configExchangeForm" class="row form-horizontal" action="" method="post" enctype="application/x-www-form-urlencoded">
+      <div class="form-group bottom20">
+        <label for="exchanges" class="control-label col-sm-3">{tr:exchange}{tr:colon}</label>
+        <div class="col-sm-9">
+          <select id="exchanges" class="multiSel" name="exchanges"></select>
+        </div>
+      </div>
+      <div class="panel panel-default bottom20">
+        <div class="panel-heading">{tr:apiKey}</div>
+        <div class="panel-body">
+          <div class="form-group">
+            <label for="apiKey" class="control-label col-sm-3">{tr:apiKey}{tr:colon}</label>
+            <div class="col-sm-9">
+              <input id="apiKey" type="text" class="form-control" name="apiKey" value="" required>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="apiSecret" class="control-label col-sm-3">{tr:apiSecret}{tr:colon}</label>
+            <div class="col-sm-9">
+              <input id="apiSecret" type="text" class="form-control" name="apiSecret" value="" required>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="panel panel-default bottom20">
+        <div class="panel-heading">{tr:apiKey2}</div>
+        <div class="panel-body">
+          <p>{tr:twoKeys}</p>
+          <div class="form-group">
+            <label for="apiKey2" class="control-label col-sm-3">{tr:apiKey}{tr:colon}</label>
+            <div class="col-sm-9">
+              <input id="apiKey2" type="text" class="form-control" name="apiKey2" value="" required>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="apiSecret2" class="control-label col-sm-3">{tr:apiSecret}{tr:colon}</label>
+            <div class="col-sm-9">
+              <input id="apiSecret2" type="text" class="form-control" name="apiSecret2" value="" required>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="form-group">
+        <div class="col-sm-offset-3 col-sm-9">
+          <button id="saveKey" class="btn btn-success" type="submit" name="saveKey" style="display: none">{tr:save}</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+<!-- /general -->
+<!-- jsonView -->
+<div id="tradeSettingsEditor"></div>
+<!-- /jsonView -->
+<!-- editor -->
+<div class="bottom20">
+  <button id="saveConfig" class="left10 btn btn-success" type="button" name="saveConfig" style="display: none;">{tr:saveChanges}</button>
+</div>
+<div class="bottom10">{tr:configEditMsg}</div>
+<div id="editor"></div>
+<!-- /editor -->

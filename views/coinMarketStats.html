@@ -1,0 +1,72 @@
+<!-- main -->
+<!-- /main -->
+<!-- coinRates -->
+<div class="row">
+  <div class="col-md-12 bottom20">
+    <div class="panel panel-primary">
+      <div class="panel-heading">
+        <h3 class="panel-title"><span class="strong">{tr:coinRateComparison}</span></h3>
+      </div>
+      <div class="panel-body">
+        <div class="row bottom10">
+          <div id="coinRateComparison" class="col-md-12 top20"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+<!-- /coinRates -->
+<!-- chart -->
+<div class="row">
+  <div class="col-md-12 bottom20">
+    <div class="panel panel-info">
+      <div class="panel-heading">
+        <h3 class="panel-title">{chartHeadline}</h3>
+      </div>
+      <div class="panel-body">
+        <div class="row bottom10">
+          <div class="col-md-12">
+            <canvas id="chart-{type}" class="userChart"></canvas>
+          </div>
+        </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- /chart -->
+<!-- volumeSpikes -->
+<div class="row">
+  <div class="col-md-12 bottom20">
+    <div class="panel panel-primary">
+      <div class="panel-heading">
+        <h3 class="panel-title"><span class="strong">{coinVolumeSpikes}</span></h3>
+      </div>
+      <div class="panel-body">
+        <div class="row bottom10">
+          <div id="volumeSpikes" class="col-md-12 top20"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+<!-- /volumeSpikes -->
+<!-- exchangeVolumeSpike -->
+<div class="row">
+  <div class="col-md-12 bottom20">
+    <div class="panel panel-info">
+      <div class="panel-heading">
+        <h3 class="panel-title">{tr:exchange}{tr:colon}{exchange}</h3>
+      </div>
+      <div class="panel-body">
+        <div class="row bottom10">
+          <div id="vol-spike-{exchange}" class="col-md-12">{spikesEx}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+<!-- /exchangeVolumeSpike -->

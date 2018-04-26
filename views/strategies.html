@@ -1,0 +1,78 @@
+<!-- main -->
+<div class="row">
+  <div class="col-md-12 bottom30">
+    <div class="chartButtons" style="display: none">
+      <button type="button" id="closeChart" class="btn btn-danger">
+        <i aria-hidden="true" class="fa fa-times"></i> {tr:closeChart}
+      </button>
+    </div>
+    <div id="tvChart" class="bottom20"></div>
+    <ul id="strategyTabs" class="nav nav-tabs"></ul>
+  </div>
+</div>
+<!-- /main -->
+<!-- tab -->
+<li role="presentation" id="tab-{nr}" data-nr="{nr}" class="{active}strategyTab"><a href="javascript:;">{tabTitle}</a></li>
+<!-- /tab -->
+<!-- strategyData -->
+<div id="strategies-{nr}" class="row strategiesRow" style="{style}">
+  <div class="col-md-12 bottom20">
+    <div class="panel panel-primary">
+      <div class="panel-heading">
+        <h3 class="panel-title"><span class="strong">{tr:exchanges}{tr:colon}</span> {exchanges}</h3>
+      </div>
+      <div class="panel-body">
+        <div><span class="strong">{tr:marginTrading}{tr:colon}</span> {marginTrading}</div>
+        <div><span class="strong">{tr:tradingBalance}{tr:colon}</span> {tradeTotalBtc} {baseCurrency}</div>
+        <div><span class="strong">{tr:position}{tr:colon}</span> <span id="position-{nr}">{position}</span></div>
+        <div><span class="strong">{tr:amount}{tr:colon}</span> <span id="amount-{nr}">{amount}</span> {quoteCurrency}</span>
+          <div><span class="strong">{tr:profitLoss}{tr:colon}</span> <span id="pl-{nr}">{pl}</span> {baseCurrency} (<span id="plPercent-{nr}">{plPercent}</span>{tr:percentSym})</div>
+        <div class="bottom10">
+          <button type="button" id="closePos-{nr}" class="btn btn-warning"><i aria-hidden="true" class="fa fa-bitcoin"></i> {tr:closePosition}</button>
+        </div>
+        <div><span class="strong">{tr:strategies}{tr:colon}</span>
+          <div id="strategy-{nr}" class="top20"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- /strategyData -->
+<!-- lendingStrategyData -->
+<div id="strategies-{nr}" class="row strategiesRow">
+  <div class="col-md-12 bottom20">
+    <div class="panel panel-primary">
+      <div class="panel-heading">
+        <h3 class="panel-title"><span class="strong">{tr:exchange}{tr:colon}</span> {exchange}</h3>
+      </div>
+      <div class="panel-body">
+        <div><span class="strong">{tr:strategies}{tr:colon}</span>
+          <div id="strategy-{nr}" class="top20"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- /lendingStrategyData -->
+<!-- singleStrategy -->
+<div class="row {name}">
+  <div class="col-md-12 bottom20">
+    <div class="panel panel-info">
+      <div class="panel-heading">
+        <h3 class="panel-title"><span class="strong">{tr:name}{tr:colon}</span> {headline}</h3>
+      </div>
+      <div id="strat-{nr}-{name}" class="panel-body">
+        <button type="button" id="showChartBtn-{nr}-{name}" data-config="{nr}" data-strategy="{name}" class="btn btn-default bottom5">
+          <i aria-hidden="true" class="fa fa-eye"></i> {tr:showChart}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- /singleStrategy -->
+<!-- stratProp -->
+<div><span class="strong">{name}{tr:colon}</span> {value}</div>
+<!-- /stratProp -->
+<!-- stratTimeProp -->
+<div><span class="strong">{name}{tr:colon}</span> <span class="dateTime" data-time="{timestamp}">{value}</span></div>
+<!-- /stratTimeProp -->

@@ -1,0 +1,65 @@
+<!-- main -->
+<!-- /main -->
+<!-- global -->
+<div class="row">
+  <div class="col-md-12 bottom20">
+    <div class="panel panel-primary">
+      <div class="panel-heading">
+        <h3 class="panel-title"><span class="strong">{tr:globalStats}</span></h3>
+      </div>
+      <div class="panel-body">
+        <div class="row bottom10">
+          <div id="globalStats" class="col-md-12 top20">
+            <div><span class="strong">{tr:utcTime}{tr:colon}</span>{utcTime}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+<!-- /global -->
+<!-- socialNetwork -->
+<div class="row">
+  <div class="col-md-12 bottom20">
+    <div class="panel panel-primary">
+      <div class="panel-heading">
+        <h3 class="panel-title"><span class="strong">{networkHeadline}</span></h3>
+      </div>
+      <div class="panel-body">
+        <div class="row bottom10">
+          <div id="network-{network}" class="col-md-12 top20"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+<!-- /socialNetwork -->
+<!-- chart -->
+<div class="row">
+  <div class="col-md-12 bottom20">
+    <div class="panel panel-info">
+      <div class="panel-heading">
+        <h3 class="panel-title">{chartHeadline}</h3>
+      </div>
+      <div class="panel-body">
+        <div class="row bottom10">
+          <div class="col-md-12">
+            <canvas id="chart-{network}-{type}" class="userChart"></canvas>
+          </div>
+        </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- /chart -->
+<!-- topCurrencies -->
+<div class="row bottom10">
+  <div id="top-{network}" class="col-md-12 top20">
+    <h3>{topCurrencies}</h3>
+    <div>{toplist}</div>
+  </div>
+</div>
+<!-- /topCurrencies -->

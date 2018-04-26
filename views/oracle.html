@@ -1,0 +1,35 @@
+<!-- main -->
+<div class="row">
+  <div class="col-md-12 bottom20">
+    <h1>{tr:oracleTxt}</h1>
+    <p id="waitingOracle">{tr:oracleWaiting}</p>
+  </div>
+</div>
+<div id="predictions"></div>
+<!-- /main -->
+<!-- predictionTable -->
+<div class="row">
+  <div class="col-md-12 bottom20">
+    <div id="prediction{currencyPair}">
+      <span class="currencyHead">{currencyPair}</span> <span>{currentRate}</span>
+      <i class="fa fa-2x fa-arrow-up green" aria-hidden="true"></i>
+      <i class="fa fa-2x fa-arrow-down red" aria-hidden="true"></i>
+    </div>
+    <table id="predictionTable{currencyPair}" class="predictionTable">
+      <thead>
+        <tr>
+          <th>{tr:prediction}</th>
+          <th>{tr:realValue}</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+</div>
+<!-- /predictionTable -->
+<!-- predictionRow -->
+<tr>
+  <td class="{predictionClass}">{prediction}</td>
+  <td>{realValue}</td>
+</tr>
+<!-- /predictionRow -->

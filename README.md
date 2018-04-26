@@ -35,5 +35,6 @@ The UI uses a single persistent WebSocket connection. UI related code is in the 
 ├────── js <- all TypeScript code to be compiled with WebPack
 ├─── src
 ├────── WebSocket <- all server-side logic to push updates to the browser
+├─── views <- all HTML templates
 ```
 

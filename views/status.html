@@ -1,0 +1,25 @@
+<!-- main -->
+<div class="row">
+  <div class="col-md-12 bottom30">
+    <div><span class="strong">{tr:name}{tr:colon}</span> <span class="name"></span></div>
+    <div><span class="strong">{tr:config}{tr:colon}</span> <span class="config"></span></div>
+    <div><span class="strong">{tr:trader}{tr:colon}</span> <span class="trader"></span></div>
+    <div><span class="strong">{tr:serverTime}{tr:colon}</span> <span class="serverTime"></span></div>
+    <div><span class="strong">{tr:started}{tr:colon}</span> <span class="started dateTime" data-time=""></span></div>
+    <div><span class="strong">{tr:installed}{tr:colon}</span> <span class="installed dateTime" data-time=""></span></div>
+    <div><span class="strong">{tr:currencyPairs}{tr:colon}</span> <span class="currencies"></span></div>
+    <form id="stateForm" class="form-horizontal" name="stateForm" method="post">
+      <div class="form-group top20">
+        <label class="control-label col-sm-2" for="strategyState">{tr:strategyState}{tr:colon}</label>
+        <div class="col-sm-10">
+          <textarea id="strategyState" class="form-control" name="strategyState" placeholder="{tr:restoreStrategyState}"></textarea>
+        </div>
+        <div class="col-sm-offset-2 col-sm-10 top5">
+          <button type="button" id="restoreState" class="btn btn-success">{tr:restoreState}</button>
+        </div>
+      </div>
+    </form>
+    <pre id="botEvaluation" class="top20"></pre>
+  </div>
+</div>
+<!-- /main -->

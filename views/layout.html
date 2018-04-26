@@ -1,0 +1,88 @@
+<!-- navbarHead -->
+<nav class="navbar navbar-default">
+  <div class="container-fluid">
+    <!-- Brand and toggle get grouped for better mobile display -->
+    <div class="navbar-header navButtons">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-collapse-head" aria-expanded="false">
+        <span class="sr-only">{tr:toggleNavigation}</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="javascript:;" data-target="home">{tr:siteName}</a>
+    </div>
+
+    <!-- Collect the nav links, forms, and other content for toggling -->
+    <div class="collapse navbar-collapse navButtons" id="#navbar-collapse-head">
+      <ul class="nav navbar-nav">
+        <li class="active"><a href="javascript:;" data-target="status">
+          <i aria-hidden="true" class="fa fa-info"></i> {tr:status}</a>
+        </li>
+        <li class="tabTrading"><a href="javascript:;" data-target="strategies">
+          <i aria-hidden="true" class="fa fa-gears"></i> {tr:strategies}</a>
+        </li>
+        <li class="tabLending"><a href="javascript:;" data-target="lending">
+          <i aria-hidden="true" class="fa fa-handshake-o"></i> {tr:lending}</a>
+        </li>
+        <li class="tabAI"><a href="javascript:;" data-target="oracle">
+          <i aria-hidden="true" class="fa fa-lightbulb-o"></i> {tr:oracle}</a>
+        </li>
+        <li class="tabSocial"><a href="javascript:;" data-target="social">
+          <i aria-hidden="true" class="fa fa-bar-chart"></i> {tr:social_crawler}</a>
+        </li>
+        <li class="tabCoinMarket"><a href="javascript:;" data-target="coinMarket">
+          <i aria-hidden="true" class="fa fa-line-chart"></i> {tr:coinMarket}</a>
+        </li>
+        <li class="tabConfig"><a href="javascript:;" data-target="config">
+          <i aria-hidden="true" class="fa fa-wrench"></i> {tr:config}</a>
+        </li>
+        <li class="tabBacktesting"><a href="javascript:;" data-target="backtesting">
+          <i aria-hidden="true" class="fa fa-code-fork"></i> {tr:backtesting}</a>
+        </li>
+        <li class="tabHistory"><a href="javascript:;" data-target="tradeHistory">
+          <i aria-hidden="true" class="fa fa-history"></i> {tr:tradeHistory}</a>
+        </li>
+        <li class="tabScripts"><a href="javascript:;" data-target="scripts">
+          <i aria-hidden="true" class="fa fa-code"></i> {tr:scripts}</a>
+        </li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li class="dropdown">
+          <a href="javascript:;" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">{tr:actions} <span class="caret"></span></a>
+          <ul class="dropdown-menu">
+            <li><a id="restartBot" href="javascript:;">
+              <i aria-hidden="true" class="fa fa-play-circle"></i> {tr:restartBot}</a>
+            </li>
+            <li><a id="pauseTrading" href="javascript:;">
+              <i aria-hidden="true" class="fa fa-pause-circle"></i> <span id="pauseTradingTxt">{tr:pauseTrading}</span></a>
+            </li>
+            <li><a id="pauseOpeningPositions" href="javascript:;">
+              <i aria-hidden="true" class="fa fa-lock"></i> {tr:pauseOpeningPositions}</a>
+            </li>
+          </ul>
+        </li>
+      </ul>
+    </div><!-- /.navbar-collapse -->
+  </div><!-- /.container-fluid -->
+</nav>
+<!-- /navbarHead -->
+<!-- contentWidget -->
+<div class="container-fluid">
+  <div id="messages"></div>
+  <div id="content" class="bottom50">
+  </div>
+</div>
+<!-- /contentWidget -->
+<!-- logs -->
+<a id="toggleLogs" href="javascript:;" class="showLogs" title="{tr:showLogs}">
+  <i class="fa fa-2x fa-arrow-up" aria-hidden="true"></i>
+</a>
+<div id="logs">
+  <ul class="nav nav-tabs logTabs">
+    <li role="presentation" class="active"><a href="javascript:;" data-log="appLog" data-type="a">{tr:app}</a></li>
+    <li role="presentation"><a href="javascript:;" data-log="tradeLog" data-type="t">{tr:trades}</a></li>
+  </ul>
+  <pre id="appLog" class="logtext"></pre>
+  <pre id="tradeLog" class="logtext" style="display: none"></pre>
+</div>
+<!-- /logs -->

@@ -1,0 +1,91 @@
+<!-- main -->
+<!-- /main -->
+<!-- lendingExchange -->
+<div class="row">
+  <div class="col-md-12 bottom20">
+    <div class="panel panel-primary">
+      <div class="panel-heading">
+        <h3 class="panel-title"><span class="strong">{exchange}</span></h3>
+      </div>
+      <div class="panel-body">
+        <div class="row bottom10">
+          <div id="exchange-{exchange}" class="col-md-12 top20"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+<!-- /lendingExchange -->
+<!-- totalEquity -->
+<div class="row globalStats">
+  <div class="col-md-12 bottom20">
+    <div class="panel panel-primary">
+      <div class="panel-heading">
+        <h3 class="panel-title"><span class="strong">{tr:total_equity}{tr:colon}</span></h3>
+      </div>
+      <div class="panel-body">
+        <div class="row bottom10">
+          <div class="col-md-12">
+            <div>{equity_val}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+<!-- /totalEquity -->
+<!-- globalLendingData -->
+<div class="row globalStats">
+  <div class="col-md-12 bottom20">
+    <div class="panel panel-primary">
+      <div class="panel-heading">
+        <h3 class="panel-title"><span class="strong">{tr:account_est_earnings}{tr:colon}</span></h3>
+      </div>
+      <div class="panel-body">
+        <div class="row bottom10">
+          <div class="col-md-12">
+            <div>{btc_year}</div>
+            <div>{btc_month}</div>
+            <div>{btc_week}</div>
+            <div>{btc_day}</div>
+            <div>{satoshi_hour}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+<!-- /globalLendingData -->
+<!-- lendingData -->
+<div class="row {currency}">
+  <div class="col-md-12 bottom20">
+    <div class="panel panel-info">
+      <div class="panel-heading">
+        <h3 class="panel-title"><span class="strong">{tr:currency}{tr:colon}</span> {currency}</h3>
+      </div>
+      <div class="panel-body">
+        <div class="row bottom10">
+          <div class="col-md-6">
+            <div>{lent_txt}</div>
+            <div>{current_rate}</div>
+            <div>{min_rate}</div>
+            <div>{is_limited}</div>
+          </div>
+          <div class="col-md-3">
+            <div>{lent_day}</div>
+            <div>{lent_day_eff}</div>
+          </div>
+          <div class="col-md-3">
+            <div>{lent_year}</div>
+            <div>{lent_year_comp}</div>
+          </div>
+        </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- /lendingData -->

@@ -1,0 +1,174 @@
+<!-- main -->
+<div class="row">
+  <div class="col-md-12 bottom30">
+    <div class="panel panel-primary bottom20">
+      <div class="panel-heading">{tr:config}</div>
+      <div class="panel-body controlsPanel">
+        <form id="backtestingForm" class="row form-horizontal" action="" method="post" enctype="application/x-www-form-urlencoded">
+          <div class="form-group">
+            <label for="configs" class="control-label col-sm-3">{tr:config}{tr:colon}</label>
+            <div class="col-sm-9">
+              <select id="configs" class="multiSel" name="configs"></select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="from" class="control-label col-sm-3">{tr:from}{tr:colon}</label>
+            <div class="col-sm-9">
+              <div id="from" class="dateTimePick input-group date">
+                <input class="form-control" type="text" data-value="">
+                <span class="input-group-addon">
+                  <i class="fa fa-calendar"></i>
+                </span>
+              </div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="to" class="control-label col-sm-3">{tr:to}{tr:colon}</label>
+            <div class="col-sm-9">
+              <div id="to" class="dateTimePick input-group date">
+                <input class="form-control" type="text" data-value="">
+                <span class="input-group-addon">
+                  <i class="fa fa-calendar"></i>
+                </span>
+              </div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="startBalance" class="control-label col-sm-3">{tr:startBalance}{tr:colon}</label>
+            <div class="col-sm-9">
+              <input id="startBalance" type="number" class="form-control" name="startBalance" value="1", min="0.1", step="0.1" placeholder="{tr:startBalancePlace}" required>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="slippage" class="control-label col-sm-3">{tr:slippage}{tr:colon}</label>
+            <div class="col-sm-9">
+              <input id="slippage" type="number" class="form-control" name="slippage" value="0.05", min="0.0", step="0.01" placeholder="{tr:slippagePlace}" required>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="tradingFee" class="control-label col-sm-3">{tr:tradingFee}{tr:colon}</label>
+            <div class="col-sm-9">
+              <input id="tradingFee" type="number" class="form-control" name="tradingFee" value="", min="0.0", step="0.01" placeholder="{tr:tradingFeePlace}">
+            </div>
+          </div>
+          <div class="form-group">
+            <div class="col-sm-offset-3 col-sm-9">
+              <button id="startBacktesting" class="btn btn-success" type="submit" name="startBacktesting">{tr:startBacktesting}</button>
+            </div>
+          </div>
+          <div id="backtestImport"></div>
+          <div id="backtestProgress"></div>
+          <div id="backtestResult"></div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- /main -->
+<!-- importProgress -->
+<div class="panel panel-success bottom20 backtestPanel">
+  <div class="panel-heading">{tr:importProgress}</div>
+  <div class="panel-body">
+    <i class="fa fa-gear fa-2x fa-spin"></i> {tr:startAutoImport}
+  </div>
+</div>
+<!-- /importProgress -->
+<!-- progressAnimated -->
+<div class="panel panel-success bottom20 backtestPanel">
+  <div class="panel-heading">{tr:progressTest}</div>
+  <div class="panel-body">
+    <div class="progress">
+      <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="{percent}" aria-valuemin="0" aria-valuemax="100" style="width: {percent}%">
+        {percent}%
+      </div>
+    </div>
+  </div>
+</div>
+<!-- /progressAnimated -->
+<!-- result -->
+<div class="panel panel-success bottom20 backtestPanel">
+  <div class="panel-heading">{tr:backtestResult}</div>
+  <div class="panel-body controlsPanel">
+    <form id="backtestingResultForm" class="row form-horizontal" action="" method="post" enctype="application/x-www-form-urlencoded">
+      <table id="tradeAnalysisTable" class="col-md-12 table-bordered table-hover">
+        <tr>
+          <td>{startBalanceCoins}{tr:colon}</td>
+          <td>{startCoinEquivalent}</td>
+        </tr>
+        <tr>
+          <td>{currentBalanceCoins}{tr:colon}</td>
+          <td>{currentCoinEquivalent}</td>
+        </tr>
+        <tr>
+          <td>{startBalanceBase}{tr:colon}</td>
+          <td>{startBaseEquivalent}</td>
+        </tr>
+        <tr>
+          <td>{currentBalanceBase}{tr:colon}</td>
+          <td>{currentBaseEquivalent}</td>
+        </tr>
+        <tr>
+          <td>{tr:tradesBuy}{tr:colon}</td>
+          <td>{totalBuy}</td>
+        </tr>
+        <tr>
+          <td>{tr:winningBuy}{tr:colon}</td>
+          <td>{winningBuy}</td>
+        </tr>
+        <tr>
+          <td>{tr:losingBuy}{tr:colon}</td>
+          <td>{losingBuy}</td>
+        </tr>
+        <tr>
+          <td>{tr:tradesSell}{tr:colon}</td>
+          <td>{totalSell}</td>
+        </tr>
+        <tr>
+          <td>{tr:winningSell}{tr:colon}</td>
+          <td>{winningSell}</td>
+        </tr>
+        <tr>
+          <td>{tr:losingSell}{tr:colon}</td>
+          <td>{losingSell}</td>
+        </tr>
+        <tr>
+          <td>{tr:marketExposureD}{tr:colon}</td>
+          <td>{hoursExp}</td>
+        </tr>
+        <tr>
+          <td>{tr:marketExposureH}{tr:colon}</td>
+          <td>{daysExp}</td>
+        </tr>
+        <tr>
+          <td>{tr:marketExposureP}{tr:colon}</td>
+          <td>{percentExp}</td>
+        </tr>
+        <tr>
+          <td>{tr:coinHoldingEfficiency}{tr:colon}</td>
+          <td>{efficiencyPercent}</td>
+        </tr>
+        <tr>
+          <td>{tr:marketEfficiency}{tr:colon}</td>
+          <td>{marketEfficiencyPercent}</td>
+        </tr>
+        <tr>
+          <td>{tr:botEfficiencyPercent}{tr:colon}</td>
+          <td>{botEfficiencyPercent}</td>
+        </tr>
+        <tr>
+          <td>{tr:botVsMarketEfficiencyPercent}{tr:colon}</td>
+          <td>{botVsMarketPercent}</td>
+        </tr>
+      </table>
+      <div>
+        <button id="showResult" class="btn btn-primary" type="button" name="showResult" data-href="">
+          <i aria-hidden="true" class="fa fa-eye"></i> {tr:showResult}
+        </button>
+        <button id="downloadResult" class="btn btn-primary" type="button" name="downloadResult">
+          <i aria-hidden="true" class="fa fa-download"></i> {tr:downloadResult}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+<!-- /result -->
