@@ -25,7 +25,7 @@ export class LogReceiver extends ClientSocketReceiver {
             this.printLog("t", data.t);
         else if (data.state) {
             if (data.state.trader.paused) {
-                $("#pauseTrading").text(AppF.tr("resumeTrading"));
+                $("#pauseTradingTxt").text(AppF.tr("resumeTrading"));
                 $("#pauseTrading").addClass("paused");
             }
             if (data.state.trader.pausedOpeningPositions) {

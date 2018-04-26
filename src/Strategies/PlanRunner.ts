@@ -192,6 +192,7 @@ export default class PlanRunner extends /*AbstractTurnStrategy*/TechnicalStrateg
             //return;
         if (this.plannedOrderTicks < order.ticks)
             return this.log(utils.sprintf("Skipping %s@%s order because %s is not enough ticks", order.action.toUpperCase(), order.rate, this.plannedOrderTicks))
+        // TODO pass required position on to trade strategy (RSIScalpOrderer...) and check again before executing
         if (order.position !== this.strategyPosition)
             return this.logOnce(utils.sprintf("Skipping %s@%s order because position '%s' does't match required position '%s'", order.action.toUpperCase(), order.rate,
                 this.strategyPosition, order.position))

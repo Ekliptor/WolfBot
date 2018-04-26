@@ -1,5 +1,5 @@
 {
-  "siteName": "BitBrain Sensor",
+  "siteName": "WolfBot",
   "noScriptMsg": "Please enable JavaScript in your browser to use this website.",
   "username": "Username",
   "usernameOrEmail": "Username or Email",
@@ -512,5 +512,21 @@
   "devMode": "Developer mode",
   "scripts": "Scripts",
   "apis": "APIs",
-  "general": "General"
+  "general": "General",
+  "welcomeTo": "Welcome to",
+  "firstSteps": "First steps to get started with WolfBot. Please choose what you want to do:",
+  "tradingFirst": "Start trading coins",
+  "tradingFirstTxt": "ToDo.... ",
+  "arbitrageFirst": "Start doing arbitrage between exchanges",
+  "arbitrageFirstTxt": "ToDo.... ",
+  "lendingFirstFirst": "Start lending your coins for margin funding",
+  "lendingFirstFirstTxt": "ToDo.... ",
+  "developerFirst": "Start developing your own strategies",
+  "developerFirstTxt": "ToDo.... ",
+  "exchangeKeys": "Exchange API keys",
+  "apiKey": "API Key",
+  "apiSecret": "API Secret",
+  "apiKey2": "2nd API Key (optional)",
+  "twoKeys": "It is recommended to add 2 API keys for every exchange. This ensures better reliability of the API when doing many requests simultaneously.",
+  "requiredTwoKeys": "Exchange {{name}} requires 2 API keys"
 }

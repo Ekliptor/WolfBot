@@ -24,6 +24,14 @@ import * as db from "../database";
 export type ConfigTab = "tabGeneral" | "tabTrading" | "tabTradingDev";
 const CONFIG_TABS: ConfigTab[] = ["tabGeneral", "tabTrading", "tabTradingDev"];
 
+export interface ConfigEditorData {
+    data: {
+
+    }
+    schema: {
+
+    }
+}
 export interface ConfigData {
     debugMode?: boolean;
     devMode?: boolean;
@@ -46,6 +54,7 @@ export interface ConfigRes extends ConfigData {
     selectedConfig?: string;
     selectedTrader?: string;
     configFileData?: string;
+    jsonEditorData?: ConfigEditorData;
     tabs?: ConfigTab[];
 
     changed?: boolean;
@@ -122,7 +131,7 @@ export class ConfigEditor extends AppPublisher {
     }
 
     public onSubscription(clientSocket: WebSocket, initialRequest: http.IncomingMessage): void {
-        let configs = this.advisor.getConfigs();
+        //let configs = this.advisor.getConfigs();
         let configFiles;
         ConfigEditor.listConfigFiles().then((files) => {
             configFiles = files;
@@ -139,6 +148,7 @@ export class ConfigEditor extends AppPublisher {
                 selectedConfig: this.selectedConfig,
                 selectedTrader: this.selectedTrader,
                 configFileData: configFileData,
+                jsonEditorData: this.createEditorSchema(configFileData, this.selectedConfig),
                 premium: nconf.get("serverConfig:premium"),
                 debugMode: nconf.get("debugRestart"),
                 devMode: nconf.get("serverConfig:user:devMode"),
@@ -225,6 +235,11 @@ export class ConfigEditor extends AppPublisher {
                 trader.setPausedOpeningPositions(data.setPausedOpening)
             })
             this.send(clientSocket, {saved: true})
+        }
+
+        else if (typeof data.selectedTab === "string") {
+            this.selectedTab = data.selectedTab;
+            return;
         }
     }
 
@@ -666,6 +681,102 @@ export class ConfigEditor extends AppPublisher {
                 this.scheduleSaveState();
             })
         }, nconf.get("serverConfig:saveStateMin") * utils.constants.MINUTE_IN_SECONDS*1000)
+    }
+
+    protected createEditorSchema(configFileData: string, configName: string): ConfigEditorData {
+        let data: ConfigEditorData = {
+            data: {},
+            schema: {}
+        }
+        let jsonData = utils.parseJson(configFileData);
+        if (jsonData === null || !jsonData.data || Array.isArray(jsonData.data) === false || jsonData.data.length === 0) {
+            logger.error("Error loading config file data from disk")
+            return data;
+        }
+        let properties = this.createSchemaProperties(jsonData.data[0])
+        // enabling/disablen properties is done on client side. via schema we can only set global editor options (for all properties)?
+        let defautlSchema = {
+            title: configName,
+            //type: "object",
+            //properties: properties
+            type: "array",
+            items: {
+                type: "object",
+                title: "Config", // TODO better name? + translate on client
+                properties: properties
+            }
+        }
+        data.data = jsonData.data;
+        data.schema = defautlSchema;
+        console.log(defautlSchema)
+        return data;
+    }
+
+    protected createSchemaProperties(defaultSite: any) {
+        let schema = {}
+        let count = 0
+        for (let prop in defaultSite)
+        {
+            let curType = this.getSchemaType(defaultSite[prop])
+            schema[prop] = {
+                //title: this.req.t(prop), // don't translate those properties
+                type: curType,
+                propertyOrder: ++count
+            }
+            // create enums with select elements
+            /*
+            if (prop === 'cms') {
+                schema[prop].type = 'array'
+                schema[prop].uniqueItems = true
+                schema[prop].format = 'select'
+                schema[prop].items = {
+                    type: 'string',
+                    enum: Object.values(crawlSite.CMS)
+                }
+            }
+            */
+
+            if (curType === 'array')
+                this.addArraySubTypes(schema[prop], defaultSite[prop])
+            else if (curType === 'object')
+                this.addObjectSubTypes(schema[prop], defaultSite[prop])
+        }
+        return schema
+    }
+
+    protected getSchemaType(value) {
+        let type = typeof value
+        if (type === 'object')
+            return Array.isArray(value) ? 'array' : 'object'
+        return type
+    }
+
+    protected addArraySubTypes(parent, value) {
+        let hasValue = value && value.length !== 0
+        let curType = this.getSchemaType(hasValue ? value[0] : null) // null will result in object
+        if (parent.items === undefined)
+            parent.items = {}
+        parent.items.type = curType
+        if (curType === 'array' && hasValue)
+            this.addArraySubTypes(parent.items, value[0])
+        else if (curType === 'object' && hasValue)
+            this.addObjectSubTypes(parent.items, value[0])
+    }
+
+    protected addObjectSubTypes(parent, value) {
+        if (parent.properties === undefined)
+            parent.properties = {}
+        for (let prop in value)
+        {
+            let curType = this.getSchemaType(value[prop])
+            parent.properties[prop] = {
+                type: curType
+            }
+            if (curType === 'array')
+                this.addArraySubTypes(parent.properties[prop], value[prop])
+            else if (curType === 'object')
+                this.addObjectSubTypes(parent.properties[prop], value[prop])
+        }
     }
 
     protected send(ws: WebSocket, data: ConfigRes, options?: ServerSocketSendOptions) {

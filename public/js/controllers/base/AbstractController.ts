@@ -11,6 +11,9 @@ declare var AppF: AppFunc, Hlp: HelpersClass;
 export interface PlainUpdate {
     [domID: string]: string;
 }
+export interface ResourceLoadedCallback {
+    (): void;
+}
 
 export abstract class AbstractController extends ClientSocketReceiver {
     //protected static readonly DATE_REGEX = "^2.+T.+Z$"; // bad idea because timezone is lost in this format. use EJSON for Dates
@@ -98,7 +101,7 @@ export abstract class AbstractController extends ClientSocketReceiver {
         return resources;
     }
 
-    protected loadDatePickerLib(callback) {
+    protected loadDatePickerLib(callback: ResourceLoadedCallback) {
         if (typeof $("body").datetimepicker === "function")
             return setTimeout(callback.bind(this), 0); // already loaded
         AppF.loadResource(document.location.origin + "/css/libs/bootstrap-datetimepicker.min.css");
@@ -110,6 +113,13 @@ export abstract class AbstractController extends ClientSocketReceiver {
         if (appData.lang !== "en") { // en-US is already included
             //resources.push(document.location.origin + "/js/libs/parsley/i18n/" + appData.lang + ".min.js");
         }
+        AppF.loadResource(resources, callback.bind(this), null, true);
+    }
+
+    protected loadJsonView(callback: ResourceLoadedCallback) {
+        if (typeof (window as any).JSONEditor === "function")
+            return setTimeout(callback.bind(this), 0); // already loaded
+        let resources = [document.location.origin + "/js/libs/jsoneditor.min.js"];
         AppF.loadResource(resources, callback.bind(this), null, true);
     }
 

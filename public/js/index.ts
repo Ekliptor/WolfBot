@@ -9,6 +9,7 @@ import {ClientSocket} from "./classes/WebSocket/ClientSocket";
 import {HistoryRouter} from "./classes/HistoryRouter";
 import {LogReceiver} from "./classes/WebSocket/LogReceiver";
 import {AbstractController} from "./controllers/base/AbstractController";
+import {Home} from "./controllers/Home";
 import {Status} from "./controllers/Status";
 import {Strategies} from "./controllers/Strategies";
 import {Lending} from "./controllers/Lending";
@@ -153,7 +154,7 @@ export class AppClass {
                 this.activeController.onClose();
                 this.webSocket.unsubscribe(this.activeController);
             }
-            let pageName = state.page ? state.page : "home";
+            let pageName = state.page ? state.page : "home"; // default view for empty url path
             $(".navButtons li").removeClass("active");
             $('.navButtons a[data-target="' + pageName + '"]').parent("li").addClass("active");
             this.setTitle(AppF.tr(pageName));
@@ -243,11 +244,19 @@ export class AppClass {
         })
     }
 
+    /**
+     * Renders a view. It looks if a controller class with the same name exists (view abc.html -> controller Abc.ts).
+     * Otherwise it just renders the "main" section of the view.
+     * @param {string} name
+     * @returns {Promise<RenderViewResponse>}
+     */
     protected renderView(name: string) {
         return new Promise<RenderViewResponse>((resolve, reject) => {
             let controller = this.controllers.get(name[0].toUpperCase() + name.substr(1));
             if (controller) {
                 this.activeController = controller;
+                if (controller instanceof Config)
+                    this.webSocket.setAllowReSubscribe(controller);
                 this.webSocket.subscribe(controller);
                 controller.render().then((html) => {
                     if (!html) // add loading icon instead of empty page. will get replaced when jQuery adds html in onData() of the controller
@@ -270,6 +279,7 @@ export class AppClass {
         // TODO is there a way to dynamically detect and load them in webpack? similar to our loadModule() in NodeJS
         // https://github.com/webpack/webpack/issues/118
         // TODO load them after LogReceiver is ready and only instantiate classes we need
+        this.controllers.set("Home", new Home(this.webSocket));
         this.controllers.set("Status", new Status(this.webSocket));
         this.controllers.set("Strategies", new Strategies(this.webSocket, this.tradingViewDatafeed));
         this.controllers.set("Lending", new Lending(this.webSocket));
@@ -280,7 +290,8 @@ export class AppClass {
         this.controllers.set("Config", new Config(this.webSocket));
         this.controllers.set("Scripts", new Scripts(this.webSocket));
         this.controllers.set("Backtesting", new Backtesting(this.webSocket));
-        this.webSocket.subscribe(this.controllers.get("Config")); // always listen to config changes because we use it for restart/pause
+        // always listen to config changes because we use it to send restart/pause commands
+        this.webSocket.subscribe(this.controllers.get("Config"), true);
     }
 }
 

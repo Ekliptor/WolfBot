@@ -19,6 +19,7 @@ export const enum WebSocketOpcode {
     TRADE_HISTORY = 19,
     BACKTESTING = 20,
     SCRIPTS = 21,
+    HOME = 22
 }
 
 export type WebSocketError = "Unauthorized";

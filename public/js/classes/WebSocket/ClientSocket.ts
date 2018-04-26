@@ -9,7 +9,7 @@ declare var AppF: AppFunc, Hlp: HelpersClass;
 export abstract class ClientSocketReceiver extends AbstractWidget {
     public readonly opcode: WebSocketOpcode;
     protected socket: ClientSocket;
-    protected persistent = false;
+    protected persistent = false; // don't unsubscribe if we navigate to another page
 
     constructor(socket: ClientSocket) {
         super()
@@ -17,6 +17,10 @@ export abstract class ClientSocketReceiver extends AbstractWidget {
     }
 
     public abstract onData(data: any): void;
+
+    public setPersistent(persistent: boolean) {
+        this.persistent = persistent;
+    }
 
     public isPersistent() {
         return this.persistent;
@@ -96,13 +100,23 @@ export class ClientSocket extends EventEmitter2 {
         return EJSON.stringify([opcode, data])
     }
 
-    public subscribe(receiver: ClientSocketReceiver) {
+    public subscribe(receiver: ClientSocketReceiver, persistent = false) {
+        receiver.setPersistent(persistent);
+        if (this.receivers.has(receiver.opcode) === true)
+            return;
         this.send(ClientSocket.stringify(receiver.opcode, {action: "sub"}));
         this.receivers.set(receiver.opcode, receiver);
     }
 
     public unsubscribe(receiver: ClientSocketReceiver) {
+        if (receiver.isPersistent() === true)
+            return;
         this.send(ClientSocket.stringify(receiver.opcode, {action: "unsub"}));
+        this.receivers.delete(receiver.opcode);
+    }
+
+    public setAllowReSubscribe(receiver: ClientSocketReceiver) {
+        receiver.setPersistent(false); // allow subscribing again to load the view
         this.receivers.delete(receiver.opcode);
     }
 

@@ -289,6 +289,7 @@ export abstract class AbstractStrategy extends AbstractGenericStrategy {
         if (position.type === "short")
             this.holdingCoins *= -1;
         this.positionSyncPrice = this.avgMarketPrice;
+        const lastStrategyPosition = this.strategyPosition;
         this.strategyPosition = this.holdingCoins > 0 ? "long" : (this.holdingCoins < 0 ? "short" : "none");
         if (this.strategyPosition === "none") {
             this.entryPrice = -1;
@@ -297,6 +298,10 @@ export abstract class AbstractStrategy extends AbstractGenericStrategy {
         }
         else if (this.entryPrice === -1)
             this.entryPrice = this.avgMarketPrice; // assume we just opened our position
+        else if (this.strategyPosition !== lastStrategyPosition) {
+            this.log(utils.sprintf("Strategy position changed from %s to %s. Resetting entry price", lastStrategyPosition, this.strategyPosition));
+            this.entryPrice = this.avgMarketPrice;
+        }
         // TODO volume-weighted entryPrice. useful for TakeProfit if we increase our position size after opening
 
         this.lastSync = this.getMarketTime();

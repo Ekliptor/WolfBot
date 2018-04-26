@@ -8,17 +8,21 @@ import {AppClass, App} from "../index";
 import {ConfigReq, ConfigRes, ConfigTab} from "../../../src/WebSocket/ConfigEditor";
 import {Strategies} from "./Strategies";
 import * as $ from "jquery";
+import * as i18next from "i18next";
 //import {AceAjax} from "ace"; // namespace, not a module
 
 declare var pageData: PageData, appData: AppData;
 declare var AppF: AppFunc, Hlp: HelpersClass;
+declare var JSONEditor: any; // TODO wait for typings
 
 export class Config extends AbstractController {
     public readonly opcode = WebSocketOpcode.CONFIG;
 
     protected selectedTab: ConfigTab = null;
     protected fullData: ConfigRes = null;
+    protected currentConfigFile: string = null;
 
+    protected jsonEditor: any = null;
     protected editor: AceAjax.Editor;
     protected canEdit = false;
 
@@ -30,13 +34,17 @@ export class Config extends AbstractController {
     public onData(data: ConfigRes) {
         if (data.error)
             return Hlp.showMsg(data.errorTxt ? data.errorTxt : AppF.tr(data.errorCode ? data.errorCode : 'unknownError'), 'danger');
-        else if (data.saved)
+        else if (data.saved) {
+            this.$("#saveConfig").fadeOut("slow");
             return Hlp.showMsg(AppF.tr('savedConfig'), 'success', AppClass.cfg.successMsgRemoveSec);
+        }
 
         if (!this.isVisible())
             return;
-        if (data.configFiles)
+        if (data.configFiles) {
+            this.setPersistent(true);
             this.setupInitialPage(data);
+        }
         else if (data.configFileData) {
             this.editor.setValue(data.configFileData, -1);
             this.canEdit = true;
@@ -96,9 +104,9 @@ export class Config extends AbstractController {
     public pauseTrading() {
         this.send({setPaused: $("#pauseTrading").hasClass("paused") ? false : true});
         if ($("#pauseTrading").hasClass("paused"))
-            $("#pauseTrading").text(AppF.tr("pauseTrading"));
+            $("#pauseTradingTxt").text(AppF.tr("pauseTrading"));
         else
-            $("#pauseTrading").text(AppF.tr("resumeTrading"));
+            $("#pauseTradingTxt").text(AppF.tr("resumeTrading"));
         $("#pauseTrading").toggleClass("paused");
     }
 
@@ -117,6 +125,7 @@ export class Config extends AbstractController {
     protected setupInitialPage(data: ConfigRes) {
         this.selectedTab = data.selectedTab;
         this.fullData = data;
+        this.currentConfigFile = data.selectedConfig;
         let tabsHtml = AppF.translate(pageData.html.config.tabs, {
             active: ""
         });
@@ -128,7 +137,9 @@ export class Config extends AbstractController {
                 const tab = $(event.target).parent();
                 this.$(".configTab").removeClass("active");
                 tab.addClass("active");
-                this.displayTab(tab.attr("id") as ConfigTab);
+                const curTabID = tab.attr("id") as ConfigTab;
+                this.displayTab(curTabID);
+                this.send({selectedTab: curTabID});
             });
         });
 
@@ -160,7 +171,7 @@ export class Config extends AbstractController {
         data.configFiles.forEach((conf) => {
             let title = conf.substr(1).replace(/\.json$/, "")
             this.$("#configs").append(this.getSelectOption(conf, title, "/" + data.selectedConfig + ".json" === conf))
-        })
+        });
         data.traders.forEach((trader) => {
             this.$("#traders").append(this.getSelectOption(trader, AppF.tr(trader), data.selectedTrader === trader))
         })
@@ -169,6 +180,7 @@ export class Config extends AbstractController {
             Hlp.showMsg(AppF.tr('restartRequiredConf'), 'warning');
             if (id === "configs") {
                 this.canEdit = false;
+                this.currentConfigFile = optionEl.val().substr(1).replace(/\.json$/, "");
                 this.$("#saveConfig").fadeOut("slow");
                 this.send({configChange: optionEl.val()});
             }
@@ -197,11 +209,33 @@ export class Config extends AbstractController {
                 $(".tabScripts, #tabTradingDev").addClass("hidden");
             this.send({devMode: checked})
         });
+
+        // Exchange API Keys
+        this.$("#configExchangeForm input[type=text]").change((event) => {
+            this.$("#saveKey").fadeIn("slow");
+            // TODO implement storing keys + user management
+            // TODO populate exchange menu
+        });
     }
 
     protected setupTradingTab(data: ConfigRes) {
         let html = AppF.translate(pageData.html.config.jsonView)
         this.$("#tabContent").append(html);
+        this.loadJsonView(() => {
+            //$('.asyncWait').remove();
+            JSONEditor.defaults.languages[i18next.language] = AppF.getTranslation("editor");
+            JSONEditor.defaults.language = i18next.language;
+            let element = document.getElementById('tradeSettingsEditor');
+            let options = {
+                theme: "bootstrap3",
+                iconlib: "fontawesome4", // overwrites some localized properties, also some buttons as "Edit JSON" not localized
+                schema: data.jsonEditorData.schema
+            }
+            this.jsonEditor = new JSONEditor(element, options);
+            // Set the value
+            this.jsonEditor.setValue(data.jsonEditorData.data);
+            //this.jsonEditor.getEditor('root.username').disable();
+        });
     }
 
     protected setupTradingDevTab(data: ConfigRes) {
@@ -220,10 +254,10 @@ export class Config extends AbstractController {
         setTimeout(() => {
             this.canEdit = true;
         }, 600);
-        this.$("#saveConfig").click(() => {
+        this.$("#saveConfig").click((event) => {
             this.send({
                 saveConfig: this.editor.getValue(),
-                configName: this.$("#configs").val()
+                configName: /*this.$("#configs").val()*/this.currentConfigFile
             })
         });
     }

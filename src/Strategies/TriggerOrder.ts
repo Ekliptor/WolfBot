@@ -148,7 +148,7 @@ export default class TriggerOrder extends AbstractTriggerOrder {
             return;
         }
         if (this.countdownOrder.closeOnly === true && this.strategyPosition === "none") {
-            this.log("Removed pending close-only order becuase there is no open position.");
+            this.log("Removed pending close-only order because there is no open position.");
             this.removePlannedOrder();
             return;
         }
