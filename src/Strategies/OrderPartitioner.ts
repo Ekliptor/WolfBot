@@ -17,6 +17,8 @@ interface OrderPartitionerAction extends TechnicalStrategyAction {
     fishPercentage: number; // 3% // % volume level for the low volume orders that shall be considered "small fish"
     maxTradesDisplay: number; // 30 // how many trades to display at most
 
+    // TODO count buy/sell trades over specified intervals
+
     // EMA cross params (optional)
     CrossMAType: "EMA" | "DEMA" | "SMA"; // optional, default EMA
     short: number; // default 2

@@ -11,8 +11,7 @@ interface NOOPAction extends TechnicalStrategyAction {
 }
 
 /**
- * Strategy that emits buy/sell based on the MFI indicator.
- * http://stockcharts.com/school/doku.php?id=chart_school:technical_indicators:money_flow_index_mfi
+ * This strategy does nothing. It is just a sample and placeholder.
  */
 export default class NOOP extends TechnicalStrategy {
     public action: NOOPAction;

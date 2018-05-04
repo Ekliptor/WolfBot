@@ -18,13 +18,14 @@ interface MacdAction extends TechnicalStrategyAction {
     histogramIncreaseFactor: number; // default 1.05. only open a position if the histogram increases/decreases by this factor
     closeSidewaysMarkets: boolean; // default false. close a position in sideways markets at the first tick with a profit
     openAgainPriceChange: number; // default 0.3%. how much the price has to change at least to open a long/short position again
+    openDecreasingHist: number; // optional, default 0 = open on Histogram 0 (minimum). value > 0 means we open on Histogram max after the histogram value decreases for x candles
 
     // optional: Aroon to only trade if we are in a trending market (not sideways)
     interval: number; // default 0 = disabled. compute Aroon up/down of the latest candles
-    trendCandleThreshold: number; // default = 76. the min value of the Aroon up/down to open a position
+    trendCandleThreshold: number; // default = 76. the min value of the Aroon up/down to open a position (to prevent opening positions in sideways markets)
 
     // TODO pauseTicks after closing early (if the trend is still in the same direction)
-    // TODO option to allow multiple trades (in the same directino) if we don't use it for futures (and as 2nd strategy)
+    // TODO option to allow multiple trades (in the same direction) if we don't use it for futures (and as 2nd strategy)
     // TODO option to buy/sell at min/max histogram instead of 0
 }
 
@@ -56,6 +57,8 @@ export default class MACD extends AbstractTurnStrategy {
             this.action.closeSidewaysMarkets = false;
         if (!this.action.openAgainPriceChange)
             this.action.openAgainPriceChange = 0.3;
+        if (!this.action.openDecreasingHist)
+            this.action.openDecreasingHist = 0;
         if (!this.action.interval)
             this.action.interval = 0;
         if (!this.action.trendCandleThreshold)
@@ -172,8 +175,25 @@ export default class MACD extends AbstractTurnStrategy {
         // TODO store previous highs and lows to detect sideways markets
         // TODO we have many losses on slight down trends: compare candle trend > x% before opening short
 
+        if (this.lastHistogram !== -1 && Math.abs(histogram) < Math.abs(this.lastHistogram)) {
+            this.decreasingHistogramTicks++;
+            if (this.action.takeProfitTicks !== 0 && !this.candleTrendMatchesPosition()) {
+                // TODO won't trigger if we manually opened a position in the other direction
+                // if we don't have a profit (and MACD is most likely in the same direction) don't close it early to avoid opening & closing repeatedly
+                if (this.decreasingHistogramTicks >= this.action.takeProfitTicks && (this.action.closeLossEarly || this.hasProfit(this.entryPrice))) {
+                    this.emitClose(this.defaultWeight, utils.sprintf("closing decreasing %s trend after %s ticks", this.lastTrend.toUpperCase(), this.decreasingHistogramTicks));
+                    this.decreasingHistogramTicks = 0; // reset, but shouldn't fire again either way
+                }
+            }
+        }
+        else {
+            //this.decreasingHistogramTicks = 0; // decrement instead
+            if (this.decreasingHistogramTicks > 0)
+                this.decreasingHistogramTicks--;
+        }
+
         // not trading repeatedly is important here because we don't want to buy/sell in the middle of the histogram, only when the lines cross
-        if (histogram > 0 && histogram > this.getHistogramThresholdUp() && changePercent > this.action.thresholds.up*100) { // we use % instead of absolute values here
+        if (this.openByHistogramUp(histogram) && changePercent > this.action.thresholds.up*100) { // we use % instead of absolute values here
             if (this.lastTrend !== "up")
                 this.persistenceCount = 0;
             this.persistenceCount++;
@@ -190,7 +210,7 @@ export default class MACD extends AbstractTurnStrategy {
             this.lastOpenShortPrice = Number.POSITIVE_INFINITY; // reset it
             this.lastTrend = "up";
         }
-        else if (histogram < 0 && histogram < this.getHistogramThresholdDown() && changePercent > this.action.thresholds.down*-100) {
+        else if (this.openByHistogramDown(histogram) && changePercent > this.action.thresholds.down*-100) {
             if (this.lastTrend !== "down")
                 this.persistenceCount = 0;
             this.persistenceCount++;
@@ -207,21 +227,6 @@ export default class MACD extends AbstractTurnStrategy {
         else {
             this.persistenceCount = 0;
             this.log(utils.sprintf("no trend detected, histogram %s, %s, last %s", histogram, histogramChangeTxt, this.lastHistogram))
-        }
-
-        if (this.action.takeProfitTicks !== 0 && this.lastHistogram !== -1 && Math.abs(histogram) < Math.abs(this.lastHistogram) && !this.candleTrendMatchesPosition()) {
-            // TODO won't trigger if we manually opened a position in the other direction
-            this.decreasingHistogramTicks++;
-            // if we don't have a profit (and MACD is most likely in the same direction) don't close it early to avoid opening & closing repeatedly
-            if (this.decreasingHistogramTicks >= this.action.takeProfitTicks && (this.action.closeLossEarly || this.hasProfit(this.entryPrice))) {
-                this.emitClose(this.defaultWeight, utils.sprintf("closing decreasing %s trend after %s ticks", this.lastTrend.toUpperCase(), this.decreasingHistogramTicks));
-                this.decreasingHistogramTicks = 0; // reset, but shouldn't fire again either way
-            }
-        }
-        else {
-            //this.decreasingHistogramTicks = 0; // decrement instead
-            if (this.decreasingHistogramTicks > 0)
-                this.decreasingHistogramTicks--;
         }
 
         // better results if we check this always (and not just on decreasing ticks)
@@ -293,6 +298,26 @@ export default class MACD extends AbstractTurnStrategy {
         for (let i = 0; i < this.histograms.length; i++)
             sum += this.histograms[i];
         this.maxHistogram = sum / this.histograms.length;
+    }
+
+    protected openByHistogramUp(histogram: number) {
+        if (this.action.openDecreasingHist > 0) {
+            // wait for the down trend to decrease, then go long
+            if (histogram < 0 && histogram < this.getHistogramThresholdDown())
+                return this.decreasingHistogramTicks >= this.action.openDecreasingHist;
+            return false;
+        }
+        return histogram > 0 && histogram > this.getHistogramThresholdUp();
+    }
+
+    protected openByHistogramDown(histogram: number) {
+        if (this.action.openDecreasingHist > 0) {
+            // wait for the up trend to decrease, then go short
+            if (histogram > 0 && histogram > this.getHistogramThresholdUp())
+                return this.decreasingHistogramTicks >= this.action.openDecreasingHist;
+            return false;
+        }
+        return histogram < 0 && histogram < this.getHistogramThresholdDown();
     }
 
     protected getHistogramThresholdUp() {

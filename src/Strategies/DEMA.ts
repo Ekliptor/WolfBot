@@ -23,6 +23,8 @@ interface DemaAction extends TechnicalStrategyAction {
     N: number; // time period for MA
     K: number; // factor for upper/lower band
     MAType: number; // moving average type, 0 = SMA
+
+    // TODO 4EMA (see tradingview.com). buy all signal = shorter > longer, sell signal = otherwise
 }
 
 /**

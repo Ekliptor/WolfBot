@@ -15,7 +15,6 @@ import {MarginPosition} from "../structs/MarginPosition";
 import {AbstractGenericStrategy, GenericStrategyState, StrategyInfo} from "./AbstractGenericStrategy";
 import * as helper from "../utils/helper";
 import {TradePosition} from "../structs/TradePosition";
-import {PendingOrder} from "../Trade/AbstractOrderTracker";
 
 export type TradeAction = "buy" | "sell" | "close";
 export type StrategyOrder = "buy" | "sell" | "closeLong" | "closeShort";
@@ -52,6 +51,13 @@ export class ScheduledTrade {
         this.isIgnoreTradeStrategy = strategy.isIgnoreTradeStrategy.bind(strategy);
         this.isMainStrategy = strategy.isMainStrategy.bind(strategy);
         this.canOpenOppositePositions = strategy.canOpenOppositePositions.bind(strategy);
+    }
+
+    public toString() {
+        let from = "";
+        if (this.fromClass)
+            from = " (from " + this.fromClass + ")";
+        return utils.sprintf("%s: %s%s", this.action.toUpperCase(), this.reason, from);
     }
 }
 
@@ -531,6 +537,8 @@ export abstract class AbstractStrategy extends AbstractGenericStrategy {
             info.candleTrend = this.candleTrend;
             info.lastCandleTick = this.candle ? this.candle.start : null;
         }
+        if (this.pendingOrder)
+            info.pendingOrder = this.pendingOrder.toString();
         if (this.mainStrategy) {
             info.strategyPosition = this.strategyPosition;
             info.active = this.isActiveStrategy();
@@ -787,6 +795,16 @@ export abstract class AbstractStrategy extends AbstractGenericStrategy {
             return candle.trend === "up";
         if (this.strategyPosition === "short")
             return candle.trend === "down";
+        return false;
+    }
+
+    protected trendMatchesTrade(candle: Candle.Candle) {
+        if (!this.pendingOrder)
+            return false;
+        if (this.pendingOrder.action === "buy" && candle.trend === "up")
+            return true;
+        if (this.pendingOrder.action === "sell" && candle.trend === "down")
+            return true;
         return false;
     }
 

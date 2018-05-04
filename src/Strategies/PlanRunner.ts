@@ -36,9 +36,9 @@ export interface PlanRunnerOrder extends TechnicalStrategyAction/*StrategyAction
 }
 
 /**
- * Strategy that emits buy/sell signal based on user configured steps (such as price points) in config.
- * Technical Indicators can also be used.
- * http://stockcharts.com/school/doku.php?id=chart_school:technical_indicators:money_flow_index_mfi
+ * Strategy that emits buy/sell signal based on your configured steps in config. Steps to take action are price points,
+ * support and resistance lines,... What makes this strategy powerful is the ability to combine it with any other strategy (including technical indicators).
+ * So you can for example configure it to: 'Buy if BitCoin price falls below 6.000 USD and the 1h RSI is below 30'
  */
 export default class PlanRunner extends /*AbstractTurnStrategy*/TechnicalStrategy {
     public action: PlanRunnerAction;

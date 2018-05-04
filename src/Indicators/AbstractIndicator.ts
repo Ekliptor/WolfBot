@@ -259,6 +259,7 @@ export abstract class AbstractIndicator extends DataPlotCollector {
 import "./ADX";
 import "./Aroon";
 import "./BollingerBands";
+import "./CCI";
 import "./DEMA";
 import "./EhlerTrendline";
 import "./EMA";
@@ -272,6 +273,7 @@ import "./RSI";
 import "./SAR";
 import "./Sentiment";
 import "./SMA";
+import "./STC";
 import "./StochRSI";
 import "./TristarPattern";
 import "./VIX";
