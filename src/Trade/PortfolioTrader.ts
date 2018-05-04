@@ -222,6 +222,8 @@ export class ExchangePairMap extends Map<string, string[]> { // (exchange name, 
     }
 }
 export class MarginPositionUpdateMap extends Map<string, number> { // (exchange name, timestamp)
+    public isFirstApiCall = true;
+
     constructor() {
         super()
     }
@@ -232,8 +234,6 @@ export class MarginPositionUpdateMap extends Map<string, number> { // (exchange 
             lastMs = 0;
         return lastMs + nconf.get("serverConfig:updateMarginPositionsSec")*1000 < marketTimeMs;
     }
-
-    public last
 }
 
 export abstract class PortfolioTrader extends AbstractTrader {

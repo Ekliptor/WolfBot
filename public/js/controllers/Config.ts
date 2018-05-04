@@ -23,6 +23,7 @@ export class Config extends AbstractController {
     protected currentConfigFile: string = null;
 
     protected jsonEditor: any = null;
+    protected createJsonViewTimerID: number = 0;
     protected editor: AceAjax.Editor;
     protected canEdit = false;
 
@@ -113,9 +114,9 @@ export class Config extends AbstractController {
     public pauseOpeningPositions() {
         this.send({setPausedOpening: $("#pauseOpeningPositions").hasClass("paused") ? false : true});
         if ($("#pauseOpeningPositions").hasClass("paused"))
-            $("#pauseOpeningPositions").text(AppF.tr("pauseOpeningPositions"));
+            $("#pauseOpeningPositionsTxt").text(AppF.tr("pauseOpeningPositions"));
         else
-            $("#pauseOpeningPositions").text(AppF.tr("resumeOpeningPositions"));
+            $("#pauseOpeningPositionsTxt").text(AppF.tr("resumeOpeningPositions"));
         $("#pauseOpeningPositions").toggleClass("paused");
     }
 
@@ -148,13 +149,19 @@ export class Config extends AbstractController {
 
     protected displayTab(tab: ConfigTab) {
         this.$("#tabContent").empty();
+        clearTimeout(this.createJsonViewTimerID);
         switch (tab)
         {
             case "tabGeneral":
                 this.setupGeneralTab(this.fullData);
                 break;
             case "tabTrading":
-                this.setupTradingTab(this.fullData);
+                // gets show twice otherwise because we load config twice on page open
+                // because JSONView creates the element async?
+                this.createJsonViewTimerID = setTimeout(() => {
+                    this.$("#tabContent").empty();
+                    this.setupTradingTab(this.fullData);
+                }, 100) as any;
                 break;
             case "tabTradingDev":
                 this.setupTradingDevTab(this.fullData);
@@ -229,12 +236,42 @@ export class Config extends AbstractController {
             let options = {
                 theme: "bootstrap3",
                 iconlib: "fontawesome4", // overwrites some localized properties, also some buttons as "Edit JSON" not localized
-                schema: data.jsonEditorData.schema
+                schema: this.translateSchema(data.jsonEditorData.schema),
+                disable_collapse: true,
+                disable_edit_json: true,
+                disable_properties: true,
+                //no_additional_properties: true,
+                disable_array_delete_all_rows: true,
+                disable_array_delete_last_row: true,
+                disable_array_reorder: true
             }
             this.jsonEditor = new JSONEditor(element, options);
             // Set the value
             this.jsonEditor.setValue(data.jsonEditorData.data);
             //this.jsonEditor.getEditor('root.username').disable();
+            setTimeout(() => {
+                // hide the button to delete the first (only config)
+                this.$(".json-editor-btn-delete").eq(0).addClass("hidden");
+                // hide the first delete button in all strategy-property arrays (such as PlanRunner.order)
+                let lastParentStrategy = null;
+                this.$(".json-editor-btn-delete").each((index: number, elem: Element)=> {
+                    const el = $(elem);
+                    if (el.hasClass("hidden") === true || el.is(":visible") === false)
+                        return;
+                    const obj = el.parent().parent().parent();
+                    if (obj.attr("data-schematype") !== "object")
+                        return; // only hide it on object arrays
+                    const schemaPath = obj.attr("data-schemapath");
+                    if (schemaPath.indexOf(".strategies.") === -1)
+                        return; // only hide it within strategies (don't hide the delete button for 2nd main config)
+                    const parentStrategy = obj.parent().parent().parent().attr("data-schemapath");
+                    if (parentStrategy === lastParentStrategy)
+                        return; // hide only the 1st delete array element button, show from 2nd onwards...
+                    lastParentStrategy = parentStrategy;
+                    el.addClass("hidden");
+                });
+                this.$("#tradeSettingsEditor option[value=undefined]").remove();
+            }, 0);
         });
     }
 
@@ -260,6 +297,102 @@ export class Config extends AbstractController {
                 configName: /*this.$("#configs").val()*/this.currentConfigFile
             })
         });
+    }
+
+    protected translateSchema(schema: any) {
+        // TODO add jquery code to collapse all descriptions. only show the first few words (via Regex) and then "..." and let the user click to expand
+        for (let prop in schema)
+        {
+            if (prop === "title") {
+                if (i18next.exists(schema[prop]))
+                    schema[prop] = i18next.t(schema[prop]);
+                continue;
+            }
+            else if (prop === "strategies") {
+                schema[prop].properties = this.translateStrategyProperties(schema[prop].properties)
+            }
+            //else if (prop !== "type")
+                //continue;
+            else if (schema[prop].title === undefined) {
+                const key = "confTitle." + prop;
+                if (i18next.exists(key))
+                    schema[prop].title = i18next.t(key);
+            }
+            if (schema[prop].description === undefined) {
+                const key = "confDesc." + prop;
+                if (i18next.exists(key))
+                    schema[prop].description = i18next.t(key);
+            }
+
+            const type = schema["type"];
+            if (type === "array") {
+                //for (let subProp in  schema.items)
+                    //schema.items[subProp] = this.translateSchema(schema.items[subProp]);
+                schema.items = this.translateSchema(schema.items);
+            }
+            else if (type === "object") {
+                //for (let subProp in schema.properties)
+                    //schema.properties[subProp] = this.translateSchema(schema.properties[subProp]);
+                schema.properties = this.translateSchema(schema.properties);
+            }
+        }
+        return schema;
+    }
+
+    protected translateStrategyProperties(strategySchema: any) {
+        console.log(strategySchema)
+        const strategyNames = Object.keys(strategySchema);
+        strategyNames.forEach((strategyName) => {
+            const lookupName = strategyName.replace(/Leverage$/, ""); // leverage strategies have the same config as their parent class
+            const key = "stratDesc." + lookupName + ".desc";
+            if (i18next.exists(key))
+                strategySchema[strategyName].description = i18next.t(key);
+            if (typeof strategySchema[strategyName].properties !== "object") {
+                AppF.log("ERROR: strategy doesn't have properties object - ", strategyName);
+                return;
+            }
+            for (let prop in strategySchema[strategyName].properties)
+            {
+                if (strategySchema[strategyName].properties[prop].type === "array")
+                    strategySchema[strategyName].properties[prop] = this.translateStrategyChildArrayProperties(strategySchema[strategyName].properties[prop], strategyName, prop);
+                else if (strategySchema[strategyName].properties[prop].type === "object")
+                    strategySchema[strategyName].properties[prop] = this.translateStrategyChildObjectProperties(strategySchema[strategyName].properties[prop], strategyName, prop);
+                else {
+                    let stratKey = "stratDesc." + lookupName + "." + prop; // try the strategy first
+                    if (i18next.exists(stratKey)) {
+                        strategySchema[strategyName].properties[prop].description = i18next.t(stratKey);
+                        continue;
+                    }
+                    stratKey = "stratDesc.all." + prop; // check if this property is part of all strategies second
+                    if (i18next.exists(stratKey))
+                        strategySchema[strategyName].properties[prop].description = i18next.t(stratKey);
+                }
+            }
+        });
+        return strategySchema;
+    }
+
+    protected translateStrategyChildArrayProperties(strategySchema: any, strategyName: string, prop: string) {
+        const key = "stratDesc." + strategyName + "." + prop + ".desc";
+        if (i18next.exists(key))
+            strategySchema.description = i18next.t(key);
+        for (let childProp in strategySchema.items.properties)
+        {
+            const childKey = "stratDesc." + strategyName + "." + prop + "." + childProp;
+            if (i18next.exists(childKey))
+                strategySchema.items.properties[childProp].description = i18next.t(childKey);
+        }
+        return strategySchema;
+    }
+
+    protected translateStrategyChildObjectProperties(strategySchema: any, strategyName: string, prop: string) {
+        for (let childProp in strategySchema.properties)
+        {
+            const childKey = "stratDesc." + strategyName + "." + prop + "." + childProp;
+            if (i18next.exists(childKey))
+                strategySchema.properties[childProp].description = i18next.t(childKey);
+        }
+        return strategySchema;
     }
 
     protected send(data: ConfigReq) {

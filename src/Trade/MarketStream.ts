@@ -36,6 +36,7 @@ export class MarketStream extends AbstractMarketStream {
         let orders = []
         const orderBook = this.exchange.getOrderBook().get(currencyPair.toString());
         const exLabel = this.exchange.getExchangeLabel();
+        let removeMarkedOrders = false;
         for (let i = 0; i < actions.length; i++)
         {
             // TODO move poloniex specific code into poloniex currencies interface
@@ -64,6 +65,16 @@ export class MarketStream extends AbstractMarketStream {
                     }
                     //else // too many lines on startup
                         //logger.warn("Ignoring orderbook update for %s because snapshot is not ready", currencyPair.toString())
+                }
+                else if (action[0] == "of") { // order book full updates (no incremental updates)
+                    //orderBook.clear(true); // causes flickering
+                    orderBook.markOrders();
+                    removeMarkedOrders = true;
+                    let order = MarketOrder.MarketOrder.getOrder(currencyPair, exLabel, action[3], action[2]);
+                    if (action[1] != 0)
+                        orderBook.addOrder(order, seqNr);
+                    else
+                        orderBook.removeOrder(order, seqNr);
                 }
                 else if (action[0] === "i") { // order book init (complete current state)
                     // action[1] == {"currencyPair":"BTC_ETH","orderBook":[[{"0.09551761":"0.00080897",...}, [BUY ORDERS]]
@@ -101,6 +112,8 @@ export class MarketStream extends AbstractMarketStream {
             else
                 logger.warn("Received unknown market action '%s':", action.type, action.data)
         }
+        if (removeMarkedOrders === true)
+            orderBook.removeMarked();
         this.emitTrades(currencyPair, trades)
         this.emitOrders(currencyPair, orders)
     }

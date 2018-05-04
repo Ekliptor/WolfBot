@@ -1,5 +1,4 @@
 import {ClientSocketReceiver, ClientSocket} from "../classes/WebSocket/ClientSocket";
-import {AbstractController, PlotChartOptions, PlotData} from "./base/AbstractController";
 import {WebSocketOpcode} from "../../../src/WebSocket/opcodes";
 import {PageData} from "../types/PageData";
 import {AppData} from "../types/AppData";
@@ -7,13 +6,14 @@ import {AppFunc, HelpersClass} from "@ekliptor/browserutils";
 import {Chart} from "chart.js";
 import {SocialPost} from "@ekliptor/bit-models";
 import {CoinMarketUpdate} from "../../../src/WebSocket/CoinMarketUpdater";
+import {ChartController, PlotChartOptions, PlotData} from "./base/ChartController";
 
 declare var pageData: PageData, appData: AppData;
 declare var AppF: AppFunc, Hlp: HelpersClass;
 
 type ChartContentType = "coinRateComparison";
 
-export class CoinMarket extends AbstractController {
+export class CoinMarket extends ChartController {
     public readonly opcode = WebSocketOpcode.COINMARKET;
 
     protected chartLibsLoaded = true; // currently always included globally

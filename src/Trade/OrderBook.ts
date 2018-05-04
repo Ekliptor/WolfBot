@@ -11,6 +11,7 @@ import * as createTree from "functional-red-black-tree";
 export interface OrderBookEntry {
     amount: number;
     rate: number;
+    marked: boolean; // market to be removed
 }
 interface DatabaseOrderBookEntry extends OrderBookEntry {
     exchange: Currency.Exchange;
@@ -184,7 +185,7 @@ export class OrderBook<T extends DatabaseOrderBookEntry> { // T is MarketOrder.M
         this.orders.clear(); // should already be empty, but be sure in case we receive multiple snapshots
         orders.forEach((order) => {
             this.orders.insert(order);
-        })
+        });
 
         // apply queued order book modifications
         let maxSeqNr = seqNr;
@@ -213,6 +214,16 @@ export class OrderBook<T extends DatabaseOrderBookEntry> { // T is MarketOrder.M
             logger.info("Starting with empty order book snapshot. seqNr %s", this.seqNr) // we don't have an exchange name or currency pair without "first"
     }
 
+    public replaceSnapshot(orders: T[], seqNr: number) {
+        this.orders.clear(); // should already be empty, but be sure in case we receive multiple snapshots
+        orders.forEach((order) => {
+            this.orders.insert(order);
+        });
+        this.orderQueue = [];
+        this.seqNr = seqNr;
+        this.lastUpdate = new Date();
+    }
+
     public addOrder(order: T, seqNr: number) {
         if (!order.rate) {
             logger.warn("Can not add invalid order to orderbook", order)
@@ -232,10 +243,14 @@ export class OrderBook<T extends DatabaseOrderBookEntry> { // T is MarketOrder.M
             return;
         }
         let existing = this.orders.find(order);
-        if (existing) // an order for this rate is already in the book. update the amount
+        if (existing) { // an order for this rate is already in the book. update the amount
             existing.amount += order.amount;
-        else
+            existing.marked = false;
+        }
+        else {
+            order.marked = false;
             this.orders.insert(order); // add an order for a new price
+        }
     }
 
     public removeOrder(order: T, seqNr: number) {
@@ -275,6 +290,7 @@ export class OrderBook<T extends DatabaseOrderBookEntry> { // T is MarketOrder.M
         */
 
         existing.amount -= order.amount;
+        existing.marked = false; // it's just been updated. don't mark to remove it
         if (existing.amount <= 0)
             this.orders.remove(order);
     }
@@ -283,14 +299,18 @@ export class OrderBook<T extends DatabaseOrderBookEntry> { // T is MarketOrder.M
         return this.snapshotReady;
     }
 
-    public clear() {
-        logger.verbose("Resetting order book")
-        this.snapshotReady = false;
-        this.initDone = false;
+    public clear(fullUpdate = false) {
+        if (fullUpdate === false) {
+            logger.verbose("Resetting order book")
+            this.snapshotReady = false;
+            this.initDone = false;
+        }
         this.orders.clear();
         this.orderQueue = [];
-        this.last = -1;
-        this.seqNr = -1;
+        if (fullUpdate === false) {
+            this.last = -1;
+            this.seqNr = -1;
+        }
     }
 
     public setLast(last: number) {
@@ -342,12 +362,12 @@ export class OrderBook<T extends DatabaseOrderBookEntry> { // T is MarketOrder.M
             return rates;
         let item;
         let node: T = it.data();
-        rates.push({rate: node.rate, amount: Math.min(node.amount, amount)});
+        rates.push({rate: node.rate, amount: Math.min(node.amount, amount), marked: false});
         amount -= node.amount;
         while (item = it.prev() != null && amount > 0)
         {
             node = it.data();
-            rates.push({rate: node.rate, amount: Math.min(node.amount, amount)});
+            rates.push({rate: node.rate, amount: Math.min(node.amount, amount), marked: false});
             amount -= node.amount;
         }
         return rates;
@@ -366,12 +386,12 @@ export class OrderBook<T extends DatabaseOrderBookEntry> { // T is MarketOrder.M
             return rates;
         let item;
         let node: T = it.data();
-        rates.push({rate: node.rate, amount: Math.min(node.amount, amount)});
+        rates.push({rate: node.rate, amount: Math.min(node.amount, amount), marked: false});
         amount -= node.amount;
         while (item = it.next() != null && amount > 0)
         {
             node = it.data();
-            rates.push({rate: node.rate, amount: Math.min(node.amount, amount)});
+            rates.push({rate: node.rate, amount: Math.min(node.amount, amount), marked: false});
             amount -= node.amount;
         }
         return rates;
@@ -562,6 +582,33 @@ export class OrderBook<T extends DatabaseOrderBookEntry> { // T is MarketOrder.M
         while (it.next() != null)
             count++;
         return count;
+    }
+
+    /**
+     * Mark all orders currently in the book to be removed.
+     * Call addOrder() afterwards to update/add existing orders.
+     * Then call removeMarked() to remove the rest.
+     */
+    public markOrders() {
+        let it = this.orders.iterator();
+        let item;
+        while ((item = it.next()) !== null)
+            it.data().marked = true;
+    }
+
+    public removeMarked() {
+        let it = this.orders.iterator();
+        let item;
+        let removeNodes = [];
+        while ((item = it.next()) !== null)
+        {
+            if (it.data().marked === true) {
+                //this.orders.remove(item);
+                removeNodes.push(item);
+            }
+        }
+        for (let i = 0; i < removeNodes.length; i++)
+            this.orders.remove(removeNodes[i]);
     }
 
     public isValid() {

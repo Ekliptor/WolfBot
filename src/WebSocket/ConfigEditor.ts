@@ -131,6 +131,10 @@ export class ConfigEditor extends AppPublisher {
     }
 
     public onSubscription(clientSocket: WebSocket, initialRequest: http.IncomingMessage): void {
+        this.sendInitialData(clientSocket)
+    }
+
+    protected sendInitialData(clientSocket: WebSocket) {
         //let configs = this.advisor.getConfigs();
         let configFiles;
         ConfigEditor.listConfigFiles().then((files) => {
@@ -239,6 +243,7 @@ export class ConfigEditor extends AppPublisher {
 
         else if (typeof data.selectedTab === "string") {
             this.selectedTab = data.selectedTab;
+            this.sendInitialData(clientSocket); // send the data again to display possibly updated values in UI
             return;
         }
     }
@@ -702,13 +707,12 @@ export class ConfigEditor extends AppPublisher {
             type: "array",
             items: {
                 type: "object",
-                title: "Config", // TODO better name? + translate on client
+                title: "configShort",
                 properties: properties
             }
         }
         data.data = jsonData.data;
         data.schema = defautlSchema;
-        console.log(defautlSchema)
         return data;
     }
 
@@ -722,6 +726,7 @@ export class ConfigEditor extends AppPublisher {
                 //title: this.req.t(prop), // don't translate those properties
                 type: curType,
                 propertyOrder: ++count
+                //description: "foooo" // added on client-side
             }
             // create enums with select elements
             /*
@@ -735,6 +740,11 @@ export class ConfigEditor extends AppPublisher {
                 }
             }
             */
+            if (prop === "exchanges") {
+                schema[prop].type =  "string";
+                schema[prop].enum = Currency.listExchangeNames();
+                continue;
+            }
 
             if (curType === 'array')
                 this.addArraySubTypes(schema[prop], defaultSite[prop])

@@ -29,9 +29,10 @@ export default class RealTimeTrader extends PortfolioTrader {
     constructor(config: TradeConfig) {
         super(config)
         this.start = Date.now() - 10*1000; // give it some bonus because the first trades that come in might be a few seconds back
-        // update after the first 1min tick only to ensure strategies are (partially) initialized
         this.config.exchanges.forEach((exchange) => {
-            PortfolioTrader.lastMarginPositionUpdateMs.set(exchange, Date.now() - nconf.get("serverConfig:updateMarginPositionsSec")*1000 + 75*1000);
+            // update after the first 1min tick only to ensure strategies are (partially) initialized
+            // TODO this means balance will not be shown on startup until 2nd sync. ok?
+            PortfolioTrader.lastMarginPositionUpdateMs.set(exchange, Date.now() - nconf.get("serverConfig:updateMarginPositionsSec")*1000 + nconf.get("serverConfig:delayFirstEmitSyncSec")*1000);
         })
         setTimeout(this.updatePortfolio.bind(this), 0) // wait until exchanges are attached to this class
 
@@ -537,6 +538,13 @@ export default class RealTimeTrader extends PortfolioTrader {
                     PortfolioTrader.lastMarginPositionUpdateMs.set(exchange.getClassName(), marketTimeMs)
                     //exchange.getAllMarginPositions().then((positions) => { // save 1 http call and use the positions we just loaded above
                     this.syncPortfolio(exchange);
+                }
+                else if (PortfolioTrader.lastMarginPositionUpdateMs.isFirstApiCall === true) {
+                    PortfolioTrader.lastMarginPositionUpdateMs.isFirstApiCall = false;
+                    const emitSec = Math.min(nconf.get("serverConfig:updateMarginPositionsSec"), nconf.get("serverConfig:delayFirstEmitSyncSec"));
+                    setTimeout(() => {
+                        this.syncPortfolio(exchange);
+                    }, emitSec*1000);
                 }
 
                 resolve()

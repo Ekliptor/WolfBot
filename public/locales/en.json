@@ -370,6 +370,7 @@
   "lending": "Lending",
   "errorRendering": "Error rendering page",
   "config": "Configuration",
+  "configShort": "Config",
   "trader": "Trader",
   "started": "Bot started",
   "installed": "Bot installed",
@@ -528,5 +529,45 @@
   "apiSecret": "API Secret",
   "apiKey2": "2nd API Key (optional)",
   "twoKeys": "It is recommended to add 2 API keys for every exchange. This ensures better reliability of the API when doing many requests simultaneously.",
-  "requiredTwoKeys": "Exchange {{name}} requires 2 API keys"
+  "requiredTwoKeys": "Exchange {{name}} requires 2 API keys",
+  "confTitle": {
+    "exchanges": "Exchanges"
+  },
+  "confDesc": {
+    "exchanges": "Here you have to select the exchange you want to trade on. For arbitrage you must choose 2 exchanges.",
+    "marginTrading": "Do you want to do margin (leveraged) trading on this exchange? This setting must be enabled for futures trading.",
+    "tradeTotalBtc": "Enter the total amount you want to trade in your base currency (USD when trading USD_BTC, BTC when trading BTC_ETH,...). If you enable margin trading this amount will be leveraged (multiplied).",
+    "warmUpMin": "How many minutes after start shall the bot start trading? Keep it to 0 (immediately) unless you want to wait for some external market events (news, crash,...). WolfBot will sync pre-existing positions positions on startup and initialize strategies with historical data, so increasing this value doesn't give WolfBot a better understanding of the market.",
+    "notifyTrades": "Send push notifications of all trades to your smartphone."
+  },
+  "stratDesc": {
+    "all": {
+      "order": "The order to execute. Can be: buy|sell|closeLong|closeShort",
+      "pair": "Enter the currency pair you want to trade with this strategy. For example: USD_BTC, BTC_ETC,...",
+      "candleSize": "The candle size in minutes this strategy will use for technical analysis and other indicators that depend on candles.",
+      "tradeStrategy": "The name of the strategy to execute buy/sell orders. Useful to only buy/sell based on 2nd strategy data (for example forwarding the buy order from a strategy with 12h candles to a RSI strategy with 15min candles to execute the trade on RSI oversold...)",
+      "orderStrategy": "More advanced alternative to the 'tradeStrategy' setting. If used, this strategy will pass a TriggerOrderCommand to the 'orderStrategy' (instead of just reacting to the buy/sell signal). See the docs of TriggerOrderCommand for details.",
+      "fallback": "Enable this to use this strategy as a fallback strategy only. This means that it will only execute buy/sell orders if there is already an open position. Closing existing position will be completely disabled (i.e. done by the main strategy).",
+      "enableLog": "Print all strategy actions to the log of the bot.",
+      "percentDecrease": "Decrease the minimum interest rate of your loans by this percentage every hour if not all of your funds have been taken as loans.",
+      "currency": "Enter the currency (USD, BTC, ETH,...) of which you want to place loans.",
+      "tradingFees": "Set the maker/taker trading fees for the exchanges you want to do arbitrage on. This information is used by WolfBot before executing arbitrage trades to ensure that the arbitrage opportunity is profitable.",
+      "tradingFeeDefault": "The default trading fee to use if the exchange is not listed in the 'tradingFees' setting."
+    },
+    "NOOP": {
+      "desc": "This strategy does nothing. It is just a sample and placeholder.",
+      "sample": "Change the 'sample' strategy property."
+    },
+    "PlanRunner": {
+      "desc": "Strategy that emits buy/sell signal based on your configured steps in config. Steps to take action are price points, support and resistance lines,... What makes this strategy powerful is the ability to combine it with any other strategy (including technical indicators). So you can for example configure it to: 'Buy if BitCoin price falls below 6.000 USD and the 1h RSI is below 30 (and the 2h MACD momentum is increasing and...)'",
+      "orders": {
+        "desc": "fooo orders TODO must be object",
+        "action": "action..."
+      },
+      "action": "The action to execute. Can be: buy|sell|closeLong|closeShort",
+      "comp": "Execute the action if the price is above or below the configured rate? Use: <|>",
+      "rate": "The rate when to execute the the defined action.",
+      "indicators": "Define a list of additional indicators that must"
+    }
+  }
 }

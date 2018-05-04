@@ -29,7 +29,7 @@ export class LogReceiver extends ClientSocketReceiver {
                 $("#pauseTrading").addClass("paused");
             }
             if (data.state.trader.pausedOpeningPositions) {
-                $("#pauseOpeningPositions").text(AppF.tr("resumeOpeningPositions"));
+                $("#pauseOpeningPositionsTxt").text(AppF.tr("resumeOpeningPositions"));
                 $("#pauseOpeningPositions").addClass("paused");
             }
             if (data.state.mode === "ai") {

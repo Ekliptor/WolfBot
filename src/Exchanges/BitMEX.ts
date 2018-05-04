@@ -37,7 +37,7 @@ export class BitMEXCurrencies implements Currency.ExchangeCurrencies {
 
     public getExchangeName(localCurrencyName: string): string {
         if (localCurrencyName === "BTC")
-            return "XBt";
+            return "XBT";
         return localCurrencyName
     }
     public getLocalName(exchangeCurrencyName: string): string {
@@ -70,36 +70,23 @@ export class BitMEXCurrencies implements Currency.ExchangeCurrencies {
     }
     public toLocalTicker(exchangeTicker: any): Ticker.Ticker {
         let ticker = new Ticker.Ticker(this.exchange.getExchangeLabel());
-        if (!exchangeTicker || !exchangeTicker.ticker) {
+        if (!exchangeTicker || !exchangeTicker.length) {
             logger.error("Received invalid exchange ticker data from %s", this.exchange.getClassName(), exchangeTicker)
             return undefined;
         }
-        /**
-         * { date: '1499608792',
-              ticker:
-               { buy: 2555.48,
-                 coin_vol: 0, // TODO ?
-                 contract_id: 20170714013,
-                 day_high: 0, // TODO ?
-                 day_low: 0,
-                 high: 2621.44,
-                 last: 2557.73,
-                 low: 2534.6,
-                 sell: 2559.99,
-                 unit_amount: 100,
-                 vol: 272042 } }
-         */
-        exchangeTicker = exchangeTicker.ticker;
+
+        exchangeTicker = exchangeTicker[0];
+
         //ticker.currencyPair = this.getLocalPair(exchangeTicker[0]); set on request
-        ticker.last = Ticker.Ticker.parseNumber(exchangeTicker.last);
-        ticker.lowestAsk = Ticker.Ticker.parseNumber(exchangeTicker.sell);
-        ticker.highestBid = Ticker.Ticker.parseNumber(exchangeTicker.buy);
+        ticker.last = exchangeTicker.lastPrice;
+        ticker.lowestAsk = exchangeTicker.askPrice;
+        ticker.highestBid = exchangeTicker.bidPrice;
         ticker.percentChange = 0;
-        ticker.baseVolume = exchangeTicker.vol; // amount of contracts?
+        ticker.baseVolume = exchangeTicker.volume24h; // amount of contracts?
         ticker.quoteVolume = 0;
         ticker.isFrozen = false;
-        ticker.high24hr = 0;
-        ticker.low24hr = 0;
+        ticker.high24hr = exchangeTicker.highPrice;
+        ticker.low24hr = exchangeTicker.lowPrice;
         return ticker;
     }
 
@@ -150,8 +137,8 @@ export class BitMEXCurrencies implements Currency.ExchangeCurrencies {
                 return; // no (previously) open positions in this market (for this contract time)
             //summary.pl += margin.holding[0].buy_profit_real + margin.holding[0].sell_profit_real; // shows realized p/l, we want the unrealized, use UPL from future_userinfo
             // use combined value of all margin positions (for this currency pair)
-            if (this.exchange.getRawBalances())
-                summary.pl = this.exchange.getRawBalances().info[margin.holding[0].symbol.substr(0, 3)].profit_unreal;
+            //if (this.exchange.getRawBalances())
+                //summary.pl = this.exchange.getRawBalances().info[margin.holding[0].symbol.substr(0, 3)].profit_unreal;
             const liquidationPrice = parseFloat(margin.force_liqu_price.replaceAll(",", ""));
             let currentMargin = this.computeOkexPseudoMargin(liquidationPrice, this.getLocalPair(margin.holding[0].symbol))
             if (summary.currentMargin > currentMargin)
@@ -160,42 +147,23 @@ export class BitMEXCurrencies implements Currency.ExchangeCurrencies {
         return summary;
     }
     public getMarginPosition(margin: any, maxLeverage): MarginPosition {
-        /**
-         * { force_liqu_price: '4,414.65',
-                      holding:
-                       [ { buy_amount: 0,
-                           buy_available: 0,
-                           buy_price_avg: 2581.93728661,
-                           buy_price_cost: 2581.93728661,
-                           buy_profit_real: -0.01146224,
-                           contract_id: 20170714013,
-                           contract_type: 'this_week',
-                           create_date: 1499422055000,
-                           lever_rate: 20,
-                           sell_amount: 3,
-                           sell_available: 3,
-                           sell_price_avg: 2558.53,
-                           sell_price_cost: 2558.53,
-                           sell_profit_real: -0.01412625,
-                           symbol: 'btc_usd' } ],
-                      result: true }
-         */
-        if (margin.holding.length === 0 || (margin.holding[0].buy_amount == 0 && margin.holding[0].sell_amount == 0))
-            return null; // no position open
+        if (margin.simpleQty == 0)
+            return null;
+
         let position = new MarginPosition(maxLeverage);
-        if (margin.holding[0].buy_amount != 0) {
-            position.amount = margin.holding[0].buy_amount;
+        if (margin.simpleQty >= 0) {
+            position.amount = margin.simpleQty;
             position.type = "long";
         }
         else {
-            position.amount = margin.holding[0].sell_amount;
+            position.amount = margin.simpleQty;
             position.type = "short";
         }
-        position.liquidationPrice = parseFloat(margin.force_liqu_price.replaceAll(",", ""));
-        // TODO this is in LTC or BTC, better always convert to BTC
-        //position.pl = margin.holding[0].buy_profit_real + margin.holding[0].sell_profit_real;
-        if (this.exchange.getRawBalances()) // TODO sometimes doesn't show when closing positions. if getBalance() hasn't been called yet
-            position.pl = this.exchange.getRawBalances().info[margin.holding[0].symbol.substr(0, 3)].profit_unreal;
+
+        position.liquidationPrice = margin.liquidationPrice
+
+        //position.pl = TODO!!!!! unrealisedPnl?
+
         return position;
     }
 }
@@ -231,11 +199,15 @@ export default class BitMEX extends AbstractContractExchange {
 
     protected currencies: BitMEXCurrencies;
     protected apiClient: any = null; // TODO wait for typings
+    protected orderbookShapshot = new OrderBookUpdate<MarketOrder.MarketOrder>(Date.now(), false);
+
+    protected restApiPath: string;
 
     constructor(options: ExOptions) {
         super(options)
-        this.publicApiUrl = "https://www.bitmex.com/api/v1/";
+        this.publicApiUrl = "https://testnet.bitmex.com"; // TODO: set www instead of testnet for real operation
         this.privateApiUrl = this.publicApiUrl;
+        this.restApiPath = "/api/v1"
         //this.pushApiUrl = ""; // for autobahn
         this.pushApiUrl = "wss://apiclient";
         this.pushApiConnectionType = PushApiConnectionType.WEBSOCKET;
@@ -256,6 +228,7 @@ export default class BitMEX extends AbstractContractExchange {
             maxTableLen: 10000  // the maximum number of table elements to keep in memory (FIFO queue)
         });
 
+        /*
         this.futureContractType.set("LTC", nconf.get("serverConfig:futureContractType")); // TODO ?
         this.contractValues.set("BTC", 100);
         this.contractValues.set("LTC", 10);
@@ -265,10 +238,7 @@ export default class BitMEX extends AbstractContractExchange {
         this.contractValues.set("BTG", 10);
         this.contractValues.set("XRP", 10);
         this.contractValues.set("EOS", 10);
-    }
-
-    public getRawBalances() {
-        return this.rawBalances;
+        */
     }
 
     public repeatFailedTrade(error: any, currencyPair: Currency.CurrencyPair) {
@@ -296,22 +266,21 @@ export default class BitMEX extends AbstractContractExchange {
         })
     }
 
+    public satoshi2BTC(sato) {
+        return sato/100000000.0
+    }
+
     public getBalances() {
         return new Promise<Currency.LocalCurrencyList>((resolve, reject) => {
             // /user/wallet only holds XBT
             let params = {
                 currency: "XBt" // BitMEX wallet only holds XBT
             }
-            this.privateReq("/user/wallet", params).then((balance) => {
-                console.log(balance)
-                return;
+            this.privateReq("GET /user/walletSummary", params).then((balance) => {
+                //console.log(balance)
                 let balances = {}
-                this.getFetchCurrencies().forEach((currencyStr) => {
-                    if (balance.info[currencyStr] === undefined)
-                        return logger.error("Missing currency %s from %s while getting balance", currencyStr, this.className)
-                    //let resultList = {}
-                    balances[currencyStr] = balance.info[currencyStr].account_rights
-                })
+                // TODO: is that right dow e want it in satoshi
+                balances["BTC"] = this.satoshi2BTC(balance[2].walletBalance)
                 resolve(Currency.fromExchangeList(balances, this.currencies))
             }).catch((err) => {
                 reject(err)
@@ -322,17 +291,18 @@ export default class BitMEX extends AbstractContractExchange {
     public getMarginAccountSummary() {
         return new Promise<MarginAccountSummary>((resolve, reject) => {
             // /user/margin
-            let reqOps = []
-            const fetchPairs = this.getFetchPairs();
-            fetchPairs.forEach((fetchPair) => { // fetch all pairs and return a map
-                let params = {
-                    symbol: fetchPair,
-                    contract_type: this.futureContractType.get(fetchPair)
-                }
-                reqOps.push(this.privateReq("future_position", params))
-            })
-            Promise.all(reqOps).then((accountArr) => {
-                resolve(this.currencies.toMarginAccountSummary(accountArr))
+            let params = {
+                currency: "XBt" // BitMEX wallet only holds XBT
+            }
+            this.privateReq("GET /user/margin", params).then((margin) => {
+                //console.log(margin)
+                let account = new MarginAccountSummary()
+                account.currentMargin  = 1.0 - margin.marginUsedPcnt
+                account.pl = this.satoshi2BTC(margin.unrealisedProfit)
+                account.netValue = account.totalValue = this.satoshi2BTC(margin.availableMargin)
+                console.log(account)
+                resolve(account)
+
             }).catch((err) => {
                 reject(err)
             })
@@ -341,28 +311,59 @@ export default class BitMEX extends AbstractContractExchange {
 
     public fetchOrderBook(currencyPair: Currency.CurrencyPair, depth: number) {
         return new Promise<OrderBookUpdate<MarketOrder.MarketOrder>>((resolve, reject) => {
-            const pairStr = this.currencies.getExchangePair(currencyPair)
-            this.publicReq("future_depth", {
-                symbol: pairStr,
-                contract_type: this.futureContractType.get(pairStr)
-            }).then((book) => {
-                let orders = new OrderBookUpdate<MarketOrder.MarketOrder>(Date.now(), false);
-                ["asks", "bids"].forEach((prop) => {
-                    book[prop].forEach((o) => {
-                        //orders[prop].push({rate: parseFloat(o[0]), amount: parseFloat(o[1])})
-                        orders[prop].push(MarketOrder.MarketOrder.getOrder(currencyPair, this.getExchangeLabel(), o[1], o[0]))
-                    })
-                })
-                resolve(orders)
-            }).catch((err) => {
-                reject(err)
-            })
+            resolve(this.orderbookShapshot)
         })
     }
 
     public importHistory(currencyPair: Currency.CurrencyPair, start: Date, end: Date) {
         return new Promise<void>((resolve, reject) => {
-            reject({txt: "importHistory() is not yet implemented in " + this.className})
+            let marketPair = this.currencies.getExchangePair(currencyPair);
+
+            let offset = 0;
+            const count = 500;
+            let importNext = () => {
+
+                let outParams = {
+                    symbol: marketPair,
+                    startTime: utils.getUnixTimeStr(true, start),
+                    endTime: utils.getUnixTimeStr(true, end),
+                    count: count, // note 500 is max, 100 is default
+                    start: offset
+                }
+                this.privateReq("GET /trade", outParams).then((history) => {
+
+                    let trades = [];
+                    history.forEach((rawTrade) => {
+
+                        let tradeObj = new Trade.Trade();
+                        tradeObj.date = new Date(rawTrade.timestamp);
+                        tradeObj.type = rawTrade.side == "Sell" ? Trade.TradeType.SELL : Trade.TradeType.BUY;
+                        tradeObj.amount = Math.abs(rawTrade.size); // todo: is teh unit right?
+                        tradeObj.rate = rawTrade.price;
+                        tradeObj.tradeID = Math.floor(tradeObj.date.getTime() * tradeObj.amount)
+
+                        tradeObj = Trade.Trade.verifyNewTrade(tradeObj, currencyPair, this.getExchangeLabel(), this.getFee())
+
+                        trades.push(tradeObj)
+                    })
+
+                    Trade.storeTrades(db.get(), trades, (err) => {
+                        if (err)
+                            logger.error("Error storing trades", err)
+                    })
+
+                    if(history.length >= count) {
+                        offset += count;
+                        setTimeout(importNext.bind(this), 3000) // avoid hitting the rate limit -> temporary ban
+                    }
+                    else {
+                        resolve();
+                    }
+                }).catch((err) => {
+                    reject(err)
+                })
+            };
+            importNext();
         })
     }
 
@@ -386,19 +387,28 @@ export default class BitMEX extends AbstractContractExchange {
 
     public getOpenOrders(currencyPair: Currency.CurrencyPair) {
         return new Promise<OpenOrders>((resolve, reject) => {
+
+            let marketPair = this.currencies.getExchangePair(currencyPair);
+
             let outParams = {
-                symbol: this.currencies.getExchangePair(currencyPair),
-                contract_type: this.futureContractType.get(currencyPair.toString()),
-                status: 1, // 1: unfilled  2: filled
-                order_id: -1, // alternative to "status"
-                current_page: 0,
-                page_length: 50
+                symbol: marketPair,
             }
-            this.privateReq("future_order_info", outParams).then((result) => {
+            this.privateReq("GET /order", outParams).then((result) => {
                 let orders = new OpenOrders(currencyPair, this.className);
-                result.orders.forEach((o) => {
-                    let type: "buy" | "sell" = (o.type === 1 || o.type === 4) ? "buy" : "sell"; // type: order type 1: open long, 2: open short, 3: close long, 4: close short -> buy/sell
-                    let orderObj: OpenOrder = {orderNumber: o.order_id, type: type, rate: o.price, amount: o.amount, total: o.price*o.amount, leverage: this.maxLeverage}
+                result.forEach((o) => {
+                    if (o.ordStatus == "Canceled" || o.ordStatus == "Filled") {
+                        return;
+                    }
+
+                    let type: "buy" | "sell" = o.side == "Buy" ? "buy" : "sell"; // type: order type 1: open long, 2: open short, 3: close long, 4: close short -> buy/sell
+                    let orderObj: OpenOrder = {
+                        orderNumber: o.orderID,
+                        type: type,
+                        rate: o.price,
+                        amount: o.simpleOrderQty, // todo: is that right?
+                        total: o.price*o.amount,
+                        leverage: this.maxLeverage
+                    }
                     orderObj.rawType = o.type;
                     orders.addOrder(orderObj)
                 })
@@ -416,44 +426,41 @@ export default class BitMEX extends AbstractContractExchange {
     }
 
     public marginBuy(currencyPair: Currency.CurrencyPair, rate: number, amount: number, params: MarginOrderParameters) {
-        return new Promise<OrderResult>((resolve, reject) => {
-            let outParams;
-            // convert coin amount to contracts
-            // the amount of contracts getting opened is determined by the exchange: contracts = floor( amount / price * contractValue )
-            // their API changed and now accepts the coin amount (will be rounded down to contracts on the server)
-            amount = this.getContractAmount(currencyPair, rate, amount);
-            //amount = Math.floor(amount * 1000) / 1000;
-            //amount *= rate;
-            this.verifyTradeRequest(currencyPair, rate, amount, params).then((oP) => {
-                outParams = oP;
-                outParams.type = 1;
-                //outParams.match_price = 1;
-                return this.checkReducePosition(currencyPair, outParams)
-            }).then((outParams) => {
-                return this.privateReq("future_trade", outParams)
-            }).then((result) => {
-                // { order_id: 7199200432, result: true }
-                this.verifyPositionSize(currencyPair, amount)
-                resolve(OrderResult.fromJson(result, currencyPair, this))
-            }).catch((err) => {
-                reject(err)
-            })
-        })
+        return this.marginOrder(currencyPair, rate, amount, params);
     }
 
     public marginSell(currencyPair: Currency.CurrencyPair, rate: number, amount: number, params: MarginOrderParameters) {
+        return this.marginOrder(currencyPair, rate, -amount, params);
+    }
+
+    private marginOrder(currencyPair: Currency.CurrencyPair, rate: number, amount: number, params: MarginOrderParameters) {
         return new Promise<OrderResult>((resolve, reject) => {
-            let outParams;
-            amount = this.getContractAmount(currencyPair, rate, amount);
             this.verifyTradeRequest(currencyPair, rate, amount, params).then((oP) => {
-                outParams = oP;
-                outParams.type = 2;
-                return this.checkReducePosition(currencyPair, outParams)
-            }).then((outParams) => {
-                return this.privateReq("future_trade", outParams)
-            }).then((result) => {
-                this.verifyPositionSize(currencyPair, amount)
-                resolve(OrderResult.fromJson(result, currencyPair, this))
+
+                let marketPair = this.currencies.getExchangePair(currencyPair);
+
+                let outParams: any = {
+                    'symbol': marketPair, //"XBTUSD",
+                    'ordType': params && params.matchBestPrice ?  "Market" : "Limit", // limit is default
+                    // 'side': "Buy" / "Sell", can be ommited if orderQty or simpleOrderQty is present positive value means buy negative measns sell
+                    //orderQty: amount, this would require amount = this.getContractAmount(currencyPair, rate, amount);
+                    simpleOrderQty: amount
+                }
+                if(params && params.fillOrKill) {
+                    outParams.execInst = "AllOrNone"
+                }
+                if (outParams.ordType == "Limit") {
+                    outParams.price = rate
+                }
+
+                return this.privateReq("POST /order", outParams)
+            }).then((response) => {
+                //this.verifyPositionSize(currencyPair, amount)
+
+                let result = new OrderResult()
+                result.success = response.ordStatus == "Filled"
+                result.orderNumber = response.orderID
+                resolve(result)
             }).catch((err) => {
                 reject(err)
             })
@@ -462,17 +469,12 @@ export default class BitMEX extends AbstractContractExchange {
 
     public marginCancelOrder(currencyPair: Currency.CurrencyPair, orderNumber: number | string) {
         return new Promise<CancelOrderResult>((resolve, reject) => {
-            let outParams = {
-                symbol: this.currencies.getExchangePair(currencyPair),
-                contract_type: this.futureContractType.get(currencyPair.toString()),
-                order_id: orderNumber
+            let params = {
+                orderID: orderNumber
             }
-            this.privateReq("future_cancel", outParams).then((result) => {
-                resolve({exchangeName: this.className, orderNumber: orderNumber, cancelled: result.result == true})
+            this.privateReq("DELETE /order", params).then((result) => {
+                resolve({exchangeName: this.className, orderNumber: orderNumber, cancelled: result[0].ordStatus=="Canceled"})
             }).catch((err) => {
-                // check if already filled (or cancelled)
-                if (err.error_code === 20015)
-                    return resolve({exchangeName: this.className, orderNumber: orderNumber, cancelled: true})
                 reject(err)
             })
         })
@@ -480,55 +482,29 @@ export default class BitMEX extends AbstractContractExchange {
 
     public moveMarginOrder(currencyPair: Currency.CurrencyPair, orderNumber: number | string, rate: number, amount: number, params: MarginOrderParameters) {
         return new Promise<OrderResult>((resolve, reject) => {
-            // OKEX doesn't have a "move order" function. so we have to cancel the order and place it again
-            // they do have a batchOrder function, but each batch entry can fail/succeed independently
-            let book = this.orderBook.get(currencyPair.toString())
-            if (!book)
-                return reject({txt: "No order book available to move order", exchange: this.className, currencyPair: currencyPair.toString()})
+            amount = Math.abs(amount);
+            // todo: re enable this???
+            //if (amount !== 0 && amount < this.minTradingValue)
+            //    return resolve(OrderResult.fromJson({message: "Remaining amount below min trading value can not be moved: " + amount}, currencyPair, this))
             let outParams;
-            //amount = this.getContractAmount(currencyPair, rate, amount); // already in contract amount
             this.verifyTradeRequest(currencyPair, rate, amount, params).then((oP) => {
                 outParams = oP;
                 // we don't know if it was a buy or sell order, so retrieve the order first
                 return this.getOpenOrders(currencyPair)
             }).then((orders) => {
+                const symbol = this.currencies.getExchangePair(currencyPair);
                 if (orders.isOpenOrder(orderNumber)) {
-                    if (rate * amount < this.minTradingValue)
-                        return resolve(OrderResult.fromJson({message: "Remaining amount below min trading value can not be moved: " + rate * amount}, currencyPair, this))
-
-                    this.marginCancelOrder(currencyPair, orderNumber).catch((err) => {
-                        reject(err) // return the error
-                        return Promise.reject(true)
-                    }).then((result) => {
-                        //outParams.orderNumber = orderNumber;
-                        if (!result.cancelled) {
-                            reject("Order to move can not be cancelled in " + this.className)
-                            return Promise.reject(true)
+                    return this.marginCancelOrder(currencyPair, orderNumber).then((result)=>{
+                        if(!result.cancelled) {
+                            return Promise.reject({err: "not failed"})
                         }
-                        //outParams.type = rate >= book.getAsk() ? 2 : 1;
-                        //outParams.type = orders.getOrder(orderNumber).type === "sell" ? 2 : 1;
-                        outParams.type = orders.getOrder(orderNumber).rawType;
-                        outParams.amount = orders.getOrder(orderNumber).amount; // might be below min trading value now
-                        if (outParams.amount > amount)
-                            outParams.amount = this.getContractAmount(currencyPair, rate, outParams.amount / rate);
-                        // TODO on okex close long/short orders can be "pending" and therefore moved. but our bot dosn't follow these orders
-                        // TODO moving the close order cut the amount in half from 0.4 to 0.2 BTC. how?
-                        return this.privateReq("future_trade", outParams)
-                    }).then((result) => {
-                        //console.log(result)
-                        resolve(OrderResult.fromJson(result, currencyPair, this))
-                    }).catch((err) => {
-                        if (err === true)
-                            return;
-                        logger.error("Moving order %s in %s failed. Retrying...", currencyPair.toString(), this.className)
-                        return this.privateReq("future_trade", outParams)
-                    }).catch((err) => {
-                        logger.error("Moving order %s in %s failed. Order has been cancelled", currencyPair.toString(), this.className)
-                        reject(err)
+                        return this.marginOrder(currencyPair,  rate, amount, params)
                     })
                 }
                 else
-                    resolve(OrderResult.fromJson({message: "Order already filled"}, currencyPair, this))
+                    return Promise.resolve(OrderResult.fromJson({message: "Order already filled"}, currencyPair, this))
+            }).then((result) => {
+                resolve(result)
             }).catch((err) => {
                 reject(err)
             })
@@ -537,23 +513,21 @@ export default class BitMEX extends AbstractContractExchange {
 
     public getAllMarginPositions() {
         return new Promise<MarginPositionList>((resolve, reject) => {
-            // their website uses another call, that is not part of the public API: POST https://www.okex.com/future/refreshFutureFulLPri.do?t=1499635132895
-            let reqOps = []
-            const fetchPairs = this.getFetchPairs();
-            fetchPairs.forEach((fetchPair) => { // fetch all pairs and return a map
-                let params = {
-                    symbol: fetchPair,
-                    contract_type: this.futureContractType.get(fetchPair)
-                }
-                reqOps.push(this.privateReq("future_position", params))
-            })
-            Promise.all(reqOps).then((accountArr) => {
+            let params = { }
+            this.privateReq("GET /position", params).then((positions) => {
                 let list = new MarginPositionList();
-                for (let i = 0; i < accountArr.length; i++)
+                for (let i = 0; i < positions.length; i++)
                 {
-                    let position = this.currencies.getMarginPosition(accountArr[i], this.getMaxLeverage());
-                    if (position)
-                        list.set(this.currencies.getLocalPair(fetchPairs[i]).toString(), position)
+                    for (let j = 0; j < this.currencyPairs.length; j++)
+                    {
+                        let marketPair = this.currencies.getExchangePair(this.currencyPairs[j]);
+                        if(marketPair == positions[i].symbol) {
+                            let position = this.currencies.getMarginPosition(positions[i], this.getMaxLeverage());
+                            if (position)
+                                list.set(this.currencyPairs[j].toString(), position)
+                            break;
+                        }
+                    }
                 }
                 resolve(list)
             }).catch((err) => {
@@ -564,12 +538,15 @@ export default class BitMEX extends AbstractContractExchange {
 
     public getMarginPosition(currencyPair: Currency.CurrencyPair) {
         return new Promise<MarginPosition>((resolve, reject) => {
+            let marketPair = this.currencies.getExchangePair(currencyPair);
+
             let params = {
-                symbol: this.currencies.getExchangePair(currencyPair),
-                contract_type: this.futureContractType.get(currencyPair.toString())
+                filter: {
+                    symbol: marketPair
+                }
             }
-            this.privateReq("future_position", params).then((account) => {
-                let position = this.currencies.getMarginPosition(account, this.getMaxLeverage());
+            this.privateReq("GET /position", params).then((positions) => {
+                let position = this.currencies.getMarginPosition(positions[0], this.getMaxLeverage());
                 resolve(position)
             }).catch((err) => {
                 reject(err)
@@ -579,68 +556,21 @@ export default class BitMEX extends AbstractContractExchange {
 
     public closeMarginPosition(currencyPair: Currency.CurrencyPair) {
         return new Promise<OrderResult>((resolve, reject) => {
-            // we don't know if we have to close long or short (or both, though our bot currently doesn't open contradicting positions)
-            // get our position for this currency pair first
-            let firstPosition: MarginPosition;
-            this.verifyExchangeRequest(currencyPair).then((currencyPairStr) => {
-                return this.getMarginPosition(currencyPair)
-            }).then((position) => {
-                if (!position) // TODO sometimes if position amount is too small (< 0.x) we also get the 20016 error. how to handle this?
-                    return Promise.reject({txt: "No margin position available to close", exchange: this.getClassName(), pair: currencyPair.toString()})
-                firstPosition = position;
-                const lastRate = this.orderBook.get(currencyPair.toString()).getLast();
-                const offset = nconf.get("serverConfig:closeRatePercentOffset");
-                const closeRate = position.type === "short" ? lastRate + lastRate/100*offset : lastRate - lastRate/100*offset;
-                let outParams: any = {
-                    //price: 0, // use match price
-                    price: closeRate,
-                    symbol: this.currencies.getExchangePair(currencyPair),
-                    lever_rate: this.maxLeverage,
-                    contract_type: this.futureContractType.get(currencyPair.toString()),
-                    amount: Math.abs(position.amount),
-                    //match_price: 1, // match price often fails because it uses the last price at order time
-                    match_price: 0,
-                    type: position.type === "short" ? 4 : 3
-                }
-                return this.privateReq("future_trade", outParams)
-            }).then((result) => {
-                return new Promise<MarginPosition>((resolveSub, rejectSub) => {
-                    // check again for a position in the other direction
-                    // wait a bit so that the other position can be closed before // TODO api to check for both positions by 2nd parameter
-                    setTimeout(() => {
-                        // resolve the main function after the timer expired to ensure we don't close a position just opened
-                        resolve(OrderResult.fromJson(result, currencyPair, this))
-                        this.waitForOpenOrders(currencyPair).then(() => {
-                            return this.getMarginPosition(currencyPair)
-                        }).then((position) => {
-                            resolveSub(position)
-                        }).catch((err) => {
-                            rejectSub(err)
-                        })
-                    }, nconf.get("serverConfig:delayPossible2ndPositionCloseSec")*1000)
-                })
-            }).then((position) => {
-                //if (position && position.type !== firstPosition.type) { // shouldn't happen with openOppositePositions disabled, but be safe
-                if (position) { // just check again for a position. sometimes the first order doesn't get through on OKEX. why?
-                    logger.info("Closing 2nd open margin position for pair %s on %s", currencyPair.toString(), this.getClassName())
-                    this.closeMarginPosition(currencyPair).then((orderResult) => {
-                        // don't return this response
-                        // reset it to default for the next opening, shouln't be needed here
-                        this.futureContractType.set(currencyPair.toString(), nconf.get("serverConfig:futureContractType"));
-                    }).catch((err) => {
-                        logger.error("Error closing 2nd %s open margin position", currencyPair.toString(), err)
-                        this.sendNotification("Error closing 2nd open margin position", utils.sprintf("CurrencyPair %s", currencyPair.toString()))
-                        if (this.repeatFailedTrade(err, currencyPair)) {
-                            this.closeMarginPosition(currencyPair).catch((err) => {
-                                logger.error("Error closing 2nd open margin position (repeat)", err)
-                                // TODO sometimes close orders don't get filled and wait pending forever
-                            })
-                        }
-                    })
-                }
-                else
-                    this.futureContractType.set(currencyPair.toString(), nconf.get("serverConfig:futureContractType")); // reset it to default for the next opening
-                this.verifyPositionSize(currencyPair, 0)
+
+            let marketPair = this.currencies.getExchangePair(currencyPair);
+
+            let outParams = {
+                'symbol': marketPair, //"XBTUSD",
+                'execInst': 'Close',
+            }
+
+            this.privateReq("POST /order", outParams).then((response) => {
+                //this.verifyPositionSize(currencyPair, amount)
+
+                let result = new OrderResult()
+                result.success = response.ordStatus == "Filled"
+                result.orderNumber = response.orderID
+                resolve(result)
             }).catch((err) => {
                 reject(err)
             })
@@ -651,56 +581,80 @@ export default class BitMEX extends AbstractContractExchange {
     // ###################### PRIVATE FUNCTIONS #######################
 
     protected publicReq(method: string, params: ExRequestParams = {}) {
-        return new Promise<ExResponse>((resolve, reject) => {
-            if (!this.publicApiUrl)
-                return reject({txt: "PublicApiUrl must be provided for public exchange request", exchange: this.className})
-
-            params.api_key = this.apiKey.key;
-            params = this.signRequest(params) // signature shouldn't be needed for most these requests here
-            let query = querystring.stringify(params);
-            const urlStr = this.publicApiUrl + method + ".do?" + query;
-            let options = {
-                cloudscraper: true
-            }
-            this.get(urlStr, (body, response) => {
-                this.verifyExchangeResponse(body, response, method).then((json) => {
-                    resolve(json)
-                }).catch((err) => {
-                    reject(err)
-                })
-            }, options)
-        })
+        return this.myReq(this.publicApiUrl, method, params);
     }
 
     protected privateReq(method: string, params: ExRequestParams = {}) {
+        return this.myReq(this.privateApiUrl, method, params);
+    }
+
+    protected myReq(base_url: string, method: string, params: ExRequestParams = {}) {
         return new Promise<ExResponse>((resolve, reject) => {
-            if (!this.privateApiUrl || !this.apiKey)
+            if (!base_url || !this.apiKey)
                 return reject({txt: "PrivateApiUrl and apiKey must be provided for private exchange request", exchange: this.className})
 
-            params.api_key = this.apiKey.key;
-            params = this.signRequest(params)
-            let options = {
+            let verb_method = method.split(" ");
+
+            let verb = verb_method[0]
+            let path = this.restApiPath + verb_method[1]
+            let data = '';
+            if(verb == "GET") {
+                path += "?" + querystring.stringify(params);
+            }
+            else if(verb == "POST") {
+                data = JSON.stringify(params);
+            }else if(verb == "DELETE") {
+                data = querystring.stringify(params);
+            }
+
+            let options: any = {
                 retry: false, // don't retry
+                headers: this.signRequest(verb, path, data),
                 cloudscraper: true
             }
-            // TODO we need get and post here. split it into 2 functions?
-            const urlStr = this.privateApiUrl + method;
-            this.post(urlStr, params, (body, response) => {
-                this.verifyExchangeResponse(body, response, method).then((json) => {
-                    resolve(json)
-                }).catch((err) => {
-                    reject(err)
-                })
-            }, options)
+
+            const urlStr = base_url + path;
+            if(verb == "GET") {
+                this.get(urlStr, (body, response) => {
+                    this.verifyExchangeResponse(body, response, method).then((json) => {
+                        resolve(json)
+                    }).catch((err) => {
+                        reject(err)
+                    })
+                }, options)
+            }
+            else if(verb == "POST" || verb == "DELETE") {
+                if (verb == "DELETE") {
+                    options.method = "DELETE"
+                }
+                else {
+                    options.postJson = true
+                }
+                this.post(urlStr, params, (body, response) => {
+                    this.verifyExchangeResponse(body, response, method).then((json) => {
+                        resolve(json)
+                    }).catch((err) => {
+                        reject(err)
+                    })
+                }, options)
+            }
         })
     }
 
-    protected signRequest(params: ExRequestParams) {
-        let data = utils.objects.sortByKey(Object.assign({}, params));
-        let signData = Object.assign({}, data);
-        signData.secret_key = this.apiKey.secret;
-        data.sign = crypto.createHash('md5').update(querystring.stringify(signData), 'utf8').digest('hex').toUpperCase();
-        return data;
+    protected signRequest(verb, path, data = '') {
+        let expires = Math.floor(Date.now() / 1000) + 100;
+        let raw = verb + path + expires + data;
+
+        let secret_buffer = new Buffer(this.apiKey.secret);
+        let hmac = crypto.createHmac('sha256', secret_buffer);
+        let signature = hmac.update(raw, 'latin1').digest('hex');
+
+        let headers = {
+          'api-expires': expires,
+          'api-key': this.apiKey.key,
+          'api-signature': signature
+        }
+        return headers;
     }
 
     protected createConnection(): autobahn.Connection {
@@ -708,131 +662,146 @@ export default class BitMEX extends AbstractContractExchange {
     }
 
     protected createWebsocketConnection(): WebSocket {
-        let conn: WebSocket = new WebSocket(this.pushApiUrl, this.getWebsocketOptions());
-        const marketEventStreamMap = new Map<string, EventStream<any>>(); // (exchange currency name, stream instance)
-        //this.localSeqNr = 0; // keep counting upwards
+        try {
+            const marketEventStreamMap = new Map<string, EventStream<any>>(); // (exchange currency name, stream instance)
 
-        conn.onopen = (e) => {
-            //conn.send(JSON.stringify({event: "addChannel", channel: "ok_sub_futureusd_btc_trade_this_week"}));
+            //let conn: WebSocket = new WebSocket(this.pushApiUrl, this.getWebsocketOptions());
+            const bws = this.apiClient.socket/*(2)*/; // TODO proxy/options
 
-            // TODO their L2 (full depth) order book updates don't contain price data. instead a unique key (the price level on update is already known)
-            // so we must store those unique keys in a BitMex orderbook class
-            this.updateOrderBooks(false); // we get it through the WebSocket connection
-            this.currencyPairs.forEach((pair) => {
-                let marketPair = this.currencies.getExchangePair(pair);
-                // every market has their own sequence numbers on poloniex. we have to ensure they are piped in order
-                let marketEventStream = new EventStream<any>(this.className + "-Market-" + marketPair, this.maxPendingMarketEvents);
-                this.openMarketRelays.push(marketEventStream);
-                marketEventStreamMap.set(pair.toString(), marketEventStream); // use local pairs here
-                marketEventStream.on("value", (value, seqNr) => {
-                    this.marketStream.write(pair, value, seqNr);
-                })
-                const exchangePairParts = marketPair.split("_")
-                let channel = utils.sprintf("ok_sub_future_%s_depth_%s_%s", exchangePairParts[0], this.futureContractType.get(marketPair), exchangePairParts[1]); // orders
-                conn.send(JSON.stringify({event: "addChannel", channel: channel})); // subscribe to this channel first because it contains a timestamp
-                channel = utils.sprintf("ok_sub_future%s_%s_trade_%s", exchangePairParts[1], exchangePairParts[0], this.futureContractType.get(marketPair)); // trades
-                conn.send(JSON.stringify({event: "addChannel", channel: channel}));
-
-                this.orderBook.get(pair.toString()).setSnapshot([], this.localSeqNr); // we receive an implicit snapshot with the first response
+            this.apiClient.on("error", (err) => {
+                logger.error("WebSocket error in %s", this.className, err);
+                this.closeConnection("WebSocket error")
             })
-            //conn.send(JSON.stringify({event: "addChannel", channel: "ok_sub_futureusd_positions"})); // needs apiKey and sign
-            this.scheduleWebsocketPing(() => {
-                conn.send(JSON.stringify({event: "ping"}));
-            }, 30000)
-        }
 
-        conn.onmessage = (e) => {
-            this.resetWebsocketTimeout(); // timeouts don't work properly for this socket
-            this.localSeqNr++;
-            //this.localSeqNr = Date.now(); // bad idea because we emit early if nextSeq === lastSeqNr+1
-            try {
-                if (typeof e.data !== "string")
-                    throw new Error("Received data with invalid type " + typeof e.data);
-                const msg = JSON.parse(e.data);
-                if (!msg[0] || !msg[0].channel || !msg[0].data) {
-                    if (msg.event !== "pong")
-                        logger.error("Received WebSocket message in unknown format in %s", this.className, msg)
-                    return;
-                }
-                else if (msg[0].channel === "addChannel")
-                    return; // confirmation message
-                if (msg[0].data.error_code)
-                    return logger.error("%s WebSocket API error:", this.className, msg[0].data)
+            this.apiClient.on('open', () => {
+                logger.verbose("%s WS Connection opened", this.className)
+            });
 
-                // global events
-                if (msg[0].channel === "ok_sub_futureusd_positions") {
-                    //console.log(msg[0].data)
-                    return;
-                }
-                else if (msg[0].channel && msg[0].channel.indexOf("_forecast_price") !== -1) // btc_forecast_price
-                    return; // sent without subscribing to it. bug?
+            this.apiClient.on('initialize', () => {
+                logger.verbose('%s Client initialized, data is flowing.', this.className)
 
-                const currencyPair = this.getCurrencyFromChannel(msg[0].channel);
-                if (!currencyPair)
-                    return;
-                let marketEventStream = marketEventStreamMap.get(currencyPair.toString());
-                if (!marketEventStream) {
-                    logger.error("Received %s market update for currency pair %s we didn't subscribe to: ", currencyPair, this.className, msg[0]);
-                    return;
-                }
-                const actionType = this.getActionTypeFromChannel(msg[0].channel);
-                if (msg[0].data && msg[0].data.timestamp) // in bids/asks
-                    this.lastServerTimestampMs = msg[0].data.timestamp;
+                let lastTradeID = "";
 
-                if (actionType === "trade") {
-                    let trades = [];
-                    //console.log(new Date(), "<- NOW")
-                    msg[0].data.forEach((trade) => {
-                        // for trades: [tid, price, amount, time, type, amountbtc] - all strings, type = ask|bid, amountbtc mostly null
-                        // to: [ 't', '25969600', 0, '0.09718515', '0.53288249', 1496175981 ]
-                        // type 1 = buy, 0 = sell
-                        //let date = this.setDateByStr(new Date(), trade[3]);
-                        //let timestamp = Math.floor(this.getLocalTimestampMs(date) / 1000);
-                        let date = this.setDateByStr(new Date(this.lastServerTimestampMs), trade[3]);
-                        let timestamp = Math.floor(date.getTime() / 1000);
-                        //console.log(new Date(timestamp*1000), new Date(this.lastServerTimestampMs), new Date())
-                        trades.push(["t", trade[0], trade[4] === "ask" ? 1 : 0, trade[1], trade[2], timestamp])
+                this.currencyPairs.forEach((pair) => {
+                    const currencyPair = pair;
+                    if (!currencyPair)
+                        return;
+
+                    let orderBook: OrderBook<MarketOrder.MarketOrder> = this.orderBook.get(pair.toString());
+                    orderBook.setSnapshot([], this.localSeqNr, true);
+
+                    let marketPair = this.currencies.getExchangePair(currencyPair);
+
+                    let marketEventStream = new EventStream<any>(this.className + "-Market-" + marketPair, this.maxPendingMarketEvents);
+                    this.openMarketRelays.push(marketEventStream);
+                    marketEventStreamMap.set(pair.toString(), marketEventStream); // use local pairs here
+
+                    marketEventStream.on("value", (value, seqNr) => {
+                         this.marketStream.write(pair, value, seqNr);
                     })
-                    marketEventStream.add(this.localSeqNr, trades);
-                }
-                else if (actionType === "order") {
-                    let orders = [];
-                    //console.log(msg[0].data)
-                    if (msg[0].data.asks) { // now they sometimes only send ask/bid updates
-                        msg[0].data.asks.forEach((order) => {
+
+                    this.apiClient.addStream(marketPair, 'trade', (data, symbol, tableName) => {
+                        // we get maxTableLen newest results, if the table is full it behaves like a FIFO, so we need to detect whats new
+                        //console.log("got trades: " + data.length);
+                        this.resetWebsocketTimeout();
+
+                        if (!data.length || data.length <= 0) {
+                            return
+                        }
+
+                        let marketEventStream = marketEventStreamMap.get(currencyPair.toString());
+                        if (!marketEventStream) {
+                            logger.error("Received market update for currency pair we didn't subscribe to:", currencyPair);
+                            return;
+                        }
+
+                        let newIndex = 0;
+                        for (let i=data.length-1; i >= 0; i--) {
+                            let trade = data[i];
+                            if (trade.trdMatchID == lastTradeID) {
+                                newIndex = i+1;
+                                break;
+                            }
+                        }
+                        lastTradeID = data[data.length-1].trdMatchID;
+
+                        let trades = [];
+                        for (let i=newIndex; i < data.length; i++) {
+                            let trade = data[i];
+
+                            let date = this.setDateByStr(new Date(this.lastServerTimestampMs), trade.timestamp);
+                            let timestamp = Math.floor(date.getTime() / 1000);
+                            // todo: order.size to coin
+                            trades.push(["t", trade.trdMatchID, trade.side == "Buy" ? 1 : 0, trade.price, trade.size, timestamp])
+                        }
+
+                        if(trades.length > 0) {
+                            this.localSeqNr++;
+                            marketEventStream.add(this.localSeqNr, trades);
+                        }
+                    });
+
+                    this.apiClient.addStream(marketPair, 'orderBookL2', (data, symbol, tableName)=> {
+                        // we get maxTableLen newest results, if the table is full it behaves like a FIFO, so we need to detect whats new
+                        this.resetWebsocketTimeout();
+
+                        if (!data.length || data.length <= 0) {
+                            return
+                        }
+
+                        let orders = [];
+
+                        this.orderbookShapshot = new OrderBookUpdate<MarketOrder.MarketOrder>(Date.now(), false);
+
+                        data.forEach((order) => {
                             // for orders: [Price, Amount(Contract), Amount(Coin),Cumulant(Coin),Cumulant(Contract)]
                             // [ 'o', 1, '0.09520000', '8.74681417' ] // add 1, remove 0
-                            orders.push(["o", order[1] == 0 ? 0 : 1, order[0], order[2]])
-                        })
-                    }
-                    if (msg[0].data.bids) {
-                        msg[0].data.bids.forEach((order) => {
-                            orders.push(["o", order[1] == 0 ? 0 : 1, order[0], order[2]])
-                        })
-                    }
-                    marketEventStream.add(this.localSeqNr, orders);
-                }
-                else
-                    logger.error("Received unknown action type %s from %s", actionType, this.className)
-                //console.log(msg[0].data)
-            }
-            catch (err) {
-                logger.error("Error parsing %s websocket message", this.className, err);
-            }
-        }
+                            // todo: order.size to coin
+                            orders.push(["of", 1, order.price, order.size])
 
-        conn.onerror = (err) => {
-            logger.error("WebSocket error in %s", this.className, err);
-            this.closeConnection("WebSocket error")
-        }
+                            let prop = order == "Sell" ? "asks" : "bids";
+                            this.orderbookShapshot[prop].push(MarketOrder.MarketOrder.getOrder(currencyPair, this.getExchangeLabel(), order.size, order.price))
+                        })
 
-        conn.onclose = (event) => {
-            let reason = "Unknown error"; // TODO this happens every 5min. OKEX resets the connection?
-            if (event && event.reason)
-                reason = event.reason;
-            this.onConnectionClose(reason);
+                        //this.localSeqNr++; // only increment for trades
+                        //this.marketStream.write(currencyPair, orders, this.localSeqNr);
+                        orderBook.replaceSnapshot(this.orderbookShapshot["bids"].concat(this.orderbookShapshot["asks"]), this.localSeqNr);
+
+                    });
+
+                    this.apiClient.addStream(marketPair, 'instrument', (data, symbol, tableName)=> {
+                      // we get maxTableLen newest results, if the table is full it behaves like a FIFO, so we need to detect whats new
+                      //console.log("got orders: " + data.length);
+                        let tickerObj = this.currencies.toLocalTicker(data)
+                        if (!tickerObj)
+                            return;
+                        tickerObj.currencyPair = currencyPair
+                        if (!tickerObj.currencyPair)
+                            return; // we don't support this pair (shouldn't be subscribed then)
+                        let tickerMap = new Ticker.TickerMap()
+                        tickerMap.set(tickerObj.currencyPair.toString(), tickerObj)
+                        this.setTickerMap(tickerMap)
+                    });
+                })
+
+            });
+
+            this.apiClient.on('close', () => {
+                logger.info('%s Connection closed.', this.className)
+                this.closeConnection("Connection closed");
+            });
+
+            this.apiClient.on('end', () => {
+                logger.info('%s Connection ended.', this.className)
+                this.closeConnection("Connection ended");
+            });
+
+            return bws; // EventEmitter and not WebSocket, but ok
         }
-        return conn;
+        catch (e) {
+            logger.error("Exception on creating %s WebSocket connection", this.className, e)
+            return null; // this function will get called again after a short timeout
+        }
     }
 
     protected getCurrencyFromChannel(channel: string): Currency.CurrencyPair {
@@ -858,25 +827,6 @@ export default class BitMEX extends AbstractContractExchange {
             return "order";
         logger.error("Unknown channel type in %s: %s", this.className, channel)
         return null;
-    }
-
-    protected checkReducePosition(currencyPair: Currency.CurrencyPair, outParams: ExRequestParams) {
-        return new Promise<ExRequestParams>((resolve, reject) => {
-            this.getMarginPosition(currencyPair).then((position) => {
-                if (!position)
-                    return resolve(outParams)
-                //outParams.type = position.type === "short" ? 4 : 3;
-                // TODO sometimes TakeProfitPartial still opens an opposite position. why?
-                if (position.type === "short" && outParams.type === 1)
-                    outParams.type = 4; // reduce short position
-                else if (position.type === "long" && outParams.type === 2)
-                    outParams.type = 3; // reduce long position
-                resolve(outParams)
-            }).catch((err) => {
-                logger.error("Error checking whether to reduce existing position", err)
-                resolve(outParams) // continue
-            })
-        })
     }
 
     protected verifyPositionSize(currencyPair: Currency.CurrencyPair, amount: number) {
@@ -944,7 +894,7 @@ export default class BitMEX extends AbstractContractExchange {
         return new Promise<any>((resolve, reject) => {
             if (!body)
                 return reject({txt: "Error on exchange request", exchange: this.className, method: method, response: response})
-            let json = utils.parseJson(body)
+            let json = typeof(body) == "string" ? utils.parseJson(body) : body;
             if (!json)
                 return reject({txt: "Received invalid JSON from exchange", exchange: this.className, method: method, body: body})
             if (json.error_code) {
@@ -964,9 +914,9 @@ export default class BitMEX extends AbstractContractExchange {
             {
                 if (pairArr[u] === "USD")
                     continue;
-                const pairPos = OKEX.FETCH_PAIRS.indexOf(pairArr[u].toLowerCase() + "_usd");
+                const pairPos = BitMEX.FETCH_PAIRS.indexOf(pairArr[u].toLowerCase() + "_usd");
                 if (pairPos !== -1)
-                    fetchPairs.push(OKEX.FETCH_PAIRS[pairPos])
+                    fetchPairs.push(BitMEX.FETCH_PAIRS[pairPos])
                 else
                     logger.error("Unable to get %s currency pair %s to fetch", this.className, pairArr[u])
 
@@ -985,9 +935,9 @@ export default class BitMEX extends AbstractContractExchange {
             {
                 if (pairArr[u] === "USD")
                     continue;
-                const currencyPos = OKEX.FETCH_CURRENCIES.indexOf(pairArr[u].toLowerCase());
+                const currencyPos = BitMEX.FETCH_CURRENCIES.indexOf(pairArr[u].toLowerCase());
                 if (currencyPos !== -1)
-                    fetchCurrencies.push(OKEX.FETCH_CURRENCIES[currencyPos])
+                    fetchCurrencies.push(BitMEX.FETCH_CURRENCIES[currencyPos])
                 else
                     logger.error("Unable to get %s currency %s to fetch", this.className, pairArr[u])
 
