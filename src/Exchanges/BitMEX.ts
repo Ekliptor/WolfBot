@@ -1,7 +1,6 @@
 
 // https://www.bitmex.com/app/apiOverview
 // https://github.com/BitMEX/api-connectors/tree/master/official-ws/nodejs
-// TODO not yet implemented. differs a lot from other exchanges
 
 
 import * as utils from "@ekliptor/apputils";
@@ -25,7 +24,6 @@ import EventStream from "../Trade/EventStream";
 import {Currency, Ticker, Trade, TradeHistory, MarketOrder} from "@ekliptor/bit-models";
 import {MarketAction} from "../Trade/MarketStream";
 import {OrderBook} from "../Trade/OrderBook";
-
 
 
 export class BitMEXCurrencies implements Currency.ExchangeCurrencies {
@@ -58,10 +56,11 @@ export class BitMEXCurrencies implements Currency.ExchangeCurrencies {
         return str1 + str2 // reverse the order: BTC_USD -> XBTUSD
     }
     public getLocalPair(exchangePair: string): Currency.CurrencyPair {
-        // DASH has 4 chars, other currencies 3. no separator
-        let pair = exchangePair.split("_")
-        let cur1 = Currency.Currency[pair[0]] // reverse the order back
-        let cur2 = Currency.Currency[pair[1]]
+        let pair = [exchangePair.substr(0, 3), exchangePair.substr(3)]
+        let cur1 = Currency.Currency[this.getLocalName(pair[0])] // reverse the order back
+        let cur2 = Currency.Currency[this.getLocalName(pair[1])]
+        if (!cur2 && /^M[0-9]+$/i.test(pair[1]) === true)
+            cur2 = Currency.Currency.BTC;
         if (!cur1 || !cur2)
             return undefined;
         if (cur2 == Currency.Currency.USD)
@@ -90,59 +89,14 @@ export class BitMEXCurrencies implements Currency.ExchangeCurrencies {
         return ticker;
     }
 
-    public computeOkexPseudoMargin(forcedLiquidation: number, localPair: Currency.CurrencyPair) {
-        // they show a real margin on their Website (different API)
-        // but since we don't always trade with all our funds, yet use cross-margin mode, their real margin is a bit too high always too
-        let book = this.exchange.getOrderBook().get(localPair.toString())
-        if (!book)
-            return 1.0;
-        // check how close we are to the forced liquidation rate.
-        let diff = Math.abs(helper.getDiffPercent(forcedLiquidation, book.getLast()))
-        if (diff >= 30)
-            return 1.0;
-        return diff/100;
-    }
     public toMarginAccountSummary(margins: any[]) {
         /**
-         * {
-            "force_liqu_price": "0.07",
-            "holding": [
-                {
-                    "buy_amount": 1,
-                    "buy_available": 0,
-                    "buy_price_avg": 422.78,
-                    "buy_price_cost": 422.78,
-                    "buy_profit_real": -0.00007096,
-                    "contract_id": 20141219012,
-                    "contract_type": "this_week",
-                    "create_date": 1418113356000,
-                    "lever_rate": 10,
-                    "sell_amount": 0,
-                    "sell_available": 0,
-                    "sell_price_avg": 0,
-                    "sell_price_cost": 0,
-                    "sell_profit_real": 0,
-                    "symbol": "btc_usd"
-                }
-            ],
-            "result": true
-        }
+
          */
         let summary = new MarginAccountSummary();
         summary.currentMargin = 1.0;
         margins.forEach((margin) => {
-            // in cross margin mode holding should only have 1 entry
-            // TODO total value etc..
-            if (margin.holding.length === 0)
-                return; // no (previously) open positions in this market (for this contract time)
-            //summary.pl += margin.holding[0].buy_profit_real + margin.holding[0].sell_profit_real; // shows realized p/l, we want the unrealized, use UPL from future_userinfo
-            // use combined value of all margin positions (for this currency pair)
-            //if (this.exchange.getRawBalances())
-                //summary.pl = this.exchange.getRawBalances().info[margin.holding[0].symbol.substr(0, 3)].profit_unreal;
-            const liquidationPrice = parseFloat(margin.force_liqu_price.replaceAll(",", ""));
-            let currentMargin = this.computeOkexPseudoMargin(liquidationPrice, this.getLocalPair(margin.holding[0].symbol))
-            if (summary.currentMargin > currentMargin)
-                summary.currentMargin = currentMargin; // use the smallest value (mostly used for smartphone alerts)
+            // TODO?
         })
         return summary;
     }
@@ -162,7 +116,14 @@ export class BitMEXCurrencies implements Currency.ExchangeCurrencies {
 
         position.liquidationPrice = margin.liquidationPrice
 
-        //position.pl = TODO!!!!! unrealisedPnl?
+        position.pl = BitMEX.satoshi2BTC(margin.unrealisedPnl);
+        const ticker = this.exchange.getTickerSync();
+        const currencyPair = this.getLocalPair(margin.symbol);
+        if (ticker && currencyPair && ticker.has(currencyPair.toString())) {
+            let pairTicker = ticker.get(currencyPair.toString());
+            if (pairTicker.last != 0.0)
+                position.pl *= pairTicker.last; // pl is in base currency. for USD_BTC amount is in BTC and pl in USD
+        }
 
         return position;
     }
@@ -205,7 +166,7 @@ export default class BitMEX extends AbstractContractExchange {
 
     constructor(options: ExOptions) {
         super(options)
-        this.publicApiUrl = "https://testnet.bitmex.com"; // TODO: set www instead of testnet for real operation
+        this.publicApiUrl = utils.sprintf("https://%s.bitmex.com", this.apiKey.testnet === true ? "testnet" : "www");
         this.privateApiUrl = this.publicApiUrl;
         this.restApiPath = "/api/v1"
         //this.pushApiUrl = ""; // for autobahn
@@ -218,11 +179,12 @@ export default class BitMEX extends AbstractContractExchange {
         this.minTradingValue = 0.09; // actually different for LTC and BTC, depending on contract value
         this.fee = 0.003; // only for opening positions
         this.maxLeverage = 20; // 2 - 100
+        //this.maxTimeAheadMs = 20000; // their clock goes ahead?
         this.currencies = new BitMEXCurrencies(this);
         this.webSocketTimeoutMs = nconf.get('serverConfig:websocketTimeoutMs')*6; // they don't send pings too often
         this.httpKeepConnectionsAlive = true; // they have full support for it. allegedly as fast as websockets
         this.apiClient = new BitMEXClient({
-            testnet: true,
+            testnet: this.apiKey.testnet === true,
             apiKeyID: this.apiKey.key,
             apiKeySecret: this.apiKey.secret,
             maxTableLen: 10000  // the maximum number of table elements to keep in memory (FIFO queue)
@@ -257,6 +219,10 @@ export default class BitMEX extends AbstractContractExchange {
         })
     }
 
+    public getTickerSync() {
+        return this.ticker;
+    }
+
     public getIndexPrice() {
         return new Promise<Ticker.TickerMap>((resolve, reject) => {
             // TODO index price is displayed on their website, transmitted via websockets, but no api available?
@@ -266,7 +232,7 @@ export default class BitMEX extends AbstractContractExchange {
         })
     }
 
-    public satoshi2BTC(sato) {
+    public static satoshi2BTC(sato) {
         return sato/100000000.0
     }
 
@@ -278,9 +244,10 @@ export default class BitMEX extends AbstractContractExchange {
             }
             this.privateReq("GET /user/walletSummary", params).then((balance) => {
                 //console.log(balance)
+                if (!balance || balance.error)
+                    return reject({txt: "Error getting bitmex balance", err: balance});
                 let balances = {}
-                // TODO: is that right dow e want it in satoshi
-                balances["BTC"] = this.satoshi2BTC(balance[2].walletBalance)
+                balances["BTC"] = BitMEX.satoshi2BTC(balance[2].walletBalance)
                 resolve(Currency.fromExchangeList(balances, this.currencies))
             }).catch((err) => {
                 reject(err)
@@ -298,9 +265,8 @@ export default class BitMEX extends AbstractContractExchange {
                 //console.log(margin)
                 let account = new MarginAccountSummary()
                 account.currentMargin  = 1.0 - margin.marginUsedPcnt
-                account.pl = this.satoshi2BTC(margin.unrealisedProfit)
-                account.netValue = account.totalValue = this.satoshi2BTC(margin.availableMargin)
-                console.log(account)
+                account.pl = BitMEX.satoshi2BTC(margin.unrealisedProfit)
+                account.netValue = account.totalValue = BitMEX.satoshi2BTC(margin.availableMargin)
                 resolve(account)
 
             }).catch((err) => {
@@ -435,6 +401,12 @@ export default class BitMEX extends AbstractContractExchange {
 
     private marginOrder(currencyPair: Currency.CurrencyPair, rate: number, amount: number, params: MarginOrderParameters) {
         return new Promise<OrderResult>((resolve, reject) => {
+            // see min price ticks, otherwise "Invalid price tickSize" error
+            if (currencyPair.equals(new Currency.CurrencyPair(Currency.Currency.USD, Currency.Currency.BTC)))
+                rate = Math.round(rate*2) / 2.0; // 0.5 ticks
+            else
+                rate = utils.calc.round(rate, 5);
+
             this.verifyTradeRequest(currencyPair, rate, amount, params).then((oP) => {
 
                 let marketPair = this.currencies.getExchangePair(currencyPair);
@@ -459,7 +431,12 @@ export default class BitMEX extends AbstractContractExchange {
 
                 let result = new OrderResult()
                 result.success = response.ordStatus == "Filled"
-                result.orderNumber = response.orderID
+                result.orderNumber = response.orderID || "";
+                if (!result.success) {
+                    logger.error("%s margin order error: ", this.className, response);
+                    if (response.error && response.error.message)
+                        result.message = response.error.message;
+                }
                 resolve(result)
             }).catch((err) => {
                 reject(err)
@@ -473,7 +450,14 @@ export default class BitMEX extends AbstractContractExchange {
                 orderID: orderNumber
             }
             this.privateReq("DELETE /order", params).then((result) => {
-                resolve({exchangeName: this.className, orderNumber: orderNumber, cancelled: result[0].ordStatus=="Canceled"})
+                if (result && result.error) {
+                    if (result.error && result.error.message.toLowerCase().indexOf("not found") !== -1)
+                        resolve({exchangeName: this.className, orderNumber: orderNumber, cancelled: true})
+                    else
+                        reject({txt: "Can't cancel order", err: result.err})
+                }
+                else
+                    resolve({exchangeName: this.className, orderNumber: orderNumber, cancelled: result[0].ordStatus=="Canceled"})
             }).catch((err) => {
                 reject(err)
             })
@@ -540,13 +524,17 @@ export default class BitMEX extends AbstractContractExchange {
         return new Promise<MarginPosition>((resolve, reject) => {
             let marketPair = this.currencies.getExchangePair(currencyPair);
 
-            let params = {
+            let params: any = {
                 filter: {
                     symbol: marketPair
                 }
             }
             this.privateReq("GET /position", params).then((positions) => {
-                let position = this.currencies.getMarginPosition(positions[0], this.getMaxLeverage());
+                let position: MarginPosition;
+                if (Array.isArray(positions) === false || positions.length === 0)
+                    position = new MarginPosition(this.getMaxLeverage());
+                else
+                    position = this.currencies.getMarginPosition(positions[0], this.getMaxLeverage());
                 resolve(position)
             }).catch((err) => {
                 reject(err)
@@ -569,7 +557,12 @@ export default class BitMEX extends AbstractContractExchange {
 
                 let result = new OrderResult()
                 result.success = response.ordStatus == "Filled"
-                result.orderNumber = response.orderID
+                result.orderNumber = response.orderID || "";
+                if (!result.success) {
+                    logger.error("%s margin position close error: ", this.className, response);
+                    if (response.error && response.error.message)
+                        result.message = response.error.message;
+                }
                 resolve(result)
             }).catch((err) => {
                 reject(err)
@@ -647,7 +640,7 @@ export default class BitMEX extends AbstractContractExchange {
 
         let secret_buffer = new Buffer(this.apiKey.secret);
         let hmac = crypto.createHmac('sha256', secret_buffer);
-        let signature = hmac.update(raw, 'latin1').digest('hex');
+        let signature = hmac.update(raw, 'utf8').digest('hex');
 
         let headers = {
           'api-expires': expires,
@@ -726,11 +719,12 @@ export default class BitMEX extends AbstractContractExchange {
                         lastTradeID = data[data.length-1].trdMatchID;
 
                         let trades = [];
+                        let timestamp = Math.floor(Date.now() / 1000);
                         for (let i=newIndex; i < data.length; i++) {
                             let trade = data[i];
 
-                            let date = this.setDateByStr(new Date(this.lastServerTimestampMs), trade.timestamp);
-                            let timestamp = Math.floor(date.getTime() / 1000);
+                            //let date = this.setDateByStr(new Date(this.lastServerTimestampMs), trade.timestamp);
+                            //let timestamp = Math.floor(date.getTime() / 1000);
                             // todo: order.size to coin
                             trades.push(["t", trade.trdMatchID, trade.side == "Buy" ? 1 : 0, trade.price, trade.size, timestamp])
                         }
@@ -803,32 +797,6 @@ export default class BitMEX extends AbstractContractExchange {
             return null; // this function will get called again after a short timeout
         }
     }
-
-    protected getCurrencyFromChannel(channel: string): Currency.CurrencyPair {
-        const fetchPairs = this.getFetchPairs();
-        for (let i = 0; i < fetchPairs.length; i++)
-        {
-            let pair = fetchPairs[i].split("_");
-            // accept it as soon as both pairs are present. some channels have weird names
-            if (channel.indexOf(pair[0]) !== -1 && channel.indexOf(pair[1]) !== -1) {
-                let pair = this.currencies.getLocalPair(fetchPairs[i])
-                //return new Currency.CurrencyPair(pair.to, pair.from)
-                return pair;
-            }
-        }
-        logger.error("Unable to get currency from channel in %s: %s", this.className, channel)
-        return null;
-    }
-
-    protected getActionTypeFromChannel(channel: string): "trade" | "order" {
-        if (channel.indexOf("_trade_") !== -1)
-            return "trade";
-        if (channel.indexOf("_depth_") !== -1)
-            return "order";
-        logger.error("Unknown channel type in %s: %s", this.className, channel)
-        return null;
-    }
-
     protected verifyPositionSize(currencyPair: Currency.CurrencyPair, amount: number) {
         // TODO sometimes order doesn't get fully executed and just disappears. why? for example order 1.2 BTC -> position 0.3 BTC
         // query positions after order and verify if amount matches? also for close orders

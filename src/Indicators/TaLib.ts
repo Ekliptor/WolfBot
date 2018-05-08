@@ -33,6 +33,9 @@ export class TaLibParams { // some indicator names have different parameters, se
     // MSI
     volume?: number[];
 
+    // OBV
+    inPriceV?: number[]; // volume
+
     // STDDEV - Standard Deviation
     optInNbDev?: number;
 

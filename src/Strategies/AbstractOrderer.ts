@@ -173,7 +173,7 @@ export abstract class AbstractOrderer extends TechnicalStrategy {
             super.log(...args);
         }
         else
-            super.log(args);
+            super.log(...args);
     }
 
     protected warn(...args) {
@@ -182,6 +182,6 @@ export abstract class AbstractOrderer extends TechnicalStrategy {
             super.warn(...args);
         }
         else
-            super.warn(args);
+            super.warn(...args);
     }
 }

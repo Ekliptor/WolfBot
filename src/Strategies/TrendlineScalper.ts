@@ -4,13 +4,16 @@ const logger = utils.logger
 import {AbstractStrategy, StrategyAction, TradeAction} from "./AbstractStrategy";
 import {Currency, Trade, Candle, Order} from "@ekliptor/bit-models";
 import {TradeInfo} from "../Trade/AbstractTrader";
+import * as helper from "../utils/helper";
 
 
 interface TrendlineScalperAction extends StrategyAction {
     supportLines: number[]; // the price levels where we want to open long a position
     resistanceLines: number[]; // the price levels where we want to open short a position
 
-    tradeBreakout: boolean; // default false. wait for support/resistance to get broken and trade the breakout direction
+    // optional values
+    tradeBreakout: boolean; // default false = assume price will bounce. true = wait for support/resistance to get broken and trade the breakout direction
+    expirationPercent: number; // default 3%. expire orders after they move away x% from the set rate
     // TODO automatically detect lines (see this.trendlines and IntervalExtremes.ts)
 }
 
@@ -22,8 +25,6 @@ interface TrendlineScalperAction extends StrategyAction {
  */
 export default class TrendlineScalper extends AbstractStrategy {
     public action: TrendlineScalperAction;
-    protected lastRSI: number = -1; // identical ro RSI because it's updated on every candle tick
-    protected secondLastRSI: number = -1;
 
     constructor(options) {
         super(options)
@@ -33,11 +34,11 @@ export default class TrendlineScalper extends AbstractStrategy {
             this.action.resistanceLines = [];
         if (typeof this.action.tradeBreakout !== "boolean")
             this.action.tradeBreakout = false;
+        if (!this.action.expirationPercent)
+            this.action.expirationPercent = 3.0;
+        if (!this.action.tradeStrategy)
+            logger.warn("You shoud add a tradeStrategy to %s. Otherwise you might be buying into a falling knife!", this.className)
 
-        this.addInfo("secondLastRSI", "secondLastRSI");
-        this.addInfoFunction("RSI", () => {
-            return this.indicators.get("RSI").getValue(); // TODO notify mode + display latest x values
-        });
         this.saveState = true;
         this.mainStrategy = true;
     }
@@ -49,15 +50,11 @@ export default class TrendlineScalper extends AbstractStrategy {
 
     public serialize() {
         let state = super.serialize();
-        state.lastRSI = this.lastRSI;
-        state.secondLastRSI = this.secondLastRSI;
         return state;
     }
 
     public unserialize(state: any) {
         super.unserialize(state);
-        this.lastRSI = state.lastRSI;
-        this.secondLastRSI = state.secondLastRSI;
     }
 
     // ################################################################
@@ -70,19 +67,53 @@ export default class TrendlineScalper extends AbstractStrategy {
     }
 
     protected candleTick(candle: Candle.Candle): Promise<void> {
-        this.checkLinesBroken(candle);
+        if (this.strategyPosition === "none")
+            this.checkLinesBroken(candle);
         return super.candleTick(candle)
     }
 
     protected checkLinesBroken(candle: Candle.Candle) {
-
+        if (this.action.tradeBreakout === false) {
+            this.checkLineBroken(candle, this.action.supportLines, "<", "buy");
+            this.checkLineBroken(candle, this.action.resistanceLines, ">", "sell");
+        }
+        else {
+            this.checkLineBroken(candle, this.action.supportLines, "<", "sell");
+            this.checkLineBroken(candle, this.action.resistanceLines, ">", "buy");
+        }
     }
 
-    protected checkLineBroken(candle: Candle.Candle, lines: number[], comp: "<" | ">") {
+    protected checkLineBroken(candle: Candle.Candle, lines: number[], comp: "<" | ">", action: TradeAction) {
         for (let i = 0; i < lines.length; i++)
         {
-
+            if (comp === "<") {
+                if (candle.close < lines[i] && this.isWithinRange(candle.close, lines[i])) {
+                    this.forwardTrade(action, lines[i]);
+                    break;
+                }
+                continue;
+            }
+            // comp === ">"
+            if (candle.close > lines[i] && this.isWithinRange(candle.close, lines[i])) {
+                this.forwardTrade(action, lines[i]);
+                break;
+            }
         }
+    }
+
+    protected isWithinRange(currentRate: number, orderRate: number) {
+        let percentDiff = Math.abs(helper.getDiffPercent(currentRate, orderRate));
+        if (percentDiff <= this.action.expirationPercent)
+            return true;
+        return false;
+    }
+
+    protected forwardTrade(action: TradeAction, line: number) {
+        const reason = utils.sprintf("trading %s at %s", this.action.tradeBreakout ? "BREAKOUT" : "BOUNCE", line);
+        if (action === "buy")
+            this.emitBuy(this.defaultWeight, reason, this.className);
+        else // sell
+            this.emitSell(this.defaultWeight, reason, this.className);
     }
 
     protected resetValues() {

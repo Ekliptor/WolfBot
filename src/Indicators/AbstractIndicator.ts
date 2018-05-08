@@ -218,6 +218,14 @@ export abstract class AbstractIndicator extends DataPlotCollector {
         return data;
     }
 
+    protected removeData(data: number[], maxLen: number) {
+        if (maxLen <= 0)
+            return data; // unlimited
+        while (data.length > maxLen)
+            data.shift();
+        return data;
+    }
+
     protected computeLineDiff(shortResult: TaLibResult, longResult: TaLibResult) {
         this.shortLineValue = TaLib.getLatestResultPoint(shortResult);
         this.longLineValue = TaLib.getLatestResultPoint(longResult);

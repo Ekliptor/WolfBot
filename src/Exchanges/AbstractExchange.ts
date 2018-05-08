@@ -33,6 +33,7 @@ export interface ExApiKey {
     secret: string;
     key2?: string;
     secret2?: string;
+    testnet?: boolean; // some exchanges (BitMEX) provide a testnet
 }
 
 export interface ExRequestParams {
@@ -203,6 +204,7 @@ export abstract class AbstractExchange {
     protected exchangeLabel: Currency.Exchange;
     protected fee = 0.0025;
     protected maxLeverage = 0; // 0 = no margin trading, 2.5 = 40% maintentance margin
+    protected maxTimeAheadMs = 3000; // dates further ahead will be assumed wrong and reset to "now"
     protected currencies: Currency.ExchangeCurrencies = null;
     // static map to keep streams open. not needed anymore since we cache exchange instances in ExChangeController
     protected static pushApiConnections = new Map<string, autobahn.Connection | WebSocket>(); // (className, instance)
@@ -247,6 +249,8 @@ export abstract class AbstractExchange {
             this.apiKey.key2 = options.key2;
             this.apiKey.secret2 = options.secret2;
         }
+        if (options.testnet === true)
+            this.apiKey.testnet = true;
         if (options.proxy)
             this.proxy = options.proxy;
         if (options.marginNotification)
@@ -746,7 +750,7 @@ export abstract class AbstractExchange {
                 // also copy year and month in case they wrap too
                 date.setFullYear(originalDate.getFullYear(), originalDate.getMonth(), originalDate.getDate())
             }
-            if (date.getTime() > Date.now()+3000) { // add some offset or else the comparison gives false positives on a connection with fast pings
+            if (date.getTime() > Date.now()+this.maxTimeAheadMs) { // add some offset or else the comparison gives false positives on a connection with fast pings
                 logger.warn("Received date from %s is greater than now: %s - resetting to now", this.className, utils.getUnixTimeStr(true, date))
                 date = new Date()
             }

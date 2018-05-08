@@ -621,7 +621,7 @@ export abstract class AbstractStrategy extends AbstractGenericStrategy {
             if (this.passToTradeStrategy(new ScheduledTrade("buy", weight, reason, this.className)))
                 return;
         }
-        this.lastTradeFromClass = fromClass;
+        this.lastTradeFromClass = fromClass ? fromClass : this.className;
         this.lastTradeState = this.createTradeState();
         this.emit("buy", weight, reason, exchange);
     }
@@ -639,14 +639,14 @@ export abstract class AbstractStrategy extends AbstractGenericStrategy {
             if (this.passToTradeStrategy(new ScheduledTrade("sell", weight, reason, this.className)))
                 return;
         }
-        this.lastTradeFromClass = fromClass;
+        this.lastTradeFromClass = fromClass ? fromClass : this.className;
         this.lastTradeState = this.createTradeState();
         this.emit("sell", weight, reason, exchange);
     }
 
     protected emitHold(weight: number, reason = "", fromClass = "", exchange: Currency.Exchange = Currency.Exchange.ALL): void { // TODO currently not used, remove?
         logger.warn("emitHold() might be removed in the future");
-        this.lastTradeFromClass = fromClass;
+        this.lastTradeFromClass = fromClass ? fromClass : this.className;
         this.lastTradeState = this.createTradeState();
         this.emit("hold", weight, reason, exchange);
     }
@@ -661,7 +661,7 @@ export abstract class AbstractStrategy extends AbstractGenericStrategy {
             return this.log("Skipping CLOSE signal because strategy is fallback only");
         this.closedPositions = true;
         // TODO option for 2nd strategy on close too? see passToTradeStrategy()
-        this.lastTradeFromClass = fromClass;
+        this.lastTradeFromClass = fromClass ? fromClass : this.className;
         this.lastTradeState = this.createTradeState();
         this.emit("close", weight, reason, exchange);
     }
