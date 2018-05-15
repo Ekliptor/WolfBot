@@ -12,6 +12,7 @@ interface WhaleWatcherAction extends StrategyAction {
  * detect orders with total amount > x aka orders from big fish and follow them
  * often somebody sells > 130 BTC worth of coins on the market to bring the price down for a few seconds
  * detect this. also see SpikeDetector
+ * TODO this strategy doesn't trade yet
  */
 export default class WhaleWatcher extends AbstractStrategy {
     protected action: WhaleWatcherAction;

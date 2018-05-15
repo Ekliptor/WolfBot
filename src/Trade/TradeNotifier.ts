@@ -133,7 +133,7 @@ export default class TradeNotifier extends PortfolioTrader/*AbstractTrader*/ { /
         if (marketPrice)
             text += "\nPrice: " + marketPrice.toFixed(8);
         if (profitLoss)
-            text += "\np/l: " + profitLoss.toFixed(8);
+            text += "\np/l: " + profitLoss.toFixed(8) + " " + strategy.getAction().pair.getBase();
         headline = utils.sprintf("%s: %s", this.getFirstExchange(), headline);
         let notification = new Notification(headline, text, false);
         logger.info("NOTIFICATION", headline, text);

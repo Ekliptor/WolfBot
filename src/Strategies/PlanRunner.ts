@@ -12,9 +12,9 @@ import * as helper from "../utils/helper";
 import {AbstractOrderer} from "./AbstractOrderer";
 
 export interface PlanRunnerAction extends StrategyAction {
-    orders: PlanRunnerOrder[]; // an array of orders
+    orders: PlanRunnerOrder[]; // an array of orders that shall be executed if their conditions are met
     // how many minutes to wait before we can trade again (before existing trades get cleared). 0 = never = on bot restart. counter starts on close
-    waitRepeatingTradeMin: number; // default 600.
+    waitRepeatingTradeMin: number; // default 600. Wait x minutes before executing the same order again (in case the market moves rapidly).
 }
 
 export interface PlanRunnerOrder extends TechnicalStrategyAction/*StrategyAction*/ {
@@ -23,13 +23,16 @@ export interface PlanRunnerOrder extends TechnicalStrategyAction/*StrategyAction
     rate: number; // the min/max rate for the buy/sell/close order
 
     // optional values
-    expirationPercent: number; // default 3%. expire orders after they move away x% from the set rate
-    position: StrategyPosition; // default "none". the position the strategy has to be in for the order to be executed
-    volume: number; // default 0. the min volume of the last candle for the trade to be executed
-    volumeCandleSize: number; // default 60. the trade period in minutes for "volume"
-    ticks: number; // default 0. the number of candle ticks to wait before executing the order. 0 = execute immediately
-    reason: string; // the reason for this trade
-    indicators: string[]; // some technical indicators. indicator config has to be added separately. only checked once (the last tick)
+    expirationPercent: number; // default 3%. Expire orders after they move away x% from the set rate.
+    position: StrategyPosition; // default "none". The position the strategy has to be in for the order to be executed.
+    volume: number; // default 0. The min volume of the last candle for the trade to be executed.
+    volumeCandleSize: number; // default 60. The trade period in minutes for "volume".
+    ticks: number; // default 0. The number of candle ticks to wait before executing the order. 0 = execute immediately
+    reason: string; // The reason for this trade. Used for logging and notifications only.
+
+    // Define a list of additional indicators that must be met for the order to be executed. Indicator config has to be added separately just like any other strategy (any strategy that emits buy/sell signals can be used).
+    // Only checked once if the signal from ALL specified indicators matches (on the last tick before execution).
+    indicators: string[];
     // TODO more complex conditions. but JS code in JSON is overkill?
     // but multiple price points are ok: "buy if price reaches x and then y within a candles"
     // TODO StopLoss strategy that closes based on EMA or MACD to use with this class

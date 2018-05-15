@@ -8,18 +8,18 @@ import {Currency, Trade, Candle} from "@ekliptor/bit-models";
 import {BollingerBands as BollingerIndicator} from "../Indicators/BollingerBands";
 
 interface BollingerBandsAction extends TechnicalStrategyAction {
-    breakout: number; // the number of candles the price has to stay at the upper/lower band to assume a breakout
-    percentBThreshold: number; // 0.01, optional, a number indicating how close to %b the price has to be to consider it "reached"
+    breakout: number; // default 0. The number of candles the price has to stay at the upper/lower band to assume a breakout.
+    percentBThreshold: number; // 0.01, optional, A number indicating how close to %b the price has to be to consider it "reached".
 
     // optional, for defaults see BolloingerBandsParams
-    N: number; // time period for MA
-    K: number; // factor for upper/lower band
-    MAType: number; // moving average type, 0 = SMA
+    N: number; // The time period for MA of BollingerBands.
+    K: number; // The factor for upper/lower band of BollingerBands.
+    MAType: number; // The moving average type of BollingerBands. 0 = SMA
 }
 
 /**
  * Strategy that emits buy/sell based on the Bollinger Bands indicator.
- * Our assumption is that the price will always jump between the upper and lower band.
+ * Our assumption is that the price will always jump between the upper and lower band (as in a sideways market).
  * Consequently, at the upper we sell and at the lower band we buy.
  * If the price stays at the upper/lower band for "breakout" candles, we assume this breakout will continue.
  *
@@ -35,6 +35,8 @@ export default class BollingerBands extends TechnicalStrategy {
         super(options)
         this.addIndicator("BollingerBands", "BollingerBands", this.action);
         // TODO could we use 2 boilinger bands: 1 with candle high for the upper band and 1 with candle low for the lower band?
+        if (typeof this.action.breakout !== "number")
+            this.action.breakout = 0;
         if (!this.action.percentBThreshold)
             this.action.percentBThreshold = BollingerBands.PERCENT_B_THRESHOLD;
 

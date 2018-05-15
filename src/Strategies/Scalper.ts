@@ -13,7 +13,7 @@ interface ScalperAction extends TrendatronAction {
 }
 
 export default class Scalper extends Trendatron {
-    protected action: ScalperAction;
+    public action: ScalperAction;
 
     constructor(options) {
         super(options)

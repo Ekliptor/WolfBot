@@ -660,7 +660,7 @@ export abstract class AbstractWaveSurfer extends TechnicalStrategy {
         if (this.action.notifyBeforeExit && this.action.minSurfCandles > 1 && this.positionOpenTickCount >= this.action.minSurfCandles-1 && !this.hasProfitReal()) {
             let exitMsg = utils.sprintf("Closing open position at a loss in %s min", this.action.candleSize);
             if (this.position)
-                exitMsg += " p/l: " + this.position.pl.toFixed(8);
+                exitMsg += " p/l: " + this.position.pl.toFixed(8) + " " + this.action.pair.getBase();
             this.sendNotification("Close imminent", exitMsg)
         }
         let lows = this.mapInterval(this.intervalLows);

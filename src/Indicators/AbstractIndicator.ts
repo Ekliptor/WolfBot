@@ -77,6 +77,13 @@ export class TristarParams implements IntervalIndicatorParams {
     constructor() {
     }
 }
+export class STCIndicatorParams implements IndicatorParams {
+    fast: number = 23; // number of fast EMA candles
+    slow: number = 50; // number of slow EMA candles
+    stcLength: number = 10; // MACD signal + STC candles
+    factor: number = 0.5;
+    enableLog: boolean;
+}
 
 export type TrendDirection = Candle.TrendDirection; // moved, keep it as alias
 
@@ -210,10 +217,19 @@ export abstract class AbstractIndicator extends DataPlotCollector {
     // ################################################################
     // ###################### PRIVATE FUNCTIONS #######################
 
-    protected addData(data: number[], add: number, maxDataPoints: number = AbstractIndicator.MAX_DATAPOINTS_DEFAULT) {
+    /**
+     * Add data points to our history array
+     * @param {number[]} data
+     * @param {number} add
+     * @param {number} maxDataPoints
+     * @param {boolean} keepMore
+     * @returns {number[]} the history array with the new data point
+     */
+    protected addData(data: number[], add: number, maxDataPoints: number = AbstractIndicator.MAX_DATAPOINTS_DEFAULT, keepMore: boolean = true) {
         data.push(add)
         // internally TA-LIB needs more data to compute a valid result for many indicators. so keep a lot more than our longest interval
-        if (data.length > maxDataPoints * AbstractIndicator.KEEP_OLD_DATA_FACTOR)
+        const max = keepMore === true ? maxDataPoints * AbstractIndicator.KEEP_OLD_DATA_FACTOR : maxDataPoints;
+        if (data.length > max)
             data.shift();
         return data;
     }

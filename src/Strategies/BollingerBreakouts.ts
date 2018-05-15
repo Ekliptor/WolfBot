@@ -18,7 +18,9 @@ interface BollingerBreakoutsAction extends TechnicalStrategyAction { // same par
     K: number; // factor for upper/lower band
     MAType: number; // moving average type, 0 = SMA
 
-    interval: number; // optional, Aroon candle interval, default = 25
+    interval: number; // optional, default = 25, The number of Aroon candles to compute the Aroon trend from.
+    aroonHigh: number; // optional, default 96. The value 'Aroon Up' must have to be considered high.
+    aroonLow: number; // optional, defaul 50. The value 'Aroon Down' must have to be considered low.
 }
 
 /**
@@ -28,9 +30,6 @@ interface BollingerBreakoutsAction extends TechnicalStrategyAction { // same par
  */
 export default class BollingerBreakouts extends BollingerBands {
     //protected static readonly PERCENT_B_THRESHOLD = 0.0; // same as parent
-    protected static readonly AROON_INTERVAL = 25;
-    protected static readonly AROON_100 = 96;
-    protected static readonly AROON_LOW = 50;
 
     public action: BollingerBreakoutsAction;
     protected breakoutCount = 0;
@@ -39,11 +38,17 @@ export default class BollingerBreakouts extends BollingerBands {
         super(options)
         //this.addIndicator("BollingerBands", "BollingerBands", this.action); // already added in parent
         this.addIndicator("Aroon", "Aroon", this.action);
+        if (typeof this.action.breakout !== "number")
+            this.action.breakout = 0;
         if (!this.action.percentBThreshold)
             this.action.percentBThreshold = BollingerBreakouts.PERCENT_B_THRESHOLD;
         if (!this.action.interval)
             //this.action.interval = Math.max(25, 1.3*this.action.N); // not initialized here
-            this.action.interval = BollingerBreakouts.AROON_INTERVAL;
+            this.action.interval = 25;
+        if (!this.action.aroonHigh)
+            this.action.aroonHigh = 96;
+        if (!this.action.aroonLow)
+            this.action.aroonLow = 50;
 
         // only trade if we don't have an open position (last signal might have been ignored). only important with small candleSize
         this.tradeOnce = true;
@@ -69,7 +74,7 @@ export default class BollingerBreakouts extends BollingerBands {
         const value = bollinger.getPercentB(this.candle.close)
 
         const aroonMsg = utils.sprintf("Aroon up %s, down %s, breakoutCount %s", aroon.getUp(), aroon.getDown(), (this.breakoutCount + 1));
-        if (aroon.getUp() >= BollingerBreakouts.AROON_100 && aroon.getDown() < BollingerBreakouts.AROON_LOW) {
+        if (aroon.getUp() >= this.action.aroonHigh && aroon.getDown() < this.action.aroonLow) {
             // Aroon high
             this.breakoutCount++;
             this.log("Aroon up reached, UP trend,", aroonMsg)
@@ -78,7 +83,7 @@ export default class BollingerBreakouts extends BollingerBands {
             }
             this.setTrend("up");
         }
-        else if (aroon.getDown() >= BollingerBreakouts.AROON_100 && aroon.getUp() < BollingerBreakouts.AROON_LOW) {
+        else if (aroon.getDown() >= this.action.aroonHigh && aroon.getUp() < this.action.aroonLow) {
             // Aroon low
             this.breakoutCount++;
             this.log("Aroon down reached, DOWN trend,", aroonMsg)
@@ -93,7 +98,7 @@ export default class BollingerBreakouts extends BollingerBands {
             this.breakoutCount = 0;
             this.lastTrend = "none";
 
-            if (aroon.getUp() >= BollingerBreakouts.AROON_100 || aroon.getDown() >= BollingerBreakouts.AROON_100)
+            if (aroon.getUp() >= this.action.aroonHigh || aroon.getDown() >= this.action.aroonHigh)
                 return this.log("Ignoring Bollinger because we are close to Aroon up/down", utils.sprintf("Aroon up %s, down %s", aroon.getUp(), aroon.getDown()));
 
             // check bollinger bands as fallback

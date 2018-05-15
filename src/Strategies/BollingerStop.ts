@@ -11,7 +11,7 @@ export interface BollingerStopAction extends AbstractStopStrategyAction {
     time: number; // wait seconds before closing the position, optional
     percentReached: number; // 0.05, optional, a number indicating how close to the band the rate has to be to consider it "reached". increase it for "opposite" stop
     stopBand: "middle" | "opposite"; // optional, default "middle"
-    delayTicks: number; // optional, default 1. delay setting the stop for x candle ticks to avoid stopping immediately
+    delayTicks: number; // optional, default 1. Keep a position open for at least x candle ticks to avoid stopping immediately.
     notifyBeforeStopSec: number; // optional, notify seconds before the stop executes
     keepPriceOpen: boolean; // default true. keep the position open if the last candle close price was higher/lower than the current rate
 
@@ -24,7 +24,7 @@ export interface BollingerStopAction extends AbstractStopStrategyAction {
 }
 
 /**
- * Strategy that closes a position if we reach the middle line of Bollinger for "time" seconds.
+ * A stop strategy that closes a position if we reach the opposite (or middle) line of Bollinger for a specified amount of time.
  * Works well with 1 hour candles.
  *
  * "BollingerStop": {

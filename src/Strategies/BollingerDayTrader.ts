@@ -10,15 +10,15 @@ import BollingerStop, {BollingerStopAction} from "./BollingerStop";
 import {TradeInfo} from "../Trade/AbstractTrader";
 
 interface BollingerDayTraderAction extends BollingerStopAction {
-    percentReached: number; // 0.09, optional, a number indicating how close to %b the price has to be to consider it "reached"
-    trendingBbMax: number; // default 0.15 - the max above/below 0.5 to go long/short in trending markets
-    tradeMarkets: "trending" | "sideways" | "both"; // default "both"
+    percentReached: number; // 0.05, optional, A number indicating how close to %b the price has to be to consider it "reached".
+    trendingBbMax: number; // default 0.15 - The max above/below 0.5 (the middle of %b bands) to go long/short in trending markets.
+    tradeMarkets: "trending" | "sideways" | "both"; // default "both" - In which markets this strategy shall open positions. The Aroon indicator is used to check if we are in a sideways market.
 
     // stop config
-    stopBandTrending: "middle" | "opposite"; // optional, default "middle". the closing band if we are in a trending market
-    delayTicks: number; // optional, default 1. delay setting the stop for x candle ticks to avoid stopping immediately
-    notifyBeforeStopSec: number; // optional, notify seconds before the stop executes
-    keepPriceOpen: boolean; // default true. keep the position open if the last candle close price was higher/lower than the current rate
+    stopBandTrending: "middle" | "opposite"; // optional, default "middle". The band to close a position if we are in a trending market.
+    delayTicks: number; // optional, default 1. Keep a position open for at least x candle ticks to avoid stopping immediately.
+    notifyBeforeStopSec: number; // optional, Send a notification (for example to the smartphone) x seconds before the stop executes.
+    keepPriceOpen: boolean; // default true. Keep the position open if the last candle close-value price was higher/lower than the current rate. This means if we are outside of the Bollinger Bands stop, but the last candle was moving in the same direction as our open position.
     time: number; // wait seconds before closing the position, optional
 
     // optional, for defaults see BolloingerBandsParams
@@ -34,23 +34,23 @@ interface BollingerDayTraderAction extends BollingerStopAction {
     //sidewaysIndicator: "Aroon"; // optional, default Aroon. if sideways indicator says we are in a sideways market, then the trend indicator is not checked
     trendIndicator: "MACD"; // optional, default MACD // TODO add more indicators
     interval: number; // optional, Aroon and MACD candle interval, default = 25
-    aroonSidewaysLevel: number; // optional, default 50. consider the market sideways if the Aroon value is <= x
+    aroonSidewaysLevel: number; // optional, default 50. Consider the market sideways if both AroonUp and ArronDown values are <= x.
 
     // optional volume config
     // look at volume for confirmation: huge volume = trend starting (or end of drop = also uptrend starting)
-    volumeAvgCandles: number; // default 3. how many candles to look back to compute the average volume
-    volumeSpikeFactor: number; // default 1.9. how much higher the current candle volume must be (than average) to allow opening trend positions on opposite band
+    volumeAvgCandles: number; // default 3. How many candles to look back to compute the average volume.
+    volumeSpikeFactor: number; // default 1.9. How much higher the current candle volume must be (than average) to allow opening trend positions on the opposite Bollinger Band.
 }
 
 /**
  * Strategy that looks at MACD histogram (or EMA) to check if we are in an up or down trend.
  * It will then open a position when we cross the Bollinger middle line and keep it open until we cross the middle line
  * again (or the opposite line as a more risky stop).
- * If we are in a sideways market: It uses Aroon and requires both < =50 and trade between upper and lower band.
+ * If we are in a sideways market: It uses Aroon and requires both <= 50 and trade between upper and lower band.
  *
  * Works well with 1 hour candles. Should still be used with StopLossTurn because we might never reach the closing band (unlikely).
  * warm up time: >= 35 candles (default parameters)
- * more strategies: https://tradingsim.com/blog/bollinger-bands/
+ * more Bollinger strategies: https://tradingsim.com/blog/bollinger-bands/
  *
  * TODO check BB width: low volatility -> breakout imminent
  * TODO use trend indicators (such as ADX) to open a trend position if bollinger doesn't fire for > 1 day
@@ -61,7 +61,7 @@ export default class BollingerDayTrader extends BollingerStop {
     constructor(options) {
         super(options)
         if (!this.action.percentReached)
-            this.action.percentReached = 0.09;
+            this.action.percentReached = 0.05;
         if (!this.action.trendingBbMax)
             this.action.trendingBbMax = 0.15;
         if (!this.action.tradeMarkets)

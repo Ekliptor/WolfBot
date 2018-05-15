@@ -25,9 +25,7 @@ export type ConfigTab = "tabGeneral" | "tabTrading" | "tabTradingDev";
 const CONFIG_TABS: ConfigTab[] = ["tabGeneral", "tabTrading", "tabTradingDev"];
 
 export interface ConfigEditorData {
-    data: {
-
-    }
+    data: any[]; // TODO config types
     schema: {
 
     }
@@ -197,19 +195,24 @@ export class ConfigEditor extends AppPublisher {
             else
                 this.send(clientSocket, {error: true, errorTxt: "This trading mode doesn't exist."})
         }
-        else if (typeof data.saveConfig === "string" && data.configName) {
+        else if (data.saveConfig && data.configName) {
             // TODO broadcast config change to other clients
-            if (utils.parseJson(data.saveConfig) == null)
-                this.send(clientSocket, {error: true, errorCode: "syntaxErrorConf"})
-            else {
-                this.saveConfigFile(data.configName, data.saveConfig).then(() => {
-                    this.updateConfig(data.saveConfig)
-                    this.send(clientSocket, {saved: true})
-                }).catch((err) => {
-                    logger.error("Error saving config", err)
-                    this.send(clientSocket, {error: true, errorTxt: "Error saving config."})
-                })
+            // JSONView sends an object, code editor a string
+            if (typeof data.saveConfig === "string") {
+                if (utils.parseJson(data.saveConfig) == null) { // validate JSON
+                    this.send(clientSocket, {error: true, errorCode: "syntaxErrorConf"})
+                    return;
+                }
             }
+            else
+                data.saveConfig = utils.stringifyBeautiful(data.saveConfig);
+            this.saveConfigFile(data.configName, data.saveConfig).then(() => {
+                this.updateConfig(data.saveConfig)
+                this.send(clientSocket, {saved: true})
+            }).catch((err) => {
+                logger.error("Error saving config", err)
+                this.send(clientSocket, {error: true, errorTxt: "Error saving config."})
+            })
         }
         else if (typeof data.debugMode === "boolean") {
             if (nconf.get("serverConfig:premium")) {
@@ -399,7 +402,7 @@ export class ConfigEditor extends AppPublisher {
                 // just go through all crawlers and update their settings
                 crawlers.forEach((crawler) => {
                     let crawlerConf = crawler.getConfig();
-                    let websiteConf = conf.websites[crawler.getClassName()];
+                    let websiteConf = conf.websites && conf.websites[crawler.getClassName()] ? conf.websites[crawler.getClassName()] : conf.watchers[crawler.getClassName()];
                     for (let prop in crawlerConf) {
                         if (websiteConf[prop] !== undefined && crawlerConf[prop] !== undefined && websiteConf[prop].toString() !== crawlerConf[prop]) {
                             logger.verbose("updating crawler %s %s from %s to %s", crawler.getClassName(), prop, crawlerConf[prop], websiteConf[prop])
@@ -530,7 +533,7 @@ export class ConfigEditor extends AppPublisher {
 
                     crawlers.forEach((crawler) => {
                         let crawlerConf = crawler.getConfig();
-                        let websiteConf = conf.websites[crawler.getClassName()];
+                        let websiteConf = conf.websites && conf.websites[crawler.getClassName()] ? conf.websites[crawler.getClassName()] : conf.watchers[crawler.getClassName()];
                         this.updateStrategyProp(websiteConf, crawlerConf)
                         if (JSON.stringify(crawlerConf) !== JSON.stringify(crawler.getConfig()))
                             crawler.onConfigChanged();
@@ -741,8 +744,31 @@ export class ConfigEditor extends AppPublisher {
             }
             */
             if (prop === "exchanges") {
-                schema[prop].type =  "string";
-                schema[prop].enum = Currency.listExchangeNames();
+                if (nconf.get("arbitrage")) {
+                    schema[prop].type =  "array";
+                    /*
+                    schema[prop].items = {
+                        "type": "object",
+                            "title": "exchange",
+                            "properties": {
+                            "type": {
+                                "type": "string",
+                                    "enum": Currency.listExchangeNames()
+                            }
+                        }
+                    }
+                    */
+                    schema[prop].items = {
+                        "type": "string",
+                        "title": "exchange",
+                        "enum": Currency.listExchangeNames()
+                    }
+                    //schema[prop].enum = Currency.listExchangeNames();
+                }
+                else {
+                    schema[prop].type =  "string";
+                    schema[prop].enum = Currency.listExchangeNames();
+                }
                 continue;
             }
 

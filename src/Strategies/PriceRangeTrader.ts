@@ -20,7 +20,7 @@ class PricePoint {
 }
 
 /**
- * detect if a price always jumps between a high a low and buy/sell accordingly
+ * Detect if a price always jumps between a high a low and buy/sell accordingly.
  */
 export default class PriceRangeTrader extends AbstractStrategy {
     public static readonly TRADE_TICK_LOG = 200;

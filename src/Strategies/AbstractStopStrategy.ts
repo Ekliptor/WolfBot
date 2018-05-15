@@ -196,7 +196,7 @@ export abstract class AbstractStopStrategy extends /*AbstractStrategy*/Technical
             this.entryPrice.toFixed(8), this.avgMarketPrice.toFixed(8),
             (this.useProfitStop() ? "profit " : ""), this.getStopPrice().toFixed(8), this.strategyPosition);
         if (this.position)
-            message += ", p/l: " + this.position.pl.toFixed(8);
+            message += ", p/l: " + this.position.pl.toFixed(8) + " " + this.action.pair.getBase();
         this.sendNotification("Stop imminent", message);
         this.stopNotificationSent = true;
     }

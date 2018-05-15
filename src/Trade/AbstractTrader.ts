@@ -109,7 +109,7 @@ export abstract class AbstractTrader extends AbstractGenericTrader {
         }
 
         if (this.tradeNotifier instanceof AbstractTrader)
-            this.tradeNotifier.callAction(action, strategy, reason, exchange);
+            this.tradeNotifier.callAction(action, strategy, reason, exchange); // TODO call this only if we actually executed the trade
         switch (action)
         {
             case "buy":
