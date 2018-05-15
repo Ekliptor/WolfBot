@@ -1,6 +1,7 @@
 # WolfBot
 This is the source of the Crypto currency trading bot running on: https://wolfbot.org
-It is written in TypeScript for NodeJS.
+
+It is written in TypeScript for NodeJS + MongoDB.
 
 ## Features
 * **Trading**: buying + selling, portfolio managament (sync balances with exchanges)
@@ -38,6 +39,18 @@ The server-side code is currently **incomplete**. It depends on more of my priva
 
 Update 2018-05-15: The MongoDB database models are now released here: https://github.com/Ekliptor/bit-models
 The code still missing is mostly HTTP helpers, browser functions, auto updater,... stay tuned
+
+
+### Start trading
+After running TypeScript (automatically in your IDE or run the "tsc" command in the project root dir) you will see a file:
+```
+build/app.js
+```
+Use the "build" directory as the working directory and run:
+```
+node app.js --debug --config=Noop --trader=RealTimeTrader
+```
+The "config" parameter must be a JSON file from the "config" directory. For a list of all parameters look at the top of the app.ts file.
 
 
 ### Modifying the UI

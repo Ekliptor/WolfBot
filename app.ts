@@ -3,10 +3,11 @@
 // -t: run a specific (test) script
 
 // --config: the name of the config file under /config/ to run a specific trading strategy
-// --trader (optional): the name of the trader to use. defaults to "RealTimeTrader"
+// --trader (optional): the name of the trader to use. defaults to "RealTimeTrader", alterantives: TradeNotifier
 // --paper (optional): run in paper trading mode only (simulation). applies only to some traders
 // --update (optional): update only. exit the app after update or of there is no update available
 // --noTalib (optional): disable the use of TA-LIB (difficult installation on windows)
+// --debug (optional): print verbose debug output for developers
 // --uiDev (optional): reload HTML templates and JavaScript every second from disk
 
 // AI config
