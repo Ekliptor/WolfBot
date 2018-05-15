@@ -3,14 +3,15 @@ This is the source of the Crypto currency trading bot running on: https://wolfbo
 It is written in TypeScript for NodeJS.
 
 ## Features
-* **Trading**: buying + selling, portfolio managament (synces balances with exchanges)
+* **Trading**: buying + selling, portfolio managament (sync balances with exchanges)
 * **Margin Trading**: leveraged trading including short selling and futures trading
-* **Arbitrage**: profit from price differences between 2 exchanges
+* **Arbitrage**: profit from price differences between 2 exchanges (done "on the books" with balances on both exchanges, no withdrawals from exchanges required)
 * **Lending**: lend your coins on the lending market of supported crypto exchanges for the highest possible interest rates
 * **Backtesting**: test your trade strategies in simulation on historical data
 * **Web Plugins**: Access social media data from Twitter, Reddit, Telegram Channels, RSS Feeds,... to trade based on news and real world events
 
-A more detailed list of all features: https://wolfbot.org/features/plugins/
+A more detailed list of all features: https://wolfbot.org/features/
+
 The list of supported exchanges: https://wolfbot.org/features/exchanges/
 
 ## Getting Started
