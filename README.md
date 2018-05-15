@@ -6,6 +6,7 @@ This is the source of the Crypto currency trading bot running on https://wolfbot
 ### Requirements
 ```
 NodeJS >= 9
+MongoDB >= 3.4
 TypeScript >= 2.8
 yarn >= 1.5 (npm should work too)
 Webpack >= 3 (only for UI modifications)
@@ -21,6 +22,9 @@ You can use `--production` flag if you only want to run the bot and not make any
 
 **IMPORTANT:**
 The server-side code is currently **incomplete**. It depends on more of my private modules. I have to cleanup & refactor some code. Also make sure there are no Exchange API keys or other sensitive data left. Please wait 2-4 weeks before running the server code.
+
+Update 2018-05-15: The MongoDB database models are now released here: https://github.com/Ekliptor/bit-models
+The code still missing is mostly HTTP helpers, browser functions, auto updater,... stay tuned
 
 
 ### Modifying the UI
