@@ -15,9 +15,6 @@
     <!-- Collect the nav links, forms, and other content for toggling -->
     <div class="collapse navbar-collapse navButtons" id="#navbar-collapse-head">
       <ul class="nav navbar-nav">
-        <li class="active"><a href="javascript:;" data-target="status">
-          <i aria-hidden="true" class="fa fa-info"></i> {tr:status}</a>
-        </li>
         <li class="tabTrading"><a href="javascript:;" data-target="strategies">
           <i aria-hidden="true" class="fa fa-gears"></i> {tr:strategies}</a>
         </li>
@@ -50,6 +47,10 @@
         <li class="dropdown">
           <a href="javascript:;" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">{tr:actions} <span class="caret"></span></a>
           <ul class="dropdown-menu">
+            <li><a href="javascript:;" data-target="status">
+              <i aria-hidden="true" class="fa fa-info"></i> {tr:status}</a>
+            </li>
+            <li role="separator" class="divider"></li>
             <li><a id="restartBot" href="javascript:;">
               <i aria-hidden="true" class="fa fa-play-circle"></i> {tr:restartBot}</a>
             </li>
@@ -57,7 +58,7 @@
               <i aria-hidden="true" class="fa fa-pause-circle"></i> <span id="pauseTradingTxt">{tr:pauseTrading}</span></a>
             </li>
             <li><a id="pauseOpeningPositions" href="javascript:;">
-              <i aria-hidden="true" class="fa fa-lock"></i> {tr:pauseOpeningPositions}</a>
+              <i aria-hidden="true" class="fa fa-lock"></i> <span id="pauseOpeningPositionsTxt">{tr:pauseOpeningPositions}</span></a>
             </li>
           </ul>
         </li>

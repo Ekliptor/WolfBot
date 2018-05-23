@@ -1,13 +1,19 @@
-//const path = require("path");
-//const webpack = require('webpack');
+// https://webpack.js.org/configuration/
+
+const path = require("path");
+const webpack = require('webpack');
+//const UglifyJsPlugin = require('uglifyjs-webpack-plugin')
 
 module.exports = {
+    //mode: "production",
+    mode: "development",
+    target: "web",
+
     entry: "./public/js/index.ts",
     output: {
         filename: "bundle.js",
-        path: __dirname + "/public/js"
+        path: path.join(__dirname, "public" , "js")
     },
-    target: "web",
 
     // Enable sourcemaps for debugging webpack's output.
     devtool: "source-map",
@@ -64,5 +70,6 @@ module.exports = {
 
     plugins: [
         //new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/)
+        //new webpack.optimize.UglifyJsPlugin()
     ]
 };

@@ -3,7 +3,7 @@ const logger = utils.logger
     , nconf = utils.nconf;
 const argv = require('minimist')(process.argv.slice(2));
 //import * as talib from "talib"; // not recognized as a module
-const talib = argv.noTalib === true ? null : require("talib");
+const talib = argv.noTalib === true ? null : require("@ekliptor/talib");
 
 export class TaLibParams { // some indicator names have different parameters, see talib.explain(indicatorName)
     name: string; // indicator name

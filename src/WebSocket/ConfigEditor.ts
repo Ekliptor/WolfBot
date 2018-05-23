@@ -693,7 +693,7 @@ export class ConfigEditor extends AppPublisher {
 
     protected createEditorSchema(configFileData: string, configName: string): ConfigEditorData {
         let data: ConfigEditorData = {
-            data: {},
+            data: [],
             schema: {}
         }
         let jsonData = utils.parseJson(configFileData);

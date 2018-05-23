@@ -3,7 +3,7 @@ import {WebSocketOpcode} from "../../../../src/WebSocket/opcodes";
 import {AbstractWidget, TranslationFunction} from "../AbstractWidget";
 import {AppFunc, HelpersClass} from "@ekliptor/browserutils";
 import {LogType} from "../../../../src/WebSocket/LogPublisher";
-import {AppClass} from "../../index";
+
 
 declare var AppF: AppFunc, Hlp: HelpersClass;
 

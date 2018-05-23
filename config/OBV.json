@@ -1,0 +1,48 @@
+{
+  "data": [
+    {
+      "exchanges": "Poloniex",
+      "marginTrading": true,
+      "tradeTotalBtc": 0.7,
+      "warmUpMin": 0,
+      "strategies": {
+        "OBV": {
+          "interval": 14,
+          "openReversal": false,
+          "pair": "BTC_ETH",
+          "candleSize": 60,
+          "tradeStrategy": "RSIScalpOrderer",
+          "enableLog": true
+        },
+        "RSIScalpOrderer": {
+          "low": 34,
+          "high": 70,
+          "expiry": 20,
+          "candleSize": 5,
+          "pair": "BTC_ETH",
+          "enableLog": true
+        },
+        "StopLossTurn": {
+          "order": "closeLong",
+          "setback": 3.0,
+          "setbackLong": 4.5,
+          "time": 7200,
+          "reduceTimeByVolatility": false,
+          "low": 52,
+          "high": 56,
+          "candleSize": 6,
+          "pair": "BTC_ETH",
+          "enableLog": false
+        },
+        "TakeProfit": {
+          "order": "closeLong",
+          "profit": 5.2,
+          "time": 3600,
+          "candleSize": 6,
+          "pair": "BTC_ETH",
+          "enableLog": false
+        }
+      }
+    }
+  ]
+}

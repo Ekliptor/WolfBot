@@ -59,6 +59,16 @@ typings/
 # dotenv environment variables file
 .env
 
-docs
 models
+
+# private files
+build
+docs
+packages
+temp
 trades
+config.ts
+config.json
+public/js/telegram-app.js
+tests/telegram.ts
+src/Social

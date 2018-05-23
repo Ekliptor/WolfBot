@@ -8,6 +8,7 @@ import {AppFunc, HelpersClass} from "@ekliptor/browserutils";
 import {ClientSocket} from "./classes/WebSocket/ClientSocket";
 import {HistoryRouter} from "./classes/HistoryRouter";
 import {LogReceiver} from "./classes/WebSocket/LogReceiver";
+import {LoginManager} from "./classes/WebSocket/LoginManager";
 import {AbstractController} from "./controllers/base/AbstractController";
 import {Home} from "./controllers/Home";
 import {Status} from "./controllers/Status";
@@ -73,6 +74,7 @@ export class AppClass {
     protected webSocket: ClientSocket = null;
     protected router = new HistoryRouter(window);
     protected logReceiver: LogReceiver;
+    protected loginManager: LoginManager;
     protected tradingViewDatafeed: TradingViewDatafeed;
     protected controllers = new Map<string, AbstractController>(); // (controller name, instance)
     protected activeController: AbstractController = null;
@@ -109,10 +111,12 @@ export class AppClass {
             $(AppClass.cfg.appSel).append(disconnected);
         });
         this.logReceiver = new LogReceiver(this.webSocket);
+        this.loginManager = new LoginManager(this.webSocket);
         this.tradingViewDatafeed = new TradingViewDatafeed(this.webSocket);
         this.webSocket.on("connect", () => {
             // setup websocket receivers, wait until we are connected
             this.webSocket.subscribe(this.logReceiver);
+            this.webSocket.subscribe(this.loginManager);
             this.webSocket.subscribe(this.tradingViewDatafeed); // always subscribe. will only send data when chart is visible
             this.loadControllers();
             App.initSite();
@@ -195,7 +199,7 @@ export class AppClass {
             if ($(el).hasClass('htmlOptions')) {
                 selOpts.enableHTML = true;
                 selOpts.optionLabel = (element) => {
-                    var image = $(element).attr('data-img');
+                    let image = $(element).attr('data-img');
                     if (!image)
                         return $(element).text();
                     return '<i class="' + image + '"></i> ' + $(element).text();
@@ -207,9 +211,9 @@ export class AppClass {
                     //return; // we are in all overview table, change disabled there
 
                     // the old select element in the DOM of select doesn't reflect those updates? why wtf? search for a better plugin
-                    var optionEl = $(option).parent();
-                    var curOpt = $(option);
-                    var domOpt = $('option[value="' + curOpt.val() + '"]', optionEl);
+                    let optionEl = $(option).parent();
+                    let curOpt = $(option);
+                    let domOpt = $('option[value="' + curOpt.val() + '"]', optionEl);
                     if (checked === true)
                         domOpt.attr('selected', 'selected');
                     else

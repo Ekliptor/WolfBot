@@ -4,7 +4,7 @@ const logger = utils.logger
 import {controller as Controller} from '../src/Controller';
 import {Currency} from "@ekliptor/bit-models";
 //import * as talib from "talib"; // not recognized as a module
-const talib = require("talib");
+const talib = require("@ekliptor/talib");
 import {TaLib, TaLibParams, TaLibResult} from "../src/Indicators/TaLib";
 import * as fs from "fs";
 import * as path from "path";
@@ -28,7 +28,7 @@ let testTaLib = () => {
     }
 
     // Retreive Average Directional Movement Index indicator specifications
-    let function_desc = talib.explain("OBV");
+    let function_desc = talib.explain("CCI");
     console.dir(function_desc);
 
 

@@ -256,16 +256,19 @@ let testBitmex = () => {
     let params = {}
 
     //let pair =[Currency.Currency.BTC, Currency.Currency.ETH]
-    let pair = new Currency.CurrencyPair(Currency.Currency.USD, Currency.Currency.BTC)
-    //bitmex.subscribeToMarkets([pair])
+    let pair = new Currency.CurrencyPair(Currency.Currency.BTC, Currency.Currency.USD)
+    bitmex.subscribeToMarkets([pair])
 
     //binance.buy(pair, 0.00004040, 30).then((balances) => {
     //binance.getOpenOrders(pair).then((balances) => {
     //binance.importHistory(pair, new Date(Date.now()-2*utils.constants.HOUR_IN_SECONDS*1000), new Date()).then((balances) => {
     //binance.sell(pair, 0.00000623, 350).then((balances) => {
-    bitmex.getBalances().then((balances) => {
+    //bitmex.marginOrder(pair, 9000, 0.001).then((test) => {
+    //bitmex.getBalances().then((balances) => {
+    //bitmex.marginCancelOrder(pair, "955d5624-5442-8e8a-f4cb-bdc87786adf3").then((test) => {
+    bitmex.marginBuy(pair, 9900, 0.001, params).then((test) => {
         //binance.moveOrder(pair, 25959783, 0.00000723, 360, params).then((balances) => {
-        console.log(balances)
+        console.log(test)
     }).catch((err) => {
         logger.error("Error trading", err)
     })

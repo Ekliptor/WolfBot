@@ -31,8 +31,8 @@
   "selected": "selected",
   "bracket_l": "(",
   "bracket_r": ")",
-  "yes": "Ja",
-  "no": "Nein",
+  "yes": "Yes",
+  "no": "No",
   "justNow": "just now",
   "secAgo": "%1 seconds ago",
   "minAgo": "%1 min ago",
@@ -530,6 +530,8 @@
   "apiKey2": "2nd API Key (optional)",
   "twoKeys": "It is recommended to add 2 API keys for every exchange. This ensures better reliability of the API when doing many requests simultaneously.",
   "requiredTwoKeys": "Exchange {{name}} requires 2 API keys",
+  "enterNameTxt": "Please enter your account from:",
+  "subscriptionNotFound": "You don't have a subscription for this trading bot. Please purchase subscription on our website.",
   "confTitle": {
     "exchanges": "Exchanges"
   },
@@ -552,7 +554,12 @@
       "percentDecrease": "Decrease the minimum interest rate of your loans by this percentage every hour if not all of your funds have been taken as loans.",
       "currency": "Enter the currency (USD, BTC, ETH,...) of which you want to place loans.",
       "tradingFees": "Set the maker/taker trading fees for the exchanges you want to do arbitrage on. This information is used by WolfBot before executing arbitrage trades to ensure that the arbitrage opportunity is profitable.",
-      "tradingFeeDefault": "The default trading fee to use if the exchange is not listed in the 'tradingFees' setting."
+      "tradingFeeDefault": "The default trading fee to use if the exchange is not listed in the 'tradingFees' setting.",
+      "N": "optional, default 20 - The time period for MA of BollingerBands.",
+      "K": "optional, default 2 - The factor for upper/lower band of BollingerBands.",
+      "MAType": "optional, default 0 (SMA) - The moving average type of BollingerBands.",
+      "notifyBeforeStopSec": "optional, default 0 - Send a notification (for example to the smartphone) x seconds before the stop executes. A value of 0 means disabled.",
+      "time": "optional, default 0 seconds - After the stop price is reached start a countdown of x seconds before closing the position. The countdown gets reset if the price moves in the direction of our open position before the counter reaches 0 seconds."
     },
     "NOOP": {
       "desc": "This strategy does nothing. It is just a sample and placeholder.",
@@ -561,13 +568,163 @@
     "PlanRunner": {
       "desc": "Strategy that emits buy/sell signal based on your configured steps in config. Steps to take action are price points, support and resistance lines,... What makes this strategy powerful is the ability to combine it with any other strategy (including technical indicators). So you can for example configure it to: 'Buy if BitCoin price falls below 6.000 USD and the 1h RSI is below 30 (and the 2h MACD momentum is increasing and...)'",
       "orders": {
-        "desc": "fooo orders TODO must be object",
-        "action": "action..."
+        "desc": "An array of orders that shall be executed if their conditions are met",
+        "action": "The action to execute. Can be: buy|sell|closeLong|closeShort",
+        "comp": "Execute the action if the price is above or below the configured rate? Use: <|>",
+        "rate": "The rate when to execute the the defined action.",
+        "expirationPercent": "optional, default 3% - Expire orders after they move away x% from the set rate.",
+        "position": "optional, default 'none' - The position the strategy has to be in for the order to be executed.",
+        "volume": "optional, default 0 - The min volume of the last candle for the trade to be executed.",
+        "volumeCandleSize": "optional, default 60 min - The trade period in minutes for 'volume'.",
+        "ticks": "optional, default 0 - The number of candle ticks to wait before executing the order. 0 = execute immediately",
+        "reason": "optional - The reason for this trade. Used for logging and notifications only.",
+        "indicators": "optional, default no indicators - Define a list of additional indicators that must be met for the order to be executed. Indicator config has to be added separately just like any other strategy (any strategy that emits buy/sell signals can be used). Only checked once if the signal from ALL specified indicators matches (on the last tick before execution)."
       },
-      "action": "The action to execute. Can be: buy|sell|closeLong|closeShort",
-      "comp": "Execute the action if the price is above or below the configured rate? Use: <|>",
-      "rate": "The rate when to execute the the defined action.",
-      "indicators": "Define a list of additional indicators that must"
+      "waitRepeatingTradeMin": "optional, default 600 min. Wait x minutes before executing the same order again (in case the market moves rapidly)."
+    },
+    "BollingerBands": {
+      "desc": "Strategy that emits buy/sell based on the Bollinger Bands indicator. Our assumption is that the price will always jump between the upper and lower band (as in a sideways market). Consequently, at the upper we sell and at the lower band we buy. If the price stays at the upper/lower band for 'breakout' candles, we assume this breakout will continue.",
+      "breakout": "optional, default 0 - The number of candles the price has to stay at the upper/lower band to assume a breakout.",
+      "percentBThreshold": "optional, default 0.01 - A number indicating how close to %b the price has to be to consider it 'reached'."
+    },
+    "BollingerBreakouts": {
+      "desc": "Strategy that emits buy/sell based on the Bollinger Bands indicator. Our assumption is that the price will always jump between the upper and lower band (as in a sideways market). Consequently, at the upper we sell and at the lower band we buy. If the price stays at the upper/lower band for 'breakout' candles, we assume this breakout will continue. Additionally we use the Aroon indicator to assume a breakout if up/down is at 100. In that case we wait (don't trade based on Bollinger) and trade based on Aroon if it stays at 100 for 'breakout' candles.",
+      "breakout": "optional, default 0 - The number of candles the price has to stay at the upper/lower band to assume a breakout.",
+      "percentBThreshold": "optional, default 0.01 - A number indicating how close to %b the price has to be to consider it 'reached'.",
+      "interval": "optional, default 25 - The number of Aroon candles to compute the Aroon trend from.",
+      "aroonHigh": "optional, default 96 - The value 'Aroon Up' must have to be considered high.",
+      "aroonLow": "optional, default 50 - The value 'Aroon Down' must have to be considered low."
+    },
+    "BollingerDayTrader": {
+      "desc": "Strategy that looks at MACD histogram (or EMA) to check if we are in an up or down trend. It will then open a position when we cross the Bollinger middle line and keep it open until we cross the middle line again (or the opposite line as a more risky stop). If we are in a sideways market: It uses Aroon and requires both <= 50 and trade between upper and lower band. Works well with 1 hour candles. Should still be used with StopLossTurn because we might never reach the closing band (unlikely). warm up time: >= 35 candles (default parameters), more Bollinger strategies: https://tradingsim.com/blog/bollinger-bands/",
+      "percentReached": "optional, default 0.05 - A number indicating how close to %b the price has to be to consider it 'reached'.",
+      "trendingBbMax": "optional, default 0.15 - The max above/below 0.5 (the middle of %b bands) to go long/short in trending markets.",
+      "tradeMarkets": "optional, default both - In which markets this strategy shall open positions. The Aroon indicator is used to check if we are in a sideways market. Values: trending|sideways|both",
+      "stopBandTrending": "optional, default middle - The band to close a position if we are in a trending market. Values: middle|opposite",
+      "delayTicks": "optional, default 1 - Keep a position open for at least x candle ticks to avoid stopping immediately.",
+      "keepPriceOpen": "optional, default true - Keep the position open if the last candle close-value price was higher/lower than the current rate. This means if we are outside of the Bollinger Bands stop, but the last candle was moving in the same direction as our open position.",
+      "short": "optional, default 12 - The number of candles for the short EMA of the MACD indicator.",
+      "long": "optional, default 26 - The number of candles for the long EMA of the MACD indicator.",
+      "signal": "optional, default 9 - The number of candles for the signal line of the MACD line (short EMA - long EMA).",
+      "trendIndicator": "optional, default MACD - The indicator to use in trending markets. Currently only MACD is supported.",
+      "interval": "optional, default 25 - The number of Aroon candles to compute the Aroon trend from.",
+      "aroonSidewaysLevel": "optional, default 50 - Consider the market sideways if both AroonUp and ArronDown values are <= x.",
+      "volumeAvgCandles": "optional, default 3 - How many candles to look back to compute the average volume.",
+      "volumeSpikeFactor": "optional, default 1.9 - How much higher the current candle volume must be (than average) to allow opening trend positions on the opposite Bollinger Band."
+    },
+    "BollingerStop": {
+      "desc": "A stop strategy that closes a position if we reach the opposite (or middle) line of Bollinger for a specified amount of time. Works well with 1 hour candles.",
+      "percentReached": "optional, default 0.05 - A number indicating how close to %b the price has to be to consider it 'reached'.",
+      "stopBand": "optional, default middle - The band to close a position. Values: middle|opposite",
+      "delayTicks": "optional, default 1 - Keep a position open for at least x candle ticks to avoid stopping immediately.",
+      "keepPriceOpen": "optional, default true - Keep the position open if the last candle close-value price was higher/lower than the current rate. This means if we are outside of the Bollinger Bands stop, but the last candle was moving in the same direction as our open position."
+    },
+    "CCI": {
+    },
+    "CandleRepeater": {
+    },
+    "DayTrader": {
+    },
+    "DayTrendFollower": {
+    },
+    "DirectionFollower": {
+    },
+    "DirectionRunner": {
+    },
+    "EarlyStopLoss": {
+    },
+    "IntervalExtremes": {
+    },
+    "KAMA": {
+    },
+    "MakerFeeOrder": {
+    },
+    "MACD": {
+    },
+    "DEMA": {
+    },
+    "MFI": {
+    },
+    "OBV": {
+    },
+    "OneTimeOrder": {
+    },
+    "OrderBookPressure": {
+    },
+    "OrderPartitioner": {
+    },
+    "PatternRepeater": {
+    },
+    "PercentDEMA": {
+    },
+    "PriceRangeTrader": {
+    },
+    "PriceSpikeDetector": {
+    },
+    "ProtectProfit": {
+    },
+    "RSI": {
+    },
+    "RSIOrderer": {
+    },
+    "RSIScalper": {
+    },
+    "RSIScalpOrderer": {
+    },
+    "RSIStarter": {
+    },
+    "SARStop": {
+    },
+    "Sentiment": {
+    },
+    "SimpleAndShort": {
+    },
+    "STC": {
+    },
+    "StochRSI": {
+    },
+    "StopLossTime": {
+    },
+    "StopLossTurn": {
+    },
+    "StopLossTurnPartial": {
+    },
+    "TakeProfit": {
+    },
+    "TakeProfitPartial": {
+    },
+    "TakeProfitStochRSI": {
+    },
+    "TimeOrder": {
+    },
+    "Trendatron": {
+    },
+    "TrendlineScapler": {
+    },
+    "TriggerOrder": {
+    },
+    "VolumeSpikeDetector": {
+    },
+    "VolumeSpikeDetectorLong": {
+    },
+    "VolumeSpikeStopper": {
+    },
+    "WaveOpener": {
+    },
+    "WaveStopper": {
+    },
+    "WaveSurfer": {
+    }
+  },
+  "arbitrageStratDesc": {
+    "Spread": {
+      "desc": "todo main desc",
+      "todo": "move to sub path arbitrage to avoid name conflicts"
+    }
+  },
+  "lendingStratDesc": {
+    "DEMA": {
+      "desc": "fooo DEMA"
     }
   }
 }

@@ -10,6 +10,7 @@ import TradeAdvisor from './TradeAdvisor';
 import {LendingAdvisor} from './Lending/LendingAdvisor';
 import {SocialController} from "./Social/SocialController";
 import MarginChecker from './MarginChecker';
+import {LoginController} from "./LoginController";
 import InstanceChecker from './InstanceChecker';
 import * as updateHandler from './updateHandler';
 import {SystemMessage, serverConfig, Process} from "@ekliptor/bit-models";
@@ -36,6 +37,7 @@ export class Controller extends AbstractController { // TODO impelment graceful 
     protected brain: Brain = null;
     protected marginChecker: MarginChecker = null;
     protected instanceChecker: InstanceChecker = null;
+    protected loginController: LoginController = LoginController.getInstance();
 
     protected webServer: http.Server | https.Server = null;
     protected serverSocket: ServerSocket = null;
@@ -258,6 +260,7 @@ export class Controller extends AbstractController { // TODO impelment graceful 
             if (!this.instanceChecker)
                 this.instanceChecker = new InstanceChecker();
             tasks.push(this.instanceChecker.process())
+            tasks.push(this.loginController.process())
 
             // wait for all tasks to finish
             return Promise.all(tasks)

@@ -32,4 +32,7 @@ interface IncomingMessage { // part of multihttpdispatcher module
     query: {
         [key: string] : string;
     }
+    params: {
+        [key: string] : string;
+    }
 }

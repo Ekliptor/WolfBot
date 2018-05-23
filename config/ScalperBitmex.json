@@ -1,0 +1,49 @@
+{
+  "data": [
+    {
+      "exchanges": "BitMEX",
+      "marginTrading": true,
+      "tradeTotalBtc": 0.03,
+      "notifyTrades": true,
+      "strategies": {
+        "TrendlineScalper": {
+          "supportLines": [9305],
+          "resistanceLines": [9610, 9830],
+          "tradeBreakout": false,
+          "pair": "USD_BTC",
+          "candleSize": 1,
+          "tradeStrategy": "RSIScalpOrderer",
+          "enableLog": true
+        },
+        "RSIScalpOrderer": {
+          "low": 34,
+          "high": 70,
+          "expiry": 20,
+          "candleSize": 3,
+          "pair": "USD_BTC",
+          "enableLog": true
+        },
+        "StopLossTurn": {
+          "order": "closeLong",
+          "setback": 0.2,
+          "setbackLong": 0.2,
+          "time": 180,
+          "reduceTimeByVolatility": false,
+          "low": 52,
+          "high": 56,
+          "candleSize": 5,
+          "pair": "USD_BTC",
+          "enableLog": false
+        },
+        "TakeProfit": {
+          "order": "closeLong",
+          "profit": 0.25,
+          "time": 40,
+          "candleSize": 5,
+          "pair": "USD_BTC",
+          "enableLog": false
+        }
+      }
+    }
+  ]
+}

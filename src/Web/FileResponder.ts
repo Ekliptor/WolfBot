@@ -15,9 +15,8 @@ export class FileResponder {
         try {
             if (req.params.bt)
                 return this.respondWithBacktestFile(req, res);
-            console.log(req.url);
-            console.log(req.params)
-            res.end('fooo2')
+            res.writeHead(404, {'Content-Type': 'text/html; charset=UTF-8'});
+            res.end("File not found - Unknown/missing URL parameters")
         }
         catch (err) {
             logger.error("Error responding with file", err);
@@ -29,7 +28,7 @@ export class FileResponder {
     // ################################################################
     // ###################### PRIVATE FUNCTIONS #######################
 
-    public async respondWithBacktestFile(req: http.IncomingMessage, res: http.ServerResponse): Promise<void> {
+    protected async respondWithBacktestFile(req: http.IncomingMessage, res: http.ServerResponse): Promise<void> {
         const download = req.params.dl === "1";
         // path.join(utils.appDir, nconf.get("tradesDir"), nconf.get("backfindDir")); // TODO backfinding for web interface
         const localPath = path.join(utils.appDir, nconf.get("tradesDir"), req.params.bt);
