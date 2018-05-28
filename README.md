@@ -23,7 +23,7 @@ NodeJS >= 9
 MongoDB >= 3.4
 TypeScript >= 2.8
 yarn >= 1.5 (npm should work too)
-Webpack >= 3 (only for UI modifications)
+Webpack >= 4 (only for UI modifications)
 ```
 
 

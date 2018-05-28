@@ -26,6 +26,7 @@ export interface LoginUpdateRes {
     loginRes?: {
         loginValid: boolean;
         subscriptionValid: boolean;
+        apiKey: string;
     }
 }
 
@@ -34,17 +35,47 @@ export class LoginUpdater extends AppPublisher {
 
     constructor(serverSocket: ServerSocket, advisor: AbstractAdvisor) {
         super(serverSocket, advisor)
-        this.checkRequestLoginData();
+        //this.checkRequestLoginData(); // currently done in ServerSocket when receiving messages
     }
 
     public onSubscription(clientSocket: WebSocket, initialRequest: http.IncomingMessage): void {
-        if (nconf.get("serverConfig:loggedIn") === false)
-            this.requestLoginData();
+        //if (nconf.get("serverConfig:loggedIn") === false) // done via http
+            //this.requestLoginData();
     }
 
     protected onData(data: LoginUpdateReq, clientSocket: WebSocket, initialRequest: http.IncomingMessage): void {
-        if (data.login)
-            this.verifyLogin(data.login, clientSocket)
+        //if (data.login) // never called
+            //this.verifyLogin(data.login, clientSocket)
+    }
+
+    public async verifyLogin(loginData: LoginData, clientSocket: WebSocket): Promise<LoginUpdateRes> {
+        let login = LoginController.getInstance();
+        nconf.set("serverConfig:username", loginData.username);
+        nconf.set("serverConfig:password", loginData.password);
+        try {
+            await login.checkLogin();
+            let res: LoginUpdateRes = {
+                loginRes: {
+                    loginValid: login.isLoginValid(),
+                    subscriptionValid: login.isSubscriptionValid(),
+                    apiKey: Object.keys(nconf.get("apiKeys"))[0]
+                }
+            }
+            if (!res) {
+                res.error = true;
+                res.errorCode = "unknownError";
+            }
+            else if (res.loginRes.loginValid === false || res.loginRes.subscriptionValid === false) {
+                res.error = true;
+                res.errorCode = res.loginRes.loginValid === false ? "userNotFound" : "subscriptionNotFound";
+            }
+            this.send(clientSocket, res)
+            return res;
+        }
+        catch (err) {
+            logger.error("Error checking new login data", err)
+            return null;
+        }
     }
 
     // ################################################################
@@ -67,30 +98,9 @@ export class LoginUpdater extends AppPublisher {
         })
     }
 
-    protected async verifyLogin(loginData: LoginData, clientSocket: WebSocket): Promise<void> {
-        let login = LoginController.getInstance();
-        nconf.set("serverConfig:username", loginData.username);
-        nconf.set("serverConfig:password", loginData.password);
-        try {
-            await login.checkLogin();
-            let res: LoginUpdateRes = {
-                loginRes: {
-                    loginValid: login.isLoginValid(),
-                    subscriptionValid: login.isSubscriptionValid()
-                }
-            }
-            if (res.loginRes.loginValid === false || res.loginRes.subscriptionValid === false) {
-                res.error = true;
-                res.errorCode = res.loginRes.loginValid === false ? "userNotFound" : "subscriptionNotFound";
-            }
-            this.send(clientSocket, res)
-        }
-        catch (err) {
-            logger.error("Error checking new login data", err)
-        }
-    }
-
     protected send(ws: WebSocket, data: LoginUpdateRes, options?: ServerSocketSendOptions) {
+        if (ws === null)
+            return Promise.resolve(false);
         return super.send(ws, data, options);
     }
 }

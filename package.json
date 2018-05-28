@@ -15,7 +15,6 @@
     "@ekliptor/chrome-browser": "^0.0.4",
     "@ekliptor/node-bittrex-api-fix": "^0.8.2",
     "@ekliptor/packed-updater": "^1.0.4",
-    "@ekliptor/talib": "1.0.2",
     "async": "^2.6.0",
     "autobahn": "^17.5.1",
     "binance-api-node": "^0.7.1",
@@ -44,6 +43,7 @@
     "sentiment": "^4.1.0",
     "source-map-support": "^0.4.11",
     "synaptic": "^1.0.12",
+    "talib": "1.0.2",
     "technicalindicators": "^1.1.1",
     "twitter": "^1.7.1",
     "ws": "^5.1.1"

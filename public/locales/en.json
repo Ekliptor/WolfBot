@@ -520,8 +520,8 @@
   "tradingFirstTxt": "ToDo.... ",
   "arbitrageFirst": "Start doing arbitrage between exchanges",
   "arbitrageFirstTxt": "ToDo.... ",
-  "lendingFirstFirst": "Start lending your coins for margin funding",
-  "lendingFirstFirstTxt": "ToDo.... ",
+  "lendingFirst": "Start lending your coins for margin funding",
+  "lendingFirstTxt": "ToDo.... ",
   "developerFirst": "Start developing your own strategies",
   "developerFirstTxt": "ToDo.... ",
   "exchangeKeys": "Exchange API keys",
@@ -532,6 +532,9 @@
   "requiredTwoKeys": "Exchange {{name}} requires 2 API keys",
   "enterNameTxt": "Please enter your account from:",
   "subscriptionNotFound": "You don't have a subscription for this trading bot. Please purchase subscription on our website.",
+  "backetestSubsRequired": "You need a valid bot subscription to start Backtesting. Please visit our website for more information.",
+  "visitWebsite": "Visit Website",
+  "nodeVersion": "NodeJS version",
   "confTitle": {
     "exchanges": "Exchanges"
   },

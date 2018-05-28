@@ -2,7 +2,13 @@ import * as utils from "@ekliptor/apputils";
 import {AbstractSubController} from "./AbstractSubController";
 const logger = utils.logger
     , nconf = utils.nconf;
+import * as path from "path";
 
+
+export interface NodeConfigFile {
+    id: number;
+    url: string;
+}
 
 /**
  * Class to check if the login & subscription on wolfbot.org is valid.
@@ -13,10 +19,13 @@ export class LoginController extends AbstractSubController {
     protected lastCheckedLogin = new Date(0);
     protected loginValid: boolean = false;
     protected subscriptionValid: boolean = false;
+    protected nodeConfig: NodeConfigFile = null;
 
     constructor() {
         super()
-        this.setLoggedIn();
+        this.loadConfig().catch((err) => {
+            logger.error("Error loading node config on startup", err)
+        })
     }
 
     public static getInstance() {
@@ -45,7 +54,9 @@ export class LoginController extends AbstractSubController {
                 return resolve()
 
             this.lastCheckedLogin = new Date();
-            this.checkLogin().then(() => {
+            this.loadConfig().then(() => {
+                return this.checkLogin();
+            }).then(() => {
                 resolve();
             }).catch((err) => {
                 logger.error("Error checking cloud login", err);
@@ -66,8 +77,13 @@ export class LoginController extends AbstractSubController {
                 username: nconf.get("serverConfig:username"),
                 password: nconf.get("serverConfig:password")
             }
+            nconf.save(null, (err) => {
+                if (err)
+                    logger.error("Error saving new user account config", err);
+            });
             let options = {
-                cloudscraper: true
+                cloudscraper: true,
+                urlencoded: true // must be true with cloudscraper
             }
             logger.verbose("Checking cloud login validity of account");
             utils.postData(nconf.get("serverConfig:checkLoginUrl"), data, (body, response) => {
@@ -83,10 +99,12 @@ export class LoginController extends AbstractSubController {
                     this.subscriptionValid = false;
                     logger.info("Login to cloud API is not valid")
                 }
-                else if (Array.isArray(json.data) === true && json.data.length === 1 && json.data[0].user &&
-                    Array.isArray(json.data[0].user.subscriptions) === true) {
+                else if (Array.isArray(json.data) === true && json.data.length === 1 && json.data[0].data) {
                     this.loginValid = true;
-                    this.subscriptionValid = this.hasThisBotSubscription(json.data[0].user.subscriptions);
+                    if (Array.isArray(json.data[0].data.subscriptions) === true)
+                        this.subscriptionValid = this.hasThisBotSubscription(json.data[0].data.subscriptions);
+                    else
+                        this.subscriptionValid = false;
                     if (this.subscriptionValid === false)
                         logger.info("Cloud bot subscription has expired")
                     else
@@ -95,7 +113,7 @@ export class LoginController extends AbstractSubController {
                 else {
                     this.loginValid = false;
                     this.subscriptionValid = false;
-                    logger.error("Received invalid response JSON from cloud login API", json)
+                    //logger.error("Received invalid response JSON from cloud login API", json) // wrong credentials
                 }
                 this.setLoggedIn();
                 resolve()
@@ -123,8 +141,11 @@ export class LoginController extends AbstractSubController {
             const sub = subscriptions[i];
             if (/*sub.post_name !== "subscription" || */sub.post_type !== "shop_subscription" || this.isActiveSubscriptionStatus(sub.post_status) === false)
                 continue;
-            // TODO check some meta info (such as post_content) to identify this bot instance
-            return true;
+            // check if we have a subscription for this bot instance
+            if (sub.bot_url && typeof sub.bot_url === "object") {
+                if (sub.bot_url.id === this.nodeConfig.id)
+                    return true;
+            }
         }
         return false;
     }
@@ -140,7 +161,32 @@ export class LoginController extends AbstractSubController {
         return false;
     }
 
+    protected async loadConfig(): Promise<void> {
+        if (this.nodeConfig !== null || nconf.get("serverConfig:premium") === false)
+            return; // only load it once
+        let configFile = path.join(utils.appDir, "..", nconf.get("serverConfig:premiumConfigFileName"));
+        try {
+            let data = await utils.file.readFile(configFile)
+            let json = utils.parseJson(data);
+            if (json === null || typeof json.id !== "number")
+                throw new Error("Invalid node config json")
+            this.nodeConfig = json;
+        }
+        catch (err) {
+            logger.error("Error reading node config file %s", configFile, err)
+            throw err; // don't login
+        }
+    }
+
     protected generateApiKey() {
-        // TODO
+        const random = utils.getRandomString(20, false);
+        let keys: any = {}
+        keys[random] = true;
+        nconf.remove("apiKeys"); // can't delete config from .ts file. config from .json is overwritten. always remove because we don't allow multiple keys
+        nconf.set("apiKeys", keys);
+        nconf.save(null, (err) => {
+            if (err)
+                logger.error("Error saving new API key config", err);
+        });
     }
 }

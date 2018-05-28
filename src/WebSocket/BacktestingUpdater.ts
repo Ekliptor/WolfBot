@@ -105,10 +105,17 @@ export class BacktestingUpdater extends AppPublisher {
     }
 
     protected async startBacktest(data: BacktestReq, clientSocket: WebSocket) {
+        let update: BacktestRes = {};
+        if (nconf.get("serverConfig:premium") === true && nconf.get("serverConfig:loggedIn") === false) {
+            logger.error("You need a valid subscription to start backtesting");
+            update.error = true;
+            update.errorCode = "backetestSubsRequired";
+            this.send(clientSocket, update)
+        }
         if (this.backtestRunning === true)
             return;
         this.backtestRunning = true;
-        let update: BacktestRes = {};
+
         let filePath = path.join(TradeConfig.getConfigDirForMode("trading"), data.start.config);
         try {
             let fileText = await utils.file.readFile(filePath);

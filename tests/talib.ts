@@ -4,7 +4,7 @@ const logger = utils.logger
 import {controller as Controller} from '../src/Controller';
 import {Currency} from "@ekliptor/bit-models";
 //import * as talib from "talib"; // not recognized as a module
-const talib = require("@ekliptor/talib");
+const talib = require("talib");
 import {TaLib, TaLibParams, TaLibResult} from "../src/Indicators/TaLib";
 import * as fs from "fs";
 import * as path from "path";

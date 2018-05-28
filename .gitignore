@@ -68,6 +68,7 @@ packages
 temp
 trades
 config.ts
+configLocal.ts
 config.json
 public/js/telegram-app.js
 tests/telegram.ts

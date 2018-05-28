@@ -26,8 +26,11 @@ export class LoginManager extends AbstractController {
 
         if (data.enterLogin)
             this.showLoginDialog(data.enterLogin);
-        else if (data.loginRes)
+        else if (data.loginRes) {
             $(AppClass.cfg.appSel).remove("#modal-login-dialog"); // errors are caught above
+            AppF.setCookie("apiKey", data.loginRes.apiKey, pageData.cookieLifeDays);
+            this.reloadPage();
+        }
     }
 
     public render() {
@@ -36,34 +39,35 @@ export class LoginManager extends AbstractController {
         })
     }
 
-    // ################################################################
-    // ###################### PRIVATE FUNCTIONS #######################
-
-    protected showLoginDialog(loginData: LoginData) {
+    public showLoginDialog(loginData: LoginData = null) {
         let vars = {
-            username: loginData.username,
-            password: loginData.password,
+            username: loginData ? loginData.username : "",
+            password: loginData ? loginData.password : "",
             siteUrl: appData.siteUrl,
             siteName: i18next.t("siteName")
         }
         let loginDialog = AppF.translate(pageData.html.login.loginDialog, vars);
         $(AppClass.cfg.appSel).append(loginDialog);
-        this.$("#loginForm").submit((event) => {
+        $("#loginForm").submit((event) => { // part of parent widget now
             event.preventDefault();
             this.send({
                 login: {
-                    username: this.$("#username").val(),
-                    password: this.$("#password").val()
+                    username: $("#username").val(),
+                    password: $("#password").val()
                 }
             })
         });
     }
 
+    // ################################################################
+    // ###################### PRIVATE FUNCTIONS #######################
+
     protected showLoginError(data: LoginUpdateRes) {
-        this.$("#loginError").text(i18next.t(data.errorCode ? data.errorCode : "unknownError"));
+        $("#loginError").text(i18next.t(data.errorCode ? data.errorCode : "unknownError"));
     }
 
     protected send(data: LoginUpdateReq) {
-        return super.send(data);
+        //return super.send(data); // we use HTTP for now to keep the WS area secured
+        return this.sendHTTP("login", data);
     }
 }

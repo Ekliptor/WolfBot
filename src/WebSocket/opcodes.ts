@@ -23,7 +23,7 @@ export const enum WebSocketOpcode {
     LOGIN = 23
 }
 
-export type WebSocketError = "Unauthorized";
+export type WebSocketError = "Unauthorized" | "UnauthorizedPremium";
 
 export type JSONFormat = "JSON" | "EJSON";
 export const AppJSONFormat: JSONFormat = "EJSON";

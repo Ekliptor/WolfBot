@@ -123,7 +123,7 @@ export abstract class AbstractController extends ClientSocketReceiver {
         AppF.loadResource(resources, callback.bind(this), null, true);
     }
 
-    public setDateTimeValue(element: JQuery) {
+    protected setDateTimeValue(element: JQuery) {
         let val = element ? element.find(':input').attr('data-value') : null; // data-value of the first input child element
         if (!val)
             return false;
@@ -132,5 +132,23 @@ export abstract class AbstractController extends ClientSocketReceiver {
             return false;
         element.data("DateTimePicker").date(new Date(valNr));
         return true;
+    }
+
+    protected reloadPage(escapeAppFrame = false) {
+        if (escapeAppFrame === true)
+            AppF.setLocationTop("reload");
+        else
+            window.location.reload(false); // reload from cache is ok
+    }
+
+    protected showAsyncLoadingIcon() {
+        if ($('.asyncData').length === 0)
+            this.$().append(pageData.html.misc.asyncWait); // just add it inside the current widget
+        else
+            $('.asyncData').prepend(pageData.html.misc.asyncWait);
+    }
+
+    protected removeAsyncLoadingIcon() {
+        $('.asyncWait').remove();
     }
 }

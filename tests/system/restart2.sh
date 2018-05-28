@@ -16,7 +16,7 @@ PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin:/bin
 botlist=(
      'Sensor1/app.js --config=Reddit --social -p=8443'
      'Sensor2/app.js --config=PoloStops --trader=RealTimeTrader -p=8234'
-     'Sensor3/app.js --config=PlanRunner --trader=RealTimeTrader -p=5743'
+     'Sensor3/app.js --config=PlanRunner --trader=RealTimeTrader -p=5953'
      'Sensor4/app.js --config=Bitfinex --lending -p=2888'
      'Sensor5/app.js --config=DirectionFollowerFutures --trader=RealTimeTrader -p=2095'
      'Sensor6/app.js --config=DirectionFollower --trader=RealTimeTrader -p=5733'

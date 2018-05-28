@@ -19,6 +19,7 @@ export interface StatusUpdate {
     serverTime: string;
     started: Date;
     installed: Date;
+    nodeVersion: string;
     //currencies: string[];
     currencies: string;
     evaluation: BotEvaluation;
@@ -65,6 +66,7 @@ export class StatusUpdater extends AppPublisher {
                 serverTime: utils.getUnixTimeStr(true, new Date()),
                 started: this.advisor.getStarted(),
                 installed: installDate,
+                nodeVersion: process.version,
                 currencies: this.advisor.getCandleCurrencies().toString().replaceAll(",", ", "),
                 // TODO better evaluation display for premium bot
                 evaluation: !nconf.get("serverConfig:premium") && portfolioTrader && portfolioTrader.warmUpDone(false) ? portfolioTrader.evaluateTrades() : null

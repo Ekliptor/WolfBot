@@ -4176,7 +4176,7 @@ mute-stream@0.0.5:
   version "0.0.5"
   resolved "https://registry.yarnpkg.com/mute-stream/-/mute-stream-0.0.5.tgz#8fbfabb0a98a253d3184331f9e8deb7372fac6c0"
 
-nan@^2.10.0:
+nan@^2.0.9:
   version "2.10.0"
   resolved "https://registry.yarnpkg.com/nan/-/nan-2.10.0.tgz#96d0cd610ebd58d4b4de9cc0c6828cda99c7548f"
 
@@ -5751,6 +5751,12 @@ table@^3.7.8:
 taffydb@2.6.2:
   version "2.6.2"
   resolved "https://registry.yarnpkg.com/taffydb/-/taffydb-2.6.2.tgz#7cbcb64b5a141b6a2efc2c5d2c67b4e150b2a268"
+
+talib@1.0.2:
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/talib/-/talib-1.0.2.tgz#951e5c729f332befe75aa9b4af6d0bf23dec1fda"
+  dependencies:
+    nan "^2.0.9"
 
 tap@^0.7.1:
   version "0.7.1"

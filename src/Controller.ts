@@ -37,7 +37,7 @@ export class Controller extends AbstractController { // TODO impelment graceful 
     protected brain: Brain = null;
     protected marginChecker: MarginChecker = null;
     protected instanceChecker: InstanceChecker = null;
-    protected loginController: LoginController = LoginController.getInstance();
+    protected loginController: LoginController = null;
 
     protected webServer: http.Server | https.Server = null;
     protected serverSocket: ServerSocket = null;
@@ -199,7 +199,23 @@ export class Controller extends AbstractController { // TODO impelment graceful 
     // ###################### PRIVATE FUNCTIONS #######################
 
     protected process(cb) {
+        let config = nconf.get("serverConfig")
+        let previousValues: any = {}
+        for (let prop in config)
+        {
+            if (serverConfig.OVERWRITE_PROPS.indexOf(prop) !== -1)
+                previousValues[prop] = config[prop];
+        }
         this.loadServerConfig(() => {
+            /*
+            nconf.load((err) => {
+                if (err)
+                    logger.error("Error loading config files", err)
+                this.doProcess(cb)
+            })
+            */
+            for (let prop in previousValues)
+                nconf.set('serverConfig:' + prop, previousValues[prop])
             this.doProcess(cb)
         })
     }
@@ -220,6 +236,8 @@ export class Controller extends AbstractController { // TODO impelment graceful 
         let scheduleAgain = true // always true here since we don't reconnect our IP
         if (this.exchangeConntroller === null)
             this.exchangeConntroller = new ExchangeController(argv.config);
+        if (this.loginController === null)
+            this.loginController = LoginController.getInstance();
         this.notificationController = new NotificationController()
         this.notificationController.process().then(() => {
             return this.exchangeConntroller.process()
@@ -369,6 +387,24 @@ export class Controller extends AbstractController { // TODO impelment graceful 
 
     public sendFile(req: http.IncomingMessage, res: http.ServerResponse) {
         this.fileResponder.respond(req, res);
+    }
+
+    public async login(req: http.IncomingMessage, res: http.ServerResponse) {
+        let json = utils.getJsonPostData((req as any).formFields);
+        let loginRes = await this.websocketController.getLoginUpdater().verifyLogin({
+            username: json.login.username,
+            password: json.login.password
+        }, null);
+        if (!loginRes) {
+            loginRes.error = true;
+            loginRes.errorCode = "unknownError";
+        }
+        else if (loginRes.loginRes.loginValid === false || loginRes.loginRes.subscriptionValid === false) {
+            loginRes.error = true;
+            loginRes.errorCode = loginRes.loginRes.loginValid === false ? "userNotFound" : "subscriptionNotFound";
+        }
+        res.writeHead(200, {'Content-Type': 'application/json; charset=UTF-8'})
+        res.end(JSON.stringify(loginRes))
     }
 }
 

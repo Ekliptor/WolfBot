@@ -6,6 +6,10 @@ import {AppFunc, HelpersClass, EJSON} from "@ekliptor/browserutils";
 
 declare var AppF: AppFunc, Hlp: HelpersClass;
 
+export interface ClientSocketCallback {
+    (data: any): void;
+}
+
 export abstract class ClientSocketReceiver extends AbstractWidget {
     public readonly opcode: WebSocketOpcode;
     protected socket: ClientSocket;
@@ -28,6 +32,43 @@ export abstract class ClientSocketReceiver extends AbstractWidget {
 
     protected send(data: any) {
         this.socket.send(ClientSocket.stringify(this.opcode, data));
+    }
+
+    /**
+     * Send a request via HTTP instead of WebSocket
+     * @param {string} url The url to send it to. Can be a
+     * @param data any JavaScript object to be sent as json in the "data" parameter
+     * @param {ClientSocketCallback} callback (optional). If not supplied the this.onData() will be called
+     *          In case of HTTP errors no callback will be called (just like we get nothing when our websocket connection aborts).
+     */
+    public sendHTTP(url: string, data: any, callback: ClientSocketCallback = null): void {
+        if (!url)
+            return AppF.log("ERROR: url parameter for sendHTTP() must be a string");
+        let http = new XMLHttpRequest();
+        if (/^https?:\/\//i.test(url) === false) {
+            if (url[0] !== "/")
+                url = "/" + url;
+            url = (document as any).origin + url;
+            if (url[url.length-1] !== "/")
+                url += "/";
+        }
+        let params = new FormData();
+        params.append("data", JSON.stringify(data));
+        http.onreadystatechange = (ev) => {
+            if (http.readyState === 4) {
+                if (http.status === 200) {
+                    let jsonRes = JSON.parse(http.responseText);
+                    if (typeof callback=== "function")
+                        callback(jsonRes);
+                    else
+                        this.onData(jsonRes);
+                }
+                else
+                    AppF.log("ERROR: Invalid HTTP response in sendHTTP() with code: " + http.status);
+            }
+        };
+        http.open("POST", url, true);
+        http.send(params);
     }
 }
 

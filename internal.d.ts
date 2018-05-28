@@ -35,4 +35,7 @@ interface IncomingMessage { // part of multihttpdispatcher module
     params: {
         [key: string] : string;
     }
+    formFields: {
+        [key: string] : string;
+    }
 }

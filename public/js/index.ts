@@ -22,6 +22,7 @@ import {Config} from "./controllers/Config";
 import {Scripts} from "./controllers/Scripts";
 import {Backtesting} from "./controllers/Backtesting"
 import {TradingViewDatafeed} from "./classes/WebSocket/TradingViewDatafeed";
+import {WebSocketError} from "../../src/WebSocket/opcodes";
 
 
 // declare our global variable types from other libraries
@@ -94,21 +95,30 @@ export class AppClass {
                 url += "?apiKey=" + key;
         }
         this.webSocket = new ClientSocket(url);
-        this.webSocket.on("disconnect", (reason: string) => {
+        this.webSocket.on("disconnect", (reason: WebSocketError) => {
             if ($("#modal-background").length !== 0)
                 return; // another controller is showing a message (restart...)
-            let vars =  {
+            let vars: any =  {
                 title: i18next.t('disconnected'),
                 text: i18next.t('disconnectedTxt')
             }
-            if (reason === "Unauthorized") { // see WebSocketError
-                vars = {
-                    title: i18next.t('unauthorized'),
-                    text: i18next.t('unauthorizedTxt')
-                }
+            switch (reason) // see WebSocketError in opcodes.ts
+            {
+                case "Unauthorized":
+                    vars = {
+                        title: i18next.t('unauthorized'),
+                        text: i18next.t('unauthorizedTxt')
+                    }
+                    break;
+                case "UnauthorizedPremium":
+                    vars = null
+                    this.loginManager.showLoginDialog();
+                    break;
             }
-            let disconnected = AppF.translate(pageData.html.misc.disablePage, vars);
-            $(AppClass.cfg.appSel).append(disconnected);
+            if (vars !== null) {
+                let disconnected = AppF.translate(pageData.html.misc.disablePage, vars);
+                $(AppClass.cfg.appSel).append(disconnected);
+            }
         });
         this.logReceiver = new LogReceiver(this.webSocket);
         this.loginManager = new LoginManager(this.webSocket);
@@ -132,7 +142,6 @@ export class AppClass {
         //$('.dateTime').html(function() {
         //return new Date(parseInt($(this).attr('data-time')))
         //})
-        //$('.asyncData').prepend(pageData.html.misc.asyncWait);
         Hlp.updateTimestampsRepeating();
         Hlp.updateAbsoluteDates();
 
@@ -164,6 +173,7 @@ export class AppClass {
             this.setTitle(AppF.tr(pageName));
             this.renderView(pageName).then((view) => {
                 $(AppClass.cfg.contentWidget).html(view.html);
+                $('.asyncData').prepend(pageData.html.misc.asyncWait);
                 if (view.controller)
                     view.controller.addListeners();
                 Hlp.updateTimestampsRepeating(); // immediate update and restart the timer

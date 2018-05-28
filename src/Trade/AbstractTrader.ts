@@ -85,6 +85,12 @@ export abstract class AbstractTrader extends AbstractGenericTrader {
 
     public callAction(action: StrategyActionName, strategy: AbstractStrategy, reason = "", exchange: Currency.Exchange = Currency.Exchange.ALL): void {
         const pairStr = strategy.getAction().pair.toString() + "-" + Currency.Exchange[exchange]; // add the exchange because for arbitrage we call it twice
+        if (nconf.get("serverConfig:premium") === true && nconf.get("serverConfig:loggedIn") === false) {
+            const msg = utils.sprintf("Unable to %s %s in %s because you don't have a valid subscription: %s - %s", action, pairStr, this.className, strategy.getClassName(), reason)
+            logger.info(msg)
+            this.writeLogLine(msg)
+            return;
+        }
         if (this.pausedTrading) {
             const msg = utils.sprintf("Skipping %s %s in %s because trading is paused: %s - %s", action, pairStr, this.className, strategy.getClassName(), reason)
             logger.info(msg)

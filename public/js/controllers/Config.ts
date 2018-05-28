@@ -55,7 +55,7 @@ export class Config extends AbstractController {
     public render() {
         return new Promise<string>((resolve, reject) => {
             this.canEdit = false; // when we re-open the page
-            resolve("");
+            resolve(pageData.html.config.main);
         })
     }
 
@@ -228,6 +228,7 @@ export class Config extends AbstractController {
     protected setupTradingTab(data: ConfigRes) {
         let html = AppF.translate(pageData.html.config.jsonView)
         this.$("#tabContent").append(html);
+        this.showAsyncLoadingIcon();
         this.loadJsonView(() => {
             //$('.asyncWait').remove();
             JSONEditor.defaults.languages[i18next.language] = AppF.getTranslation("editor");
@@ -304,6 +305,7 @@ export class Config extends AbstractController {
                     this.$(selector + " .json-editor-btn-add").remove();
                     this.$(selector + " .json-editor-btn-delete").remove();
                 }
+                this.removeAsyncLoadingIcon();
             }, 0);
         });
     }

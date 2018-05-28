@@ -33,6 +33,7 @@ export class LogReceiver extends ClientSocketReceiver {
                 $("#pauseOpeningPositions").addClass("paused");
             }
             if (data.state.mode === "ai") {
+                $(".tabAI").removeClass("hidden");
                 $(".tabTrading, .tabLending, .tabSocial, .tabCoinMarket, .tabBacktesting, .tabHistory").addClass("hidden");
                 $("#pauseOpeningPositions").addClass("hidden");
             }
@@ -40,10 +41,12 @@ export class LogReceiver extends ClientSocketReceiver {
                 $(".tabAI, .tabLending, .tabSocial, .tabCoinMarket").addClass("hidden");
             }
             else if (data.state.mode === "lending") {
+                $(".tabLending").removeClass("hidden");
                 $(".tabAI").addClass("hidden"); // trading tab shows our lending strategies
                 $("#pauseOpeningPositions, .tabSocial, .tabCoinMarket, .tabBacktesting, .tabHistory").addClass("hidden");
             }
             else if (data.state.mode === "social") {
+                $(".tabSocial, .tabCoinMarket").removeClass("hidden");
                 $(".tabTrading, .tabLending, .tabAI, .tabBacktesting, .tabHistory").addClass("hidden");
                 $("#pauseTrading, #pauseOpeningPositions").addClass("hidden");
             }

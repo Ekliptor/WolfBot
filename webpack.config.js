@@ -1,7 +1,8 @@
 // https://webpack.js.org/configuration/
+// TODO add https://github.com/roman01la/webpack-closure-compiler in production mode + css minifier
 
 const path = require("path");
-const webpack = require('webpack');
+//const webpack = require('webpack');
 //const UglifyJsPlugin = require('uglifyjs-webpack-plugin')
 
 module.exports = {
