@@ -67,9 +67,11 @@ docs
 packages
 temp
 trades
-config.ts
 configLocal.ts
 config.json
 public/js/telegram-app.js
+tests/temp.html
 tests/telegram.ts
-src/Social
+tests/tradingview.ts
+src/Social/Crawler
+src/Social/Watcher

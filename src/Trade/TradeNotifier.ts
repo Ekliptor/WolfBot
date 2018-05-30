@@ -20,14 +20,7 @@ export default class TradeNotifier extends PortfolioTrader/*AbstractTrader*/ { /
     constructor(config: TradeConfig) {
         super(config)
         this.start = Date.now() - 10*1000;
-        const notificationClass = nconf.get('serverConfig:notificationMethod');
-        const options = nconf.get("serverConfig:apiKey:notify:" + notificationClass);
-        const modulePath = path.join(__dirname, "..", "Notifications", notificationClass)
-        this.notifier = this.loadModule(modulePath, options)
-        if (!this.notifier) {
-            logger.error("Error loading %s in %s", notificationClass, this.className)
-            return;
-        }
+        this.notifier = AbstractNotification.getInstance();
     }
 
     public getBalances(): CoinMap {

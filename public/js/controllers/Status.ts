@@ -5,6 +5,7 @@ import {StatusUpdate} from "../../../src/WebSocket/StatusUpdater";
 import {PageData} from "../types/PageData";
 import {AppData} from "../types/AppData";
 import {AppFunc, HelpersClass, EJSON} from "@ekliptor/browserutils";
+import * as $ from "jquery";
 //import * as butils from "@ekliptor/browserutils"; butils.EJSON also works
 
 declare var pageData: PageData, appData: AppData;
@@ -31,6 +32,7 @@ export class Status extends AbstractController {
                 this.$("#botEvaluation, #stateForm").addClass("hidden");
             else
                 this.$("#botEvaluation").html(JSON.stringify(data.evaluation, null, 4));
+            this.removeAsyncLoadingIcon();
             Hlp.updateTimestampsRepeating();
 
             this.$("#restoreState").click(() => {

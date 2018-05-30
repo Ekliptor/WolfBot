@@ -7,6 +7,8 @@
 // --paper (optional): run in paper trading mode only (simulation). applies only to some traders
 // --update (optional): update only. exit the app after update or of there is no update available
 // --noTalib (optional): disable the use of TA-LIB (difficult installation on windows)
+// --noUpdate (optional): disable the auto updater to download & install the latest version of this software
+// --noBrowser (optional): disable the browser module used for crawling data
 // --debug (optional): print verbose debug output for developers
 // --uiDev (optional): reload HTML templates and JavaScript every second from disk
 
@@ -77,7 +79,7 @@ import * as os from "os"; // for hostname
 import * as path from "path";
 //import * as httpShutdown from "http-shutdown";
 import {controller as Controller} from "./src/Controller";
-import * as updateHandler from './src/updateHandler';
+const updateHandler = argv.noUpdate === true ? null : require("./src/updateHandler");
 
 //dispatcher.setStatic("./js/")
 if (!nconf.get("debug") && nconf.get("cachingMin:staticFiles") > 0) {
@@ -219,22 +221,26 @@ if (nconf.get('protocol') === 'https://') {
     mainServer = httpsServer;
 }
 
-updateHandler.runUpdater(() => { // will restart the app or fire this callback
-    if (argv.update) {
-        process.exit(1);
-        return;
-    }
-    Controller.start(mainServer)
-    /*
-    // TODO "connecting" forever issue not fixed with timeout. no, the http server doesn't respond. connection not initiated
-    setTimeout(() => {
-        mainServer.shutdown()
-        console.log("SHUTDOWN")
+if (updateHandler !== null) {
+    updateHandler.runUpdater(() => { // will restart the app or fire this callback
+        if (argv.update) {
+            process.exit(1);
+            return;
+        }
+        Controller.start(mainServer)
+        /*
+        // TODO "connecting" forever issue not fixed with timeout. no, the http server doesn't respond. connection not initiated
         setTimeout(() => {
-            mainServer.listen(nconf.get('tlsPort'), () => {
-                logger.info('Server ist listening on %s%s:%s', nconf.get('protocol'), os.hostname(), nconf.get('tlsPort'))
-            })
-        }, 4000)
-    }, 5000)
-    */
-})
+            mainServer.shutdown()
+            console.log("SHUTDOWN")
+            setTimeout(() => {
+                mainServer.listen(nconf.get('tlsPort'), () => {
+                    logger.info('Server ist listening on %s%s:%s', nconf.get('protocol'), os.hostname(), nconf.get('tlsPort'))
+                })
+            }, 4000)
+        }, 5000)
+        */
+    })
+}
+else
+    Controller.start(mainServer)

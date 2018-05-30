@@ -448,6 +448,7 @@ export abstract class AbstractGenericStrategy extends EventEmitter {
     }
 
     protected loadNotifier() {
+        /*
         const notificationClass = nconf.get('serverConfig:notificationMethod');
         const notificationOpts = nconf.get("serverConfig:apiKey:notify:" + notificationClass);
         const modulePath = path.join(__dirname, "..", "Notifications", notificationClass)
@@ -456,6 +457,8 @@ export abstract class AbstractGenericStrategy extends EventEmitter {
             logger.error("Error loading %s in %s", notificationClass, this.className)
             return;
         }
+        */
+        this.notifier = AbstractNotification.getInstance();
     }
 
     protected sendNotification(headline: string, text: string = "-", requireConfirmation = false, forceSend = false, addPrice = false) {

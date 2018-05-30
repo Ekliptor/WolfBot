@@ -68,10 +68,12 @@ export class Strategies extends AbstractController {
                 this.$("#strategyTabs").append(tabsHtml);
                 if (config.activeNr === currentConfNr) {
                     this.$().append(html);
+                    let count = 0; // i = key = name of the strategy
                     $.each(config.strategies, (i, value) => {
                         let strategyHtml = this.getStrategyHtml(config.nr, value)
-                        this.$("#strategy-" + config.nr).append(strategyHtml);
+                        this.placeStrategyHtml(count, config, strategyHtml);
                         this.addStrategyProperties(config.nr, value);
+                        count++;
                     });
                     this.addButtonEvents(config);
                     this.updateButtonStates(config.nr, config.position);
@@ -129,6 +131,12 @@ export class Strategies extends AbstractController {
             headline: strategyData.name + " " + strategyData.pair
         }
         return AppF.translate(pageData.html.strategies.singleStrategy, attributes);
+    }
+
+    protected placeStrategyHtml(strategyIndex: number, config: StrategyUpdate, strategyHtml: string) {
+        if (strategyIndex % 2 === 0)
+            this.$("#strategy-" + config.nr).append(pageData.html.strategies.strategyRow);
+        this.$("#strategy-" + config.nr + " .strategyRow").last().append(strategyHtml);
     }
 
     protected addStrategyProperties(configNr: number, strategyData: any): void {

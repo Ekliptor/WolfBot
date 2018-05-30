@@ -42,15 +42,18 @@ The code still missing is mostly HTTP helpers, browser functions, auto updater,.
 
 
 ### Start trading
-After running TypeScript (automatically in your IDE or run the "tsc" command in the project root dir) you will see a file:
+Rename the `configLocal-sample.ts` file in the project root directory to `configLocal.ts` and add att least `mongoUrl` (plus some exchange API keys if you want to trade).
+
+
+After running TypeScript (automatically in your IDE or run the `tsc` command in the project root dir) you will see a file:
 ```
 build/app.js
 ```
-Use the "build" directory as the working directory and run:
+Use the `build` directory as the working directory and run:
 ```
-node app.js --debug --config=Noop --trader=RealTimeTrader
+node app.js --debug --config=Noop --trader=RealTimeTrader --noUpdate --noBrowser
 ```
-The "config" parameter must be a JSON file from the "config" directory. For a list of all parameters look at the top of the app.ts file.
+The `config` parameter must be a JSON file from the `config` directory. For a list of all parameters look at the top of the `app.ts` file.
 
 
 ### Modifying the UI

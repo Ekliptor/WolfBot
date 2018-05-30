@@ -12,7 +12,8 @@ import {SocialController} from "./Social/SocialController";
 import MarginChecker from './MarginChecker';
 import {LoginController} from "./LoginController";
 import InstanceChecker from './InstanceChecker';
-import * as updateHandler from './updateHandler';
+//import * as updateHandler from './updateHandler';
+const updateHandler = argv.noUpdate === true ? null : require("./updateHandler");
 import {SystemMessage, serverConfig, Process} from "@ekliptor/bit-models";
 import * as minify from "./minify";
 import * as fs from "fs";
@@ -67,6 +68,7 @@ export class Controller extends AbstractController { // TODO impelment graceful 
         TaLib.checkTaLibSupport(); // just print the error, continue without technical indicators for now
         if (nconf.get("ai") === true)
             Brain.firstStart(argv.train)
+        this.loadLocalConfig();
     }
 
     /*static */log(subject, ...errorArgs) {
@@ -92,8 +94,9 @@ export class Controller extends AbstractController { // TODO impelment graceful 
             this.connect(() => {
                 // run unit test (wait for db connection and other callbacks)
                 setTimeout(() => {
-                    let updateDb = () => {
+                    let updateDb = async () => {
                         // write something to db...
+                        await require('../tests/init/init.js').run();
                         if (!runProcess)
                             return;
                         this.process((scheduleAgain) => {
@@ -323,16 +326,40 @@ export class Controller extends AbstractController { // TODO impelment graceful 
         if (this.lastUpdateCheck.getTime() + nconf.get("serverConfig:checkUpdateIntervalH") * utils.constants.HOUR_IN_SECONDS*1000 < Date.now()) {
             this.lastUpdateCheck = new Date();
             // don't run updater too often because of RealTime trader. bot will lose its state. only update on restart
-            updateHandler.runUpdater(() => { // will restart the app or fire this callback
-                logger.info("Checking for updates");
+            if (updateHandler !== null) {
+                updateHandler.runUpdater(() => { // will restart the app or fire this callback
+                    logger.info("Checking for updates");
+                    load();
+                })
+            }
+            else
                 load();
-            })
         }
         else
             load();
     }
 
-    handleDatabaseConnectionError(err) {
+    protected loadLocalConfig() {
+        const filePath = path.join(__dirname, "..", "configLocal.js");
+        if (fs.existsSync(filePath) === false) {
+            logger.error("No local config file found. Please ensure the file %s exists. You can edit and copy it from configLocal-sample.ts", filePath);
+            process.exit(1);
+        }
+        let localConf = require(filePath);
+        for (let prop in localConf)
+        {
+            if (prop === "root") {
+                for (let childProp in localConf[prop])
+                    nconf.set(childProp, localConf[prop][childProp]);
+            }
+            else {
+                for (let childProp in localConf[prop])
+                    nconf.set(prop + ':' + childProp, localConf[prop][childProp]);
+            }
+        }
+    }
+
+    protected handleDatabaseConnectionError(err) {
         if (!err || typeof err !== "object")
             return false;
         if (err.message && err.message.indexOf('MongoError: connection') !== -1 && err.message.indexOf('timed out') !== -1) {
