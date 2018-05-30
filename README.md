@@ -9,7 +9,7 @@ It is written in TypeScript for NodeJS + MongoDB.
 * **Arbitrage**: profit from price differences between 2 exchanges (done "on the books" with balances on both exchanges, no withdrawals from exchanges required)
 * **Lending**: lend your coins on the lending market of supported crypto exchanges for the highest possible interest rates
 * **Backtesting**: test your trade strategies in simulation on historical data
-* **Web Plugins**: Access social media data from Twitter, Reddit, Telegram Channels, RSS Feeds,... to trade based on news and real world events
+* **Web Plugins**: Access social media data from Twitter, Reddit, Telegram Channels, RSS Feeds,... to trade based on news and real world events (not part of open source version yet)
 
 A more detailed list of all features: https://wolfbot.org/features/
 
@@ -36,7 +36,7 @@ You can use `--production` flag if you only want to run the bot and not make any
 
 
 ### Start trading
-Rename the `configLocal-sample.ts` file in the project root directory to `configLocal.ts` and add att least `mongoUrl` (plus some exchange API keys if you want to trade).
+Rename the `configLocal-sample.ts` file in the project root directory to `configLocal.ts` and add at least `mongoUrl` (plus some exchange API keys if you want to trade).
 
 
 After running TypeScript (automatically in your IDE or run the `tsc` command in the project root dir) you will see a file:
