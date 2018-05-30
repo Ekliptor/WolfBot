@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "description": "Fetches crypto currency data from BitCoin exchanges and Social Media and does trading.",
   "main": "build/app.js",
-  "private": false,
+  "private": true,
   "author": "Ekliptor",
   "license": "GPL",
   "dependencies": {
