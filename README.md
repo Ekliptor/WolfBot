@@ -34,11 +34,11 @@ yarn install
 ```
 You can use `--production` flag if you only want to run the bot and not make any code changes.
 
-**IMPORTANT:**
-The server-side code is currently **incomplete**. It depends on more of my private modules. I have to cleanup & refactor some code. Also make sure there are no Exchange API keys or other sensitive data left. Please wait 2-4 weeks before running the server code.
-
-Update 2018-05-15: The MongoDB database models are now released here: https://github.com/Ekliptor/bit-models
-The code still missing is mostly HTTP helpers, browser functions, auto updater,... stay tuned
+WolfBot is also available via NPM:
+```
+yarn add @ekliptor/WolfBot
+#or: npm i @ekliptor/WolfBot
+```
 
 
 ### Start trading

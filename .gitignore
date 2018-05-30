@@ -62,6 +62,7 @@ typings/
 models
 
 # private files
+bfg.jar
 build
 docs
 packages
