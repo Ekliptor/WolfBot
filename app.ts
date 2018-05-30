@@ -190,11 +190,17 @@ let handleRequest = (request, response) => {
         logger.error(error)
     }
 }
+let startPath = "";
+if (nconf.get('apiKeys')) {
+    let keys = Object.keys(nconf.get('apiKeys'));
+    if (keys.length !== 0)
+        startPath = "/index.html?apiKey=" + keys[0];
+}
 let server = http.createServer(handleRequest)
 server.setTimeout(nconf.get("httpTimeoutSec") * 1000, null)
 //httpShutdown(server)
 server.listen(nconf.get('port'), () => {
-    logger.info('Server ist listening on %s%s:%s ', 'http://', os.hostname(), nconf.get('port')) // TODO why is our tail() cutting the last char of first line?
+    logger.info('Server is listening on %s%s:%s%s ', 'http://', os.hostname(), nconf.get('port'), startPath) // TODO why is our tail() cutting the last char of first line?
 })
 let mainServer: http.Server | https.Server = server; // might get overwritten by the https server below
 
@@ -216,7 +222,7 @@ if (nconf.get('protocol') === 'https://') {
     server.setTimeout(nconf.get("httpTimeoutSec") * 1000, null)
     //httpShutdown(httpsServer)
     httpsServer.listen(nconf.get('tlsPort'), () => {
-        logger.info('Server ist listening on %s%s:%s', nconf.get('protocol'), os.hostname(), nconf.get('tlsPort'))
+        logger.info('Server is listening on %s%s:%s%s', nconf.get('protocol'), os.hostname(), nconf.get('tlsPort'), startPath)
     });
     mainServer = httpsServer;
 }
