@@ -50,6 +50,10 @@ node app.js --debug --config=Noop --trader=RealTimeTrader --noUpdate --noBrowser
 The `config` parameter must be a JSON file from the `config` directory. For a list of all parameters look at the top of the `app.ts` file.
 
 
+### Writing your own trading strategies
+API docs coming during 1st week of June. Look into the `Strategies` folder for examples.
+
+
 ### Modifying the UI
 In the project root directory, run:
 ```
