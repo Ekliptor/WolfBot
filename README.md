@@ -34,12 +34,6 @@ yarn install
 ```
 You can use `--production` flag if you only want to run the bot and not make any code changes.
 
-WolfBot is also available via NPM:
-```
-yarn add @ekliptor/WolfBot
-#or: npm i @ekliptor/WolfBot
-```
-
 
 ### Start trading
 Rename the `configLocal-sample.ts` file in the project root directory to `configLocal.ts` and add att least `mongoUrl` (plus some exchange API keys if you want to trade).
