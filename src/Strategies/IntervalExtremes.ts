@@ -53,29 +53,31 @@ class CandlestickPattern {
 }
 
 interface IntervalExtremesAction extends TechnicalStrategyAction {
-    tradeDirection: TradeDirection | "watch"; // in which direction shall we trade. "watch" means we don't trade
-    mode: "bounce" | "breakout"; // do we assume prices bounce between interval high + low or breakout to new extremes?
-    tradeInterval: IntervalPoint; // the time interval to look for extreme price points to trade on
-    minRuntime: number; // optional, default 12h. how long the strategy must collect data before trading
+    tradeDirection: TradeDirection | "watch"; // default "both" // In which direction shall this strategy trade. "watch" means it only computes (indicator) values.
+    mode: "bounce" | "breakout"; // Do we assume prices bounce between 'tradeInterval' highs & lows or breakout to new extremes? This settings decides if we open a long position on a new price high or a short (resp. on a new price low).
+    tradeInterval: IntervalPoint; // The time interval to look for extreme price points to trade on.
+    minRuntime: number; // optional, default 12h. How long (in hours) the strategy must collect data before trading.
 
-    notifyPriceInterval: IntervalPoint; // optional, default disabled. send notifications if the price reaches a new high/low
-    patternExpiryDays: number; // optional. default 2. remove identified patterns again after x days
-    notifyPatterns: number; // optional, default 0 = disabled. send notifications for identified candlestick patterns after this amount has been found. 0 = disabled
+    notifyPriceInterval: IntervalPoint; // optional, default '' (disabled). Send notifications if the price reaches a new high/low.
+    patternExpiryDays: number; // optional. default 2. Remove identified candlestick patterns again after x days.
+    notifyPatterns: number; // optional, default 0 = disabled. Send notifications for identified candlestick patterns after this amount has been found. 0 = disabled
 
     // RSI values, set low + high to receive notifications
-    low: number;
-    high: number;
+    low: number; // Below this value RSI will be considered oversold.
+    high: number; // Above this value RSI will be considered overbought.
     interval: number; // optional, default 25
 
     // Sentiment values. set to receive notifications
-    sentimentLow: number;
-    sentimentHigh: number;
+    sentimentLow: number; // If the percentage of market buy orders is below this value the market is considered oversold.
+    sentimentHigh: number; // If the percentage of market buy orders is above this value the market is considered oversold.
 }
 
 /**
  * A strategy that remembers the 24h, 3 day, etc.. high/low price points and opens a position once that
- * price is reached.
- * Could also be achived with Aroon strategy.
+ * price is reached. (Could also be achieved with Aroon strategy.)
+ * If tradeDirection is set accordingly, it will then trade either breakouts or reversals (depending on the 'mode' setting).
+ * Additionally it keeps track of RSI and market buy vs market sell orders (called sentiment here) and can notify you at desired values.
+ * It also counts bullish/bearish candlestick patterns and can notify you about them.
  */
 export default class IntervalExtremes extends /*AbstractStrategy*/TechnicalStrategy {
     protected static KEEP_HOUR_CANDLES = 24*30; // 1 month - must be set according to ALL_INTERVALS
@@ -90,6 +92,8 @@ export default class IntervalExtremes extends /*AbstractStrategy*/TechnicalStrat
 
     constructor(options) {
         super(options)
+        if (!this.action.tradeDirection)
+            this.action.tradeDirection = "both";
         if (!this.action.candleSize)
             this.action.candleSize = 60;
         else if (this.action.candleSize !== 60)

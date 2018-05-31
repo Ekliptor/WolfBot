@@ -28,7 +28,7 @@ let testTaLib = () => {
     }
 
     // Retreive Average Directional Movement Index indicator specifications
-    let function_desc = talib.explain("CCI");
+    let function_desc = talib.explain("KAMA");
     console.dir(function_desc);
 
 

@@ -8,17 +8,17 @@ import {TradeInfo} from "../Trade/AbstractTrader";
 
 interface EarlyStopLossAction extends AbstractStopStrategyAction {
     // RSI thresholds when to immediately close an open position in the other direction
-    low: number; // 20
-    high: number; // 80
-    interval: number; // optional, default 6
+    low: number; // 20 // Below this value RSI will be considered oversold. The strategy will immediately close a long position.
+    high: number; // 80 // Above this value RSI will be considered overbought. The strategy will immediately close a short position.
+    interval: number; // optional, default 6 // The number of candles to use for RSI computation.
 
     // optional RSI values to close sooner if there is a profit
     profitLow: number; // 35
     profitHigh: number; // 70
 
     // from PriceSpikeDetector
-    spikeClose: number; // optional, default 0 = disabled. close a position if the price (current vs last candle) moves x% into the opposite direction
-    historyCandle: number; // optional, default 36. how many candles to look back to compare if price really is a spike. set 0 to disable it
+    spikeClose: number; // optional, default 0 = disabled. Close a position if the price (current vs last candle) moves x% into the opposite direction. Simply put: If there is a price spike against our position.
+    historyCandle: number; // optional, default 36. How many candles to look back to compare if price really is a spike. Set 0 to disable it.
 
     // TODO optionally close immediately by avgMarketPrice instead of waiting for the next candle tick
     // TODO add an option to immediately open a position in the other direction?
@@ -28,7 +28,7 @@ interface EarlyStopLossAction extends AbstractStopStrategyAction {
 /**
  * A stop loss strategy that looks at fast price movements (RSI with small candle size) and exits the market immediately.
  * We could try to enter the market like this too, but this should be combined with more signals (such as RSI and Bollinger) in a different
- * strategy to be sure.
+ * strategy to prevent false positives.
  *
  * previous Bitfinex config:
  * "EarlyStopLoss": {

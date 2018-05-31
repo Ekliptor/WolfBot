@@ -11,18 +11,19 @@ import {TradeInfo} from "../Trade/AbstractTrader";
 import * as helper from "../utils/helper";
 
 export interface DirectionRunnerAction extends StrategyAction {
-    direction: "long" | "short";
+    direction: "long" | "short"; // optional, default long // The initial direction this strategy is set to open a position.
+    // This value is being updated by the strategies set in the 'longTrendIndicators' setting.
 
     // optional values
     // TODO collect x hour price high/lows and only trade near them
-    enterImmediately: boolean; // default false. don't wait for the indicators to change their buy/sell signal. enter on the first signal
-    longTrendIndicators: string[]; // set the direction automatically based on long trend indicators such as EMA
-    volume: number; // default 0. the min volume of the last candle for the trade to be executed
-    volumeCandleSize: number; // default 60. the trade period in minutes for "volume"
-    ticks: number; // default 0. the number of candle ticks to wait before executing the order. 0 = execute immediately
-    indicators: string[]; // default RSIScalper. some technical indicators. indicator config has to be added separately. only checked once (the last tick)
-    exitIndicators: string[]; // default RSI. indicators to exit the market
-    // how many minutes to wait before we can trade again (before existing trades get cleared). 0 = never = on bot restart. counter starts on close
+    enterImmediately: boolean; // default false. Don't wait for the indicators to change their buy/sell signal. Enter the market on the first signal.
+    longTrendIndicators: string[]; // Set the direction automatically based on long trend indicators such as EMA. Each indicator here must have it's own config added to your current config file.
+    volume: number; // default 0. The min volume of the last candle for the trade to be executed.
+    volumeCandleSize: number; // default 60. The trade period in minutes for "volume".
+    ticks: number; // default 0. The number of candle ticks to wait before executing the order. 0 = execute immediately.
+    indicators: string[]; // default RSIScalper. Some technical indicators or strategies to look for the right moment to open a position in our 'direction' value from config. Only checked once (the last tick). Each indicator here must have it's own config added to your current config file.
+    exitIndicators: string[]; // default RSI. Indicators/Strategies to exit the market.
+    // How many minutes to wait before we can trade again (before existing trades get cleared). 0 = never = on bot restart. Counter starts on close of a position.
     waitRepeatingTradeMin: number; // default 300.
 }
 
@@ -38,9 +39,9 @@ interface DirectionRunnerOrder {
 }
 
 /**
- * Strategy that emits buy/sell signal based a direction set in our config.
- * The direction can also be determined by a secondary strategy such as EMA.
- * Technical Indicators can also be used.
+ * Strategy that emits buy/sell signal based a some indicators it looks for.
+ * Those indicators are full (secondary) strategies. The direction of this strategy will
+ * change every time ALL strategies emit a trade signal in the same direction (buy or sell).
  */
 export default class DirectionRunner extends /*AbstractTurnStrategy*/TechnicalStrategy {
     public action: DirectionRunnerAction;
@@ -55,7 +56,9 @@ export default class DirectionRunner extends /*AbstractTurnStrategy*/TechnicalSt
 
     constructor(options) {
         super(options)
-        if (this.action.direction !== "long" && this.action.direction !== "short")
+        if (!this.action.direction)
+            this.action.direction = "long";
+        else if (this.action.direction !== "long" && this.action.direction !== "short")
             throw new Error(utils.sprintf("Invalid direction '%s' in %s", this.action.direction, this.className));
         if (typeof this.action.enterImmediately !== "boolean")
             this.action.enterImmediately = false;

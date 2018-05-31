@@ -8,7 +8,7 @@ import {Currency, Trade, Candle} from "@ekliptor/bit-models";
 import {TradeDirection} from "../Trade/AbstractTrader";
 
 interface KAMAAction extends TechnicalStrategyAction {
-    interval: number;
+    interval: number; // optional, default 30 // The number of candles to use for the slow EMA for the slowest KAMA smoothing constant.
     tradeDirection: TradeDirection | "watch"; // optional, default "both". "watch" only computes indicators
 }
 
@@ -22,6 +22,8 @@ export default class KAMA extends TechnicalStrategy {
 
     constructor(options) {
         super(options)
+        if (!this.action.interval)
+            this.action.interval = 30;
         if (!this.action.tradeDirection)
             this.action.tradeDirection = "both";
 

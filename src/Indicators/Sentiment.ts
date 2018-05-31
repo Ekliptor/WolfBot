@@ -7,12 +7,15 @@ import {Currency, Trade, Candle} from "@ekliptor/bit-models";
 
 /**
  * Sentiment indicator to check if the market is short or long.
+ * This simply counts market buy vs market sell trades. Also known as cumulative volume delta.
+ * This is not margin funding 'sentiment' or opinion mining of social media 'sentiment'.
  */
 export default class Sentiment extends AbstractIndicator {
     protected params: MomentumIndicatorParams;
     protected longAmount = 0.0;
     protected shortAmount = 0.0;
     protected candleCount = 0;
+    // TODO add interval parameter and delete again after some time
 
     constructor(params: MomentumIndicatorParams) {
         super(params)

@@ -637,7 +637,7 @@
       "tradeDirection": "optional, default up - The direction in which this strategy shall open positions. Values: up|down|both"
     },
     "DayTrader": {
-      "desc": "A strategy that checks for crosses of the 7-day and 2-day EMA (values can be customized). Additionally it uses Aroon indicator to confirm trends (down trends are only assumed if Aroon matches the EMA trend). It's an unaggressive daytrader, meaning it will only issue maker fee orders."
+      "desc": "A strategy that checks for crosses of the 7-day and 2-day EMA (values can be customized). Additionally it uses Aroon indicator to confirm trends (down trends are only assumed if Aroon matches the EMA trend). It's an unaggressive daytrader, meaning it will only issue maker fee orders.",
       "interval": "optional, default 30 - The number of candles for Aroon to look back.",
       "minVolatility": "optional, default 0.05 - Don't open positions below this value (value not relative to prices).",
       "makerOnly": "optional, default true - Place only maker orders (never pay the taker fee).",
@@ -669,22 +669,46 @@
       "tradeDirection": "optional, default both - The direction in which this strategy shall open positions. 'notify' means you will only receive notifications to do a trade. 'watch' only computes the indicators for manual inspection. Values: up|down|both|notify|watch"
     },
     "DirectionRunner": {
-      "desc": "Strategy that emits buy/sell signal based a direction set in our config. The direction can also be determined by a secondary strategy such as EMA. Technical Indicators can also be used.",
-      "direction": "",
-      "enterImmediately": "",
-      "longTrendIndicators": "",
-      "volume": "",
-      "volumeCandleSize": "",
-      "ticks": "",
-      "indicators": "",
-      "exitIndicators": "",
-      "waitRepeatingTradeMin": ""
+      "desc": "Strategy that emits buy/sell signal based a some indicators it looks for. hose indicators are full (secondary) strategies. The direction of this strategy will change every time ALL strategies emit a trade signal in the same direction (buy or sell).",
+      "direction": "optional, default long - The initial direction this strategy is set to open a position. This value is being updated by the strategies set in the 'longTrendIndicators' setting.",
+      "enterImmediately": "optional, default false - Don't wait for the indicators to change their buy/sell signal. Enter the market on the first signal.",
+      "longTrendIndicators": "Set the direction automatically based on long trend indicators such as EMA. Each indicator here must have it's own config added to your current config file.",
+      "volume": "optional, default 0 - The min volume of the last candle for the trade to be executed.",
+      "volumeCandleSize": "optional, default 60 - The trade period in minutes for 'volume'.",
+      "ticks": "optional, default 0 (immediately) - The number of candle ticks to wait before executing the order.",
+      "indicators": "optional, default RSIScalper - Some technical indicators or strategies to look for the right moment to open a position in our 'direction' value from config. Only checked once (the last tick). Each indicator here must have it's own config added to your current config file.",
+      "exitIndicators": "optional, default RSI - Indicators/Strategies to exit the market.",
+      "waitRepeatingTradeMin": "optional, default 300 - How many minutes to wait before we can trade again (before existing trades get cleared). 0 = never = on bot restart. Counter starts on close of a position."
     },
     "EarlyStopLoss": {
+      "desc": "A stop loss strategy that looks at fast price movements (RSI with small candle size) and exits the market immediately. We could try to enter the market like this too, but this should be combined with more signals (such as RSI and Bollinger) in a different strategy to prevent false positives.",
+      "low": "Below this value RSI will be considered oversold. The strategy will immediately close a long position.",
+      "high": "Above this value RSI will be considered overbought. The strategy will immediately close a short position.",
+      "interval": "optional, default 6 - The number of candles to use for RSI computation.",
+      "profitLow": "optional, default 0 (disabled) - RSI value to close a long position sooner if it currently has profit.",
+      "profitHigh": "optional, default 0 (disabled) - RSI value to close a short position sooner if it currently has profit.",
+      "spikeClose": "optional, default 0 (disabled) - Close a position if the price (current vs last candle) moves x% into the opposite direction. Simply put: If there is a price spike against our position.",
+      "historyCandle": "optional, default 36 - How many candles to look back to compare if price really is a spike. Set 0 to disable it."
     },
     "IntervalExtremes": {
+      "desc": "A strategy that remembers the 24h, 3 day, etc.. high/low price points and opens a position once that price is reached. Additionally it keeps track of RSI and market buy vs market sell orders (called sentiment here) and can notify you at desired values. (Could also be achieved with Aroon strategy.) If tradeDirection is set accordingly, it will then trade either breakouts or reversals (depending on the 'mode' setting). It also counts bullish/bearish candlestick patterns and can notify you about them.",
+      "tradeDirection": "optional, default both - In which direction shall this strategy trade. 'watch' means it only computes (indicator) values. Values: both|up|down|watch",
+      "mode": "Do we assume prices bounce between 'tradeInterval' highs & lows or breakout to new extremes? This settings decides if we open a long position on a new price high or a short (resp. on a new price low). Values: bounce|breakout",
+      "tradeInterval": "The time interval to look for extreme price points to trade on. Values: halfDay|daily|2Days|3days|weekly|2Weeks|monthly",
+      "minRuntime": "optional, default 12 h - How long (in hours) the strategy must collect data before trading.",
+      "notifyPriceInterval": "optional, default '' (disabled) - Send notifications if the price reaches a new high/low.",
+      "patternExpiryDays": "optional, default 2 - Remove identified candlestick patterns again after x days.",
+      "notifyPatterns": "optional, default 0 (disabled) - Send notifications for identified candlestick patterns after this amount has been found.",
+      "low": "optional, default 0 (no notifications) - Below this value RSI will be considered oversold. You will receive notifications on every candle tick.",
+      "high": "optional, default 0 (no notifications) - Above this value RSI will be considered overbought. You will receive notifications on every candle tick.",
+      "interval": "optional, default 25 - The number of candles to use for RSI computation. A higher value means the RSI will lag more and be less responsive to new price movements.",
+      "sentimentLow": "optional, default 0 (no notifications) - If the percentage of market buy orders is below this value the market is considered oversold.",
+      "sentimentHigh": "optional, default 0 (no notifications) - If the percentage of market buy orders is above this value the market is considered oversold."
     },
     "KAMA": {
+      "desc": "Strategy that emits buy/sell based on the KAMA indicator.",
+      "interval": "optional, default 30 - The number of candles to use for the slow EMA for the slowest KAMA smoothing constant.",
+      "tradeDirection": "optional, default both - The direction in which this strategy shall open positions. 'watch' only computes the indicators for manual inspection. Values: up|down|both|watch"
     },
     "MakerFeeOrder": {
     },
