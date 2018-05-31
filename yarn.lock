@@ -9,6 +9,12 @@
     core-js "^2.5.3"
     regenerator-runtime "^0.11.1"
 
+"@ekliptor/browserutils@^0.0.3":
+  version "0.0.3"
+  resolved "https://registry.yarnpkg.com/@ekliptor/browserutils/-/browserutils-0.0.3.tgz#f6a20d168d82757edca0964d85f15ced85ca2a73"
+  dependencies:
+    ejson "^2.1.2"
+
 "@ekliptor/mitm-local@^1.5.3":
   version "1.5.3"
   resolved "https://registry.yarnpkg.com/@ekliptor/mitm-local/-/mitm-local-1.5.3.tgz#96300bd7bf84cb7aac593e8f854018d13166d523"

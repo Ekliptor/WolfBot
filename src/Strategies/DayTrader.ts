@@ -12,22 +12,25 @@ interface DayTraderAction extends TechnicalStrategyAction {
     // (optional, default 30) the number of candles to use for calculation (not really import since we only use the latest one)
     // needed for Aroon to look back
     interval: number;
-    minVolatility: number; // optional, default 0.05 (value not relative to prices) // don't trade below this value
+    minVolatility: number; // optional, default 0.05 // Don't open positions below this value (value not relative to prices).
+    makerOnly: boolean; // optional, default true Place only maker orders (never pay the taker fee).
+    aroonMax: number; // optional, default 96
+    aroonLow: number; // optional, default 50
 
     // EMA cross params
-    CrossMAType: "EMA" | "DEMA" | "SMA"; // optional, default SMA
-    short: number;
-    long: number;
+    CrossMAType: "EMA" | "DEMA" | "SMA"; // optional, default SMA The indicator to use to look for line cross signals to identify an up/down trend.
+    short: number; // The number of candles for the short moving average.
+    long: number; // The number of candles for the long moving average.
 }
 
 /**
- * A strategy that checks for crosses of the 7-day and 2-day EMA.
+ * A strategy that checks for crosses of the 7-day and 2-day EMA (values can be customized).
  * Additionally it uses Aroon indicator to confirm trends (down trends are only assumed if Aroon matches the EMA trend).
  * It's an unaggressive daytrader, meaning it will only issue maker fee orders.
  */
 export default class DayTrader extends TechnicalStrategy {
-    protected static readonly AROON_100 = 96;
-    protected static readonly AROON_LOW = 50;
+    //protected static readonly AROON_100 = 96;
+    //protected static readonly AROON_LOW = 50;
 
     public action: DayTraderAction;
     protected breakoutCount = 0;
@@ -37,6 +40,12 @@ export default class DayTrader extends TechnicalStrategy {
         super(options)
         if (!this.action.minVolatility)
             this.action.minVolatility = 0.05;
+        if (typeof this.action.makerOnly !== "boolean")
+            this.action.makerOnly = true;
+        if (!this.action.aroonMax)
+            this.action.aroonMax = 96;
+        if (!this.action.aroonLow)
+            this.action.aroonLow = 50;
         if (!this.action.CrossMAType)
             this.action.CrossMAType = "SMA";
 
@@ -69,7 +78,7 @@ export default class DayTrader extends TechnicalStrategy {
     }
 
     public forceMakeOnly() {
-        return true;
+        return this.action.makerOnly;
     }
 
     // ################################################################
@@ -143,13 +152,13 @@ export default class DayTrader extends TechnicalStrategy {
         let aroon = this.getAroon("Aroon")
 
         const aroonMsg = utils.sprintf("Aroon up %s, down %s, breakoutCount %s", aroon.getUp(), aroon.getDown(), (this.breakoutCount + 1));
-        if (aroon.getUp() >= DayTrader.AROON_100 && aroon.getDown() < DayTrader.AROON_LOW) {
+        if (aroon.getUp() >= this.action.aroonMax && aroon.getDown() < this.action.aroonLow) {
             // Aroon high
             this.log("Aroon up reached, UP trend,", aroonMsg)
             this.setTrend("up");
             this.breakoutCount++; // set it to 1 if this is a new trend, so that the check in checkIndicators() works
         }
-        else if (aroon.getDown() >= DayTrader.AROON_100 && aroon.getUp() < DayTrader.AROON_LOW) {
+        else if (aroon.getDown() >= this.action.aroonMax && aroon.getUp() < this.action.aroonLow) {
             // Aroon low
             this.log("Aroon down reached, DOWN trend,", aroonMsg)
             this.setTrend("down");

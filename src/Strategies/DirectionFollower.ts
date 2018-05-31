@@ -9,14 +9,14 @@ import {TradeDirection} from "../Trade/AbstractTrader";
 import * as helper from "../utils/helper";
 
 interface DirectionFollowerAction extends TechnicalStrategyAction {
-    interval: number; // interval for ADX
-    adxTrend: number; // ADX will be considered trending when above this value
-    adxMaxTrend: number; // optional, default 0 = disabled. ADX must be below this value. prevents opening a position too late
-    initialStop: boolean; // optional, default false // use the candle high/low of the current candle as initial stop on sell/buy actions
+    interval: number; // Number of candles to use for ADX indicator.
+    adxTrend: number; // ADX will be considered trending when above this value.
+    adxMaxTrend: number; // optional, default 0 = disabled. ADX must be below this value. prevents opening a position too late.
+    initialStop: boolean; // optional, default false // Use the candle high/low of the current candle as initial stop on sell/buy actions.
 
     // SAR params (optional)
-    accelerationFactor: number; // default 0.02 // Acceleration Factor used up to the Maximum value
-    accelerationMax: number; // default 0.2 // Acceleration Factor Maximum value
+    accelerationFactor: number; // default 0.02 // SAR indicator Acceleration Factor used up to the Maximum value.
+    accelerationMax: number; // default 0.2 // SAR indicator Acceleration Factor Maximum value.
 
     tradeDirection: TradeDirection | "notify" | "watch"; // optional, default "both". "watch" only computes indicators
 }

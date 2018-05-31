@@ -9,16 +9,16 @@ import {Trendlines} from "../Indicators/Trendline/Trendlines";
 import {FibonacciRetracement} from "../Indicators/Trendline/FibonacciRetracement";
 
 interface DayTrendFollowerAction extends StrategyAction {
-    entryMode: "setback" | "candlestick"; // enter the market after setback % or by candlestick patterns
-    entrySetbackPercent: number; // 1.5% // the percentage the last candle has to go against the daily trend to find a good entry point
-    // can be 0 to use dynamic setback: >= historyCandles average movement
-    dynamicFactor: number; // 0.7 // optional, default 1.0. a factor to multiply the dynamic setback with
+    entryMode: "setback" | "candlestick"; // Enter the market after setback % or by candlestick patterns.
+    entrySetbackPercent: number; // 1.5% // The percentage the last candle has to go against the daily trend to find a good entry point.
+    // Can be 0 to use dynamic setback: >= historyCandles average movement
+    dynamicFactor: number; // 0.7 // optional, default 1.0. A factor to multiply the dynamic setback with.
 
     // optional values
-    maxDailyTrend: number; // 20.0% // default 0. the max percentage of the daily trend to assume it will continue
-    historyCandles: number; // default 10. the number of candles to use for dynamic setback
-    closeLossCandles: number; // default 0. close an existing position if it's in loss for x candles
-    trendLineDays: number; // default 0 = disabled. use a high + low trendline for x days to close a position immediately if the line gets crossed
+    maxDailyTrend: number; // 20.0% // default 0 (disabled). The max percentage of the daily trend to assume it will continue.
+    historyCandles: number; // default 10. The number of candles to use for dynamic setback.
+    closeLossCandles: number; // default 0. Close an existing position if it's in loss for x candles.
+    trendLineDays: number; // default 0 = disabled. Use a high + low trendline for x days to close a position immediately if the line gets crossed.
     // TODO option to use fibonacci instead of trendline
     tradeDirection: TradeDirection; // default "both"
 }
@@ -27,7 +27,7 @@ interface DayTrendFollowerAction extends StrategyAction {
  * Strategy that looks at the daily trend of the market (trends tend to continue).
  * It then trades on a small candle size (30 min) in that market.
  * Opens multiple positions daily.
- * Developed for fast moving markets (XRP), but works extremely well in low volatility markets with 2% daily change (LTC).
+ * Developed for fast moving markets (XRP and medium cap coins), but works extremely well in low volatility markets with 2% daily change (LTC).
  * This strategy needs StopLoss and/or TakeProfit strategies to close positions (closeLossCandles can be StopLoss).
  * Similar to CandleRepeater and SimpleAndShort strategy.
  */

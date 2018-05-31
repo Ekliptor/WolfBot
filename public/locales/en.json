@@ -623,14 +623,50 @@
       "keepPriceOpen": "optional, default true - Keep the position open if the last candle close-value price was higher/lower than the current rate. This means if we are outside of the Bollinger Bands stop, but the last candle was moving in the same direction as our open position."
     },
     "CCI": {
+      "desc": "Strategy that emits buy/sell based on the CCI indicator. We go long on CCI high and short on CCI low. Optionally you can provide CCI values to where to close the long/short position (default 0). CCI measures the current price level relative to the average price level over a given time interval. It's an unbound indicator, meaning low and high have no limits (unlike RSI).",
+      "low": "optional, default -100 - Open a short position after CCI goes below this value.",
+      "high": "optional, default 100 - Open a long position after CCI goes above this value.",
+      "closeShort": "optional, default 0 - Close a short position after CCI goes above this value.",
+      "closeLong": "optional, default 0 - Close a long position after CCI goes below this value.",
+      "interval": "optional, default 20 - The number of candles of the SMA for the CCI average price calculation."
     },
     "CandleRepeater": {
+      "desc": "Strategy that assumes the candle of the previous day will repeat itself on the next day (trends tend to continue). Works best with large candle sizes such as 24h (1440 min) or 12h (720 min). This strategy needs StopLoss and/or TakeProfit strategies to close positions. Similar to SimpleAndShort and DayTrendFollower strategy.",
+      "maxPrevUpCandlePercent": "The maximum % the last candle can increase to assume the trend will continue and open a long position.",
+      "maxPrevDownCandlePercent": "The maximum % the last candle can decrease to assume the trend will continue and open a short position.",
+      "tradeDirection": "optional, default up - The direction in which this strategy shall open positions. Values: up|down|both"
     },
     "DayTrader": {
+      "desc": "A strategy that checks for crosses of the 7-day and 2-day EMA (values can be customized). Additionally it uses Aroon indicator to confirm trends (down trends are only assumed if Aroon matches the EMA trend). It's an unaggressive daytrader, meaning it will only issue maker fee orders."
+      "interval": "optional, default 30 - The number of candles for Aroon to look back.",
+      "minVolatility": "optional, default 0.05 - Don't open positions below this value (value not relative to prices).",
+      "makerOnly": "optional, default true - Place only maker orders (never pay the taker fee).",
+      "aroonMax": "optional, default 96 - ",
+      "aroonLow": "optional, default 50 - ",
+      "CrossMAType": "optional, default SMA - The indicator to use to look for line cross signals to identify an up/down trend. Values: EMA|DEMA|SMA",
+      "short": "The number of candles for the short moving average.",
+      "long": "The number of candles for the long moving average."
     },
     "DayTrendFollower": {
+      "desc": "Strategy that looks at the daily trend of the market (trends tend to continue). It then trades on a small candle size (30 min) in that market. Opens multiple positions daily. Developed for fast moving markets (XRP and medium cap coins), but works extremely well in low volatility markets with 2% daily change (LTC). This strategy needs StopLoss and/or TakeProfit strategies to close positions (closeLossCandles can be StopLoss). Similar to CandleRepeater and SimpleAndShort strategy.",
+      "entryMode": "Enter the market after setback % or by candlestick patterns.",
+      "entrySetbackPercent": "The percentage the last candle has to go against the daily trend to find a good entry point. Can be 0 to use dynamic setback: >= historyCandles average movement",
+      "dynamicFactor": "optional, default 1.0 - A factor to multiply the dynamic setback with.",
+      "maxDailyTrend": "optional, default 0 (disabled) - The max percentage of the daily trend to assume it will continue.",
+      "historyCandles": "optional, default 10 - The number of candles to use for dynamic setback.",
+      "closeLossCandles": "optional, default 0 - Close an existing position if it's in loss for x candles.",
+      "trendLineDays": "optional, default 0 (disabled) - Use a high + low trendline for x days to close a position immediately if the line gets crossed.",
+      "tradeDirection": "optional, default both - The direction in which this strategy shall open positions. Values: up|down|both"
     },
     "DirectionFollower": {
+      "desc": "Strategy that tries to identify a trend/direction using ADX. Then it follows that trend using SAR as a trailing stop-loss. candle sizes 60 - 1440.",
+      "interval": "Number of candles to use for ADX indicator.",
+      "adxTrend": "ADX will be considered trending when above this value.",
+      "adxMaxTrend": "optional, default 0 (disabled) - ADX must be below this value. prevents opening a position too late.",
+      "initialStop": "optional, default false - Use the candle high/low of the current candle as initial stop on sell/buy actions.",
+      "accelerationFactor": "optional, default 0.02 - SAR indicator Acceleration Factor used up to the Maximum value.",
+      "accelerationMax": "optional, default 0.2 - SAR indicator Acceleration Factor Maximum value.",
+      "tradeDirection": "optional, default both - The direction in which this strategy shall open positions. 'notify' means you will only receive notifications to do a trade. 'watch' only computes the indicators for manual inspection. Values: up|down|both|notify|watch"
     },
     "DirectionRunner": {
     },

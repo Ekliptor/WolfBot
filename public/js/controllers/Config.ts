@@ -207,7 +207,7 @@ export class Config extends AbstractController {
         });
         if (data.premium === true)
             this.$("#debug").addClass("hidden");
-        this.$("#devMode").prop("checked", data.devMode);
+        this.$("#devMode").prop("checked", data.devMode); // TODO checkbox not working?
         this.$("#devMode").change((event) => {
             const checked = $(event.target).is(":checked");
             if (checked === true)

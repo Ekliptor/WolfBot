@@ -7,8 +7,8 @@ import {Currency, Trade, Candle, Order} from "@ekliptor/bit-models";
 import {TradeDirection, TradeInfo} from "../Trade/AbstractTrader";
 
 interface CandleRepeaterAction extends StrategyAction {
-    maxPrevUpCandlePercent: number; // the maximum % the last candle can increase to assume the trend will continue and open a long position
-    maxPrevDownCandlePercent: number; // the maximum % the last candle can decrease to assume the trend will continue and open a short position
+    maxPrevUpCandlePercent: number; // The maximum % the last candle can increase to assume the trend will continue and open a long position.
+    maxPrevDownCandlePercent: number; // The maximum % the last candle can decrease to assume the trend will continue and open a short position.
     tradeDirection: TradeDirection; // optional. default "up"
 }
 

@@ -7,16 +7,16 @@ import {AbstractIndicator} from "../Indicators/AbstractIndicator";
 import {Currency, Trade, Candle} from "@ekliptor/bit-models";
 
 interface CciAction extends TechnicalStrategyAction {
-    low: number; // -100
-    high: number; // 100
-    closeShort: number; // default 0
-    closeLong: number; // default 0
-    interval: number; // default 20
+    low: number; // -100 // Open a short position after CCI goes below this value.
+    high: number; // 100 // Open a long position after CCI goes above this value.
+    closeShort: number; // default 0 // Close a short position after CCI goes above this value.
+    closeLong: number; // default 0 // Close a long position after CCI goes below this value.
+    interval: number; // default 20 // The number of candles of the SMA for the CCI average price calculation.
 }
 
 /**
  * Strategy that emits buy/sell based on the CCI indicator.
- * We go long on high and short on low.
+ * We go long on CCI high and short on CCI low.
  * Optionally you can provide CCI values to where to close the long/short position (default 0).
  */
 export default class CCI extends TechnicalStrategy {
