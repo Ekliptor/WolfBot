@@ -14,8 +14,8 @@ interface DayTraderAction extends TechnicalStrategyAction {
     interval: number;
     minVolatility: number; // optional, default 0.05 // Don't open positions below this value (value not relative to prices).
     makerOnly: boolean; // optional, default true Place only maker orders (never pay the taker fee).
-    aroonMax: number; // optional, default 96
-    aroonLow: number; // optional, default 50
+    aroonMax: number; // optional, default 96 // The min value Aroon Up/Down must reach to be considered an up/down breakout in price.
+    aroonLow: number; // optional, default 50 // The max value the other Aroon value can have for the up/down trend to be confirmed (prevent trading in sideways markets).
 
     // EMA cross params
     CrossMAType: "EMA" | "DEMA" | "SMA"; // optional, default SMA The indicator to use to look for line cross signals to identify an up/down trend.

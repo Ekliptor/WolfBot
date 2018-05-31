@@ -641,8 +641,8 @@
       "interval": "optional, default 30 - The number of candles for Aroon to look back.",
       "minVolatility": "optional, default 0.05 - Don't open positions below this value (value not relative to prices).",
       "makerOnly": "optional, default true - Place only maker orders (never pay the taker fee).",
-      "aroonMax": "optional, default 96 - ",
-      "aroonLow": "optional, default 50 - ",
+      "aroonMax": "optional, default 96 - The min value Aroon Up/Down must reach to be considered an up/down breakout in price.",
+      "aroonLow": "optional, default 50 - The max value the other Aroon value can have for the up/down trend to be confirmed (prevent trading in sideways markets).",
       "CrossMAType": "optional, default SMA - The indicator to use to look for line cross signals to identify an up/down trend. Values: EMA|DEMA|SMA",
       "short": "The number of candles for the short moving average.",
       "long": "The number of candles for the long moving average."
@@ -669,6 +669,16 @@
       "tradeDirection": "optional, default both - The direction in which this strategy shall open positions. 'notify' means you will only receive notifications to do a trade. 'watch' only computes the indicators for manual inspection. Values: up|down|both|notify|watch"
     },
     "DirectionRunner": {
+      "desc": "Strategy that emits buy/sell signal based a direction set in our config. The direction can also be determined by a secondary strategy such as EMA. Technical Indicators can also be used.",
+      "direction": "",
+      "enterImmediately": "",
+      "longTrendIndicators": "",
+      "volume": "",
+      "volumeCandleSize": "",
+      "ticks": "",
+      "indicators": "",
+      "exitIndicators": "",
+      "waitRepeatingTradeMin": ""
     },
     "EarlyStopLoss": {
     },

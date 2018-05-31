@@ -80,6 +80,7 @@ import * as path from "path";
 //import * as httpShutdown from "http-shutdown";
 import {controller as Controller} from "./src/Controller";
 const updateHandler = argv.noUpdate === true ? null : require("./src/updateHandler");
+import * as helper from "./src/utils/helper";
 
 //dispatcher.setStatic("./js/")
 if (!nconf.get("debug") && nconf.get("cachingMin:staticFiles") > 0) {
@@ -191,11 +192,8 @@ let handleRequest = (request, response) => {
     }
 }
 let startPath = "";
-if (nconf.get('apiKeys')) {
-    let keys = Object.keys(nconf.get('apiKeys'));
-    if (keys.length !== 0)
-        startPath = "/index.html?apiKey=" + keys[0];
-}
+if (helper.getFirstApiKey())
+    startPath = "/index.html?apiKey=" + helper.getFirstApiKey();
 let server = http.createServer(handleRequest)
 server.setTimeout(nconf.get("httpTimeoutSec") * 1000, null)
 //httpShutdown(server)

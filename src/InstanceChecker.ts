@@ -13,6 +13,7 @@ import * as child_process from "child_process";
 const exec = child_process.exec
 import * as os from "os";
 import * as db from "./database";
+import * as helper from "./utils/helper";
 
 
 export default class InstanceChecker extends AbstractSubController {
@@ -144,7 +145,7 @@ export default class InstanceChecker extends AbstractSubController {
             this.getBotApiPort(botName).then((port) => {
                 const apiUrl = "https://localhost:" + port + "/state/"
                 logger.verbose("Checking instance %s with URL: ", botName, apiUrl)
-                let data = {apiKey: this.getFirstApiKey()}
+                let data = {apiKey: helper.getFirstApiKey()}
                 let reqOptions = {skipCertificateCheck: true}
                 utils.postDataAsJson(apiUrl, data, (body, res) => {
                     if (body === false || !utils.parseJson(body)) { // it's EJSON, but compatible
@@ -197,16 +198,6 @@ export default class InstanceChecker extends AbstractSubController {
                 reject(err);
             })
         })
-    }
-
-    protected getFirstApiKey() {
-        let keys = nconf.get("apiKeys")
-        for (let prop in keys)
-        {
-            if (keys[prop] === true)
-                return prop;
-        }
-        return false;
     }
 
     protected notifyBotKill(botName: string, message: string) {
