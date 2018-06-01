@@ -18,11 +18,15 @@ import {GenericStrategyState} from "./AbstractGenericStrategy";
  * Those parameters can be set in the ExampleStrategy.json config file in the /config folder.
  *
  * Every config file can use this strategy, but it is good practice to create 1 config file with the same name as
- * this strategy as an example how to use your strategy.
+ * this strategy as an example how to use your strategy - see /config/ExampleStrategy.json.
  */
 interface ExampleStrategyAction extends TechnicalStrategyAction {
-    interval: number; // default 14. Defines the number of candles
-    mySettingSwitch: boolean; // default true. open a position in the opposite direction if price fails to make a new high/low on OBV max
+    interval: number; // optional, default 30 - Defines the number of candles used for other indicators to look back (such as RSI).
+    mySettingSwitch: boolean; // optional, default true - This setting does nothing and will make you rich;)
+
+    // RSI overbought and oversold thresholds
+    low: number; // optional, default 30 Below this value RSI will be considered oversold.
+    high: number; // Above this value RSI will be considered overbought.
 
     // some available settings in every strategy (from parent):
     candleSize: number; // candle size in minutes (only relevant if this strategy implements the candleTick() or checkIndicators() function)
@@ -37,32 +41,44 @@ interface ExampleStrategyAction extends TechnicalStrategyAction {
  */
 export default class ExampleStrategy extends TechnicalStrategy {
     public action: ExampleStrategyAction;
-    protected lastOBV: number = -1; // identical ro OBV because it's updated on every candle tick
-    protected secondLastOBV: number = -1;
-    protected obvHistory: number[] = [];
-    protected priceHistory: number[] = [];
+    // add your custom member variables here
+    protected myNumberArray: number[] = [];
+    protected myValue: number = 3.1;
 
     constructor(options) {
         super(options)
         logger.error("%s is an example to build your own strategy. It should not be used for trading.", this.className);
 
-        // set the default values
-        if (typeof this.action.myCustomInterval !== "number")
-            this.action.myCustomInterval = 14;
+        // set the default config values
+        if (typeof this.action.interval !== "number")
+            this.action.interval = 30;
         if (typeof this.action.mySettingSwitch !== "boolean")
             this.action.mySettingSwitch = true;
-        this.addIndicator("OBV", "OBV", this.action);
+        if (typeof this.action.low !== "number")
+            this.action.low = 30;
 
-        this.addInfo("secondLastOBV", "secondLastOBV");
-        this.addInfoFunction("OBV", () => {
-            return this.indicators.get("OBV").getValue();
+        this.addIndicator("RSI", "RSI", this.action);
+
+        // Add strategy output info about the state of some variables of your strategy.
+        // This information will be displayed in the "Strategy" tab during live trading.
+        this.addInfo("myValue", "myValue"); // simply add a member variable
+        this.addInfoFunction("RSI", () => { // add a function under a given label where you can return custom data
+            return this.indicators.get("RSI").getValue();
         });
-        this.saveState = true;
-        this.mainStrategy = true;
+        this.addInfoFunction("random", () => {
+            return utils.getRandom(0, 100);
+        });
+        this.saveState = true; // save the strategy state on bot restarts
+        this.mainStrategy = true; // make this strategy a main strategy (meaning it can open new positions instead of just trade along existing positions)
+
+        setTimeout(() => {
+            this.demoLogFunctions();
+        }, 5000);
     }
 
     /**
      * This is called on every trade
+     * You can remove this function if you don't use it.
      * @param {TradeAction} action
      * @param {Order} order
      * @param {Trade[]} trades
@@ -76,60 +92,76 @@ export default class ExampleStrategy extends TechnicalStrategy {
 
     }
 
+    /**
+     * You can remove this function if you don't use it.
+     * @param {number} coins
+     * @param {MarginPosition} position
+     * @param {Exchange} exchangeLabel
+     */
     public onSyncPortfolio(coins: number, position: MarginPosition, exchangeLabel: Currency.Exchange): void {
         super.onSyncPortfolio(coins, position, exchangeLabel)
     }
 
     /**
-     *
+     * Save the strategy state before the bot closes.
+     * You can remove this function if you don't use it.
      * @returns {GenericStrategyState}
      */
     public serialize(): GenericStrategyState {
         let state = super.serialize();
-        state.lastOBV = this.lastOBV;
-        state.secondLastOBV = this.secondLastOBV;
-        state.obvHistory = this.obvHistory;
-        state.obvHistory = this.obvHistory;
+        state.lastOBV = this.myNumberArray;
+        state.myValue = this.myValue;
         return state;
     }
 
     /**
-     *
+     * Restore the strategy state after the bot has restarted.
+     * You can remove this function if you don't use it.
      * @param state
      */
     public unserialize(state: GenericStrategyState) {
         super.unserialize(state);
-        this.lastOBV = state.lastOBV;
-        this.secondLastOBV = state.secondLastOBV;
-        this.obvHistory = state.obvHistory;
-        this.obvHistory = state.obvHistory;
+        this.myNumberArray = state.myNumberArray;
+        this.myValue = state.myValue;
     }
 
     // ################################################################
     // ###################### PRIVATE FUNCTIONS #######################
 
     /**
-     *
-     * @param {Trade[]} trades
+     * Called when new trades happen on the exchange.
+     * This function is called every few seconds (depending on how many trades happen for the currency pair set with this.action.pair).
+     * Use this for fast trading or fast stops, scalping, etc...
+     * You can remove this function if you don't use it.
+     * @param {Trade[]} trades the new trades
      * @returns {Promise<void>}
      */
     protected async tick(trades: Trade.Trade[]): Promise<void> {
+        // put your code here
         return super.tick(trades);
     }
 
     /**
-     *
-     * @param {Candle} candle
+     * Called when a new candle is ready. Meaning it is called once every this.action.candleSize minutes.
+     * You can remove this function if you don't use it.
+     * @param {Candle} candle the new candle
      * @returns {Promise<void>}
      */
     protected async candleTick(candle: Candle.Candle): Promise<void> {
+        // put your code here
         return super.candleTick(candle);
     }
 
     /**
-     *
-     * @param {Candle} candle
-     * @param {boolean} isNew
+     * This is called every few seconds (after tick()) with the latest candle.
+     * Keep in mind that this candle is incomplete (this.action.candleSize has not fully passed yet).
+     * So its values will change until the candle time has passed (except the candle.open value) and you probably don't want
+     * to use this candle to compute indicators.
+     * Use it for fast trading, stops, scalping, etc...
+     * You can remove this function if you don't use it.
+     * @param {Candle} candle the latest candle
+     * @param {boolean} isNew true if it is a new candle (this.action.candleSize minutes have passed), false if it's the same
+     *          candle as on the previous call
      * @returns {Promise<void>}
      */
     protected async currentCandleTick(candle: Candle.Candle, isNew: boolean): Promise<void> {
@@ -138,65 +170,49 @@ export default class ExampleStrategy extends TechnicalStrategy {
     }
 
     /**
-     * It is called right after the candleTick() function in this class (from within the parent's candleTick() function).
+     * This is called right after the candleTick() function in this class (from within the parent's candleTick() function).
      * The difference to candleTick() is that it only called after ALL indicators in this strategy are ready (have enough data
      * so that they hold valid values).
      */
     protected checkIndicators(): void {
-        let obv = this.indicators.get("OBV")
-        const value = obv.getValue();
+        let rsi = this.indicators.get("RSI") // get the RSI indicator we added in the constructor
+        const value = rsi.getValue();
         const valueFormatted = Math.round(value * 100) / 100.0;
-        this.secondLastOBV = this.lastOBV;
-        this.addToHistory(value, this.candle.close);
-        if (this.strategyPosition !== "none" || this.obvHistory.length < this.action.interval || this.priceHistory.length < this.action.interval) {
-            this.lastOBV = value;
-            return;
+
+        if (value >= this.action.high) {
+            const msg = utils.sprintf("RSI reached high: %s - expecting price reversal and selling", valueFormatted);
+            this.log("SELL: " + msg);
+            this.emitSell(this.defaultWeight, msg);
         }
 
-        const maxOBV = _.max(this.obvHistory);
-        const maxPrice = _.max(this.priceHistory);
-        const minPrice = _.min(this.priceHistory);
-
-        if (maxOBV === value) {
-            this.log("Volume high detected, value", valueFormatted)
-            if (maxPrice === this.candle.close)
-                this.emitBuy(this.defaultWeight, utils.sprintf("OBV value max %s at price high, assuming UP breakout", valueFormatted));
-            else if (minPrice === this.candle.close)
-                this.emitSell(this.defaultWeight, utils.sprintf("OBV value max %s at price low, assuming DOWN breakout", valueFormatted));
-            else if (this.action.openReversal === true) {
-                this.log("Price failed to make a new high or low on OBV max")
-                if (this.candle.trend === "up")
-                    this.emitSell(this.defaultWeight, utils.sprintf("OBV value max %s on up candle without price high, assuming DOWN reversal", valueFormatted));
-                else if (this.candle.trend === "down")
-                    this.emitBuy(this.defaultWeight, utils.sprintf("OBV value max %s on down candle without price low, assuming UP reversal", valueFormatted));
-                else
-                    this.log("No candle trend on OBV max")
-            }
-        }
-
-        this.lastOBV = value;
+        // add new data to our variables
+        this.myNumberArray.push(valueFormatted);
+        if (this.myNumberArray.length > this.action.interval)
+            this.myNumberArray.shift(); // remove the oldest one
     }
 
     /**
      *
      */
     protected resetValues(): void {
+        // put your code here
         super.resetValues();
     }
 
     // ################################################################
     // Your custom functions start here
 
-    protected addToHistory(obv: number, price: number) {
-        this.obvHistory.push(obv);
-        this.priceHistory.push(price);
-        if (this.obvHistory.length > this.action.interval)
-            this.obvHistory.shift();
-        if (this.priceHistory.length > this.action.interval)
-            this.priceHistory.shift();
-    }
-
     protected demoLogFunctions() {
+        // These lines will only be printed if "enableLog" is set to true in the strategy config JSON.
+        // You can use them to log any output such as candles while trading.
+        let price = 20000;
+        this.log(utils.sprintf("I want to sell BTC for %s USD", price));
+        this.warn("I can not find any buyers at that price.");
 
+        // These lines will always be printed. You should only use them for major errors such as "invalid config"
+        // when the strategy is unable to start.
+        logger.info("Strategy %s is running", this.className);
+        logger.warn("The current time at the %s market on the exchange is: %s", this.action.pair.toString, this.getMarketTime());
+        logger.error("Your candle size is %s min. Are you a high frequency trader?", this.action.candleSize);
     }
 }

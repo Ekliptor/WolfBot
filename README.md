@@ -51,7 +51,8 @@ The `config` parameter must be a JSON file from the `config` directory. For a li
 
 
 ### Writing your own trading strategies
-API docs coming during 1st week of June. Look into the `Strategies` folder for examples.
+There is documentation available here: https://forum.wolfbot.org/forums/strategy-development.17/
+Look into the `/src/Strategies` folder for more examples.
 
 
 ### Modifying the UI
@@ -59,6 +60,9 @@ In the project root directory, run:
 ```
 webpack --progress --colors --watch
 ```
+
+You should also run the bot with the `--uiDev` flag so that changes to HTML template files are reloaded from disk.
+
 The UI uses a single persistent WebSocket connection. UI related code is in the following directories:
 ```
 ├ project root
