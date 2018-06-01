@@ -1,0 +1,30 @@
+{
+  "data": [
+    {
+      "exchanges": "default",
+      "marginTrading": true,
+      "tradeTotalBtc": 0.021,
+      "warmUpMin": 0,
+      "strategies": {
+        "RSI": {
+          "amount": 1,
+          "pair": "BTC_XRP",
+          "candleSize": 1,
+          "enableLog": true,
+          "interval": 3,
+          "low": 30,
+          "high": 70
+        },
+        "StopLossTurn": {
+          "order": "closeShort",
+          "setback": 0.29,
+          "time": 30,
+          "amount": 1,
+          "candleSize": 1,
+          "pair": "BTC_XRP",
+          "enableLog": true
+        }
+      }
+    }
+  ]
+}

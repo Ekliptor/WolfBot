@@ -1,0 +1,18 @@
+{
+  "data": [
+    {
+      "exchanges": "default",
+      "marginTrading": true,
+      "tradeTotalBtc": 0.22,
+      "warmUpMin": 0,
+      "strategies": {
+        "OneTimeOrder": {
+          "order": "buy",
+          "stop": 0.00010240,
+          "pair": "BTC_BTS",
+          "enableLog": true
+        }
+      }
+    }
+  ]
+}

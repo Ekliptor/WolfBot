@@ -1,0 +1,36 @@
+{
+  "data": [
+    {
+      "exchanges": "default",
+      "marginTrading": true,
+      "tradeTotalBtc": 0.0,
+      "warmUpMin": 0,
+      "strategies": {
+        "MomentumTurn": {
+          "low": 25,
+          "high": 85,
+          "interval": 14,
+          "pair": "BTC_XRP",
+          "candleSize": 10,
+          "enableLog": true
+        },
+        "StopLossTurn": {
+          "order": "closeLong",
+          "setback": 3.99,
+          "time": 30,
+          "candleSize": 5,
+          "pair": "BTC_XRP",
+          "enableLog": false
+        },
+        "TakeProfit": {
+          "order": "closeShort",
+          "profit": 0.75,
+          "time": 600,
+          "candleSize": 5,
+          "pair": "BTC_XRP",
+          "enableLog": false
+        }
+      }
+    }
+  ]
+}

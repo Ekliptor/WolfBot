@@ -1,0 +1,36 @@
+{
+  "data": [
+    {
+      "exchanges": ["OKEX"],
+      "marginTrading": true,
+      "tradeTotalBtc": 100,
+      "warmUpMin": 0,
+      "strategies": {
+        "MACD": {
+          "short": 4,
+          "long": 5,
+          "signal": 3,
+          "pair": "USD_BTC",
+          "candleSize": 2,
+          "enableLog": true
+        }
+      }
+    },
+    {
+      "exchanges": ["OKEX"],
+      "marginTrading": true,
+      "tradeTotalBtc": 100,
+      "warmUpMin": 0,
+      "strategies": {
+        "MACD": {
+          "short": 4,
+          "long": 5,
+          "signal": 3,
+          "pair": "USD_LTC",
+          "candleSize": 2,
+          "enableLog": true
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "data": [
+    {
+      "exchanges": "default",
+      "marginTrading": false,
+      "tradeTotalBtc": 0.08,
+      "warmUpMin": 0,
+      "strategies": {
+        "BladeRunner": {
+          "order": "buy",
+          "profit": 0.6,
+          "fee": 0.25,
+          "priceDiffPercent": 0.01,
+          "pair": "BTC_ZEC",
+          "candleSize": 2,
+          "enableLog": true
+        },
+        "StopLossTurn": {
+          "order": "sell",
+          "setback": 5.9,
+          "time": 90,
+          "candleSize": 1,
+          "pair": "BTC_ZEC",
+          "enableLog": false
+        }
+      }
+    }
+  ]
+}

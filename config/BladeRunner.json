@@ -1,0 +1,179 @@
+{
+  "data": [
+    {
+      "exchanges": "default",
+      "marginTrading": false,
+      "tradeTotalBtc": 0.04,
+      "warmUpMin": 0,
+      "strategies": {
+        "BladeRunner": {
+          "order": "buy",
+          "profit": 0.7,
+          "fee": 0.25,
+          "historyCandles": 3,
+          "pair": "BTC_ETC",
+          "candleSize": 4,
+          "enableLog": true
+        },
+        "StopLossTurn": {
+          "order": "sell",
+          "setback": 4.9,
+          "time": 90,
+          "candleSize": 1,
+          "pair": "BTC_ETC",
+          "enableLog": false
+        }
+      }
+    },
+    {
+      "exchanges": "default",
+      "marginTrading": false,
+      "tradeTotalBtc": 0.04,
+      "warmUpMin": 0,
+      "strategies": {
+        "BladeRunner": {
+          "order": "buy",
+          "profit": 0.7,
+          "fee": 0.25,
+          "historyCandles": 3,
+          "pair": "BTC_ZEC",
+          "candleSize": 4,
+          "enableLog": true
+        },
+        "StopLossTurn": {
+          "order": "sell",
+          "setback": 4.9,
+          "time": 90,
+          "candleSize": 1,
+          "pair": "BTC_ZEC",
+          "enableLog": false
+        }
+      }
+    },
+    {
+      "exchanges": "default",
+      "marginTrading": false,
+      "tradeTotalBtc": 0.04,
+      "warmUpMin": 0,
+      "strategies": {
+        "BladeRunner": {
+          "order": "buy",
+          "profit": 0.7,
+          "fee": 0.25,
+          "historyCandles": 3,
+          "pair": "BTC_DGB",
+          "candleSize": 4,
+          "enableLog": true
+        },
+        "StopLossTurn": {
+          "order": "sell",
+          "setback": 4.9,
+          "time": 90,
+          "candleSize": 1,
+          "pair": "BTC_DGB",
+          "enableLog": false
+        }
+      }
+    },
+    {
+      "exchanges": "default",
+      "marginTrading": false,
+      "tradeTotalBtc": 0.04,
+      "warmUpMin": 0,
+      "strategies": {
+        "BladeRunner": {
+          "order": "buy",
+          "profit": 0.7,
+          "fee": 0.25,
+          "historyCandles": 3,
+          "pair": "BTC_VIA",
+          "candleSize": 4,
+          "enableLog": true
+        },
+        "StopLossTurn": {
+          "order": "sell",
+          "setback": 4.9,
+          "time": 90,
+          "candleSize": 1,
+          "pair": "BTC_VIA",
+          "enableLog": false
+        }
+      }
+    },
+    {
+      "exchanges": "default",
+      "marginTrading": false,
+      "tradeTotalBtc": 0.04,
+      "warmUpMin": 0,
+      "strategies": {
+        "BladeRunner": {
+          "order": "buy",
+          "profit": 0.7,
+          "fee": 0.25,
+          "historyCandles": 3,
+          "pair": "BTC_STRAT",
+          "candleSize": 4,
+          "enableLog": true
+        },
+        "StopLossTurn": {
+          "order": "sell",
+          "setback": 4.9,
+          "time": 90,
+          "candleSize": 1,
+          "pair": "BTC_STRAT",
+          "enableLog": false
+        }
+      }
+    },
+    {
+      "exchanges": "default",
+      "marginTrading": false,
+      "tradeTotalBtc": 0.04,
+      "warmUpMin": 0,
+      "strategies": {
+        "BladeRunner": {
+          "order": "buy",
+          "profit": 0.7,
+          "fee": 0.25,
+          "historyCandles": 3,
+          "pair": "BTC_LBC",
+          "candleSize": 4,
+          "enableLog": true
+        },
+        "StopLossTurn": {
+          "order": "sell",
+          "setback": 4.9,
+          "time": 90,
+          "candleSize": 1,
+          "pair": "BTC_LBC",
+          "enableLog": false
+        }
+      }
+    },
+    {
+      "exchanges": "default",
+      "marginTrading": false,
+      "tradeTotalBtc": 0.04,
+      "warmUpMin": 0,
+      "strategies": {
+        "BladeRunner": {
+          "order": "buy",
+          "profit": 0.7,
+          "fee": 0.25,
+          "historyCandles": 3,
+          "pair": "BTC_SJCX",
+          "candleSize": 4,
+          "enableLog": true
+        },
+        "StopLossTurn": {
+          "order": "sell",
+          "setback": 4.9,
+          "time": 90,
+          "candleSize": 1,
+          "pair": "BTC_SJCX",
+          "enableLog": false
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,121 @@
+{
+  "data": [
+    {
+      "exchanges": ["Kraken"],
+      "marginTrading": true,
+      "tradeTotalBtc": 0.1,
+      "warmUpMin": 0,
+      "strategies": {
+        "WaveSurfer": {
+          "minSurfCandles": 2,
+          "pair": "BTC_ETH",
+          "candleSize": 133,
+          "enableLog": true
+        },
+        "StopLossTurn": {
+          "order": "closeLong",
+          "setback": 3.0,
+          "time": 3600,
+          "candleSize": 6,
+          "pair": "BTC_ETH",
+          "enableLog": false
+        },
+        "TakeProfit": {
+          "order": "closeLong",
+          "profit": 2,
+          "time": 10670,
+          "candleSize": 36,
+          "pair": "BTC_ETH",
+          "enableLog": false
+        },
+        "TakeProfitPartial": {
+          "order": "closeLong",
+          "profit": 8,
+          "percentage": 40,
+          "time": 300,
+          "candleSize": 6,
+          "pair": "BTC_ETH",
+          "enableLog": false
+        }
+      }
+    },
+    {
+      "exchanges": ["Kraken"],
+      "marginTrading": true,
+      "tradeTotalBtc": 420.0,
+      "warmUpMin": 0,
+      "strategies": {
+        "WaveSurfer": {
+          "minSurfCandles": 2,
+          "pair": "USD_ETH",
+          "candleSize": 133,
+          "enableLog": true
+        },
+        "StopLossTurn": {
+          "order": "closeLong",
+          "setback": 3.0,
+          "time": 3600,
+          "candleSize": 6,
+          "pair": "USD_ETH",
+          "enableLog": false
+        },
+        "TakeProfit": {
+          "order": "closeLong",
+          "profit": 2,
+          "time": 10670,
+          "candleSize": 36,
+          "pair": "USD_ETH",
+          "enableLog": false
+        },
+        "TakeProfitPartial": {
+          "order": "closeLong",
+          "profit": 8,
+          "percentage": 40,
+          "time": 300,
+          "candleSize": 6,
+          "pair": "USD_ETH",
+          "enableLog": false
+        }
+      }
+    },
+    {
+      "exchanges": ["Kraken"],
+      "marginTrading": true,
+      "tradeTotalBtc": 180.0,
+      "warmUpMin": 0,
+      "strategies": {
+        "WaveSurfer": {
+          "minSurfCandles": 2,
+          "pair": "USD_BTC",
+          "candleSize": 133,
+          "enableLog": true
+        },
+        "StopLossTurn": {
+          "order": "closeLong",
+          "setback": 3.0,
+          "time": 3600,
+          "candleSize": 6,
+          "pair": "USD_BTC",
+          "enableLog": false
+        },
+        "TakeProfit": {
+          "order": "closeLong",
+          "profit": 2,
+          "time": 10670,
+          "candleSize": 36,
+          "pair": "USD_BTC",
+          "enableLog": false
+        },
+        "TakeProfitPartial": {
+          "order": "closeLong",
+          "profit": 8,
+          "percentage": 40,
+          "time": 300,
+          "candleSize": 6,
+          "pair": "USD_BTC",
+          "enableLog": false
+        }
+      }
+    }
+  ]
+}

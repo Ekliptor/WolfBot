@@ -1,0 +1,57 @@
+{
+  "data": [
+    {
+      "exchanges": "default",
+      "marginTrading": true,
+      "tradeTotalBtc": 0.7,
+      "warmUpMin": 0,
+      "strategies": {
+        "MACD": {
+          "takeProfitTicks": 3,
+          "closeSidewaysMarkets": false,
+          "short": 16,
+          "long": 30,
+          "signal": 9,
+          "interval": 48,
+          "trendCandleThreshold": 60,
+          "pair": "BTC_ETH",
+          "candleSize": 90,
+          "tradeStrategy": "RSIOrderer",
+          "enableLog": true
+        },
+        "RSIOrderer": {
+          "low": 35,
+          "high": 65,
+          "immediateLow": 34,
+          "immediateHigh": 66,
+          "waitBounceBack": false,
+          "expiry": 16,
+          "candleSize": 5,
+          "pair": "BTC_ETH",
+          "enableLog": true
+        },
+        "StopLossTurn": {
+          "order": "closeLong",
+          "setback": 3.0,
+          "setbackLong": 4.5,
+          "time": 7200,
+          "reduceTimeByVolatility": false,
+          "low": 52,
+          "high": 56,
+          "candleSize": 6,
+          "pair": "BTC_ETH",
+          "enableLog": false
+        },
+        "TakeProfitPartial": {
+          "order": "closeLong",
+          "profit": 5.2,
+          "percentage": 40,
+          "time": 3600,
+          "candleSize": 6,
+          "pair": "BTC_ETH",
+          "enableLog": false
+        }
+      }
+    }
+  ]
+}

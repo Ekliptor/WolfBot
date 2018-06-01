@@ -1,0 +1,82 @@
+{
+  "data": [
+    {
+      "exchanges": "default",
+      "markets": [
+        "BTC_XRP",
+        "BTC_DASH"
+      ],
+      "marginTrading": true,
+      "tradeTotalBtc": 0.1,
+      "warmUpMin": 0,
+      "strategies": {
+        "StopLossTime": {
+          "order": "buy",
+          "stop": 0.05226790,
+          "time": 30,
+          "limit": 0.05226790,
+          "amount": 20,
+          "pair": "BTC_DASH",
+          "enableLog": false
+        },
+        "MassOrderJumper": {
+          "amount": 5,
+          "avgLowSec": 30,
+          "avgHighSec": 600,
+          "spikePercent": 150,
+          "volumeDiffPercent": 20,
+          "pair": "BTC_XRP",
+          "enableLog": true
+        },
+        "WhaleWatcher": {
+          "triggerAmountBtc": 110,
+          "amount": 5,
+          "pair": "BTC_XRP",
+          "enableLog": true
+        },
+        "OneTimeOrder": {
+          "order": "buy",
+          "stop": 0.00020490,
+          "amount": 5,
+          "pair": "BTC_XRP",
+          "enableLog": true
+        }
+      }
+    },
+    {
+      "exchanges": "default",
+      "markets": [
+        "BTC_STR"
+      ],
+      "marginTrading": true,
+      "tradeTotalBtc": 0.1,
+      "warmUpMin": 0,
+      "strategies": {
+        "StopLossTime": {
+          "order": "sell",
+          "stop": 0.00002522,
+          "time": 30,
+          "limit": 0.00002522,
+          "amount": 5000,
+          "pair": "BTC_STR",
+          "enableLog": false
+        },
+        "MassOrderJumper": {
+          "amount": 5,
+          "avgLowSec": 30,
+          "avgHighSec": 600,
+          "spikePercent": 150,
+          "volumeDiffPercent": 20,
+          "pair": "BTC_STR",
+          "enableLog": true
+        },
+        "WhaleWatcher": {
+          "triggerAmountBtc": 110,
+          "amount": 5,
+          "pair": "BTC_STR",
+          "enableLog": true
+        }
+      }
+    }
+  ]
+}

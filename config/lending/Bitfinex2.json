@@ -1,0 +1,56 @@
+{
+  "data": [
+    {
+      "exchange": "Bitfinex",
+      "days": 2,
+      "xDayThreshold": 2.1,
+      "xDays": 30,
+      "strategies": {
+        "DEMA": {
+          "long": 7,
+          "interval": 14,
+          "deltaPercent": 8.4,
+          "candleSize": 15,
+          "enableLog": false
+        }
+      },
+      "currencies": {
+        "USD": {
+          "minLoanSize": 50,
+          "minDailyRate": 0.07,
+          "maxToLend": 0,
+          "maxPercentToLend": 100.0,
+          "returnDateUTC": "2019-01-01 12:00:00"
+        },
+        "BTC": {
+          "minLoanSize": 0.021,
+          "minDailyRate": 0.024
+        },
+        "LTC": {
+          "minLoanSize": 0.8,
+          "minDailyRate": 0.0028
+        },
+        "ETH": {
+          "minLoanSize": 0.2,
+          "minDailyRate": 0.0028
+        },
+        "ZEC": {
+          "minLoanSize": 0.3,
+          "minDailyRate": 0.0021
+        },
+        "XMR": {
+          "minLoanSize": 0.7,
+          "minDailyRate": 0.003
+        },
+        "DASH": {
+          "minLoanSize": 0.3,
+          "minDailyRate": 0.0066
+        },
+        "BCH": {
+          "minLoanSize": 0.2,
+          "minDailyRate": 0.0031
+        }
+      }
+    }
+  ]
+}

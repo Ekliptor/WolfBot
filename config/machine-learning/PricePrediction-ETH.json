@@ -1,0 +1,88 @@
+{
+  "data": [
+    {
+      "exchanges": "default",
+      "pricePoints": 4,
+      "candleSize": 360,
+      "markets": ["BTC_ETH", "USDT_BTC", "USDT_ETH"],
+      "indicators": [
+        {
+          "RSI": {
+            "enableLog": false,
+            "interval": 14,
+            "low": 30,
+            "high": 70
+          }
+        },
+        {
+          "MACD": {
+            "short": 10,
+            "long": 26,
+            "signal": 9,
+            "enableLog": false
+          }
+        },
+        {
+          "DEMA": {
+            "enableLog": false,
+            "short": 10,
+            "long": 21
+          }
+        },
+        {
+          "EMA": {
+            "enableLog": false,
+            "short": 10,
+            "long": 21
+          }
+        },
+        {
+          "EMA": {
+            "enableLog": false,
+            "short": 3,
+            "long": 7
+          }
+        },
+        {
+          "SMA": {
+            "enableLog": false,
+            "short": 10,
+            "long": 21
+          }
+        },
+        {
+          "BollingerBands": {
+            "MAType": 1,
+            "enableLog": false
+          }
+        },
+        {
+          "GannSwing": {
+            "interval": 9,
+            "enableLog": false
+          }
+        },
+        {
+          "Aroon": {
+            "interval": 25,
+            "enableLog": false
+          }
+        },
+        {
+          "SAR": {
+            "accelerationFactor": 0.02,
+            "accelerationMax": 0.2,
+            "enableLog": false
+          }
+        },
+        {
+          "ADX": {
+            "interval": 14,
+            "adxTrend": 20,
+            "enableLog": false
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,38 @@
+{
+  "data": [
+    {
+      "exchanges": "default",
+      "marginTrading": true,
+      "tradeTotalBtc": 0.1,
+      "warmUpMin": 0,
+      "strategies": {
+        "WhaleWatcher": {
+          "triggerAmountBtc": 50.0,
+          "pair": "BTC_LTC",
+          "enableLog": true
+        },
+        "VolumeSpikeDetector": {
+          "spikeFactor": 2.1,
+          "minVolBtc": 550,
+          "candleSize": 5,
+          "pair": "BTC_LTC",
+          "enableLog": true
+        },
+        "PriceSpikeDetector": {
+          "spikePercent": 3.5,
+          "candleSize": 5,
+          "pair": "BTC_LTC",
+          "enableLog": true
+        },
+        "RSI": {
+          "pair": "BTC_LTC",
+          "candleSize": 5,
+          "enableLog": true,
+          "interval": 14,
+          "low": 30,
+          "high": 70
+        }
+      }
+    }
+  ]
+}

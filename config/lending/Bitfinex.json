@@ -1,0 +1,99 @@
+{
+    "data": [
+        {
+            "exchange": "Bitfinex",
+            "days": 2,
+            "xDayThreshold": 2.1,
+            "xDays": 30,
+            "strategies": {
+                "DEMA": {
+                    "long": 7,
+                    "interval": 14,
+                    "deltaPercent": 9.1,
+                    "percentDecrease": 2.4,
+                    "candleSize": 15,
+                    "enableLog": false
+                }
+            },
+            "currencies": {
+                "USD": {
+                    "minLoanSize": 50,
+                    "minDailyRate": 0.07,
+                    "maxToLend": 0,
+                    "maxPercentToLend": 100,
+                    "returnDateUTC": "2019-01-01 12:00:00"
+                },
+                "EUR": {
+                    "minLoanSize": 45,
+                    "minDailyRate": 0.04,
+                    "maxToLend": 0,
+                    "maxPercentToLend": 100,
+                    "returnDateUTC": "2019-01-01 12:00:00"
+                },
+                "BTC": {
+                    "minLoanSize": 0.012,
+                    "minDailyRate": 0.016,
+                    "maxToLend": 0,
+                    "maxPercentToLend": 100,
+                    "returnDateUTC": "2019-01-01 12:00:00"
+                },
+                "LTC": {
+                    "minLoanSize": 0.7,
+                    "minDailyRate": 0.0028,
+                    "maxToLend": 0,
+                    "maxPercentToLend": 100,
+                    "returnDateUTC": "2019-01-01 12:00:00"
+                },
+                "ETH": {
+                    "minLoanSize": 0.2,
+                    "minDailyRate": 0.0028,
+                    "maxToLend": 0,
+                    "maxPercentToLend": 100,
+                    "returnDateUTC": "2019-01-01 12:00:00"
+                },
+                "ZEC": {
+                    "minLoanSize": 0.2,
+                    "minDailyRate": 0.0021,
+                    "maxToLend": 0,
+                    "maxPercentToLend": 100,
+                    "returnDateUTC": "2019-01-01 12:00:00"
+                },
+                "XMR": {
+                    "minLoanSize": 0.3,
+                    "minDailyRate": 0.003,
+                    "maxToLend": 0,
+                    "maxPercentToLend": 100,
+                    "returnDateUTC": "2019-01-01 12:00:00"
+                },
+                "DASH": {
+                    "minLoanSize": 0.12,
+                    "minDailyRate": 0.0066,
+                    "maxToLend": 0,
+                    "maxPercentToLend": 100,
+                    "returnDateUTC": "2019-01-01 12:00:00"
+                },
+                "BCH": {
+                    "minLoanSize": 0.04,
+                    "minDailyRate": 0.0031,
+                    "maxToLend": 0,
+                    "maxPercentToLend": 100,
+                    "returnDateUTC": "2019-01-01 12:00:00"
+                },
+                "BTG": {
+                    "minLoanSize": 0.3,
+                    "minDailyRate": 0.0031,
+                    "maxToLend": 0,
+                    "maxPercentToLend": 100,
+                    "returnDateUTC": "2019-01-01 12:00:00"
+                },
+                "ETC": {
+                    "minLoanSize": 1.9,
+                    "minDailyRate": 0.0031,
+                    "maxToLend": 0,
+                    "maxPercentToLend": 100,
+                    "returnDateUTC": "2019-01-01 12:00:00"
+                }
+            }
+        }
+    ]
+}

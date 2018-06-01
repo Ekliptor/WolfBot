@@ -1,0 +1,1651 @@
+{
+  "data": [
+    {
+      "exchanges": ["Bitfinex"],
+      "marginTrading": true,
+      "tradeTotalBtc": 200.0,
+      "notifyTrades": true,
+      "strategies": {
+        "PlanRunner": {
+          "orders": [
+            {
+              "action": "buy",
+              "comp": "<",
+              "position": "none",
+              "rate": 8250.9,
+              "reason": "middle high",
+              "indicators": ["RSI"]
+            },
+            {
+              "action": "sell",
+              "comp": ">",
+              "position": "none",
+              "rate": 11410.9,
+              "reason": "middle high",
+              "indicators": ["RSI"]
+            }
+          ],
+          "pair": "USD_BTC",
+          "candleSize": 1,
+          "tradeStrategy": "RSIScalpOrderer",
+          "enableLog": true
+        },
+        "RSI": {
+          "pair": "USD_BTC",
+          "candleSize": 15,
+          "interval": 5,
+          "low": 54,
+          "high": 55,
+          "enableLog": false
+        },
+        "DirectionFollower": {
+          "interval": 14,
+          "adxTrend": 20,
+          "adxMaxTrend": 32,
+          "initialStop": true,
+          "accelerationFactor": 0.06,
+          "accelerationMax": 0.2,
+          "tradeDirection": "watch",
+          "candleSize": 240,
+          "pair": "USD_BTC",
+          "tradeStrategy": "RSIScalpOrderer",
+          "fallback": false,
+          "enableLog": true
+        },
+        "BollingerStop": {
+          "time": 3600,
+          "notifyBeforeStopSec": 1800,
+          "stopBand": "opposite",
+          "delayTicks": 2,
+          "candleSize": 60,
+          "pair": "USD_BTC",
+          "enableLog": false
+        },
+        "OrderPartitioner": {
+          "tradeCount": 20,
+          "percentChange": 0.35,
+          "whalePercentage": 5,
+          "fishPercentage": 1.1,
+          "pair": "USD_BTC",
+          "candleSize": 60,
+          "enableLog": false
+        },
+        "RSIScalper": {
+          "percentage": 50,
+          "low": 25,
+          "high": 75,
+          "candleSize": 10,
+          "pair": "USD_BTC",
+          "enableLog": false
+        },
+        "RSIScalpOrderer": {
+          "low": 34,
+          "high": 70,
+          "expiry": 20,
+          "candleSize": 5,
+          "pair": "USD_BTC",
+          "enableLog": true
+        },
+        "StopLossTurn": {
+          "order": "closeLong",
+          "setback": 5.5,
+          "setbackLong": 7.2,
+          "time": 7200,
+          "setbackProfit": 2.9,
+          "triggerProfit": 4.5,
+          "timeProfit": 120,
+          "notifyBeforeStopSec": 1800,
+          "reduceTimeByVolatility": false,
+          "low": 52,
+          "high": 56,
+          "candleSize": 5,
+          "pair": "USD_BTC",
+          "enableLog": false
+        },
+        "TakeProfitStochRSI": {
+          "percentage": 50,
+          "low": 11,
+          "high": 87,
+          "interval": 25,
+          "closeRateFactor": 0.9992,
+          "candleSize": 60,
+          "orderStrategy": "TriggerOrder",
+          "pair": "USD_BTC",
+          "enableLog": true
+        },
+        "TriggerOrder": {
+          "candleSize": 1,
+          "pair": "USD_BTC",
+          "enableLog": true
+        },
+        "IntervalExtremes": {
+          "tradeDirection": "watch",
+          "mode": "bounce",
+          "tradeInterval": "halfDay",
+          "notifyPriceInterval": "3days",
+          "low": 30,
+          "high": 70,
+          "candleSize": 60,
+          "pair": "USD_BTC",
+          "tradeStrategy": "RSIScalpOrderer",
+          "enableLog": true
+        },
+        "VolumeSpikeDetector": {
+          "spikeFactor": 3,
+          "minVolBtc": 1.2,
+          "tradeDirection": "both",
+          "candleSize": 10,
+          "pair": "USD_BTC",
+          "enableLog": false
+        },
+        "PriceSpikeDetector": {
+          "spikePercent": 2.1,
+          "spikeHistoryPercent": 7.0,
+          "historyCandleCount": 3,
+          "tradeDirection": "notify",
+          "candleSize": 5,
+          "pair": "USD_BTC",
+          "enableLog": false
+        },
+        "VolumeSpikeDetectorLong": {
+          "spikeFactor": 2.5,
+          "candleSize": 720,
+          "pair": "USD_BTC",
+          "enableLog": false
+        }
+      }
+    },
+    {
+      "exchanges": ["Bitfinex"],
+      "marginTrading": true,
+      "tradeTotalBtc": 200.0,
+      "notifyTrades": true,
+      "strategies": {
+        "PlanRunner": {
+          "orders": [
+            {
+              "action": "buy",
+              "comp": "<",
+              "position": "none",
+              "rate": 136.1,
+              "reason": "middle high",
+              "indicators": ["RSI"]
+            },
+            {
+              "action": "sell",
+              "comp": ">",
+              "position": "none",
+              "rate": 194.6,
+              "reason": "middle high",
+              "indicators": ["RSI"]
+            }
+          ],
+          "pair": "USD_LTC",
+          "candleSize": 1,
+          "tradeStrategy": "RSIScalpOrderer",
+          "enableLog": true
+        },
+        "RSI": {
+          "pair": "USD_LTC",
+          "candleSize": 15,
+          "interval": 5,
+          "low": 54,
+          "high": 55,
+          "enableLog": false
+        },
+        "DirectionFollower": {
+          "interval": 14,
+          "adxTrend": 20,
+          "adxMaxTrend": 32,
+          "initialStop": true,
+          "accelerationFactor": 0.06,
+          "accelerationMax": 0.2,
+          "tradeDirection": "watch",
+          "candleSize": 240,
+          "pair": "USD_LTC",
+          "tradeStrategy": "RSIScalpOrderer",
+          "enableLog": true
+        },
+        "OrderPartitioner": {
+          "tradeCount": 20,
+          "percentChange": 0.35,
+          "whalePercentage": 5,
+          "fishPercentage": 1.1,
+          "pair": "USD_LTC",
+          "candleSize": 60,
+          "enableLog": false
+        },
+        "RSIScalper": {
+          "percentage": 50,
+          "low": 25,
+          "high": 75,
+          "candleSize": 10,
+          "pair": "USD_LTC",
+          "enableLog": false
+        },
+        "RSIScalpOrderer": {
+          "low": 34,
+          "high": 70,
+          "expiry": 20,
+          "candleSize": 5,
+          "pair": "USD_LTC",
+          "enableLog": true
+        },
+        "StopLossTurn": {
+          "order": "closeLong",
+          "setback": 5.2,
+          "setbackLong": 7.2,
+          "time": 7200,
+          "setbackProfit": 2.9,
+          "triggerProfit": 4.5,
+          "timeProfit": 120,
+          "notifyBeforeStopSec": 1800,
+          "reduceTimeByVolatility": false,
+          "low": 52,
+          "high": 56,
+          "candleSize": 5,
+          "pair": "USD_LTC",
+          "enableLog": false
+        },
+        "TakeProfitStochRSI": {
+          "percentage": 50,
+          "low": 11,
+          "high": 87,
+          "interval": 25,
+          "closeRateFactor": 0.9992,
+          "candleSize": 60,
+          "orderStrategy": "TriggerOrder",
+          "pair": "USD_LTC",
+          "enableLog": true
+        },
+        "TriggerOrder": {
+          "candleSize": 1,
+          "pair": "USD_LTC",
+          "enableLog": true
+        },
+        "IntervalExtremes": {
+          "tradeDirection": "watch",
+          "mode": "bounce",
+          "tradeInterval": "halfDay",
+          "notifyPriceInterval": "3days",
+          "low": 30,
+          "high": 70,
+          "candleSize": 60,
+          "pair": "USD_LTC",
+          "tradeStrategy": "RSIScalpOrderer",
+          "enableLog": true
+        },
+        "VolumeSpikeDetector": {
+          "spikeFactor": 3,
+          "minVolBtc": 1.2,
+          "tradeDirection": "both",
+          "candleSize": 10,
+          "pair": "USD_LTC",
+          "enableLog": false
+        },
+        "PriceSpikeDetector": {
+          "spikePercent": 0.55,
+          "spikeHistoryPercent": 1.45,
+          "historyCandleCount": 3,
+          "tradeDirection": "notify",
+          "candleSize": 5,
+          "pair": "USD_LTC",
+          "enableLog": false
+        },
+        "VolumeSpikeDetectorLong": {
+          "spikeFactor": 2.5,
+          "candleSize": 720,
+          "pair": "USD_LTC",
+          "enableLog": false
+        }
+      }
+    },
+    {
+      "exchanges": ["Bitfinex"],
+      "marginTrading": true,
+      "tradeTotalBtc": 150.0,
+      "notifyTrades": true,
+      "strategies": {
+        "PlanRunner": {
+          "orders": [
+            {
+              "action": "buy",
+              "comp": "<",
+              "position": "none",
+              "rate": 641.9,
+              "reason": "middle high",
+              "indicators": ["RSI"]
+            },
+            {
+              "action": "sell",
+              "comp": ">",
+              "position": "none",
+              "rate": 869.9,
+              "reason": "middle high",
+              "indicators": ["RSI"]
+            }
+          ],
+          "pair": "USD_ETH",
+          "candleSize": 1,
+          "tradeStrategy": "RSIScalpOrderer",
+          "enableLog": true
+        },
+        "RSI": {
+          "pair": "USD_ETH",
+          "candleSize": 15,
+          "interval": 5,
+          "low": 54,
+          "high": 55,
+          "enableLog": false
+        },
+        "DirectionFollower": {
+          "interval": 14,
+          "adxTrend": 20,
+          "adxMaxTrend": 32,
+          "initialStop": true,
+          "accelerationFactor": 0.06,
+          "accelerationMax": 0.2,
+          "tradeDirection": "watch",
+          "candleSize": 240,
+          "pair": "USD_ETH",
+          "tradeStrategy": "RSIScalpOrderer",
+          "enableLog": true
+        },
+        "OrderPartitioner": {
+          "tradeCount": 20,
+          "percentChange": 0.35,
+          "whalePercentage": 5,
+          "fishPercentage": 1.1,
+          "pair": "USD_ETH",
+          "candleSize": 60,
+          "enableLog": false
+        },
+        "RSIScalper": {
+          "percentage": 50,
+          "low": 25,
+          "high": 75,
+          "candleSize": 10,
+          "pair": "USD_ETH",
+          "enableLog": false
+        },
+        "RSIScalpOrderer": {
+          "low": 34,
+          "high": 70,
+          "expiry": 20,
+          "candleSize": 5,
+          "pair": "USD_ETH",
+          "enableLog": true
+        },
+        "StopLossTurn": {
+          "order": "closeLong",
+          "setback": 5.2,
+          "setbackLong": 7.5,
+          "time": 7200,
+          "setbackProfit": 2.9,
+          "triggerProfit": 4.5,
+          "timeProfit": 120,
+          "notifyBeforeStopSec": 1800,
+          "reduceTimeByVolatility": false,
+          "low": 52,
+          "high": 56,
+          "candleSize": 5,
+          "pair": "USD_ETH",
+          "enableLog": false
+        },
+        "TakeProfitStochRSI": {
+          "percentage": 50,
+          "low": 11,
+          "high": 87,
+          "interval": 25,
+          "closeRateFactor": 0.9992,
+          "candleSize": 60,
+          "orderStrategy": "TriggerOrder",
+          "pair": "USD_ETH",
+          "enableLog": true
+        },
+        "TriggerOrder": {
+          "candleSize": 1,
+          "pair": "USD_ETH",
+          "enableLog": true
+        },
+        "IntervalExtremes": {
+          "tradeDirection": "watch",
+          "mode": "bounce",
+          "tradeInterval": "halfDay",
+          "notifyPriceInterval": "3days",
+          "low": 30,
+          "high": 70,
+          "candleSize": 60,
+          "pair": "USD_ETH",
+          "tradeStrategy": "RSIScalpOrderer",
+          "enableLog": true
+        },
+        "VolumeSpikeDetector": {
+          "spikeFactor": 3,
+          "minVolBtc": 1.2,
+          "tradeDirection": "both",
+          "candleSize": 10,
+          "pair": "USD_ETH",
+          "enableLog": false
+        },
+        "PriceSpikeDetector": {
+          "spikePercent": 0.6,
+          "spikeHistoryPercent": 1.51,
+          "historyCandleCount": 3,
+          "tradeDirection": "notify",
+          "candleSize": 5,
+          "pair": "USD_ETH",
+          "enableLog": false
+        },
+        "VolumeSpikeDetectorLong": {
+          "spikeFactor": 2.5,
+          "candleSize": 720,
+          "pair": "USD_ETH",
+          "enableLog": false
+        }
+      }
+    },
+    {
+      "exchanges": ["Bitfinex"],
+      "marginTrading": true,
+      "tradeTotalBtc": 120.0,
+      "notifyTrades": true,
+      "strategies": {
+        "PlanRunner": {
+          "orders": [
+            {
+              "action": "buy",
+              "comp": "<",
+              "position": "none",
+              "rate": 196.9,
+              "reason": "middle high",
+              "indicators": ["RSI"]
+            },
+            {
+              "action": "sell",
+              "comp": ">",
+              "position": "none",
+              "rate": 369.19,
+              "reason": "middle high",
+              "indicators": ["RSI"]
+            }
+          ],
+          "pair": "USD_XMR",
+          "candleSize": 1,
+          "tradeStrategy": "RSIScalpOrderer",
+          "enableLog": true
+        },
+        "RSI": {
+          "pair": "USD_XMR",
+          "candleSize": 15,
+          "interval": 5,
+          "low": 54,
+          "high": 55,
+          "enableLog": false
+        },
+        "DirectionFollower": {
+          "interval": 14,
+          "adxTrend": 20,
+          "adxMaxTrend": 32,
+          "initialStop": true,
+          "accelerationFactor": 0.06,
+          "accelerationMax": 0.2,
+          "tradeDirection": "watch",
+          "candleSize": 240,
+          "pair": "USD_XMR",
+          "tradeStrategy": "RSIScalpOrderer",
+          "enableLog": true
+        },
+        "RSIScalper": {
+          "percentage": 50,
+          "low": 25,
+          "high": 75,
+          "candleSize": 10,
+          "pair": "USD_XMR",
+          "enableLog": false
+        },
+        "RSIScalpOrderer": {
+          "low": 34,
+          "high": 70,
+          "expiry": 20,
+          "candleSize": 5,
+          "pair": "USD_XMR",
+          "enableLog": true
+        },
+        "StopLossTurn": {
+          "order": "closeLong",
+          "setback": 5.5,
+          "setbackLong": 6.5,
+          "time": 7200,
+          "setbackProfit": 2.9,
+          "triggerProfit": 4.5,
+          "timeProfit": 120,
+          "notifyBeforeStopSec": 1800,
+          "reduceTimeByVolatility": false,
+          "low": 52,
+          "high": 56,
+          "candleSize": 5,
+          "pair": "USD_XMR",
+          "enableLog": false
+        },
+        "TakeProfitStochRSI": {
+          "percentage": 50,
+          "low": 11,
+          "high": 87,
+          "interval": 25,
+          "closeRateFactor": 0.9992,
+          "candleSize": 60,
+          "orderStrategy": "TriggerOrder",
+          "pair": "USD_XMR",
+          "enableLog": true
+        },
+        "TriggerOrder": {
+          "candleSize": 1,
+          "pair": "USD_XMR",
+          "enableLog": true
+        },
+        "IntervalExtremes": {
+          "tradeDirection": "watch",
+          "mode": "bounce",
+          "tradeInterval": "halfDay",
+          "notifyPriceInterval": "3days",
+          "low": 30,
+          "high": 70,
+          "candleSize": 60,
+          "pair": "USD_XMR",
+          "tradeStrategy": "RSIScalpOrderer",
+          "enableLog": true
+        },
+        "VolumeSpikeDetector": {
+          "spikeFactor": 3,
+          "minVolBtc": 1.2,
+          "tradeDirection": "both",
+          "candleSize": 10,
+          "pair": "USD_XMR",
+          "enableLog": false
+        },
+        "PriceSpikeDetector": {
+          "spikePercent": 3.0,
+          "tradeDirection": "notify",
+          "candleSize": 5,
+          "pair": "USD_XMR",
+          "enableLog": false
+        },
+        "VolumeSpikeDetectorLong": {
+          "spikeFactor": 2.5,
+          "candleSize": 720,
+          "pair": "USD_XMR",
+          "enableLog": false
+        }
+      }
+    },
+    {
+      "exchanges": ["Bitfinex"],
+      "marginTrading": true,
+      "tradeTotalBtc": 120.0,
+      "notifyTrades": true,
+      "strategies": {
+        "PlanRunner": {
+          "orders": [
+            {
+              "action": "buy",
+              "comp": "<",
+              "position": "none",
+              "rate": 303.9,
+              "reason": "middle high",
+              "indicators": ["RSI"]
+            },
+            {
+              "action": "sell",
+              "comp": ">",
+              "position": "none",
+              "rate": 561.1,
+              "reason": "middle high",
+              "indicators": ["RSI"]
+            }
+          ],
+          "pair": "USD_DASH",
+          "candleSize": 1,
+          "tradeStrategy": "RSIScalpOrderer",
+          "enableLog": true
+        },
+        "RSI": {
+          "pair": "USD_DASH",
+          "candleSize": 15,
+          "interval": 5,
+          "low": 54,
+          "high": 55,
+          "enableLog": false
+        },
+        "DirectionFollower": {
+          "interval": 14,
+          "adxTrend": 20,
+          "adxMaxTrend": 32,
+          "initialStop": true,
+          "accelerationFactor": 0.06,
+          "accelerationMax": 0.2,
+          "tradeDirection": "watch",
+          "candleSize": 240,
+          "pair": "USD_DASH",
+          "tradeStrategy": "RSIScalpOrderer",
+          "enableLog": true
+        },
+        "RSIScalper": {
+          "percentage": 50,
+          "low": 25,
+          "high": 75,
+          "candleSize": 10,
+          "pair": "USD_DASH",
+          "enableLog": false
+        },
+        "RSIScalpOrderer": {
+          "low": 34,
+          "high": 70,
+          "expiry": 20,
+          "candleSize": 5,
+          "pair": "USD_DASH",
+          "enableLog": true
+        },
+        "StopLossTurn": {
+          "order": "closeLong",
+          "setback": 5.5,
+          "setbackLong": 7.5,
+          "time": 7200,
+          "setbackProfit": 2.9,
+          "triggerProfit": 4.5,
+          "timeProfit": 120,
+          "notifyBeforeStopSec": 1800,
+          "reduceTimeByVolatility": false,
+          "low": 52,
+          "high": 56,
+          "candleSize": 5,
+          "pair": "USD_DASH",
+          "enableLog": false
+        },
+        "TakeProfitStochRSI": {
+          "percentage": 50,
+          "low": 11,
+          "high": 87,
+          "interval": 25,
+          "closeRateFactor": 0.9992,
+          "candleSize": 60,
+          "orderStrategy": "TriggerOrder",
+          "pair": "USD_DASH",
+          "enableLog": true
+        },
+        "TriggerOrder": {
+          "candleSize": 1,
+          "pair": "USD_DASH",
+          "enableLog": true
+        },
+        "IntervalExtremes": {
+          "tradeDirection": "watch",
+          "mode": "bounce",
+          "tradeInterval": "halfDay",
+          "notifyPriceInterval": "3days",
+          "low": 30,
+          "high": 70,
+          "candleSize": 60,
+          "pair": "USD_DASH",
+          "tradeStrategy": "RSIScalpOrderer",
+          "enableLog": true
+        },
+        "VolumeSpikeDetector": {
+          "spikeFactor": 3,
+          "minVolBtc": 1.2,
+          "tradeDirection": "both",
+          "candleSize": 10,
+          "pair": "USD_DASH",
+          "enableLog": false
+        },
+        "PriceSpikeDetector": {
+          "spikePercent": 3.0,
+          "tradeDirection": "notify",
+          "candleSize": 5,
+          "pair": "USD_DASH",
+          "enableLog": false
+        },
+        "VolumeSpikeDetectorLong": {
+          "spikeFactor": 2.5,
+          "candleSize": 720,
+          "pair": "USD_DASH",
+          "enableLog": false
+        }
+      }
+    },
+    {
+      "exchanges": ["Bitfinex"],
+      "marginTrading": true,
+      "tradeTotalBtc": 0.0,
+      "notifyTrades": true,
+      "strategies": {
+        "PlanRunner": {
+          "orders": [
+            {
+              "action": "buy",
+              "comp": "<",
+              "position": "none",
+              "rate": 1.03,
+              "reason": "middle high",
+              "indicators": ["RSI"]
+            }
+          ],
+          "pair": "USD_IOTA",
+          "candleSize": 1,
+          "tradeStrategy": "RSIScalpOrderer",
+          "enableLog": true
+        },
+        "RSI": {
+          "pair": "USD_IOTA",
+          "candleSize": 15,
+          "interval": 5,
+          "low": 54,
+          "high": 55,
+          "enableLog": false
+        },
+        "DirectionFollower": {
+          "interval": 14,
+          "adxTrend": 20,
+          "adxMaxTrend": 32,
+          "initialStop": true,
+          "accelerationFactor": 0.06,
+          "accelerationMax": 0.2,
+          "tradeDirection": "watch",
+          "candleSize": 240,
+          "pair": "USD_IOTA",
+          "tradeStrategy": "RSIScalpOrderer",
+          "enableLog": true
+        },
+        "RSIScalper": {
+          "percentage": 50,
+          "low": 25,
+          "high": 75,
+          "candleSize": 10,
+          "pair": "USD_IOTA",
+          "enableLog": false
+        },
+        "RSIScalpOrderer": {
+          "low": 34,
+          "high": 70,
+          "expiry": 20,
+          "candleSize": 5,
+          "pair": "USD_IOTA",
+          "enableLog": true
+        },
+        "StopLossTurn": {
+          "order": "closeLong",
+          "setback": 5.2,
+          "setbackLong": 7.1,
+          "time": 7200,
+          "setbackProfit": 2.9,
+          "triggerProfit": 4.5,
+          "timeProfit": 120,
+          "notifyBeforeStopSec": 1800,
+          "reduceTimeByVolatility": false,
+          "low": 52,
+          "high": 56,
+          "candleSize": 5,
+          "pair": "USD_IOTA",
+          "enableLog": false
+        },
+        "TakeProfitStochRSI": {
+          "percentage": 50,
+          "low": 11,
+          "high": 87,
+          "interval": 25,
+          "closeRateFactor": 0.9992,
+          "candleSize": 60,
+          "orderStrategy": "TriggerOrder",
+          "pair": "USD_IOTA",
+          "enableLog": true
+        },
+        "TriggerOrder": {
+          "candleSize": 1,
+          "pair": "USD_IOTA",
+          "enableLog": true
+        },
+        "IntervalExtremes": {
+          "tradeDirection": "watch",
+          "mode": "bounce",
+          "tradeInterval": "halfDay",
+          "notifyPriceInterval": "3days",
+          "low": 30,
+          "high": 70,
+          "candleSize": 60,
+          "pair": "USD_IOTA",
+          "tradeStrategy": "RSIScalpOrderer",
+          "enableLog": true
+        },
+        "VolumeSpikeDetector": {
+          "spikeFactor": 3,
+          "minVolBtc": 1.2,
+          "tradeDirection": "both",
+          "candleSize": 10,
+          "pair": "USD_IOTA",
+          "enableLog": false
+        },
+        "PriceSpikeDetector": {
+          "spikePercent": 1.3,
+          "spikeHistoryPercent": 2.85,
+          "historyCandleCount": 3,
+          "tradeDirection": "notify",
+          "candleSize": 5,
+          "pair": "USD_IOTA",
+          "enableLog": false
+        },
+        "VolumeSpikeDetectorLong": {
+          "spikeFactor": 2.5,
+          "candleSize": 720,
+          "pair": "USD_IOTA",
+          "enableLog": false
+        }
+      }
+    },
+    {
+      "exchanges": ["Bitfinex"],
+      "marginTrading": true,
+      "tradeTotalBtc": 150.0,
+      "notifyTrades": true,
+      "strategies": {
+        "PlanRunner": {
+          "orders": [
+            {
+              "action": "buy",
+              "comp": "<",
+              "position": "none",
+              "rate": 210.9,
+              "reason": "middle high",
+              "indicators": ["RSI"]
+            },
+            {
+              "action": "sell",
+              "comp": ">",
+              "position": "none",
+              "rate": 369.9,
+              "reason": "middle high",
+              "indicators": [
+                "RSI"
+              ]
+            }
+          ],
+          "pair": "USD_ZEC",
+          "candleSize": 1,
+          "tradeStrategy": "RSIScalpOrderer",
+          "enableLog": true
+        },
+        "RSI": {
+          "pair": "USD_ZEC",
+          "candleSize": 15,
+          "interval":5,
+          "low": 54,
+          "high": 55,
+          "enableLog": false
+        },
+        "DirectionFollower": {
+          "interval": 14,
+          "adxTrend": 20,
+          "adxMaxTrend": 32,
+          "initialStop": true,
+          "accelerationFactor": 0.06,
+          "accelerationMax": 0.2,
+          "tradeDirection": "watch",
+          "candleSize": 240,
+          "pair": "USD_ZEC",
+          "tradeStrategy": "RSIScalpOrderer",
+          "enableLog": true
+        },
+        "RSIScalper": {
+          "percentage": 50,
+          "low": 25,
+          "high": 75,
+          "candleSize": 10,
+          "pair": "USD_ZEC",
+          "enableLog": false
+        },
+        "RSIScalpOrderer": {
+          "low": 34,
+          "high": 70,
+          "expiry": 20,
+          "candleSize": 5,
+          "pair": "USD_ZEC",
+          "enableLog": true
+        },
+        "StopLossTurn": {
+          "order": "closeLong",
+          "setback": 5.5,
+          "setbackLong": 6.5,
+          "time": 7200,
+          "setbackProfit": 2.9,
+          "triggerProfit": 4.5,
+          "timeProfit": 120,
+          "notifyBeforeStopSec": 1800,
+          "reduceTimeByVolatility": false,
+          "low": 52,
+          "high": 56,
+          "candleSize": 5,
+          "pair": "USD_ZEC",
+          "enableLog": false
+        },
+        "TakeProfitStochRSI": {
+          "percentage": 50,
+          "low": 11,
+          "high": 87,
+          "interval": 25,
+          "closeRateFactor": 0.9992,
+          "candleSize": 60,
+          "orderStrategy": "TriggerOrder",
+          "pair": "USD_ZEC",
+          "enableLog": true
+        },
+        "TriggerOrder": {
+          "candleSize": 1,
+          "pair": "USD_ZEC",
+          "enableLog": true
+        },
+        "IntervalExtremes": {
+          "tradeDirection": "watch",
+          "mode": "bounce",
+          "tradeInterval": "halfDay",
+          "notifyPriceInterval": "3days",
+          "low": 30,
+          "high": 70,
+          "candleSize": 60,
+          "pair": "USD_ZEC",
+          "tradeStrategy": "RSIScalpOrderer",
+          "enableLog": true
+        },
+        "VolumeSpikeDetector": {
+          "spikeFactor": 3,
+          "minVolBtc": 1.2,
+          "tradeDirection": "both",
+          "candleSize": 10,
+          "pair": "USD_ZEC",
+          "enableLog": false
+        },
+        "PriceSpikeDetector": {
+          "spikePercent": 3.0,
+          "tradeDirection": "notify",
+          "candleSize": 5,
+          "pair": "USD_ZEC",
+          "enableLog": false
+        },
+        "VolumeSpikeDetectorLong": {
+          "spikeFactor": 2.5,
+          "candleSize": 720,
+          "pair": "USD_ZEC",
+          "enableLog": false
+        }
+      }
+    },
+    {
+      "exchanges": ["Bitfinex"],
+      "marginTrading": true,
+      "tradeTotalBtc": 0.0,
+      "notifyTrades": true,
+      "strategies": {
+        "PlanRunner": {
+          "orders": [
+            {
+              "action": "buy",
+              "comp": "<",
+              "position": "none",
+              "rate": 990.9,
+              "reason": "middle high",
+              "indicators": ["RSI"]
+            }
+          ],
+          "pair": "USD_BCH",
+          "candleSize": 1,
+          "tradeStrategy": "RSIScalpOrderer",
+          "enableLog": true
+        },
+        "RSI": {
+          "pair": "USD_BCH",
+          "candleSize": 15,
+          "interval": 5,
+          "low": 54,
+          "high": 55,
+          "enableLog": false
+        },
+        "DirectionFollower": {
+          "interval": 14,
+          "adxTrend": 20,
+          "adxMaxTrend": 32,
+          "initialStop": true,
+          "accelerationFactor": 0.06,
+          "accelerationMax": 0.2,
+          "tradeDirection": "watch",
+          "candleSize": 240,
+          "pair": "USD_BCH",
+          "tradeStrategy": "RSIScalpOrderer",
+          "enableLog": true
+        },
+        "RSIScalper": {
+          "percentage": 50,
+          "low": 25,
+          "high": 75,
+          "candleSize": 10,
+          "pair": "USD_BCH",
+          "enableLog": false
+        },
+        "RSIScalpOrderer": {
+          "low": 34,
+          "high": 70,
+          "expiry": 20,
+          "candleSize": 5,
+          "pair": "USD_BCH",
+          "enableLog": true
+        },
+        "StopLossTurn": {
+          "order": "closeLong",
+          "setback": 5.5,
+          "setbackLong": 7.1,
+          "time": 7200,
+          "setbackProfit": 2.9,
+          "triggerProfit": 4.5,
+          "timeProfit": 120,
+          "notifyBeforeStopSec": 1800,
+          "reduceTimeByVolatility": false,
+          "low": 52,
+          "high": 56,
+          "candleSize": 5,
+          "pair": "USD_BCH",
+          "enableLog": false
+        },
+        "TakeProfitStochRSI": {
+          "percentage": 50,
+          "low": 11,
+          "high": 87,
+          "interval": 25,
+          "closeRateFactor": 0.9992,
+          "candleSize": 60,
+          "orderStrategy": "TriggerOrder",
+          "pair": "USD_BCH",
+          "enableLog": true
+        },
+        "TriggerOrder": {
+          "candleSize": 1,
+          "pair": "USD_BCH",
+          "enableLog": true
+        },
+        "IntervalExtremes": {
+          "tradeDirection": "watch",
+          "mode": "bounce",
+          "tradeInterval": "halfDay",
+          "notifyPriceInterval": "3days",
+          "low": 30,
+          "high": 70,
+          "candleSize": 60,
+          "pair": "USD_BCH",
+          "tradeStrategy": "RSIScalpOrderer",
+          "enableLog": true
+        },
+        "VolumeSpikeDetector": {
+          "spikeFactor": 3,
+          "minVolBtc": 1.2,
+          "tradeDirection": "both",
+          "candleSize": 10,
+          "pair": "USD_BCH",
+          "enableLog": false
+        },
+        "PriceSpikeDetector": {
+          "spikePercent": 1.15,
+          "spikeHistoryPercent": 2.2,
+          "historyCandleCount": 2,
+          "tradeDirection": "notify",
+          "candleSize": 5,
+          "pair": "USD_BCH",
+          "enableLog": false
+        },
+        "VolumeSpikeDetectorLong": {
+          "spikeFactor": 2.5,
+          "candleSize": 720,
+          "pair": "USD_BCH",
+          "enableLog": false
+        }
+      }
+    },
+    {
+      "exchanges": ["Bitfinex"],
+      "marginTrading": true,
+      "tradeTotalBtc": 120.0,
+      "notifyTrades": true,
+      "strategies": {
+        "PlanRunner": {
+          "orders": [
+            {
+              "action": "buy",
+              "comp": "<",
+              "position": "none",
+              "rate": 11.4,
+              "reason": "middle high",
+              "indicators": ["RSI"]
+            },
+            {
+              "action": "sell",
+              "comp": ">",
+              "position": "none",
+              "rate": 19.9,
+              "reason": "middle high",
+              "indicators": ["RSI"]
+            }
+          ],
+          "pair": "USD_OMG",
+          "candleSize": 1,
+          "tradeStrategy": "RSIScalpOrderer",
+          "enableLog": true
+        },
+        "RSI": {
+          "pair": "USD_OMG",
+          "candleSize": 15,
+          "interval": 5,
+          "low": 54,
+          "high": 55,
+          "enableLog": false
+        },
+        "DirectionFollower": {
+          "interval": 14,
+          "adxTrend": 20,
+          "adxMaxTrend": 32,
+          "initialStop": true,
+          "accelerationFactor": 0.06,
+          "accelerationMax": 0.2,
+          "tradeDirection": "watch",
+          "candleSize": 240,
+          "pair": "USD_OMG",
+          "tradeStrategy": "RSIScalpOrderer",
+          "enableLog": true
+        },
+        "RSIScalper": {
+          "percentage": 50,
+          "low": 25,
+          "high": 75,
+          "candleSize": 10,
+          "pair": "USD_OMG",
+          "enableLog": false
+        },
+        "RSIScalpOrderer": {
+          "low": 34,
+          "high": 70,
+          "expiry": 20,
+          "candleSize": 5,
+          "pair": "USD_OMG",
+          "enableLog": true
+        },
+        "StopLossTurn": {
+          "order": "closeLong",
+          "setback": 5.2,
+          "setbackLong": 7.1,
+          "time": 7200,
+          "setbackProfit": 2.9,
+          "triggerProfit": 4.5,
+          "timeProfit": 120,
+          "notifyBeforeStopSec": 1800,
+          "reduceTimeByVolatility": false,
+          "low": 52,
+          "high": 56,
+          "candleSize": 5,
+          "pair": "USD_OMG",
+          "enableLog": false
+        },
+        "TakeProfitStochRSI": {
+          "percentage": 50,
+          "low": 11,
+          "high": 87,
+          "interval": 25,
+          "closeRateFactor": 0.9992,
+          "candleSize": 60,
+          "orderStrategy": "TriggerOrder",
+          "pair": "USD_OMG",
+          "enableLog": true
+        },
+        "TriggerOrder": {
+          "candleSize": 1,
+          "pair": "USD_OMG",
+          "enableLog": true
+        },
+        "IntervalExtremes": {
+          "tradeDirection": "watch",
+          "mode": "bounce",
+          "tradeInterval": "halfDay",
+          "notifyPriceInterval": "3days",
+          "low": 30,
+          "high": 70,
+          "candleSize": 60,
+          "pair": "USD_OMG",
+          "tradeStrategy": "RSIScalpOrderer",
+          "enableLog": true
+        },
+        "VolumeSpikeDetector": {
+          "spikeFactor": 3,
+          "minVolBtc": 1.2,
+          "tradeDirection": "both",
+          "candleSize": 10,
+          "pair": "USD_OMG",
+          "enableLog": false
+        },
+        "PriceSpikeDetector": {
+          "spikePercent": 3.0,
+          "tradeDirection": "notify",
+          "candleSize": 5,
+          "pair": "USD_OMG",
+          "enableLog": false
+        },
+        "VolumeSpikeDetectorLong": {
+          "spikeFactor": 2.5,
+          "candleSize": 720,
+          "pair": "USD_OMG",
+          "enableLog": false
+        }
+      }
+    },
+    {
+      "exchanges": ["Bitfinex"],
+      "marginTrading": true,
+      "tradeTotalBtc": 150.0,
+      "notifyTrades": true,
+      "strategies": {
+        "PlanRunner": {
+          "orders": [
+            {
+              "action": "buy",
+              "comp": "<",
+              "position": "none",
+              "rate": 53.99,
+              "reason": "middle high",
+              "indicators": ["RSI"]
+            },
+            {
+              "action": "sell",
+              "comp": ">",
+              "position": "none",
+              "rate": 99.4,
+              "reason": "middle high",
+              "indicators": ["RSI"]
+            }
+          ],
+          "pair": "USD_NEO",
+          "candleSize": 1,
+          "tradeStrategy": "RSIScalpOrderer",
+          "enableLog": true
+        },
+        "RSI": {
+          "pair": "USD_NEO",
+          "candleSize": 15,
+          "interval": 5,
+          "low": 54,
+          "high": 55,
+          "enableLog": false
+        },
+        "DirectionFollower": {
+          "interval": 14,
+          "adxTrend": 20,
+          "adxMaxTrend": 32,
+          "initialStop": true,
+          "accelerationFactor": 0.06,
+          "accelerationMax": 0.2,
+          "tradeDirection": "watch",
+          "candleSize": 240,
+          "pair": "USD_NEO",
+          "tradeStrategy": "RSIScalpOrderer",
+          "enableLog": true
+        },
+        "RSIScalper": {
+          "percentage": 50,
+          "low": 25,
+          "high": 75,
+          "candleSize": 10,
+          "pair": "USD_NEO",
+          "enableLog": false
+        },
+        "RSIScalpOrderer": {
+          "low": 34,
+          "high": 70,
+          "expiry": 20,
+          "candleSize": 5,
+          "pair": "USD_NEO",
+          "enableLog": true
+        },
+        "StopLossTurn": {
+          "order": "closeLong",
+          "setback": 5.2,
+          "setbackLong": 7.2,
+          "time": 7200,
+          "setbackProfit": 2.9,
+          "triggerProfit": 4.5,
+          "timeProfit": 120,
+          "notifyBeforeStopSec": 1800,
+          "reduceTimeByVolatility": false,
+          "low": 52,
+          "high": 56,
+          "candleSize": 5,
+          "pair": "USD_NEO",
+          "enableLog": false
+        },
+        "TakeProfitStochRSI": {
+          "percentage": 50,
+          "low": 11,
+          "high": 87,
+          "interval": 25,
+          "closeRateFactor": 0.9992,
+          "candleSize": 60,
+          "orderStrategy": "TriggerOrder",
+          "pair": "USD_NEO",
+          "enableLog": true
+        },
+        "TriggerOrder": {
+          "candleSize": 1,
+          "pair": "USD_NEO",
+          "enableLog": true
+        },
+        "IntervalExtremes": {
+          "tradeDirection": "watch",
+          "mode": "bounce",
+          "tradeInterval": "halfDay",
+          "notifyPriceInterval": "3days",
+          "low": 30,
+          "high": 70,
+          "candleSize": 60,
+          "pair": "USD_NEO",
+          "tradeStrategy": "RSIScalpOrderer",
+          "enableLog": true
+        },
+        "VolumeSpikeDetector": {
+          "spikeFactor": 3,
+          "minVolBtc": 1.2,
+          "tradeDirection": "both",
+          "candleSize": 10,
+          "pair": "USD_NEO",
+          "enableLog": false
+        },
+        "PriceSpikeDetector": {
+          "spikePercent": 1.0,
+          "spikeHistoryPercent": 1.95,
+          "historyCandleCount": 3,
+          "tradeDirection": "notify",
+          "candleSize": 5,
+          "pair": "USD_NEO",
+          "enableLog": false
+        },
+        "VolumeSpikeDetectorLong": {
+          "spikeFactor": 2.5,
+          "candleSize": 720,
+          "pair": "USD_NEO",
+          "enableLog": false
+        }
+      }
+    },
+    {
+      "exchanges": ["Bitfinex"],
+      "marginTrading": true,
+      "tradeTotalBtc": 150.0,
+      "notifyTrades": true,
+      "strategies": {
+        "PlanRunner": {
+          "orders": [
+            {
+              "action": "buy",
+              "comp": "<",
+              "position": "none",
+              "rate": 12.9,
+              "reason": "middle high",
+              "indicators": ["RSI"]
+            },
+            {
+              "action": "sell",
+              "comp": ">",
+              "position": "none",
+              "rate": 19.8,
+              "reason": "middle high",
+              "indicators": ["RSI"]
+            }
+          ],
+          "pair": "USD_EOS",
+          "candleSize": 1,
+          "tradeStrategy": "RSIScalpOrderer",
+          "enableLog": true
+        },
+        "RSI": {
+          "pair": "USD_EOS",
+          "candleSize": 15,
+          "interval": 5,
+          "low": 54,
+          "high": 55,
+          "enableLog": false
+        },
+        "DirectionFollower": {
+          "interval": 14,
+          "adxTrend": 20,
+          "adxMaxTrend": 32,
+          "initialStop": true,
+          "accelerationFactor": 0.06,
+          "accelerationMax": 0.2,
+          "tradeDirection": "watch",
+          "candleSize": 240,
+          "pair": "USD_EOS",
+          "tradeStrategy": "RSIScalpOrderer",
+          "enableLog": true
+        },
+        "RSIScalper": {
+          "percentage": 50,
+          "low": 25,
+          "high": 75,
+          "candleSize": 10,
+          "pair": "USD_EOS",
+          "enableLog": false
+        },
+        "RSIScalpOrderer": {
+          "low": 34,
+          "high": 70,
+          "expiry": 20,
+          "candleSize": 5,
+          "pair": "USD_EOS",
+          "enableLog": true
+        },
+        "StopLossTurn": {
+          "order": "closeLong",
+          "setback": 5.2,
+          "setbackLong": 6.5,
+          "time": 7200,
+          "setbackProfit": 2.9,
+          "triggerProfit": 4.5,
+          "timeProfit": 120,
+          "notifyBeforeStopSec": 1800,
+          "reduceTimeByVolatility": false,
+          "low": 52,
+          "high": 56,
+          "candleSize": 5,
+          "pair": "USD_EOS",
+          "enableLog": false
+        },
+        "TakeProfitStochRSI": {
+          "percentage": 50,
+          "low": 11,
+          "high": 87,
+          "interval": 25,
+          "closeRateFactor": 0.9992,
+          "candleSize": 60,
+          "orderStrategy": "TriggerOrder",
+          "pair": "USD_EOS",
+          "enableLog": true
+        },
+        "TriggerOrder": {
+          "candleSize": 1,
+          "pair": "USD_EOS",
+          "enableLog": true
+        },
+        "IntervalExtremes": {
+          "tradeDirection": "watch",
+          "mode": "bounce",
+          "tradeInterval": "halfDay",
+          "notifyPriceInterval": "3days",
+          "low": 30,
+          "high": 70,
+          "candleSize": 60,
+          "pair": "USD_EOS",
+          "tradeStrategy": "RSIScalpOrderer",
+          "enableLog": true
+        },
+        "VolumeSpikeDetector": {
+          "spikeFactor": 3,
+          "minVolBtc": 1.2,
+          "tradeDirection": "notify",
+          "candleSize": 10,
+          "pair": "USD_EOS",
+          "enableLog": false
+        },
+        "PriceSpikeDetector": {
+          "spikePercent": 0.55,
+          "spikeHistoryPercent": 1.05,
+          "historyCandleCount": 3,
+          "tradeDirection": "notify",
+          "candleSize": 5,
+          "pair": "USD_EOS",
+          "enableLog": false
+        },
+        "VolumeSpikeDetectorLong": {
+          "spikeFactor": 2.5,
+          "candleSize": 720,
+          "pair": "USD_EOS",
+          "enableLog": false
+        }
+      }
+    },
+    {
+      "exchanges": ["Bitfinex"],
+      "marginTrading": true,
+      "tradeTotalBtc": 140.0,
+      "notifyTrades": true,
+      "strategies": {
+        "PlanRunner": {
+          "orders": [
+            {
+              "action": "buy",
+              "comp": "<",
+              "position": "none",
+              "rate": 0.655,
+              "reason": "middle high",
+              "indicators": ["RSI"]
+            },
+            {
+              "action": "sell",
+              "comp": ">",
+              "position": "none",
+              "rate": 0.92,
+              "reason": "middle high",
+              "indicators": ["RSI"]
+            }
+          ],
+          "pair": "USD_XRP",
+          "candleSize": 1,
+          "tradeStrategy": "RSIScalpOrderer",
+          "enableLog": true
+        },
+        "RSI": {
+          "pair": "USD_XRP",
+          "candleSize": 15,
+          "interval": 5,
+          "low": 54,
+          "high": 55,
+          "enableLog": false
+        },
+        "DirectionFollower": {
+          "interval": 14,
+          "adxTrend": 20,
+          "adxMaxTrend": 32,
+          "initialStop": true,
+          "accelerationFactor": 0.06,
+          "accelerationMax": 0.2,
+          "tradeDirection": "watch",
+          "candleSize": 240,
+          "pair": "USD_XRP",
+          "tradeStrategy": "RSIScalpOrderer",
+          "enableLog": true
+        },
+        "RSIScalper": {
+          "percentage": 50,
+          "low": 25,
+          "high": 75,
+          "candleSize": 10,
+          "pair": "USD_XRP",
+          "enableLog": false
+        },
+        "RSIScalpOrderer": {
+          "low": 34,
+          "high": 70,
+          "expiry": 20,
+          "candleSize": 5,
+          "pair": "USD_XRP",
+          "enableLog": true
+        },
+        "StopLossTurn": {
+          "order": "closeLong",
+          "setback": 5.2,
+          "setbackLong": 7.2,
+          "time": 7200,
+          "setbackProfit": 2.9,
+          "triggerProfit": 4.5,
+          "timeProfit": 120,
+          "notifyBeforeStopSec": 1800,
+          "reduceTimeByVolatility": false,
+          "low": 52,
+          "high": 56,
+          "candleSize": 5,
+          "pair": "USD_XRP",
+          "enableLog": false
+        },
+        "TakeProfitStochRSI": {
+          "percentage": 50,
+          "low": 11,
+          "high": 87,
+          "interval": 25,
+          "closeRateFactor": 0.9992,
+          "candleSize": 60,
+          "orderStrategy": "TriggerOrder",
+          "pair": "USD_XRP",
+          "enableLog": true
+        },
+        "TriggerOrder": {
+          "candleSize": 1,
+          "pair": "USD_XRP",
+          "enableLog": true
+        },
+        "IntervalExtremes": {
+          "tradeDirection": "watch",
+          "mode": "bounce",
+          "tradeInterval": "halfDay",
+          "notifyPriceInterval": "3days",
+          "low": 30,
+          "high": 70,
+          "candleSize": 60,
+          "pair": "USD_XRP",
+          "tradeStrategy": "RSIScalpOrderer",
+          "enableLog": true
+        },
+        "VolumeSpikeDetector": {
+          "spikeFactor": 3,
+          "minVolBtc": 1.2,
+          "tradeDirection": "both",
+          "candleSize": 10,
+          "pair": "USD_XRP",
+          "enableLog": false
+        },
+        "PriceSpikeDetector": {
+          "spikePercent": 1.4,
+          "spikeHistoryPercent": 7.0,
+          "historyCandleCount": 3,
+          "tradeDirection": "notify",
+          "candleSize": 5,
+          "pair": "USD_XRP",
+          "enableLog": false
+        },
+        "VolumeSpikeDetectorLong": {
+          "spikeFactor": 2.5,
+          "candleSize": 720,
+          "pair": "USD_XRP",
+          "enableLog": false
+        }
+      }
+    }
+  ]
+}

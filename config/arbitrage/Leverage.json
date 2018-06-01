@@ -1,0 +1,33 @@
+{
+  "data": [
+    {
+      "exchanges": ["Bitfinex", "OKEX"],
+      "marginTrading": true,
+      "tradeTotalBtc": 100.0,
+      "notifyTrades": true,
+      "longShortRatio": 1.0,
+      "maxTradeBalancePercentage": 99.0,
+      "strategies": {
+        "Spread": {
+          "spreadEntry": 0.8,
+          "spreadTarget": 0.5,
+          "trailingSpreadStop": 0.08,
+          "tradingFees": {
+            "Bitfinex": {
+              "maker": 0.1,
+              "taker": 0.2
+            },
+            "OKEX": {
+              "maker": 0.03,
+              "taker": 0.05
+            }
+          },
+          "candleSize": 1,
+          "pair": "USD_BTC",
+          "tradeStrategy": "",
+          "enableLog": true
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,368 @@
+{
+  "data": [
+    {
+      "exchanges": ["Bitfinex"],
+      "marginTrading": true,
+      "tradeTotalBtc": 0.0,
+      "warmUpMin": 0,
+      "strategies": {
+        "WaveOpener": {
+          "pair": "BTC_ETH",
+          "candleSize": 60,
+          "enableLog": true
+        },
+        "WaveStopper": {
+          "minSurfCandles": 1,
+          "pair": "BTC_ETH",
+          "candleSize": 600,
+          "enableLog": true
+        },
+        "EarlyStopLoss": {
+          "order": "closeLong",
+          "low": 10,
+          "high": 90,
+          "candleSize": 5,
+          "pair": "BTC_ETH",
+          "enableLog": false
+        },
+        "StopLossTurn": {
+          "order": "closeLong",
+          "setback": 3.0,
+          "time": 3600,
+          "candleSize": 6,
+          "pair": "BTC_ETH",
+          "enableLog": false
+        },
+        "TakeProfit": {
+          "order": "closeLong",
+          "profit": 2,
+          "time": 10670,
+          "candleSize": 36,
+          "pair": "BTC_ETH",
+          "enableLog": false
+        },
+        "TakeProfitPartial": {
+          "order": "closeLong",
+          "profit": 8,
+          "percentage": 40,
+          "time": 300,
+          "candleSize": 6,
+          "pair": "BTC_ETH",
+          "enableLog": false
+        }
+      }
+    },
+    {
+      "exchanges": ["Bitfinex"],
+      "marginTrading": true,
+      "tradeTotalBtc": 110.0,
+      "warmUpMin": 0,
+      "strategies": {
+        "WaveOpener": {
+          "pair": "USD_ETH",
+          "candleSize": 60,
+          "enableLog": true
+        },
+        "WaveStopper": {
+          "minSurfCandles": 1,
+          "pair": "USD_ETH",
+          "candleSize": 600,
+          "enableLog": true
+        },
+        "EarlyStopLoss": {
+          "order": "closeLong",
+          "low": 10,
+          "high": 90,
+          "candleSize": 5,
+          "pair": "USD_ETH",
+          "enableLog": false
+        },
+        "StopLossTurn": {
+          "order": "closeLong",
+          "setback": 3.0,
+          "time": 3600,
+          "candleSize": 6,
+          "pair": "USD_ETH",
+          "enableLog": false
+        },
+        "TakeProfit": {
+          "order": "closeLong",
+          "profit": 2,
+          "time": 10670,
+          "candleSize": 36,
+          "pair": "USD_ETH",
+          "enableLog": false
+        },
+        "TakeProfitPartial": {
+          "order": "closeLong",
+          "profit": 8,
+          "percentage": 40,
+          "time": 300,
+          "candleSize": 6,
+          "pair": "USD_ETH",
+          "enableLog": false
+        }
+      }
+    },
+    {
+      "exchanges": ["Bitfinex"],
+      "marginTrading": true,
+      "tradeTotalBtc": 600.0,
+      "warmUpMin": 0,
+      "strategies": {
+        "WaveOpener": {
+          "pair": "USD_BTC",
+          "candleSize": 60,
+          "enableLog": true
+        },
+        "WaveStopper": {
+          "minSurfCandles": 1,
+          "pair": "USD_BTC",
+          "candleSize": 600,
+          "enableLog": true
+        },
+        "EarlyStopLoss": {
+          "order": "closeLong",
+          "low": 10,
+          "high": 90,
+          "candleSize": 5,
+          "pair": "USD_BTC",
+          "enableLog": false
+        },
+        "StopLossTurn": {
+          "order": "closeLong",
+          "setback": 3.0,
+          "time": 3600,
+          "candleSize": 6,
+          "pair": "USD_BTC",
+          "enableLog": false
+        },
+        "TakeProfit": {
+          "order": "closeLong",
+          "profit": 2,
+          "time": 10670,
+          "candleSize": 36,
+          "pair": "USD_BTC",
+          "enableLog": false
+        },
+        "TakeProfitPartial": {
+          "order": "closeLong",
+          "profit": 8,
+          "percentage": 40,
+          "time": 300,
+          "candleSize": 6,
+          "pair": "USD_BTC",
+          "enableLog": false
+        }
+      }
+    },
+    {
+      "exchanges": ["Bitfinex"],
+      "marginTrading": true,
+      "tradeTotalBtc": 0.0,
+      "warmUpMin": 0,
+      "strategies": {
+        "WaveOpener": {
+          "pair": "BTC_LTC",
+          "candleSize": 60,
+          "enableLog": true
+        },
+        "WaveStopper": {
+          "minSurfCandles": 1,
+          "pair": "BTC_LTC",
+          "candleSize": 600,
+          "enableLog": true
+        },
+        "EarlyStopLoss": {
+          "order": "closeLong",
+          "low": 10,
+          "high": 90,
+          "candleSize": 5,
+          "pair": "BTC_LTC",
+          "enableLog": false
+        },
+        "StopLossTurn": {
+          "order": "closeLong",
+          "setback": 3.0,
+          "time": 3600,
+          "candleSize": 6,
+          "pair": "BTC_LTC",
+          "enableLog": false
+        },
+        "TakeProfit": {
+          "order": "closeLong",
+          "profit": 2,
+          "time": 10670,
+          "candleSize": 36,
+          "pair": "BTC_LTC",
+          "enableLog": false
+        },
+        "TakeProfitPartial": {
+          "order": "closeLong",
+          "profit": 8,
+          "percentage": 40,
+          "time": 300,
+          "candleSize": 6,
+          "pair": "BTC_LTC",
+          "enableLog": false
+        }
+      }
+    },
+    {
+      "exchanges": ["Bitfinex"],
+      "marginTrading": true,
+      "tradeTotalBtc": 650.0,
+      "warmUpMin": 0,
+      "strategies": {
+        "WaveOpener": {
+          "pair": "USD_LTC",
+          "candleSize": 60,
+          "enableLog": true
+        },
+        "WaveStopper": {
+          "minSurfCandles": 1,
+          "pair": "USD_LTC",
+          "candleSize": 600,
+          "enableLog": true
+        },
+        "EarlyStopLoss": {
+          "order": "closeLong",
+          "low": 10,
+          "high": 90,
+          "candleSize": 5,
+          "pair": "USD_LTC",
+          "enableLog": false
+        },
+        "StopLossTurn": {
+          "order": "closeLong",
+          "setback": 3.0,
+          "time": 3600,
+          "candleSize": 6,
+          "pair": "USD_LTC",
+          "enableLog": false
+        },
+        "TakeProfit": {
+          "order": "closeLong",
+          "profit": 2,
+          "time": 10670,
+          "candleSize": 36,
+          "pair": "USD_LTC",
+          "enableLog": false
+        },
+        "TakeProfitPartial": {
+          "order": "closeLong",
+          "profit": 8,
+          "percentage": 40,
+          "time": 300,
+          "candleSize": 6,
+          "pair": "USD_LTC",
+          "enableLog": false
+        }
+      }
+    },
+    {
+      "exchanges": ["Bitfinex"],
+      "marginTrading": true,
+      "tradeTotalBtc": 0.0,
+      "warmUpMin": 0,
+      "strategies": {
+        "WaveOpener": {
+          "pair": "BTC_BCH",
+          "candleSize": 60,
+          "enableLog": true
+        },
+        "WaveStopper": {
+          "minSurfCandles": 1,
+          "pair": "BTC_BCH",
+          "candleSize": 600,
+          "enableLog": true
+        },
+        "EarlyStopLoss": {
+          "order": "closeLong",
+          "low": 10,
+          "high": 90,
+          "candleSize": 5,
+          "pair": "BTC_BCH",
+          "enableLog": false
+        },
+        "StopLossTurn": {
+          "order": "closeLong",
+          "setback": 3.0,
+          "time": 3600,
+          "candleSize": 6,
+          "pair": "BTC_BCH",
+          "enableLog": false
+        },
+        "TakeProfit": {
+          "order": "closeLong",
+          "profit": 2,
+          "time": 10670,
+          "candleSize": 36,
+          "pair": "BTC_BCH",
+          "enableLog": false
+        },
+        "TakeProfitPartial": {
+          "order": "closeLong",
+          "profit": 8,
+          "percentage": 40,
+          "time": 300,
+          "candleSize": 6,
+          "pair": "BTC_BCH",
+          "enableLog": false
+        }
+      }
+    },
+    {
+      "exchanges": ["Bitfinex"],
+      "marginTrading": true,
+      "tradeTotalBtc": 20.0,
+      "warmUpMin": 0,
+      "strategies": {
+        "WaveOpener": {
+          "pair": "USD_BCH",
+          "candleSize": 60,
+          "enableLog": true
+        },
+        "WaveStopper": {
+          "minSurfCandles": 1,
+          "pair": "USD_BCH",
+          "candleSize": 600,
+          "enableLog": true
+        },
+        "EarlyStopLoss": {
+          "order": "closeLong",
+          "low": 10,
+          "high": 90,
+          "candleSize": 5,
+          "pair": "USD_BCH",
+          "enableLog": false
+        },
+        "StopLossTurn": {
+          "order": "closeLong",
+          "setback": 3.0,
+          "time": 3600,
+          "candleSize": 6,
+          "pair": "USD_BCH",
+          "enableLog": false
+        },
+        "TakeProfit": {
+          "order": "closeLong",
+          "profit": 2,
+          "time": 10670,
+          "candleSize": 36,
+          "pair": "USD_BCH",
+          "enableLog": false
+        },
+        "TakeProfitPartial": {
+          "order": "closeLong",
+          "profit": 8,
+          "percentage": 40,
+          "time": 300,
+          "candleSize": 6,
+          "pair": "USD_BCH",
+          "enableLog": false
+        }
+      }
+    }
+  ]
+}

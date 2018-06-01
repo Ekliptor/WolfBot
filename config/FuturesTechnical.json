@@ -1,0 +1,124 @@
+{
+  "data": [
+    {
+      "exchanges": ["OKEX"],
+      "marginTrading": true,
+      "tradeTotalBtc": 0.08,
+      "warmUpMin": 0,
+      "strategies": {
+        "MACDLeverage": {
+          "takeProfitTicks": 3,
+          "closeSidewaysMarkets": true,
+          "short": 16,
+          "long": 30,
+          "signal": 9,
+          "interval": 48,
+          "trendCandleThreshold": 50,
+          "pair": "USD_BTC",
+          "candleSize": 60,
+          "tradeStrategy": "RSIOrderer",
+          "enableLog": true
+        },
+        "RSIOrderer": {
+          "low": 35,
+          "high": 65,
+          "immediateLow": 34,
+          "immediateHigh": 66,
+          "waitBounceBack": false,
+          "expiry": 10,
+          "candleSize": 5,
+          "pair": "USD_BTC",
+          "enableLog": true
+        },
+        "EarlyStopLoss": {
+          "order": "closeLong",
+          "low": 21,
+          "high": 79,
+          "profitLow": 35,
+          "profitHigh": 70,
+          "spikeClose": 1.1,
+          "candleSize": 3,
+          "pair": "USD_BTC",
+          "enableLog": false
+        },
+        "StopLossTurn": {
+          "order": "closeLong",
+          "setback": 5.0,
+          "time": 120,
+          "candleSize": 5,
+          "pair": "USD_BTC",
+          "enableLog": false
+        },
+        "TakeProfitPartial": {
+          "order": "closeLong",
+          "profit": 1.3,
+          "percentage": 41,
+          "time": 600,
+          "candleSize": 5,
+          "pair": "USD_BTC",
+          "enableLog": false
+        }
+      }
+    },
+    {
+      "exchanges": ["OKEX"],
+      "marginTrading": true,
+      "tradeTotalBtc": 3.6,
+      "warmUpMin": 0,
+      "strategies": {
+        "MACDLeverage": {
+          "takeProfitTicks": 3,
+          "closeSidewaysMarkets": true,
+          "short": 16,
+          "long": 30,
+          "signal": 9,
+          "interval": 48,
+          "trendCandleThreshold": 50,
+          "pair": "USD_LTC",
+          "candleSize": 60,
+          "tradeStrategy": "RSIOrderer",
+          "enableLog": true
+        },
+        "RSIOrderer": {
+          "low": 35,
+          "high": 65,
+          "immediateLow": 34,
+          "immediateHigh": 66,
+          "waitBounceBack": false,
+          "expiry": 10,
+          "candleSize": 5,
+          "pair": "USD_LTC",
+          "enableLog": true
+        },
+        "EarlyStopLoss": {
+          "order": "closeLong",
+          "low": 21,
+          "high": 79,
+          "profitLow": 35,
+          "profitHigh": 70,
+          "spikeClose": 1.1,
+          "candleSize": 3,
+          "pair": "USD_LTC",
+          "enableLog": false
+        },
+        "StopLossTurn": {
+          "order": "closeLong",
+          "setback": 5.5,
+          "time": 120,
+          "candleSize": 5,
+          "pair": "USD_LTC",
+          "enableLog": false
+        },
+        "TakeProfitPartial": {
+          "order": "closeLong",
+          "profit": 2.1,
+          "percentage": 40,
+          "time": 600,
+          "candleSize": 5,
+          "pair": "USD_LTC",
+          "enableLog": false
+        }
+      }
+    }
+  ]
+}

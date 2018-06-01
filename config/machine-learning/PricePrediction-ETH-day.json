@@ -1,0 +1,11 @@
+{
+  "data": [
+    {
+      "exchanges": "default",
+      "pricePoints": 11,
+      "candleSize": 1440,
+      "markets": ["BTC_ETH", "USDT_BTC", "USDT_ETH"],
+      "indicators": []
+    }
+  ]
+}

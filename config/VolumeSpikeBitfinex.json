@@ -1,0 +1,374 @@
+{
+  "data": [
+    {
+      "exchanges": ["Bitfinex"],
+      "marginTrading": true,
+      "tradeTotalBtc": 0.1,
+      "warmUpMin": 0,
+      "strategies": {
+        "VolumeSpikeDetector": {
+          "spikeFactor": 3,
+          "minVolBtc": 1.2,
+          "candleSize": 5,
+          "pair": "USD_ZEC",
+          "enableLog": true
+        },
+        "PriceSpikeDetector": {
+          "spikePercent": 4.0,
+          "candleSize": 5,
+          "pair": "USD_ZEC",
+          "enableLog": true
+        },
+        "RSI": {
+          "pair": "USD_ZEC",
+          "candleSize": 5,
+          "enableLog": true,
+          "interval": 14,
+          "low": 20,
+          "high": 80
+        },
+        "MFI": {
+          "pair": "USD_ZEC",
+          "candleSize": 5,
+          "enableLog": true,
+          "interval": 14,
+          "low": 5,
+          "high": 95
+        }
+      }
+    },
+    {
+      "exchanges": ["Bitfinex"],
+      "marginTrading": true,
+      "tradeTotalBtc": 0.1,
+      "warmUpMin": 0,
+      "strategies": {
+        "VolumeSpikeDetector": {
+          "spikeFactor": 3,
+          "minVolBtc": 1.2,
+          "candleSize": 5,
+          "pair": "USD_XMR",
+          "enableLog": true
+        },
+        "PriceSpikeDetector": {
+          "spikePercent": 4.0,
+          "candleSize": 5,
+          "pair": "USD_XMR",
+          "enableLog": true
+        },
+        "RSI": {
+          "pair": "USD_XMR",
+          "candleSize": 5,
+          "enableLog": true,
+          "interval": 14,
+          "low": 20,
+          "high": 80
+        },
+        "MFI": {
+          "pair": "USD_XMR",
+          "candleSize": 5,
+          "enableLog": true,
+          "interval": 14,
+          "low": 5,
+          "high": 95
+        }
+      }
+    },
+    {
+      "exchanges": ["Bitfinex"],
+      "marginTrading": true,
+      "tradeTotalBtc": 0.1,
+      "warmUpMin": 0,
+      "strategies": {
+        "VolumeSpikeDetector": {
+          "spikeFactor": 3,
+          "minVolBtc": 1.2,
+          "candleSize": 5,
+          "pair": "USD_DASH",
+          "enableLog": true
+        },
+        "PriceSpikeDetector": {
+          "spikePercent": 4.0,
+          "candleSize": 5,
+          "pair": "USD_DASH",
+          "enableLog": true
+        },
+        "RSI": {
+          "pair": "USD_DASH",
+          "candleSize": 5,
+          "enableLog": true,
+          "interval": 14,
+          "low": 20,
+          "high": 80
+        },
+        "MFI": {
+          "pair": "USD_DASH",
+          "candleSize": 5,
+          "enableLog": true,
+          "interval": 14,
+          "low": 5,
+          "high": 95
+        }
+      }
+    },
+    {
+      "exchanges": ["Bitfinex"],
+      "marginTrading": false,
+      "tradeTotalBtc": 0.1,
+      "warmUpMin": 0,
+      "strategies": {
+        "VolumeSpikeDetector": {
+          "spikeFactor": 3,
+          "minVolBtc": 1.2,
+          "candleSize": 5,
+          "pair": "USD_XRP",
+          "enableLog": true
+        },
+        "PriceSpikeDetector": {
+          "spikePercent": 4.0,
+          "candleSize": 5,
+          "pair": "USD_XRP",
+          "enableLog": true
+        },
+        "RSI": {
+          "pair": "USD_XRP",
+          "candleSize": 5,
+          "enableLog": true,
+          "interval": 14,
+          "low": 10,
+          "high": 90
+        },
+        "MFI": {
+          "pair": "USD_XRP",
+          "candleSize": 5,
+          "enableLog": true,
+          "interval": 14,
+          "low": 5,
+          "high": 95
+        }
+      }
+    },
+    {
+      "exchanges": ["Bitfinex"],
+      "marginTrading": true,
+      "tradeTotalBtc": 0.1,
+      "warmUpMin": 0,
+      "strategies": {
+        "VolumeSpikeDetector": {
+          "spikeFactor": 3,
+          "minVolBtc": 1.2,
+          "candleSize": 5,
+          "pair": "USD_IOTA",
+          "enableLog": true
+        },
+        "PriceSpikeDetector": {
+          "spikePercent": 4.0,
+          "candleSize": 5,
+          "pair": "USD_IOTA",
+          "enableLog": true
+        },
+        "RSI": {
+          "pair": "USD_IOTA",
+          "candleSize": 5,
+          "enableLog": true,
+          "interval": 14,
+          "low": 20,
+          "high": 80
+        },
+        "MFI": {
+          "pair": "USD_IOTA",
+          "candleSize": 5,
+          "enableLog": true,
+          "interval": 14,
+          "low": 5,
+          "high": 95
+        }
+      }
+    },
+    {
+      "exchanges": ["Bitfinex"],
+      "marginTrading": true,
+      "tradeTotalBtc": 0.1,
+      "warmUpMin": 0,
+      "strategies": {
+        "VolumeSpikeDetector": {
+          "spikeFactor": 3,
+          "minVolBtc": 1.2,
+          "candleSize": 5,
+          "pair": "USD_EOS",
+          "enableLog": true
+        },
+        "PriceSpikeDetector": {
+          "spikePercent": 4.0,
+          "candleSize": 5,
+          "pair": "USD_EOS",
+          "enableLog": true
+        },
+        "RSI": {
+          "pair": "USD_EOS",
+          "candleSize": 5,
+          "enableLog": true,
+          "interval": 14,
+          "low": 20,
+          "high": 80
+        },
+        "MFI": {
+          "pair": "USD_EOS",
+          "candleSize": 5,
+          "enableLog": true,
+          "interval": 14,
+          "low": 5,
+          "high": 95
+        }
+      }
+    },
+    {
+      "exchanges": ["Bitfinex"],
+      "marginTrading": false,
+      "tradeTotalBtc": 0.1,
+      "warmUpMin": 0,
+      "strategies": {
+        "VolumeSpikeDetector": {
+          "spikeFactor": 3,
+          "minVolBtc": 1.2,
+          "candleSize": 5,
+          "pair": "USD_SAN",
+          "enableLog": true
+        },
+        "PriceSpikeDetector": {
+          "spikePercent": 4.0,
+          "candleSize": 5,
+          "pair": "USD_SAN",
+          "enableLog": true
+        },
+        "RSI": {
+          "pair": "USD_SAN",
+          "candleSize": 5,
+          "enableLog": true,
+          "interval": 14,
+          "low": 10,
+          "high": 90
+        },
+        "MFI": {
+          "pair": "USD_SAN",
+          "candleSize": 5,
+          "enableLog": true,
+          "interval": 14,
+          "low": 5,
+          "high": 95
+        }
+      }
+    },
+    {
+      "exchanges": ["Bitfinex"],
+      "marginTrading": true,
+      "tradeTotalBtc": 0.1,
+      "warmUpMin": 0,
+      "strategies": {
+        "VolumeSpikeDetector": {
+          "spikeFactor": 3,
+          "minVolBtc": 1.2,
+          "candleSize": 5,
+          "pair": "USD_OMG",
+          "enableLog": true
+        },
+        "PriceSpikeDetector": {
+          "spikePercent": 2.0,
+          "candleSize": 5,
+          "pair": "USD_OMG",
+          "enableLog": true
+        },
+        "RSI": {
+          "pair": "USD_OMG",
+          "candleSize": 5,
+          "enableLog": true,
+          "interval": 14,
+          "low": 20,
+          "high": 80
+        },
+        "MFI": {
+          "pair": "USD_OMG",
+          "candleSize": 5,
+          "enableLog": true,
+          "interval": 14,
+          "low": 5,
+          "high": 95
+        }
+      }
+    },
+    {
+      "exchanges": ["Bitfinex"],
+      "marginTrading": true,
+      "tradeTotalBtc": 0.1,
+      "warmUpMin": 0,
+      "strategies": {
+        "VolumeSpikeDetector": {
+          "spikeFactor": 3,
+          "minVolBtc": 1.2,
+          "candleSize": 5,
+          "pair": "USD_BCH",
+          "enableLog": true
+        },
+        "PriceSpikeDetector": {
+          "spikePercent": 4.0,
+          "candleSize": 5,
+          "pair": "USD_BCH",
+          "enableLog": true
+        },
+        "RSI": {
+          "pair": "USD_BCH",
+          "candleSize": 5,
+          "enableLog": true,
+          "interval": 14,
+          "low": 20,
+          "high": 80
+        },
+        "MFI": {
+          "pair": "USD_BCH",
+          "candleSize": 5,
+          "enableLog": true,
+          "interval": 14,
+          "low": 5,
+          "high": 95
+        }
+      }
+    },
+    {
+      "exchanges": ["Bitfinex"],
+      "marginTrading": false,
+      "tradeTotalBtc": 0.1,
+      "warmUpMin": 0,
+      "strategies": {
+        "VolumeSpikeDetector": {
+          "spikeFactor": 3,
+          "minVolBtc": 1.2,
+          "candleSize": 5,
+          "pair": "USD_NEO",
+          "enableLog": true
+        },
+        "PriceSpikeDetector": {
+          "spikePercent": 4.0,
+          "candleSize": 5,
+          "pair": "USD_NEO",
+          "enableLog": true
+        },
+        "RSI": {
+          "pair": "USD_NEO",
+          "candleSize": 5,
+          "enableLog": true,
+          "interval": 14,
+          "low": 10,
+          "high": 90
+        },
+        "MFI": {
+          "pair": "USD_NEO",
+          "candleSize": 5,
+          "enableLog": true,
+          "interval": 14,
+          "low": 5,
+          "high": 95
+        }
+      }
+    }
+  ]
+}

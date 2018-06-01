@@ -1,0 +1,36 @@
+{
+  "data": [
+    {
+      "exchanges": "default",
+      "marginTrading": true,
+      "tradeTotalBtc": 0.0,
+      "warmUpMin": 0,
+      "strategies": {
+        "DayTrader": {
+          "interval": 30,
+          "minVolatility": 0.04,
+          "short": 2,
+          "long": 7,
+          "CrossMAType": "EMA",
+          "pair": "BTC_ETH",
+          "candleSize": 240,
+          "enableLog": true
+        },
+        "Scalper": {
+          "interval": 14,
+          "pair": "BTC_ETH",
+          "candleSize": 240,
+          "enableLog": true
+        },
+        "StopLossTurn": {
+          "order": "closeLong",
+          "setback": 3.99,
+          "time": 14400,
+          "candleSize": 5,
+          "pair": "BTC_ETH",
+          "enableLog": false
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,105 @@
+{
+  "data": [
+    {
+      "exchanges": "default",
+      "marginTrading": true,
+      "tradeTotalBtc": 0.3,
+      "warmUpMin": 0,
+      "strategies": {
+        "DayTrader": {
+          "interval": 30,
+          "minVolatility": 0.04,
+          "short": 2,
+          "long": 7,
+          "CrossMAType": "EMA",
+          "pair": "BTC_ETH",
+          "candleSize": 60,
+          "enableLog": true
+        },
+        "Scalper": {
+          "interval": 14,
+          "pair": "BTC_ETH",
+          "candleSize": 60,
+          "enableLog": true
+        },
+        "StopLossTurn": {
+          "order": "closeLong",
+          "setback": 3.99,
+          "time": 14400,
+          "candleSize": 5,
+          "pair": "BTC_ETH",
+          "enableLog": false
+        }
+      }
+    },
+    {
+      "exchanges": "default",
+      "marginTrading": true,
+      "tradeTotalBtc": 0.3,
+      "warmUpMin": 0,
+      "strategies": {
+        "DayTrader": {
+          "interval": 30,
+          "minVolatility": 0.025,
+          "short": 2,
+          "long": 7,
+          "CrossMAType": "EMA",
+          "pair": "BTC_LTC",
+          "candleSize": 60,
+          "enableLog": true
+        },
+        "Scalper": {
+          "interval": 14,
+          "pair": "BTC_LTC",
+          "candleSize": 60,
+          "enableLog": true
+        },
+        "StopLossTurn": {
+          "order": "closeLong",
+          "setback": 3.99,
+          "time": 14400,
+          "candleSize": 5,
+          "pair": "BTC_LTC",
+          "enableLog": false
+        }
+      }
+    },
+    {
+      "exchanges": "default",
+      "marginTrading": true,
+      "tradeTotalBtc": 0.2,
+      "warmUpMin": 0,
+      "strategies": {
+        "DayTrader": {
+          "interval": 30,
+          "minVolatility": 0.01,
+          "short": 2,
+          "long": 7,
+          "CrossMAType": "EMA",
+          "pair": "BTC_XRP",
+          "candleSize": 60,
+          "thresholds": {
+            "down": -0.7,
+            "up": 0.09,
+            "persistence": 1
+          },
+          "enableLog": true
+        },
+        "Scalper": {
+          "interval": 14,
+          "pair": "BTC_XRP",
+          "candleSize": 60,
+          "enableLog": true
+        },
+        "StopLossTurn": {
+          "order": "closeLong",
+          "setback": 3.99,
+          "time": 14400,
+          "candleSize": 5,
+          "pair": "BTC_XRP",
+          "enableLog": false
+        }
+      }
+    }
+  ]
+}

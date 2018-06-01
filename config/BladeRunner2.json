@@ -1,0 +1,244 @@
+{
+  "data": [
+    {
+      "exchanges": "default",
+      "marginTrading": false,
+      "tradeTotalBtc": 0.04,
+      "warmUpMin": 0,
+      "strategies": {
+        "BladeRunner": {
+          "order": "buy",
+          "profit": 0.6,
+          "fee": 0.25,
+          "pair": "BTC_NXT",
+          "candleSize": 2,
+          "enableLog": true
+        },
+        "StopLossTurn": {
+          "order": "sell",
+          "setback": 3.9,
+          "time": 90,
+          "candleSize": 1,
+          "pair": "BTC_NXT",
+          "enableLog": false
+        }
+      }
+    },
+    {
+      "exchanges": "default",
+      "marginTrading": false,
+      "tradeTotalBtc": 0.04,
+      "warmUpMin": 0,
+      "strategies": {
+        "BladeRunner": {
+          "order": "buy",
+          "profit": 0.6,
+          "fee": 0.25,
+          "pair": "BTC_XEM",
+          "candleSize": 2,
+          "enableLog": true
+        },
+        "StopLossTurn": {
+          "order": "sell",
+          "setback": 3.9,
+          "time": 90,
+          "candleSize": 1,
+          "pair": "BTC_XEM",
+          "enableLog": false
+        }
+      }
+    },
+    {
+      "exchanges": "default",
+      "marginTrading": false,
+      "tradeTotalBtc": 0.04,
+      "warmUpMin": 0,
+      "strategies": {
+        "BladeRunner": {
+          "order": "buy",
+          "profit": 0.6,
+          "fee": 0.25,
+          "pair": "BTC_ETC",
+          "candleSize": 2,
+          "enableLog": true
+        },
+        "StopLossTurn": {
+          "order": "sell",
+          "setback": 3.9,
+          "time": 90,
+          "candleSize": 1,
+          "pair": "BTC_ETC",
+          "enableLog": false
+        }
+      }
+    },
+    {
+      "exchanges": "default",
+      "marginTrading": false,
+      "tradeTotalBtc": 0.04,
+      "warmUpMin": 0,
+      "strategies": {
+        "BladeRunner": {
+          "order": "buy",
+          "profit": 0.6,
+          "fee": 0.25,
+          "pair": "BTC_ZEC",
+          "candleSize": 2,
+          "enableLog": true
+        },
+        "StopLossTurn": {
+          "order": "sell",
+          "setback": 3.9,
+          "time": 90,
+          "candleSize": 1,
+          "pair": "BTC_ZEC",
+          "enableLog": false
+        }
+      }
+    },
+    {
+      "exchanges": "default",
+      "marginTrading": false,
+      "tradeTotalBtc": 0.04,
+      "warmUpMin": 0,
+      "strategies": {
+        "BladeRunner": {
+          "order": "buy",
+          "profit": 0.6,
+          "fee": 0.25,
+          "pair": "BTC_STRAT",
+          "candleSize": 2,
+          "enableLog": true
+        },
+        "StopLossTurn": {
+          "order": "sell",
+          "setback": 3.9,
+          "time": 90,
+          "candleSize": 1,
+          "pair": "BTC_STRAT",
+          "enableLog": false
+        }
+      }
+    },
+    {
+      "exchanges": "default",
+      "marginTrading": false,
+      "tradeTotalBtc": 0.04,
+      "warmUpMin": 0,
+      "strategies": {
+        "BladeRunner": {
+          "order": "buy",
+          "profit": 0.6,
+          "fee": 0.25,
+          "pair": "BTC_DGB",
+          "candleSize": 2,
+          "enableLog": true
+        },
+        "StopLossTurn": {
+          "order": "sell",
+          "setback": 3.9,
+          "time": 90,
+          "candleSize": 1,
+          "pair": "BTC_DGB",
+          "enableLog": false
+        }
+      }
+    },
+    {
+      "exchanges": "default",
+      "marginTrading": false,
+      "tradeTotalBtc": 0.04,
+      "warmUpMin": 0,
+      "strategies": {
+        "BladeRunner": {
+          "order": "buy",
+          "profit": 0.6,
+          "fee": 0.25,
+          "pair": "BTC_SJCX",
+          "candleSize": 2,
+          "enableLog": true
+        },
+        "StopLossTurn": {
+          "order": "sell",
+          "setback": 3.9,
+          "time": 90,
+          "candleSize": 1,
+          "pair": "BTC_SJCX",
+          "enableLog": false
+        }
+      }
+    },
+    {
+      "exchanges": "default",
+      "marginTrading": true,
+      "tradeTotalBtc": 0.04,
+      "warmUpMin": 0,
+      "strategies": {
+        "BladeRunner": {
+          "order": "closeLong",
+          "profit": 1.1,
+          "fee": 0.25,
+          "pair": "BTC_STR",
+          "candleSize": 2,
+          "enableLog": true
+        },
+        "StopLossTurn": {
+          "order": "closeLong",
+          "setback": 3.9,
+          "time": 90,
+          "candleSize": 1,
+          "pair": "BTC_STR",
+          "enableLog": false
+        }
+      }
+    },
+    {
+      "exchanges": "default",
+      "marginTrading": true,
+      "tradeTotalBtc": 0.04,
+      "warmUpMin": 0,
+      "strategies": {
+        "BladeRunner": {
+          "order": "closeLong",
+          "profit": 1.1,
+          "fee": 0.25,
+          "pair": "BTC_XRP",
+          "candleSize": 2,
+          "enableLog": true
+        },
+        "StopLossTurn": {
+          "order": "closeLong",
+          "setback": 3.9,
+          "time": 90,
+          "candleSize": 1,
+          "pair": "BTC_XRP",
+          "enableLog": false
+        }
+      }
+    },
+    {
+      "exchanges": "default",
+      "marginTrading": true,
+      "tradeTotalBtc": 0.04,
+      "warmUpMin": 0,
+      "strategies": {
+        "BladeRunner": {
+          "order": "closeLong",
+          "profit": 1.1,
+          "fee": 0.25,
+          "pair": "BTC_FCT",
+          "candleSize": 2,
+          "enableLog": true
+        },
+        "StopLossTurn": {
+          "order": "closeLong",
+          "setback": 3.9,
+          "time": 90,
+          "candleSize": 1,
+          "pair": "BTC_FCT",
+          "enableLog": false
+        }
+      }
+    }
+  ]
+}

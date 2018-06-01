@@ -1,0 +1,18 @@
+{
+  "data": [
+    {
+      "exchanges": "default",
+      "marginTrading": true,
+      "tradeTotalBtc": 0.2,
+      "warmUpMin": 0,
+      "strategies": {
+        "Scalper": {
+          "interval": 9,
+          "pair": "BTC_LTC",
+          "candleSize": 3,
+          "enableLog": true
+        }
+      }
+    }
+  ]
+}

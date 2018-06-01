@@ -1,0 +1,24 @@
+{
+  "data": [
+    {
+      "exchanges": "default",
+      "marginTrading": true,
+      "tradeTotalBtc": 0.0,
+      "warmUpMin": 0,
+      "strategies": {
+        "ChannelBreakout": {
+          "pair": "BTC_LTC",
+          "candleSize": 60
+        },
+        "StopLossTurn": {
+          "order": "closeLong",
+          "setback": 4.5,
+          "time": 3600,
+          "candleSize": 60,
+          "pair": "BTC_LTC",
+          "enableLog": false
+        }
+      }
+    }
+  ]
+}

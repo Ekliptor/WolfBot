@@ -1,0 +1,26 @@
+{
+  "data": [
+    {
+      "exchanges": "default",
+      "marginTrading": true,
+      "tradeTotalBtc": 0.0,
+      "warmUpMin": 0,
+      "strategies": {
+        "Trendatron": {
+          "interval": [3, 4, 9, 14, 18],
+          "pair": "BTC_XRP",
+          "candleSize": [30, 60, 120],
+          "enableLog": true
+        },
+        "StopLossTurn": {
+          "order": "closeLong",
+          "setback": [9.99, 14],
+          "time": [7200, 14400],
+          "candleSize": [1, 5, 30],
+          "pair": "BTC_XRP",
+          "enableLog": false
+        }
+      }
+    }
+  ]
+}

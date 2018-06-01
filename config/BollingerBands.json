@@ -1,0 +1,128 @@
+{
+  "data": [
+    {
+      "exchanges": "default",
+      "marginTrading": true,
+      "tradeTotalBtc": 0.1,
+      "warmUpMin": 0,
+      "strategies": {
+        "BollingerBands": {
+          "breakout": 3,
+          "MAType": 1,
+          "pair": "BTC_ETH",
+          "candleSize": 1,
+          "enableLog": true
+        },
+        "StopLossTurn": {
+          "order": "closeShort",
+          "setback": 0.59,
+          "time": 90,
+          "candleSize": 1,
+          "pair": "BTC_ETH",
+          "enableLog": true
+        },
+        "TakeProfit": {
+          "order": "closeShort",
+          "profit": 0.65,
+          "time": 240,
+          "candleSize": 1,
+          "pair": "BTC_ETH",
+          "enableLog": true
+        }
+      }
+    },
+    {
+      "exchanges": "default",
+      "marginTrading": true,
+      "tradeTotalBtc": 0.1,
+      "warmUpMin": 0,
+      "strategies": {
+        "BollingerBands": {
+          "breakout": 3,
+          "MAType": 1,
+          "pair": "BTC_XRP",
+          "candleSize": 1,
+          "enableLog": true
+        },
+        "StopLossTurn": {
+          "order": "closeLong",
+          "setback": 0.59,
+          "time": 90,
+          "candleSize": 1,
+          "pair": "BTC_XRP",
+          "enableLog": true
+        },
+        "TakeProfit": {
+          "order": "closeLong",
+          "profit": 0.65,
+          "time": 240,
+          "candleSize": 1,
+          "pair": "BTC_XRP",
+          "enableLog": true
+        }
+      }
+    },
+    {
+      "exchanges": "default",
+      "marginTrading": true,
+      "tradeTotalBtc": 0.1,
+      "warmUpMin": 0,
+      "strategies": {
+        "BollingerBands": {
+          "breakout": 3,
+          "MAType": 1,
+          "pair": "BTC_LTC",
+          "candleSize": 1,
+          "enableLog": true
+        },
+        "StopLossTurn": {
+          "order": "closeShort",
+          "setback": 0.59,
+          "time": 90,
+          "candleSize": 1,
+          "pair": "BTC_LTC",
+          "enableLog": true
+        },
+        "TakeProfit": {
+          "order": "closeShort",
+          "profit": 0.65,
+          "time": 240,
+          "candleSize": 1,
+          "pair": "BTC_LTC",
+          "enableLog": true
+        }
+      }
+    },
+    {
+      "exchanges": "default",
+      "marginTrading": true,
+      "tradeTotalBtc": 0.1,
+      "warmUpMin": 0,
+      "strategies": {
+        "BollingerBands": {
+          "breakout": 3,
+          "MAType": 1,
+          "pair": "BTC_FCT",
+          "candleSize": 1,
+          "enableLog": true
+        },
+        "StopLossTurn": {
+          "order": "closeLong",
+          "setback": 0.59,
+          "time": 90,
+          "candleSize": 1,
+          "pair": "BTC_FCT",
+          "enableLog": true
+        },
+        "TakeProfit": {
+          "order": "closeLong",
+          "profit": 0.65,
+          "time": 240,
+          "candleSize": 1,
+          "pair": "BTC_FCT",
+          "enableLog": true
+        }
+      }
+    }
+  ]
+}

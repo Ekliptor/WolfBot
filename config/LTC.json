@@ -1,0 +1,85 @@
+{
+  "data": [
+    {
+      "exchanges": "default",
+      "marginTrading": true,
+      "tradeTotalBtc": 0.1,
+      "warmUpMin": 0,
+      "strategies": {
+        "MassOrderJumper": {
+          "avgLowSec": 30,
+          "avgHighSec": 900,
+          "spikePercent": 150,
+          "volumeDiffPercent": 20,
+          "pair": "BTC_ETH",
+          "enableLog": true
+        },
+        "WhaleWatcher": {
+          "triggerAmountBtc": 110,
+          "pair": "BTC_ETH",
+          "enableLog": true
+        },
+        "PriceRangeTrader": {
+          "minChangePercent": 3.2,
+          "intervalSec": 120,
+          "pair": "BTC_ETH",
+          "enableLog": true
+        }
+      }
+    },
+    {
+      "exchanges": "default",
+      "marginTrading": true,
+      "tradeTotalBtc": 0.1,
+      "warmUpMin": 0,
+      "strategies": {
+        "MassOrderJumper": {
+          "avgLowSec": 30,
+          "avgHighSec": 900,
+          "spikePercent": 150,
+          "volumeDiffPercent": 20,
+          "pair": "BTC_XRP",
+          "enableLog": true
+        },
+        "WhaleWatcher": {
+          "triggerAmountBtc": 110,
+          "pair": "BTC_XRP",
+          "enableLog": true
+        },
+        "PriceRangeTrader": {
+          "minChangePercent": 3.2,
+          "intervalSec": 120,
+          "pair": "BTC_XRP",
+          "enableLog": true
+        }
+      }
+    },
+    {
+      "exchanges": "default",
+      "marginTrading": true,
+      "tradeTotalBtc": 0.1,
+      "warmUpMin": 0,
+      "strategies": {
+        "MassOrderJumper": {
+          "avgLowSec": 30,
+          "avgHighSec": 900,
+          "spikePercent": 150,
+          "volumeDiffPercent": 20,
+          "pair": "BTC_LTC",
+          "enableLog": true
+        },
+        "WhaleWatcher": {
+          "triggerAmountBtc": 110,
+          "pair": "BTC_LTC",
+          "enableLog": true
+        },
+        "PriceRangeTrader": {
+          "minChangePercent": 3.2,
+          "intervalSec": 120,
+          "pair": "BTC_LTC",
+          "enableLog": true
+        }
+      }
+    }
+  ]
+}

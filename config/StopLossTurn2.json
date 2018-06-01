@@ -1,0 +1,64 @@
+{
+  "data": [
+    {
+      "exchanges": ["Bitfinex"],
+      "marginTrading": true,
+      "tradeTotalBtc": 300.0,
+      "notifyTrades": false,
+      "strategies": {
+        "StopLossTurn": {
+          "order": "sell",
+          "setback": 3.5,
+          "setbackLong": 4.5,
+          "time": 900,
+          "reduceTimeByVolatility": false,
+          "low": 52,
+          "high": 56,
+          "candleSize": 5,
+          "pair": "USD_BTC",
+          "enableLog": false
+        }
+      }
+    },
+    {
+      "exchanges": ["Bitfinex"],
+      "marginTrading": true,
+      "tradeTotalBtc": 700.0,
+      "notifyTrades": false,
+      "strategies": {
+        "StopLossTurn": {
+          "order": "sell",
+          "setback": 3.5,
+          "setbackLong": 4.5,
+          "time": 900,
+          "reduceTimeByVolatility": false,
+          "low": 52,
+          "high": 56,
+          "candleSize": 5,
+          "pair": "USD_LTC",
+          "enableLog": false
+        }
+      }
+    },
+    {
+      "exchanges": ["Bitfinex"],
+      "marginTrading": true,
+      "tradeTotalBtc": 430.0,
+      "notifyTrades": false,
+      "strategies": {
+        "StopLossTurn": {
+          "order": "sell",
+          "setback": 3.5,
+          "setbackLong": 4.5,
+          "time": 900,
+          "reduceTimeByVolatility": false,
+          "low": 52,
+          "high": 56,
+          "candleSize": 5,
+          "pair": "USD_ETH",
+          "enableLog": false
+        }
+      }
+    }
+  ]
+}
