@@ -52,6 +52,7 @@ The `config` parameter must be a JSON file from the `config` directory. For a li
 
 ### Writing your own trading strategies
 There is documentation available here: https://forum.wolfbot.org/forums/strategy-development.17/
+
 Look into the `/src/Strategies` folder for more examples.
 
 
