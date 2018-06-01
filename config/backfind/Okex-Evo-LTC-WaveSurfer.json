@@ -1,0 +1,43 @@
+{
+  "data": [
+    {
+      "exchanges": ["OKEX"],
+      "marginTrading": true,
+      "tradeTotalBtc": [60],
+      "warmUpMin": 0,
+      "strategies": {
+        "WaveSurfer": {
+          "minSurfCandles": [1, 2, 3, 30],
+          "pair": "USD_LTC",
+          "candleSize": [120, 180, 240, 360, 600],
+          "enableLog": false
+        },
+        "StopLossTurn": {
+          "order": "closeLong",
+          "setback": [1.0, 2.5, 3.99],
+          "time": [60, 7200],
+          "candleSize": [5, 60],
+          "pair": "USD_LTC",
+          "enableLog": false
+        },
+        "TakeProfit": {
+          "order": "closeLong",
+          "profit": [1.5, 3.0, 4.0, 15.5],
+          "time": [60, 7200],
+          "candleSize": [5, 60],
+          "pair": "USD_LTC",
+          "enableLog": false
+        },
+        "TakeProfitPartial": {
+          "order": "closeLong",
+          "profit": [2.0, 8.5],
+          "percentage": [20.0, 50.0],
+          "time": [900, 3600],
+          "candleSize": [5, 30],
+          "pair": "USD_LTC",
+          "enableLog": false
+        }
+      }
+    }
+  ]
+}

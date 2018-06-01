@@ -1,0 +1,98 @@
+{
+  "data": [
+    {
+      "exchanges": "default",
+      "marginTrading": true,
+      "tradeTotalBtc": 0.0,
+      "warmUpMin": 0,
+      "strategies": {
+        "WaveSurfer": {
+          "minSurfCandles": 2,
+          "pair": "BTC_ETH",
+          "candleSize": 133,
+          "enableLog": true
+        },
+        "RSIStarter": {
+          "low": 20,
+          "high": 85,
+          "interval": 6,
+          "pair": "BTC_ETH",
+          "candleSize": 10,
+          "enableLog": true
+        },
+        "StopLossTurn": {
+          "order": "closeLong",
+          "setback": 3.2,
+          "time": 3600,
+          "candleSize": 6,
+          "pair": "BTC_ETH",
+          "enableLog": false
+        },
+        "TakeProfit": {
+          "order": "closeLong",
+          "profit": 2,
+          "time": 10670,
+          "candleSize": 36,
+          "pair": "BTC_ETH",
+          "enableLog": false
+        },
+        "TakeProfitPartial": {
+          "order": "closeLong",
+          "profit": 8,
+          "percentage": 40,
+          "time": 300,
+          "candleSize": 6,
+          "pair": "BTC_ETH",
+          "enableLog": false
+        }
+      }
+    },
+    {
+      "exchanges": "default",
+      "marginTrading": true,
+      "tradeTotalBtc": 0.031,
+      "warmUpMin": 0,
+      "strategies": {
+        "WaveSurfer": {
+          "minSurfCandles": 2,
+          "pair": "BTC_LTC",
+          "candleSize": 121,
+          "enableLog": true
+        },
+        "RSIStarter": {
+          "low": 20,
+          "high": 85,
+          "interval": 6,
+          "pair": "BTC_LTC",
+          "candleSize": 10,
+          "enableLog": true
+        },
+        "StopLossTurn": {
+          "order": "closeLong",
+          "setback": 3.2,
+          "time": 3600,
+          "candleSize": 6,
+          "pair": "BTC_LTC",
+          "enableLog": false
+        },
+        "TakeProfit": {
+          "order": "closeLong",
+          "profit": 2,
+          "time": 10670,
+          "candleSize": 36,
+          "pair": "BTC_LTC",
+          "enableLog": false
+        },
+        "TakeProfitPartial": {
+          "order": "closeLong",
+          "profit": 8,
+          "percentage": 40,
+          "time": 300,
+          "candleSize": 6,
+          "pair": "BTC_LTC",
+          "enableLog": false
+        }
+      }
+    }
+  ]
+}

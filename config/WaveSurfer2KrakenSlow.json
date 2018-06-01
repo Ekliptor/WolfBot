@@ -1,0 +1,136 @@
+{
+  "data": [
+    {
+      "exchanges": ["Kraken"],
+      "marginTrading": true,
+      "tradeTotalBtc": 0.2,
+      "warmUpMin": 0,
+      "strategies": {
+        "WaveOpener": {
+          "pair": "BTC_ETH",
+          "candleSize": 60,
+          "enableLog": true
+        },
+        "WaveStopper": {
+          "minSurfCandles": 1,
+          "pair": "BTC_ETH",
+          "candleSize": 600,
+          "enableLog": true
+        },
+        "StopLossTurn": {
+          "order": "closeLong",
+          "setback": 3.0,
+          "time": 3600,
+          "candleSize": 6,
+          "pair": "BTC_ETH",
+          "enableLog": false
+        },
+        "TakeProfit": {
+          "order": "closeLong",
+          "profit": 2,
+          "time": 10670,
+          "candleSize": 36,
+          "pair": "BTC_ETH",
+          "enableLog": false
+        },
+        "TakeProfitPartial": {
+          "order": "closeLong",
+          "profit": 8,
+          "percentage": 40,
+          "time": 300,
+          "candleSize": 6,
+          "pair": "BTC_ETH",
+          "enableLog": false
+        }
+      }
+    },
+    {
+      "exchanges": ["Kraken"],
+      "marginTrading": true,
+      "tradeTotalBtc": 170.0,
+      "warmUpMin": 0,
+      "strategies": {
+        "WaveOpener": {
+          "pair": "USD_ETH",
+          "candleSize": 60,
+          "enableLog": true
+        },
+        "WaveStopper": {
+          "minSurfCandles": 1,
+          "pair": "USD_ETH",
+          "candleSize": 600,
+          "enableLog": true
+        },
+        "StopLossTurn": {
+          "order": "closeLong",
+          "setback": 3.0,
+          "time": 3600,
+          "candleSize": 6,
+          "pair": "USD_ETH",
+          "enableLog": false
+        },
+        "TakeProfit": {
+          "order": "closeLong",
+          "profit": 2,
+          "time": 10670,
+          "candleSize": 36,
+          "pair": "USD_ETH",
+          "enableLog": false
+        },
+        "TakeProfitPartial": {
+          "order": "closeLong",
+          "profit": 8,
+          "percentage": 40,
+          "time": 300,
+          "candleSize": 6,
+          "pair": "USD_ETH",
+          "enableLog": false
+        }
+      }
+    },
+    {
+      "exchanges": ["Kraken"],
+      "marginTrading": true,
+      "tradeTotalBtc": 170.0,
+      "warmUpMin": 0,
+      "strategies": {
+        "WaveOpener": {
+          "pair": "USD_BTC",
+          "candleSize": 60,
+          "enableLog": true
+        },
+        "WaveStopper": {
+          "minSurfCandles": 1,
+          "pair": "USD_BTC",
+          "candleSize": 600,
+          "enableLog": true
+        },
+        "StopLossTurn": {
+          "order": "closeLong",
+          "setback": 3.0,
+          "time": 3600,
+          "candleSize": 6,
+          "pair": "USD_BTC",
+          "enableLog": false
+        },
+        "TakeProfit": {
+          "order": "closeLong",
+          "profit": 2,
+          "time": 10670,
+          "candleSize": 36,
+          "pair": "USD_BTC",
+          "enableLog": false
+        },
+        "TakeProfitPartial": {
+          "order": "closeLong",
+          "profit": 8,
+          "percentage": 40,
+          "time": 300,
+          "candleSize": 6,
+          "pair": "USD_BTC",
+          "enableLog": false
+        }
+      }
+    }
+  ]
+}

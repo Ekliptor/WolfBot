@@ -1,0 +1,228 @@
+{
+  "data": [
+    {
+      "exchanges": "default",
+      "marginTrading": true,
+      "tradeTotalBtc": 0.2,
+      "warmUpMin": 0,
+      "strategies": {
+        "MomentumTurn": {
+          "low": 25,
+          "high": 85,
+          "interval": 14,
+          "pair": "BTC_XRP",
+          "candleSize": 10,
+          "enableLog": true
+        },
+        "StopLossTurn": {
+          "order": "closeLong",
+          "setback": 3.99,
+          "time": 30,
+          "candleSize": 5,
+          "pair": "BTC_XRP",
+          "enableLog": false
+        },
+        "TakeProfit": {
+          "order": "closeShort",
+          "profit": 0.85,
+          "time": 600,
+          "candleSize": 5,
+          "pair": "BTC_XRP",
+          "enableLog": false
+        }
+      }
+    },
+    {
+      "exchanges": "default",
+      "marginTrading": true,
+      "tradeTotalBtc": 0.2,
+      "warmUpMin": 0,
+      "strategies": {
+        "MomentumTurn": {
+          "low": 25,
+          "high": 85,
+          "interval": 14,
+          "pair": "BTC_STR",
+          "candleSize": 10,
+          "enableLog": true
+        },
+        "StopLossTurn": {
+          "order": "closeLong",
+          "setback": 3.99,
+          "time": 30,
+          "candleSize": 5,
+          "pair": "BTC_STR",
+          "enableLog": false
+        },
+        "TakeProfit": {
+          "order": "closeShort",
+          "profit": 0.85,
+          "time": 600,
+          "candleSize": 5,
+          "pair": "BTC_STR",
+          "enableLog": false
+        }
+      }
+    },
+    {
+      "exchanges": "default",
+      "marginTrading": true,
+      "tradeTotalBtc": 0.2,
+      "warmUpMin": 0,
+      "strategies": {
+        "MomentumTurn": {
+          "low": 25,
+          "high": 85,
+          "interval": 14,
+          "pair": "BTC_DASH",
+          "candleSize": 10,
+          "enableLog": true
+        },
+        "StopLossTurn": {
+          "order": "closeLong",
+          "setback": 3.99,
+          "time": 30,
+          "candleSize": 5,
+          "pair": "BTC_DASH",
+          "enableLog": false
+        },
+        "TakeProfit": {
+          "order": "closeShort",
+          "profit": 0.85,
+          "time": 600,
+          "candleSize": 5,
+          "pair": "BTC_DASH",
+          "enableLog": false
+        }
+      }
+    },
+    {
+      "exchanges": "default",
+      "marginTrading": true,
+      "tradeTotalBtc": 0.2,
+      "warmUpMin": 0,
+      "strategies": {
+        "MomentumTurn": {
+          "low": 25,
+          "high": 85,
+          "interval": 14,
+          "pair": "BTC_XMR",
+          "candleSize": 10,
+          "enableLog": true
+        },
+        "StopLossTurn": {
+          "order": "closeLong",
+          "setback": 3.99,
+          "time": 30,
+          "candleSize": 5,
+          "pair": "BTC_XMR",
+          "enableLog": false
+        },
+        "TakeProfit": {
+          "order": "closeShort",
+          "profit": 0.85,
+          "time": 600,
+          "candleSize": 5,
+          "pair": "BTC_XMR",
+          "enableLog": false
+        }
+      }
+    },
+    {
+      "exchanges": "default",
+      "marginTrading": true,
+      "tradeTotalBtc": 0.2,
+      "warmUpMin": 0,
+      "strategies": {
+        "MomentumTurn": {
+          "low": 25,
+          "high": 85,
+          "interval": 14,
+          "pair": "BTC_MAID",
+          "candleSize": 10,
+          "enableLog": true
+        },
+        "StopLossTurn": {
+          "order": "closeLong",
+          "setback": 3.99,
+          "time": 30,
+          "candleSize": 5,
+          "pair": "BTC_MAID",
+          "enableLog": false
+        },
+        "TakeProfit": {
+          "order": "closeShort",
+          "profit": 0.85,
+          "time": 600,
+          "candleSize": 5,
+          "pair": "BTC_MAID",
+          "enableLog": false
+        }
+      }
+    },
+    {
+      "exchanges": "default",
+      "marginTrading": true,
+      "tradeTotalBtc": 0.2,
+      "warmUpMin": 0,
+      "strategies": {
+        "MomentumTurn": {
+          "low": 25,
+          "high": 85,
+          "interval": 14,
+          "pair": "BTC_CLAM",
+          "candleSize": 10,
+          "enableLog": true
+        },
+        "StopLossTurn": {
+          "order": "closeLong",
+          "setback": 3.99,
+          "time": 30,
+          "candleSize": 5,
+          "pair": "BTC_CLAM",
+          "enableLog": false
+        },
+        "TakeProfit": {
+          "order": "closeShort",
+          "profit": 0.85,
+          "time": 600,
+          "candleSize": 5,
+          "pair": "BTC_CLAM",
+          "enableLog": false
+        }
+      }
+    },
+    {
+      "exchanges": "default",
+      "marginTrading": true,
+      "tradeTotalBtc": 0.2,
+      "warmUpMin": 0,
+      "strategies": {
+        "MomentumTurn": {
+          "low": 25,
+          "high": 85,
+          "interval": 14,
+          "pair": "BTC_BTS",
+          "candleSize": 10,
+          "enableLog": true
+        },
+        "StopLossTurn": {
+          "order": "closeLong",
+          "setback": 3.99,
+          "time": 30,
+          "candleSize": 5,
+          "pair": "BTC_BTS",
+          "enableLog": false
+        },
+        "TakeProfit": {
+          "order": "closeShort",
+          "profit": 0.85,
+          "time": 600,
+          "candleSize": 5,
+          "pair": "BTC_BTS",
+          "enableLog": false
+        }
+      }
+    }
+  ]
+}

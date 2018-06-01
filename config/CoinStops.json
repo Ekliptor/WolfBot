@@ -1,0 +1,84 @@
+{
+  "data": [
+    {
+      "exchanges": ["Binance"],
+      "marginTrading": false,
+      "tradeTotalBtc": 0.2,
+      "notifyTrades": true,
+      "strategies": {
+        "StopLossTurn": {
+          "order": "sell",
+          "setback": 7.6,
+          "time": 7200,
+          "notifyBeforeStopSec": 1800,
+          "reduceTimeByVolatility": false,
+          "low": 52,
+          "high": 56,
+          "candleSize": 5,
+          "pair": "BTC_STRAT",
+          "enableLog": false
+        }
+      }
+    },
+    {
+      "exchanges": ["Binance"],
+      "marginTrading": false,
+      "tradeTotalBtc": 0.2,
+      "notifyTrades": true,
+      "strategies": {
+        "StopLossTurn": {
+          "order": "sell",
+          "stop": 0.00030249,
+          "time": 7200,
+          "notifyBeforeStopSec": 1800,
+          "reduceTimeByVolatility": false,
+          "low": 52,
+          "high": 56,
+          "candleSize": 5,
+          "pair": "BTC_RDN",
+          "enableLog": false
+        }
+      }
+    },
+    {
+      "exchanges": ["Bittrex"],
+      "marginTrading": false,
+      "tradeTotalBtc": 0.2,
+      "notifyTrades": true,
+      "strategies": {
+        "StopLossTurn": {
+          "order": "sell",
+          "setback": 8.4,
+          "time": 7200,
+          "notifyBeforeStopSec": 1800,
+          "reduceTimeByVolatility": false,
+          "low": 52,
+          "high": 56,
+          "candleSize": 5,
+          "pair": "BTC_ENRG",
+          "enableLog": false
+        }
+      }
+    },
+    {
+      "exchanges": ["Bittrex"],
+      "marginTrading": false,
+      "tradeTotalBtc": 0.2,
+      "notifyTrades": true,
+      "strategies": {
+        "StopLossTurn": {
+          "order": "sell",
+          "setback": 8.4,
+          "time": 7200,
+          "notifyBeforeStopSec": 1800,
+          "reduceTimeByVolatility": false,
+          "low": 52,
+          "high": 56,
+          "candleSize": 5,
+          "pair": "BTC_RDD",
+          "enableLog": false
+        }
+      }
+    }
+  ]
+}

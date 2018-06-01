@@ -1,0 +1,26 @@
+{
+  "data": [
+    {
+      "exchanges": "default",
+      "marginTrading": true,
+      "tradeTotalBtc": 0.0,
+      "warmUpMin": 0,
+      "strategies": {
+        "Trendatron": {
+          "interval": [9, 14, 18, 24],
+          "pair": "BTC_ETH",
+          "candleSize": [15, 30, 60, 120],
+          "enableLog": true
+        },
+        "StopLossTurn": {
+          "order": "closeLong",
+          "setback": [9.99, 14],
+          "time": [7200, 14400],
+          "candleSize": 5,
+          "pair": "BTC_ETH",
+          "enableLog": false
+        }
+      }
+    }
+  ]
+}

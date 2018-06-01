@@ -1,0 +1,94 @@
+{
+  "data": [
+    {
+      "exchanges": "default",
+      "marginTrading": true,
+      "tradeTotalBtc": 0.05,
+      "warmUpMin": 0,
+      "strategies": {
+        "BollingerBands": {
+          "breakout": 3,
+          "pair": "BTC_BTS",
+          "candleSize": 5,
+          "enableLog": true
+        },
+        "StopLossTurn": {
+          "order": "closeLong",
+          "setback": 0.59,
+          "time": 90,
+          "candleSize": 1,
+          "pair": "BTC_BTS",
+          "enableLog": true
+        },
+        "TakeProfit": {
+          "order": "closeLong",
+          "profit": 0.65,
+          "time": 300,
+          "candleSize": 1,
+          "pair": "BTC_BTS",
+          "enableLog": true
+        }
+      }
+    },
+    {
+      "exchanges": "default",
+      "marginTrading": true,
+      "tradeTotalBtc": 0.05,
+      "warmUpMin": 0,
+      "strategies": {
+        "BollingerBands": {
+          "breakout": 3,
+          "pair": "BTC_DASH",
+          "candleSize": 5,
+          "enableLog": true
+        },
+        "StopLossTurn": {
+          "order": "closeLong",
+          "setback": 0.59,
+          "time": 90,
+          "candleSize": 1,
+          "pair": "BTC_DASH",
+          "enableLog": true
+        },
+        "TakeProfit": {
+          "order": "closeLong",
+          "profit": 0.65,
+          "time": 300,
+          "candleSize": 1,
+          "pair": "BTC_DASH",
+          "enableLog": true
+        }
+      }
+    },
+    {
+      "exchanges": "default",
+      "marginTrading": true,
+      "tradeTotalBtc": 0.05,
+      "warmUpMin": 0,
+      "strategies": {
+        "BollingerBands": {
+          "breakout": 3,
+          "pair": "BTC_MAID",
+          "candleSize": 5,
+          "enableLog": true
+        },
+        "StopLossTurn": {
+          "order": "closeLong",
+          "setback": 0.59,
+          "time": 90,
+          "candleSize": 1,
+          "pair": "BTC_MAID",
+          "enableLog": true
+        },
+        "TakeProfit": {
+          "order": "closeLong",
+          "profit": 0.65,
+          "time": 300,
+          "candleSize": 1,
+          "pair": "BTC_MAID",
+          "enableLog": true
+        }
+      }
+    }
+  ]
+}

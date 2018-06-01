@@ -1,0 +1,36 @@
+{
+  "data": [
+    {
+      "exchanges": "default",
+      "marginTrading": true,
+      "tradeTotalBtc": 0.1,
+      "tradeDirection": "both",
+      "warmUpMin": 0,
+      "strategies": {
+        "BollingerBreakouts": {
+          "breakout": [2, 3],
+          "MAType": 1,
+          "pair": "BTC_ETH",
+          "candleSize": [15, 30, 45],
+          "enableLog": true
+        },
+        "StopLossTurn": {
+          "order": "closeShort",
+          "setback": [1.79, 2.5],
+          "time": 120,
+          "candleSize": 1,
+          "pair": "BTC_ETH",
+          "enableLog": false
+        },
+        "TakeProfit": {
+          "order": "closeShort",
+          "profit": 1.95,
+          "time": 720,
+          "candleSize": 1,
+          "pair": "BTC_ETH",
+          "enableLog": false
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,28 @@
+{
+  "data": [
+    {
+      "exchanges": "default",
+      "marginTrading": true,
+      "tradeTotalBtc": 0.0,
+      "warmUpMin": 0,
+      "strategies": {
+        "PatternRepeater": {
+          "patternSize": [6, 20, 30],
+          "patternRepeat": [2, 4],
+          "maxOffset": [1, 2],
+          "pair": "BTC_XRP",
+          "candleSize": [30, 60, 120],
+          "enableLog": true
+        },
+        "StopLossTurn": {
+          "order": "closeLong",
+          "setback": 3.99,
+          "time": 14400,
+          "candleSize": 5,
+          "pair": "BTC_XRP",
+          "enableLog": false
+        }
+      }
+    }
+  ]
+}

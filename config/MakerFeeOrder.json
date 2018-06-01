@@ -1,0 +1,17 @@
+{
+  "data": [
+    {
+      "exchanges": ["Kraken"],
+      "marginTrading": false,
+      "tradeTotalBtc": 0.035,
+      "warmUpMin": 0,
+      "strategies": {
+        "MakerFeeOrder": {
+          "order": "buy",
+          "pair": "USD_BTC",
+          "enableLog": true
+        }
+      }
+    }
+  ]
+}

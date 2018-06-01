@@ -1,0 +1,10 @@
+{
+  "data": [
+    {
+      "exchanges": "default",
+      "pricePoints": 11,
+      "candleSize": 240,
+      "markets": ["BTC_ETH", "BTC_LTC", "BTC_DASH", "BTC_XMR", "USDT_BTC", "USDT_ETH", "USDT_LTC", "USDT_DASH", "USDT_XMR"]
+    }
+  ]
+}

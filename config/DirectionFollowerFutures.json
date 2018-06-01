@@ -1,0 +1,369 @@
+{
+  "data": [
+    {
+      "exchanges": ["OKEX"],
+      "marginTrading": true,
+      "tradeTotalBtc": 0.01,
+      "notifyTrades": true,
+      "strategies": {
+        "PlanRunnerLeverage": {
+          "orders": [
+            {
+              "action": "sell",
+              "comp": ">",
+              "position": "none",
+              "rate": 7700.9,
+              "reason": "middle high",
+              "indicators": ["RSI"]
+            }
+          ],
+          "pair": "USD_BTC",
+          "candleSize": 1,
+          "tradeStrategy": "RSIScalpOrderer",
+          "enableLog": true
+        },
+        "RSI": {
+          "pair": "USD_BTC",
+          "candleSize": 8,
+          "interval": 9,
+          "low": 54,
+          "high": 55,
+          "enableLog": false
+        },
+        "DirectionFollower": {
+          "interval": 14,
+          "adxTrend": 20,
+          "adxMaxTrend": 32,
+          "initialStop": true,
+          "accelerationFactor": 0.02,
+          "accelerationMax": 0.2,
+          "tradeDirection": "watch",
+          "candleSize": 240,
+          "pair": "USD_BTC",
+          "tradeStrategy": "RSIScalpOrderer",
+          "enableLog": true
+        },
+        "RSIScalpOrderer": {
+          "low": 34,
+          "high": 70,
+          "expiry": 20,
+          "candleSize": 5,
+          "pair": "USD_BTC",
+          "enableLog": true
+        },
+        "StopLossTurn": {
+          "order": "closeLong",
+          "setback": 3.2,
+          "time": 900,
+          "reduceTimeByVolatility": false,
+          "candleSize": 5,
+          "pair": "USD_BTC",
+          "enableLog": false
+        },
+        "TakeProfitPartial": {
+          "order": "closeLong",
+          "profit": 4.5,
+          "percentage": 60,
+          "time": 600,
+          "candleSize": 5,
+          "pair": "USD_BTC",
+          "enableLog": false
+        },
+        "TakeProfitStochRSI": {
+          "percentage": 50,
+          "low": 11,
+          "high": 87,
+          "interval": 25,
+          "closeRateFactor": 0.9992,
+          "candleSize": 60,
+          "orderStrategy": "TriggerOrder",
+          "pair": "USD_BTC",
+          "enableLog": true
+        },
+        "TriggerOrder": {
+          "candleSize": 1,
+          "pair": "USD_BTC",
+          "enableLog": true
+        }
+      }
+    },
+    {
+      "exchanges": ["OKEX"],
+      "marginTrading": true,
+      "tradeTotalBtc": 0.032,
+      "notifyTrades": true,
+      "strategies": {
+        "DirectionFollower": {
+          "interval": 14,
+          "adxTrend": 20,
+          "adxMaxTrend": 32,
+          "initialStop": true,
+          "accelerationFactor": 0.02,
+          "accelerationMax": 0.2,
+          "tradeDirection": "watch",
+          "candleSize": 240,
+          "pair": "USD_LTC",
+          "tradeStrategy": "RSIScalpOrderer",
+          "enableLog": true
+        },
+        "RSIScalpOrderer": {
+          "low": 34,
+          "high": 70,
+          "expiry": 20,
+          "candleSize": 5,
+          "pair": "USD_LTC",
+          "enableLog": true
+        },
+        "StopLossTurn": {
+          "order": "closeLong",
+          "setback": 3.2,
+          "time": 900,
+          "reduceTimeByVolatility": false,
+          "candleSize": 5,
+          "pair": "USD_LTC",
+          "enableLog": false
+        },
+        "TakeProfitPartial": {
+          "order": "closeLong",
+          "profit": 4.5,
+          "percentage": 60,
+          "time": 600,
+          "candleSize": 5,
+          "pair": "USD_LTC",
+          "enableLog": false
+        },
+        "TakeProfitStochRSI": {
+          "percentage": 50,
+          "low": 11,
+          "high": 87,
+          "interval": 25,
+          "closeRateFactor": 0.9992,
+          "candleSize": 60,
+          "orderStrategy": "TriggerOrder",
+          "pair": "USD_LTC",
+          "enableLog": true
+        },
+        "TriggerOrder": {
+          "candleSize": 1,
+          "pair": "USD_LTC",
+          "enableLog": true
+        }
+      }
+    },
+    {
+      "exchanges": [
+        "OKEX"
+      ],
+      "marginTrading": true,
+      "tradeTotalBtc": 0.032,
+      "notifyTrades": true,
+      "strategies": {
+        "DirectionFollower": {
+          "interval": 14,
+          "adxTrend": 20,
+          "adxMaxTrend": 32,
+          "initialStop": true,
+          "accelerationFactor": 0.02,
+          "accelerationMax": 0.2,
+          "tradeDirection": "watch",
+          "candleSize": 240,
+          "pair": "USD_ETH",
+          "tradeStrategy": "RSIScalpOrderer",
+          "enableLog": true
+        },
+        "RSIScalpOrderer": {
+          "low": 34,
+          "high": 70,
+          "expiry": 20,
+          "candleSize": 5,
+          "pair": "USD_ETH",
+          "enableLog": true
+        },
+        "StopLossTurn": {
+          "order": "closeLong",
+          "setback": 3.2,
+          "time": 900,
+          "reduceTimeByVolatility": false,
+          "candleSize": 5,
+          "pair": "USD_ETH",
+          "enableLog": false
+        },
+        "TakeProfitPartial": {
+          "order": "closeLong",
+          "profit": 4.5,
+          "percentage": 60,
+          "time": 600,
+          "candleSize": 5,
+          "pair": "USD_ETH",
+          "enableLog": false
+        },
+        "TakeProfitStochRSI": {
+          "percentage": 50,
+          "low": 11,
+          "high": 87,
+          "interval": 25,
+          "closeRateFactor": 0.9992,
+          "candleSize": 60,
+          "orderStrategy": "TriggerOrder",
+          "pair": "USD_ETH",
+          "enableLog": true
+        },
+        "TriggerOrder": {
+          "candleSize": 1,
+          "pair": "USD_ETH",
+          "enableLog": true
+        }
+      }
+    },
+    {
+      "exchanges": ["OKEX"],
+      "marginTrading": true,
+      "tradeTotalBtc": 0.02,
+      "notifyTrades": true,
+      "strategies": {
+        "PlanRunnerLeverage": {
+          "orders": [
+            {
+              "action": "sell",
+              "comp": ">",
+              "position": "none",
+              "rate": 1005.9,
+              "reason": "middle high",
+              "indicators": ["RSI"]
+            }
+          ],
+          "pair": "USD_BCH",
+          "candleSize": 1,
+          "tradeStrategy": "RSIScalpOrderer",
+          "enableLog": true
+        },
+        "RSI": {
+          "pair": "USD_BCH",
+          "candleSize": 8,
+          "interval": 9,
+          "low": 54,
+          "high": 55,
+          "enableLog": false
+        },
+        "DirectionFollower": {
+          "interval": 14,
+          "adxTrend": 20,
+          "adxMaxTrend": 32,
+          "initialStop": true,
+          "accelerationFactor": 0.02,
+          "accelerationMax": 0.2,
+          "tradeDirection": "watch",
+          "candleSize": 240,
+          "pair": "USD_BCH",
+          "tradeStrategy": "RSIScalpOrderer",
+          "enableLog": true
+        },
+        "RSIScalpOrderer": {
+          "low": 34,
+          "high": 70,
+          "expiry": 20,
+          "candleSize": 5,
+          "pair": "USD_BCH",
+          "enableLog": true
+        },
+        "StopLossTurn": {
+          "order": "closeLong",
+          "setback": 3.2,
+          "time": 900,
+          "reduceTimeByVolatility": false,
+          "candleSize": 5,
+          "pair": "USD_BCH",
+          "enableLog": false
+        },
+        "TakeProfitPartial": {
+          "order": "closeLong",
+          "profit": 4.5,
+          "percentage": 60,
+          "time": 600,
+          "candleSize": 5,
+          "pair": "USD_BCH",
+          "enableLog": false
+        },
+        "TakeProfitStochRSI": {
+          "percentage": 50,
+          "low": 11,
+          "high": 87,
+          "interval": 25,
+          "closeRateFactor": 0.9992,
+          "candleSize": 60,
+          "orderStrategy": "TriggerOrder",
+          "pair": "USD_BCH",
+          "enableLog": true
+        },
+        "TriggerOrder": {
+          "candleSize": 1,
+          "pair": "USD_BCH",
+          "enableLog": true
+        }
+      }
+    },
+    {
+      "exchanges": ["OKEX"],
+      "marginTrading": true,
+      "tradeTotalBtc": 0.032,
+      "notifyTrades": true,
+      "strategies": {
+        "DirectionFollower": {
+          "interval": 14,
+          "adxTrend": 20,
+          "adxMaxTrend": 32,
+          "initialStop": true,
+          "accelerationFactor": 0.02,
+          "accelerationMax": 0.2,
+          "tradeDirection": "watch",
+          "candleSize": 240,
+          "pair": "USD_EOS",
+          "tradeStrategy": "RSIScalpOrderer",
+          "enableLog": true
+        },
+        "RSIScalpOrderer": {
+          "low": 34,
+          "high": 70,
+          "expiry": 20,
+          "candleSize": 5,
+          "pair": "USD_EOS",
+          "enableLog": true
+        },
+        "StopLossTurn": {
+          "order": "closeLong",
+          "setback": 3.2,
+          "time": 900,
+          "reduceTimeByVolatility": false,
+          "candleSize": 5,
+          "pair": "USD_EOS",
+          "enableLog": false
+        },
+        "TakeProfitPartial": {
+          "order": "closeLong",
+          "profit": 4.5,
+          "percentage": 60,
+          "time": 600,
+          "candleSize": 5,
+          "pair": "USD_EOS",
+          "enableLog": false
+        },
+        "TakeProfitStochRSI": {
+          "percentage": 50,
+          "low": 11,
+          "high": 87,
+          "interval": 25,
+          "closeRateFactor": 0.9992,
+          "candleSize": 60,
+          "orderStrategy": "TriggerOrder",
+          "pair": "USD_EOS",
+          "enableLog": true
+        },
+        "TriggerOrder": {
+          "candleSize": 1,
+          "pair": "USD_EOS",
+          "enableLog": true
+        }
+      }
+    }
+  ]
+}

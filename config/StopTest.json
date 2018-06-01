@@ -1,0 +1,24 @@
+{
+  "data": [
+    {
+      "exchanges": "default",
+      "markets": [
+        "BTC_ETH"
+      ],
+      "marginTrading": true,
+      "tradeTotalBtc": 0.1,
+      "warmUpMin": 0,
+      "strategies": {
+        "StopLossTime": {
+          "order": "buy",
+          "stop": 0.06333500,
+          "time": 10,
+          "limit": 0.06333500,
+          "amount": 1,
+          "pair": "BTC_ETH",
+          "enableLog": false
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,97 @@
+{
+  "data": [
+    {
+      "exchanges": "default",
+      "marginTrading": true,
+      "tradeTotalBtc": 0.06,
+      "warmUpMin": 0,
+      "strategies": {
+        "BollingerBreakouts": {
+          "breakout": 3,
+          "MAType": 1,
+          "pair": "BTC_FCT",
+          "candleSize": 15,
+          "enableLog": true
+        },
+        "StopLossTurn": {
+          "order": "closeShort",
+          "setback": 1.79,
+          "time": 120,
+          "candleSize": 1,
+          "pair": "BTC_FCT",
+          "enableLog": true
+        },
+        "TakeProfit": {
+          "order": "closeShort",
+          "profit": 1.95,
+          "time": 720,
+          "candleSize": 1,
+          "pair": "BTC_FCT",
+          "enableLog": true
+        }
+      }
+    },
+    {
+      "exchanges": "default",
+      "marginTrading": true,
+      "tradeTotalBtc": 0.06,
+      "warmUpMin": 0,
+      "strategies": {
+        "BollingerBreakouts": {
+          "breakout": 3,
+          "MAType": 1,
+          "pair": "BTC_DOGE",
+          "candleSize": 15,
+          "enableLog": true
+        },
+        "StopLossTurn": {
+          "order": "closeLong",
+          "setback": 1.19,
+          "time": 120,
+          "candleSize": 1,
+          "pair": "BTC_DOGE",
+          "enableLog": true
+        },
+        "TakeProfit": {
+          "order": "closeLong",
+          "profit": 1.45,
+          "time": 720,
+          "candleSize": 1,
+          "pair": "BTC_DOGE",
+          "enableLog": true
+        }
+      }
+    },
+    {
+      "exchanges": "default",
+      "marginTrading": true,
+      "tradeTotalBtc": 0.06,
+      "warmUpMin": 0,
+      "strategies": {
+        "BollingerBreakouts": {
+          "breakout": 3,
+          "MAType": 1,
+          "pair": "BTC_DASH",
+          "candleSize": 15,
+          "enableLog": true
+        },
+        "StopLossTurn": {
+          "order": "closeLong",
+          "setback": 0.99,
+          "time": 120,
+          "candleSize": 1,
+          "pair": "BTC_DASH",
+          "enableLog": true
+        },
+        "TakeProfit": {
+          "order": "closeLong",
+          "profit": 1.35,
+          "time": 720,
+          "candleSize": 1,
+          "pair": "BTC_DASH",
+          "enableLog": true
+        }
+      }
+    }
+  ]
+}

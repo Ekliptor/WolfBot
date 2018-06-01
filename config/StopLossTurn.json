@@ -1,0 +1,38 @@
+{
+  "data": [
+    {
+      "exchanges": ["OKEX"],
+      "marginTrading": true,
+      "tradeTotalBtc": 0.031,
+      "notifyTrades": false,
+      "strategies": {
+        "StopLossTurn": {
+          "order": "closeLong",
+          "setback": 5.0,
+          "time": 120,
+          "reduceTimeByVolatility": false,
+          "candleSize": 5,
+          "pair": "USD_BTC",
+          "enableLog": false
+        }
+      }
+    },
+    {
+      "exchanges": ["OKEX"],
+      "marginTrading": true,
+      "tradeTotalBtc": 1.8,
+      "notifyTrades": false,
+      "strategies": {
+        "StopLossTurn": {
+          "order": "closeLong",
+          "setback": 5.5,
+          "time": 120,
+          "reduceTimeByVolatility": false,
+          "candleSize": 5,
+          "pair": "USD_LTC",
+          "enableLog": false
+        }
+      }
+    }
+  ]
+}

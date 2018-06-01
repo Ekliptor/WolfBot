@@ -1,0 +1,42 @@
+{
+  "data": [
+    {
+      "exchanges": "default",
+      "marginTrading": true,
+      "tradeTotalBtc": 0.1,
+      "warmUpMin": 0,
+      "strategies": {
+        "VolumeSpikeDetector": {
+          "spikeFactor": 2.1,
+          "minVolBtc": 550,
+          "candleSize": 5,
+          "pair": "BTC_ETH",
+          "enableLog": true
+        },
+        "StopLossTurn": {
+          "order": "closeLong",
+          "setback": 0.99,
+          "time": 90,
+          "candleSize": 1,
+          "pair": "BTC_ETH",
+          "enableLog": true
+        },
+        "TakeProfit": {
+          "order": "closeLong",
+          "profit": 1.15,
+          "time": 300,
+          "candleSize": 1,
+          "pair": "BTC_ETH",
+          "enableLog": true
+        },
+        "TimeOrder": {
+          "order": "buy",
+          "executeMin": 180,
+          "candleSize": 5,
+          "pair": "BTC_ETH",
+          "enableLog": true
+        }
+      }
+    }
+  ]
+}

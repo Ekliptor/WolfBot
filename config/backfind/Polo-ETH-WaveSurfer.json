@@ -1,0 +1,34 @@
+{
+  "data": [
+    {
+      "exchanges": "default",
+      "marginTrading": true,
+      "tradeTotalBtc": 0.7,
+      "warmUpMin": 0,
+      "strategies": {
+        "WaveSurfer": {
+          "minSurfCandles": [2, 3],
+          "pair": "BTC_LTC",
+          "candleSize": [240],
+          "enableLog": false
+        },
+        "StopLossTurn": {
+          "order": "closeLong",
+          "setback": 3.99,
+          "time": [3600, 14400],
+          "candleSize": 60,
+          "pair": "BTC_LTC",
+          "enableLog": false
+        },
+        "TakeProfit": {
+          "order": "closeLong",
+          "profit": [2.5, 4.0, 7.0 ,15.0],
+          "time": 3600,
+          "candleSize": 60,
+          "pair": "BTC_LTC",
+          "enableLog": false
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,41 @@
+{
+  "data": [
+    {
+      "exchanges": ["OKEX"],
+      "marginTrading": true,
+      "tradeTotalBtc": [60],
+      "warmUpMin": 0,
+      "strategies": {
+        "DEMA": {
+          "CrossMAType": ["DEMA", "EMA", "SMA"],
+          "autoSensitivity": true,
+          "short": [1, 100],
+          "long": [2, 500],
+          "pair": "USD_LTC",
+          "candleSize": [15, 60, 600],
+          "thresholds": {
+            "down": -0.55,
+            "up": 0.4
+          },
+          "enableLog": true
+        },
+        "StopLossTurn": {
+          "order": "closeLong",
+          "setback": [1.0, 2.5, 3.99],
+          "time": [60, 3600],
+          "candleSize": [5, 30],
+          "pair": "USD_LTC",
+          "enableLog": false
+        },
+        "TakeProfit": {
+          "order": "closeLong",
+          "profit": [1.5, 3.0, 4.0, 15.5],
+          "time": [60, 7200],
+          "candleSize": [5, 30],
+          "pair": "USD_LTC",
+          "enableLog": false
+        }
+      }
+    }
+  ]
+}

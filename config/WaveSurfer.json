@@ -1,0 +1,64 @@
+{
+  "data": [
+    {
+      "exchanges": "default",
+      "marginTrading": true,
+      "tradeTotalBtc": 0.7,
+      "warmUpMin": 0,
+      "strategies": {
+        "WaveSurfer": {
+          "minSurfCandles": 3,
+          "pair": "BTC_ETH",
+          "candleSize": 133,
+          "enableLog": true
+        },
+        "StopLossTurn": {
+          "order": "closeLong",
+          "setback": 1.6,
+          "time": 3600,
+          "candleSize": 42,
+          "pair": "BTC_ETH",
+          "enableLog": false
+        },
+        "TakeProfit": {
+          "order": "closeLong",
+          "profit": 3.2,
+          "time": 14227,
+          "candleSize": 39,
+          "pair": "BTC_ETH",
+          "enableLog": false
+        }
+      }
+    },
+    {
+      "exchanges": "default",
+      "marginTrading": true,
+      "tradeTotalBtc": 0.7,
+      "warmUpMin": 0,
+      "strategies": {
+        "WaveSurfer": {
+          "minSurfCandles": 20,
+          "pair": "BTC_LTC",
+          "candleSize": 35,
+          "enableLog": true
+        },
+        "StopLossTurn": {
+          "order": "closeLong",
+          "setback": 3.2,
+          "time": 3600,
+          "candleSize": 55,
+          "pair": "BTC_LTC",
+          "enableLog": false
+        },
+        "TakeProfit": {
+          "order": "closeLong",
+          "profit": 4.6,
+          "time": 4974,
+          "candleSize": 16,
+          "pair": "BTC_LTC",
+          "enableLog": false
+        }
+      }
+    }
+  ]
+}

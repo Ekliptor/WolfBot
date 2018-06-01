@@ -1,0 +1,27 @@
+{
+  "data": [
+    {
+      "exchanges": "default",
+      "marginTrading": true,
+      "tradeTotalBtc": 0.0,
+      "warmUpMin": 0,
+      "strategies": {
+        "AroonTristar": {
+          "interval": 30,
+          "breakout": 3,
+          "pair": "BTC_ETH",
+          "candleSize": 60,
+          "enableLog": true
+        },
+        "StopLossTurn": {
+          "order": "closeLong",
+          "setback": 9.99,
+          "time": 14400,
+          "candleSize": 1,
+          "pair": "BTC_ETH",
+          "enableLog": false
+        }
+      }
+    }
+  ]
+}

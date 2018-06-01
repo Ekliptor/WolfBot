@@ -1,0 +1,36 @@
+{
+  "data": [
+    {
+      "exchanges": "default",
+      "marginTrading": true,
+      "tradeTotalBtc": 0.7,
+      "warmUpMin": 0,
+      "strategies": {
+        "DEMA": {
+          "CrossMAType": ["DEMA", "EMA", "SMA"],
+          "short": [1, 100],
+          "long": [2, 500],
+          "pair": "BTC_ETH",
+          "candleSize": [15, 60, 600],
+          "enableLog": false
+        },
+        "StopLossTurn": {
+          "order": "closeLong",
+          "setback": [1.5, 3.99, 5.0],
+          "time": [3600, 14400],
+          "candleSize": [10, 60],
+          "pair": "BTC_ETH",
+          "enableLog": false
+        },
+        "TakeProfit": {
+          "order": "closeLong",
+          "profit": [1.5, 4.0, 7.0, 15.0],
+          "time": [3600, 14400],
+          "candleSize": [10, 60],
+          "pair": "BTC_ETH",
+          "enableLog": false
+        }
+      }
+    }
+  ]
+}

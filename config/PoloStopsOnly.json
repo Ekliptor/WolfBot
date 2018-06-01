@@ -1,0 +1,478 @@
+{
+  "data": [
+    {
+      "exchanges": ["Poloniex"],
+      "marginTrading": true,
+      "tradeTotalBtc": 0.2,
+      "notifyTrades": true,
+      "strategies": {
+        "OrderPartitioner": {
+          "tradeCount": 20,
+          "percentChange": 0.35,
+          "whalePercentage": 5,
+          "fishPercentage": 1.1,
+          "pair": "BTC_ETH",
+          "candleSize": 60,
+          "enableLog": false
+        },
+        "StopLossTurnPartial": {
+          "order": "closeLong",
+          "percentage": 85,
+          "setback": 10.9,
+          "setbackLong": 12.2,
+          "time": 7200,
+          "notifyBeforeStopSec": 1800,
+          "reduceTimeByVolatility": false,
+          "low": 52,
+          "high": 56,
+          "candleSize": 5,
+          "pair": "BTC_ETH",
+          "enableLog": false
+        },
+        "TakeProfitPartial": {
+          "order": "closeLong",
+          "profit": 3.9,
+          "percentage": 60,
+          "time": 1800,
+          "candleSize": 5,
+          "pair": "BTC_ETH",
+          "enableLog": false
+        },
+        "TakeProfitStochRSI": {
+          "percentage": 50,
+          "low": 11,
+          "high": 87,
+          "interval": 25,
+          "closeRateFactor": 0.9992,
+          "candleSize": 60,
+          "orderStrategy": "TriggerOrder",
+          "pair": "BTC_ETH",
+          "enableLog": true
+        },
+        "TriggerOrder": {
+          "candleSize": 1,
+          "pair": "BTC_ETH",
+          "enableLog": true
+        },
+        "IntervalExtremes": {
+          "tradeDirection": "watch",
+          "mode": "bounce",
+          "tradeInterval": "halfDay",
+          "low": 30,
+          "high": 70,
+          "candleSize": 60,
+          "pair": "BTC_ETH",
+          "tradeStrategy": "RSIScalpOrderer",
+          "enableLog": true
+        },
+        "DirectionFollower": {
+          "interval": 14,
+          "adxTrend": 20,
+          "initialStop": true,
+          "accelerationFactor": 0.06,
+          "accelerationMax": 0.2,
+          "tradeDirection": "notify",
+          "candleSize": 240,
+          "pair": "BTC_ETH",
+          "tradeStrategy": "RSIScalpOrderer",
+          "enableLog": false
+        }
+      }
+    },
+    {
+      "exchanges": ["Poloniex"],
+      "marginTrading": true,
+      "tradeTotalBtc": 0.2,
+      "notifyTrades": true,
+      "strategies": {
+        "OrderPartitioner": {
+          "tradeCount": 20,
+          "percentChange": 0.35,
+          "whalePercentage": 5,
+          "fishPercentage": 1.1,
+          "pair": "BTC_LTC",
+          "candleSize": 60,
+          "enableLog": false
+        },
+        "StopLossTurnPartial": {
+          "order": "closeLong",
+          "percentage": 85,
+          "setback": 10.9,
+          "setbackLong": 12.2,
+          "time": 7200,
+          "notifyBeforeStopSec": 1800,
+          "reduceTimeByVolatility": false,
+          "low": 52,
+          "high": 56,
+          "candleSize": 5,
+          "pair": "BTC_LTC",
+          "enableLog": false
+        },
+        "TakeProfitPartial": {
+          "order": "closeLong",
+          "profit": 3.9,
+          "percentage": 60,
+          "time": 1800,
+          "candleSize": 5,
+          "pair": "BTC_LTC",
+          "enableLog": false
+        },
+        "TakeProfitStochRSI": {
+          "percentage": 50,
+          "low": 11,
+          "high": 87,
+          "interval": 25,
+          "closeRateFactor": 0.9992,
+          "candleSize": 60,
+          "orderStrategy": "TriggerOrder",
+          "pair": "BTC_LTC",
+          "enableLog": true
+        },
+        "TriggerOrder": {
+          "candleSize": 1,
+          "pair": "BTC_LTC",
+          "enableLog": true
+        },
+        "IntervalExtremes": {
+          "tradeDirection": "watch",
+          "mode": "bounce",
+          "tradeInterval": "halfDay",
+          "low": 30,
+          "high": 70,
+          "candleSize": 60,
+          "pair": "BTC_LTC",
+          "tradeStrategy": "RSIScalpOrderer",
+          "enableLog": true
+        },
+        "DirectionFollower": {
+          "interval": 14,
+          "adxTrend": 20,
+          "initialStop": true,
+          "accelerationFactor": 0.06,
+          "accelerationMax": 0.2,
+          "tradeDirection": "notify",
+          "candleSize": 240,
+          "pair": "BTC_LTC",
+          "tradeStrategy": "RSIScalpOrderer",
+          "enableLog": false
+        }
+      }
+    },
+    {
+      "exchanges": ["Poloniex"],
+      "marginTrading": true,
+      "tradeTotalBtc": 0.2,
+      "notifyTrades": true,
+      "strategies": {
+        "OrderPartitioner": {
+          "tradeCount": 20,
+          "percentChange": 0.35,
+          "whalePercentage": 5,
+          "fishPercentage": 1.1,
+          "pair": "BTC_DASH",
+          "candleSize": 60,
+          "enableLog": false
+        },
+        "StopLossTurnPartial": {
+          "order": "closeLong",
+          "percentage": 85,
+          "setback": 10.9,
+          "setbackLong": 12.2,
+          "time": 7200,
+          "notifyBeforeStopSec": 1800,
+          "reduceTimeByVolatility": false,
+          "low": 52,
+          "high": 56,
+          "candleSize": 5,
+          "pair": "BTC_DASH",
+          "enableLog": false
+        },
+        "TakeProfitPartial": {
+          "order": "closeLong",
+          "profit": 3.9,
+          "percentage": 60,
+          "time": 1800,
+          "candleSize": 5,
+          "pair": "BTC_DASH",
+          "enableLog": false
+        },
+        "TakeProfitStochRSI": {
+          "percentage": 50,
+          "low": 11,
+          "high": 87,
+          "interval": 25,
+          "closeRateFactor": 0.9992,
+          "candleSize": 60,
+          "orderStrategy": "TriggerOrder",
+          "pair": "BTC_DASH",
+          "enableLog": true
+        },
+        "TriggerOrder": {
+          "candleSize": 1,
+          "pair": "BTC_DASH",
+          "enableLog": true
+        },
+        "IntervalExtremes": {
+          "tradeDirection": "watch",
+          "mode": "bounce",
+          "tradeInterval": "halfDay",
+          "low": 30,
+          "high": 70,
+          "candleSize": 60,
+          "pair": "BTC_DASH",
+          "tradeStrategy": "RSIScalpOrderer",
+          "enableLog": true
+        },
+        "DirectionFollower": {
+          "interval": 14,
+          "adxTrend": 20,
+          "initialStop": true,
+          "accelerationFactor": 0.06,
+          "accelerationMax": 0.2,
+          "tradeDirection": "notify",
+          "candleSize": 240,
+          "pair": "BTC_DASH",
+          "tradeStrategy": "RSIScalpOrderer",
+          "enableLog": false
+        }
+      }
+    },
+    {
+      "exchanges": ["Poloniex"],
+      "marginTrading": true,
+      "tradeTotalBtc": 0.2,
+      "notifyTrades": true,
+      "strategies": {
+        "OrderPartitioner": {
+          "tradeCount": 20,
+          "percentChange": 0.35,
+          "whalePercentage": 5,
+          "fishPercentage": 1.1,
+          "pair": "BTC_XMR",
+          "candleSize": 60,
+          "enableLog": false
+        },
+        "StopLossTurnPartial": {
+          "order": "closeLong",
+          "percentage": 85,
+          "setback": 10.9,
+          "setbackLong": 12.2,
+          "time": 7200,
+          "notifyBeforeStopSec": 1800,
+          "reduceTimeByVolatility": false,
+          "low": 52,
+          "high": 56,
+          "candleSize": 5,
+          "pair": "BTC_XMR",
+          "enableLog": false
+        },
+        "TakeProfitPartial": {
+          "order": "closeLong",
+          "profit": 3.9,
+          "percentage": 60,
+          "time": 1800,
+          "candleSize": 5,
+          "pair": "BTC_XMR",
+          "enableLog": false
+        },
+        "TakeProfitStochRSI": {
+          "percentage": 50,
+          "low": 11,
+          "high": 87,
+          "interval": 25,
+          "closeRateFactor": 0.9992,
+          "candleSize": 60,
+          "orderStrategy": "TriggerOrder",
+          "pair": "BTC_XMR",
+          "enableLog": true
+        },
+        "TriggerOrder": {
+          "candleSize": 1,
+          "pair": "BTC_XMR",
+          "enableLog": true
+        },
+        "IntervalExtremes": {
+          "tradeDirection": "watch",
+          "mode": "bounce",
+          "tradeInterval": "halfDay",
+          "low": 30,
+          "high": 70,
+          "candleSize": 60,
+          "pair": "BTC_XMR",
+          "tradeStrategy": "RSIScalpOrderer",
+          "enableLog": true
+        },
+        "DirectionFollower": {
+          "interval": 14,
+          "adxTrend": 20,
+          "initialStop": true,
+          "accelerationFactor": 0.06,
+          "accelerationMax": 0.2,
+          "tradeDirection": "notify",
+          "candleSize": 240,
+          "pair": "BTC_XMR",
+          "tradeStrategy": "RSIScalpOrderer",
+          "enableLog": false
+        }
+      }
+    },
+    {
+      "exchanges": ["Poloniex"],
+      "marginTrading": true,
+      "tradeTotalBtc": 0.2,
+      "notifyTrades": true,
+      "strategies": {
+        "OrderPartitioner": {
+          "tradeCount": 20,
+          "percentChange": 0.35,
+          "whalePercentage": 5,
+          "fishPercentage": 1.1,
+          "pair": "BTC_XRP",
+          "candleSize": 60,
+          "enableLog": false
+        },
+        "StopLossTurnPartial": {
+          "order": "closeLong",
+          "percentage": 85,
+          "setback": 10.9,
+          "setbackLong": 12.2,
+          "time": 7200,
+          "notifyBeforeStopSec": 1800,
+          "reduceTimeByVolatility": false,
+          "low": 52,
+          "high": 56,
+          "candleSize": 5,
+          "pair": "BTC_XRP",
+          "enableLog": false
+        },
+        "TakeProfitPartial": {
+          "order": "closeLong",
+          "profit": 3.9,
+          "percentage": 60,
+          "time": 1800,
+          "candleSize": 5,
+          "pair": "BTC_XRP",
+          "enableLog": false
+        },
+        "TakeProfitStochRSI": {
+          "percentage": 50,
+          "low": 11,
+          "high": 87,
+          "interval": 25,
+          "closeRateFactor": 0.9992,
+          "candleSize": 60,
+          "orderStrategy": "TriggerOrder",
+          "pair": "BTC_XRP",
+          "enableLog": true
+        },
+        "TriggerOrder": {
+          "candleSize": 1,
+          "pair": "BTC_XRP",
+          "enableLog": true
+        },
+        "IntervalExtremes": {
+          "tradeDirection": "watch",
+          "mode": "bounce",
+          "tradeInterval": "halfDay",
+          "low": 30,
+          "high": 70,
+          "candleSize": 60,
+          "pair": "BTC_XRP",
+          "tradeStrategy": "RSIScalpOrderer",
+          "enableLog": true
+        },
+        "DirectionFollower": {
+          "interval": 14,
+          "adxTrend": 20,
+          "initialStop": true,
+          "accelerationFactor": 0.06,
+          "accelerationMax": 0.2,
+          "tradeDirection": "notify",
+          "candleSize": 240,
+          "pair": "BTC_XRP",
+          "tradeStrategy": "RSIScalpOrderer",
+          "enableLog": false
+        }
+      }
+    },
+    {
+      "exchanges": ["Poloniex"],
+      "marginTrading": true,
+      "tradeTotalBtc": 0.2,
+      "notifyTrades": true,
+      "strategies": {
+        "OrderPartitioner": {
+          "tradeCount": 20,
+          "percentChange": 0.35,
+          "whalePercentage": 5,
+          "fishPercentage": 1.1,
+          "pair": "BTC_STR",
+          "candleSize": 60,
+          "enableLog": false
+        },
+        "StopLossTurnPartial": {
+          "order": "closeLong",
+          "percentage": 85,
+          "setback": 10.9,
+          "setbackLong": 12.2,
+          "time": 7200,
+          "notifyBeforeStopSec": 1800,
+          "reduceTimeByVolatility": false,
+          "low": 52,
+          "high": 56,
+          "candleSize": 5,
+          "pair": "BTC_STR",
+          "enableLog": false
+        },
+        "TakeProfitPartial": {
+          "order": "closeLong",
+          "profit": 3.9,
+          "percentage": 60,
+          "time": 1800,
+          "candleSize": 5,
+          "pair": "BTC_STR",
+          "enableLog": false
+        },
+        "TakeProfitStochRSI": {
+          "percentage": 50,
+          "low": 11,
+          "high": 87,
+          "interval": 25,
+          "closeRateFactor": 0.9992,
+          "candleSize": 60,
+          "orderStrategy": "TriggerOrder",
+          "pair": "BTC_STR",
+          "enableLog": true
+        },
+        "TriggerOrder": {
+          "candleSize": 1,
+          "pair": "BTC_STR",
+          "enableLog": true
+        },
+        "IntervalExtremes": {
+          "tradeDirection": "watch",
+          "mode": "bounce",
+          "tradeInterval": "halfDay",
+          "low": 30,
+          "high": 70,
+          "candleSize": 60,
+          "pair": "BTC_STR",
+          "tradeStrategy": "RSIScalpOrderer",
+          "enableLog": true
+        },
+        "DirectionFollower": {
+          "interval": 14,
+          "adxTrend": 20,
+          "initialStop": true,
+          "accelerationFactor": 0.06,
+          "accelerationMax": 0.2,
+          "tradeDirection": "notify",
+          "candleSize": 240,
+          "pair": "BTC_STR",
+          "tradeStrategy": "RSIScalpOrderer",
+          "enableLog": false
+        }
+      }
+    }
+  ]
+}

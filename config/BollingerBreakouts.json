@@ -1,0 +1,97 @@
+{
+  "data": [
+    {
+      "exchanges": "default",
+      "marginTrading": true,
+      "tradeTotalBtc": 0.15,
+      "warmUpMin": 0,
+      "strategies": {
+        "BollingerBreakouts": {
+          "breakout": 3,
+          "MAType": 1,
+          "pair": "BTC_ETH",
+          "candleSize": 3,
+          "enableLog": true
+        },
+        "StopLossTurn": {
+          "order": "closeShort",
+          "setback": 0.59,
+          "time": 90,
+          "candleSize": 1,
+          "pair": "BTC_ETH",
+          "enableLog": true
+        },
+        "TakeProfit": {
+          "order": "closeShort",
+          "profit": 0.75,
+          "time": 600,
+          "candleSize": 1,
+          "pair": "BTC_ETH",
+          "enableLog": true
+        }
+      }
+    },
+    {
+      "exchanges": "default",
+      "marginTrading": true,
+      "tradeTotalBtc": 0.15,
+      "warmUpMin": 0,
+      "strategies": {
+        "BollingerBreakouts": {
+          "breakout": 3,
+          "MAType": 1,
+          "pair": "BTC_XRP",
+          "candleSize": 3,
+          "enableLog": true
+        },
+        "StopLossTurn": {
+          "order": "closeShort",
+          "setback": 0.99,
+          "time": 90,
+          "candleSize": 1,
+          "pair": "BTC_XRP",
+          "enableLog": true
+        },
+        "TakeProfit": {
+          "order": "closeShort",
+          "profit": 1.35,
+          "time": 600,
+          "candleSize": 1,
+          "pair": "BTC_XRP",
+          "enableLog": true
+        }
+      }
+    },
+    {
+      "exchanges": "default",
+      "marginTrading": true,
+      "tradeTotalBtc": 0.15,
+      "warmUpMin": 0,
+      "strategies": {
+        "BollingerBreakouts": {
+          "breakout": 3,
+          "MAType": 1,
+          "pair": "BTC_LTC",
+          "candleSize": 3,
+          "enableLog": true
+        },
+        "StopLossTurn": {
+          "order": "closeShort",
+          "setback": 0.59,
+          "time": 90,
+          "candleSize": 1,
+          "pair": "BTC_LTC",
+          "enableLog": true
+        },
+        "TakeProfit": {
+          "order": "closeShort",
+          "profit": 0.75,
+          "time": 600,
+          "candleSize": 1,
+          "pair": "BTC_LTC",
+          "enableLog": true
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,47 @@
+{
+  "data": [
+    {
+      "exchanges": "default",
+      "marginTrading": true,
+      "tradeTotalBtc": 0.7,
+      "warmUpMin": 0,
+      "strategies": {
+        "DirectionFollower": {
+          "interval": 14,
+          "adxTrend": 20,
+          "initialStop": true,
+          "accelerationFactor": 0.06,
+          "accelerationMax": 0.2,
+          "candleSize": 240,
+          "pair": "BTC_LTC",
+          "tradeStrategy": "RSIScalpOrderer",
+          "enableLog": true
+        },
+        "RSIScalper": {
+          "percentage": 50,
+          "low": 25,
+          "high": 75,
+          "candleSize": 10,
+          "pair": "BTC_LTC",
+          "enableLog": false
+        },
+        "RSIScalpOrderer": {
+          "low": 34,
+          "high": 70,
+          "expiry": 20,
+          "candleSize": 5,
+          "pair": "BTC_LTC",
+          "enableLog": true
+        },
+        "StopLossTurn": {
+          "order": "closeLong",
+          "setback": 4.5,
+          "time": 3600,
+          "candleSize": 60,
+          "pair": "BTC_LTC",
+          "enableLog": false
+        }
+      }
+    }
+  ]
+}

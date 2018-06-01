@@ -1,0 +1,40 @@
+{
+  "data": [
+    {
+      "exchanges": ["Poloniex"],
+      "marginTrading": true,
+      "tradeTotalBtc": 0.7,
+      "warmUpMin": 0,
+      "strategies": {
+        "RSIScalper": {
+          "percentage": 50,
+          "low": 35,
+          "high": 70,
+          "candleSize": 15,
+          "openPosition": true,
+          "pair": "BTC_LTC",
+          "tradeStrategy": "RSIOrderer",
+          "enableLog": true
+        },
+        "RSIOrderer": {
+          "low": 35,
+          "high": 65,
+          "immediateLow": 34,
+          "immediateHigh": 66,
+          "waitBounceBack": false,
+          "expiry": 20,
+          "candleSize": 5,
+          "pair": "BTC_LTC",
+          "enableLog": true
+        },
+        "ProtectProfit": {
+          "profit": 0.7,
+          "time": 30,
+          "candleSize": 1,
+          "pair": "BTC_LTC",
+          "enableLog": true
+        }
+      }
+    }
+  ]
+}

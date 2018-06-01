@@ -1,0 +1,28 @@
+{
+  "data": [
+    {
+      "exchanges": "default",
+      "marginTrading": true,
+      "tradeTotalBtc": 0.0,
+      "warmUpMin": 0,
+      "strategies": {
+        "PatternRepeater": {
+          "patternSize": 20,
+          "patternRepeat": 2,
+          "maxOffset": 1,
+          "pair": "BTC_ETH",
+          "candleSize": 60,
+          "enableLog": true
+        },
+        "StopLossTurn": {
+          "order": "closeLong",
+          "setback": 3.99,
+          "time": 14400,
+          "candleSize": 5,
+          "pair": "BTC_ETH",
+          "enableLog": false
+        }
+      }
+    }
+  ]
+}
