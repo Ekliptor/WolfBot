@@ -76,3 +76,7 @@ tests/telegram.ts
 tests/tradingview.ts
 src/Social/Crawler
 src/Social/Watcher
+config/social
+
+# to prevent uploading local/private module dependencies
+package.json

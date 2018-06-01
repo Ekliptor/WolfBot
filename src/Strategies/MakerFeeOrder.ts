@@ -14,6 +14,9 @@ interface MakerFeeAction extends StrategyAction {
 
 /**
  * A strategy that makes a one order as maker (not paying taker fee).
+ * The rate will be as close as possible to the rate of the last public trade.
+ * Useful as a trade strategy (execution strategy) with other strategies or if you want to
+ * manually buy a large amount for the cheaper maker fee.
  * It uses "forceMakeOnly()" function in AbstractStrategy.
  */
 export default class MakerFeeOrder extends AbstractStrategy {

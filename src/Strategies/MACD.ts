@@ -11,18 +11,22 @@ import {TradeInfo} from "../Trade/AbstractTrader";
 import * as helper from "../utils/helper";
 
 interface MacdAction extends TechnicalStrategyAction {
-    // more technical parameters, see MACD indicator
-    takeProfitTicks: number; // default 0 = disabled. close a position early if the MACD histogram decreases for x candles
-    closeLossEarly: boolean; // default = true. close positions at a loss after takeProfitTicks too
-    noiseFilterFactor: number; // default = 2.5. increase the max histogram after a loss trade. useful to protect further losses in sideways markets
-    histogramIncreaseFactor: number; // default 1.05. only open a position if the histogram increases/decreases by this factor
-    closeSidewaysMarkets: boolean; // default false. close a position in sideways markets at the first tick with a profit
-    openAgainPriceChange: number; // default 0.3%. how much the price has to change at least to open a long/short position again
-    openDecreasingHist: number; // optional, default 0 = open on Histogram 0 (minimum). value > 0 means we open on Histogram max after the histogram value decreases for x candles
+    // MACD indicator technical parameters
+    short: number; // Number of candles for the short EMA line.
+    long: number; // Number of candles for the long EMA line.
+    signal: number; // Number of candles for the MACD signal line (candles for EMA(short) - EMA(long)).
+
+    takeProfitTicks: number; // default 0 = disabled. Close a position with profit early if the MACD histogram decreases for x candles.
+    closeLossEarly: boolean; // default = true. Close positions at a loss after takeProfitTicks too.
+    noiseFilterFactor: number; // default = 2.5. Increase the max histogram after a loss trade. Useful to protect further losses in sideways markets.
+    histogramIncreaseFactor: number; // default 1.05. Only open a position if the histogram increases/decreases by this factor.
+    closeSidewaysMarkets: boolean; // default false. Close a position in sideways markets at the first tick with a profit.
+    openAgainPriceChange: number; // default 0.3%. How much the price has to change at least to open a long/short position again (in the same direction as the previous position).
+    openDecreasingHist: number; // optional, default 0 = open on Histogram 0 (minimum). A value > 0 means we open on Histogram max after the histogram value decreases for x candles.
 
     // optional: Aroon to only trade if we are in a trending market (not sideways)
     interval: number; // default 0 = disabled. compute Aroon up/down of the latest candles
-    trendCandleThreshold: number; // default = 76. the min value of the Aroon up/down to open a position (to prevent opening positions in sideways markets)
+    trendCandleThreshold: number; // default = 76. The min value of the Aroon up/down to open a long/short position (to prevent opening positions in sideways markets).
 
     // TODO pauseTicks after closing early (if the trend is still in the same direction)
     // TODO option to allow multiple trades (in the same direction) if we don't use it for futures (and as 2nd strategy)
@@ -31,6 +35,9 @@ interface MacdAction extends TechnicalStrategyAction {
 
 /**
  * Strategy that emits buy/sell based on the MACD indicator.
+ * You can open a position on MACD signal line crossovers (most common, default setting) when the histogram is 0 or alternatively you
+ * can open positions on decreasing momentum against the current momentum (buy in downside momentum). Use 'openDecreasingHist' for this.
+ * This strategy can also close positions if the upside/downside momentum is decreasing for 'takeProfitTicks' candle ticks.
  */
 export default class MACD extends AbstractTurnStrategy {
     public action: MacdAction;

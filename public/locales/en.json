@@ -711,18 +711,65 @@
       "tradeDirection": "optional, default both - The direction in which this strategy shall open positions. 'watch' only computes the indicators for manual inspection. Values: up|down|both|watch"
     },
     "MakerFeeOrder": {
+      "desc": "A strategy that makes a one order as maker (not paying taker fee). The rate will be as close as possible to the rate of the last public trade. Useful as a trade strategy (execution strategy) with other strategies or if you want to manually buy a large amount for the cheaper maker fee.",
+      "order": "The order to submit. Values: buy|sell"
     },
     "MACD": {
+      "desc": "Strategy that emits buy/sell based on the MACD indicator. You can open a position on MACD signal line crossovers (most common, default setting) when the histogram is 0 or alternatively you can open positions on decreasing momentum against the current momentum (buy in downside momentum). Use 'openDecreasingHist' for this. This strategy can also close positions if the upside/downside momentum is decreasing for 'takeProfitTicks' candle ticks.",
+      "short": "Number of candles for the short EMA line.",
+      "long": "Number of candles for the long EMA line.",
+      "signal": "Number of candles for the MACD signal line (candles for EMA(short) - EMA(long)).",
+      "takeProfitTicks": "optional, default 0 (disabled) - Close a position with profit early if the MACD histogram decreases for x candles.",
+      "closeLossEarly": "optional, default true - Close positions at a loss after takeProfitTicks too.",
+      "noiseFilterFactor": "optional, default 2.5 - Increase the max histogram after a loss trade. Useful to protect further losses in sideways markets.",
+      "histogramIncreaseFactor": "optional, default 1.05 - Only open a position if the histogram increases/decreases by this factor.",
+      "closeSidewaysMarkets": "optional, default false - Close a position in sideways markets at the first tick with a profit.",
+      "openAgainPriceChange": "optional, default 0.3% - How much the price has to change at least to open a long/short position again (in the same direction as the previous position).",
+      "openDecreasingHist": "optional, default 0 = open on Histogram 0 (minimum). A value > 0 means we open on Histogram max after the histogram value decreases for x candles.",
+      "interval": "optional, default 0 (disabled). Use the Aroon indicator to only trade if we are in a trending market (not sideways). This is the number of candles for the Aroon indicator.",
+      "trendCandleThreshold": "optional, default 76 - The min value of the Aroon up/down to open a long/short position (to prevent opening positions in sideways markets)."
     },
     "DEMA": {
+      "desc": "",
+      "CrossMAType": "",
+      "autoSensitivity": "",
+      "minVolatility": "",
+      "closeDecreasingDiff": "",
+      "resetLastCloseCount": "",
+      "dynamicPersistence": "",
+      "N": "",
+      "K": "",
+      "MAType": ""
     },
     "MFI": {
+      "desc": "",
+      "low": "",
+      "high": "",
+      "interval": "",
+      "trendCandles": ""
     },
     "OBV": {
+      "desc": "",
+      "interval": "",
+      "openReversal": ""
     },
     "OneTimeOrder": {
+      "desc": "",
+      "order": "",
+      "stop": "",
+      "comp": "",
+      "forceMaker": ""
     },
     "OrderBookPressure": {
+      "desc": "",
+      "ticks": "",
+      "percentChange": "",
+      "minDiffPercent": "",
+      "increaseProfitPosition": "",
+      "confirmLineCross": "",
+      "CrossMAType": "",
+      "short": "",
+      "long": ""
     },
     "OrderPartitioner": {
     },

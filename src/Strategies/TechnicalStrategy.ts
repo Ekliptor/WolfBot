@@ -17,6 +17,7 @@ import {TaLib, TaLibParams, TaLibResult} from "../Indicators/TaLib";
 import {TechnicalAnalysis} from "./Mixins/TechnicalAnalysis";
 import * as helper from "../utils/helper";
 import {isWindows} from "@ekliptor/apputils";
+import {GenericStrategyState} from "./AbstractGenericStrategy";
 
 export interface TechnicalStrategyAction extends StrategyAction {
     // properties are optional because not all strategies will have all indicators (and some might inherit TechnicalStrategy for other functions)
@@ -97,7 +98,7 @@ export abstract class TechnicalStrategy extends AbstractStrategy implements Tech
         return state;
     }
 
-    public unserialize(state: any) {
+    public unserialize(state: GenericStrategyState) {
         super.unserialize(state);
         this.candles = Candle.Candle.copy(state.candles);
         this.lastTrend = state.lastTrend;

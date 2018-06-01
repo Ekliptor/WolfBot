@@ -66,12 +66,12 @@ export interface StrategyAction {
     order: StrategyOrder;
     // removed, use global value
     //amount: number; // the amount (in specific coin) to trade // get all tradable from exchange and implement option for "all"
-    pair: Currency.CurrencyPair;
-    candleSize: number; // candle size in minutes (only applies if this strategy implements candleTick() function)
+    pair: Currency.CurrencyPair; // The currency pair this strategy trades on. (The exchange is defined in the root of the config 1 level above the strategies.)
+    candleSize: number; // candle size in minutes (only applies if this strategy implements candleTick() or checkIndicators() function)
     tradeStrategy: string; // optional, default none. the strategy to execute buy/sell orders. useful to only buy/sell based on 2nd strategy data (RSI...)
     orderStrategy: string; // optional, default none. more advanced than tradeStrategy because TriggerOrderCommand objects must be passed along (doesn't react to buy/sell signals)
     fallback: boolean; // optional, default false. only buy/sell if position is open. close is completely disabled
-    enableLog: boolean; // use this to debug a certain strategy. call this.log()
+    enableLog: boolean; // Enables logging for this strategy. Use this to debug a certain strategy (enabling for all is too much output). call this.log() or this.warn()
 }
 
 /**
@@ -236,7 +236,7 @@ export abstract class AbstractStrategy extends AbstractGenericStrategy {
         return 0.0;
     }
 
-    public onTrade(action: TradeAction, order: Order.Order, trades: Trade.Trade[], info: TradeInfo) {
+    public onTrade(action: TradeAction, order: Order.Order, trades: Trade.Trade[], info: TradeInfo): void {
         // overwrite this function in your strategy to get feedback of the trades done by our AbstractTrader implementation
         if (info.strategy.isIgnoreTradeStrategy() === true)
             return;
@@ -284,7 +284,7 @@ export abstract class AbstractStrategy extends AbstractGenericStrategy {
             return;
     }
 
-    public onSyncPortfolio(coins: number, position: MarginPosition, exchangeLabel: Currency.Exchange) {
+    public onSyncPortfolio(coins: number, position: MarginPosition, exchangeLabel: Currency.Exchange): void {
         // coins can be 0 and position be an empty position (0 amount) if there is no open position
         // overwrite this function to sync coin balances/strategy position etc... and ensure positions are closed with more advanced logic
         // TODO how to sync non-margin positions? we don't know if the user had these coins before (and wants to keep them)
@@ -607,7 +607,19 @@ export abstract class AbstractStrategy extends AbstractGenericStrategy {
     // ################################################################
     // ###################### PRIVATE FUNCTIONS #######################
 
-    protected emitBuy(weight: number, reason = "", fromClass = "", exchange: Currency.Exchange = Currency.Exchange.ALL): void {
+    /**
+     * Emit a buy call from this strategy.
+     * @param {number} The weight The weight of the call. If you emit this from within a candle tick (candleTick() or checkIndicators() function)
+     *          and there are multiple (possibly conflicting) orders during that candle tick, then only the order with the highest weight will be forwarded.
+     *          Usually you can just use this.defaultWeight or Number.MAX_VALUE for important stops.
+     * @param {string} reason The reason of this trade for logging and smartphone notifications.
+     * @param {string} fromClass The name of the strategy this order is originally coming from. Only applicable if the 'orderStrategy'
+     *          setting is used. Automatically added when using 'tradeStrategy' (see StrategyAction).
+     *          Can be empty if your strategy doesn't forward orders.
+     * @param {Exchange} exchange The exchange on which this trade shall be executed. Only meaningful in arbitrage mode.
+     *          Ignore it for trading.
+     */
+    protected emitBuy(weight: number, reason: string, fromClass = "", exchange: Currency.Exchange = Currency.Exchange.ALL): void {
         // TODO add 3rd parameter for fast trading strategies, orderAdjustBeforeTimeoutFactor
         this.lastTradeAction = "buy"; // always set it. even if we don't actually trade
         if (this.isDisabled())
@@ -626,7 +638,19 @@ export abstract class AbstractStrategy extends AbstractGenericStrategy {
         this.emit("buy", weight, reason, exchange);
     }
 
-    protected emitSell(weight: number, reason = "", fromClass = "", exchange: Currency.Exchange = Currency.Exchange.ALL): void {
+    /**
+     * Emit a sell call from this strategy.
+     * @param {number} The weight The weight of the call. If you emit this from within a candle tick (candleTick() or checkIndicators() function)
+     *          and there are multiple (possibly conflicting) orders during that candle tick, then only the order with the highest weight will be forwarded.
+     *          Usually you can just use this.defaultWeight or Number.MAX_VALUE for important stops.
+     * @param {string} reason The reason of this trade for logging and smartphone notifications.
+     * @param {string} fromClass The name of the strategy this order is originally coming from. Only applicable if the 'orderStrategy'
+     *          setting is used. Automatically added when using 'tradeStrategy' (see StrategyAction).
+     *          Can be empty if your strategy doesn't forward orders.
+     * @param {Exchange} exchange The exchange on which this trade shall be executed. Only meaningful in arbitrage mode.
+     *          Ignore it for trading.
+     */
+    protected emitSell(weight: number, reason: string, fromClass = "", exchange: Currency.Exchange = Currency.Exchange.ALL): void {
         this.lastTradeAction = "sell";
         if (this.isDisabled())
             return this.log("Skipping SELL signal because strategy is disabled");
@@ -644,14 +668,33 @@ export abstract class AbstractStrategy extends AbstractGenericStrategy {
         this.emit("sell", weight, reason, exchange);
     }
 
-    protected emitHold(weight: number, reason = "", fromClass = "", exchange: Currency.Exchange = Currency.Exchange.ALL): void { // TODO currently not used, remove?
+    /**
+     * @deprecated
+     * @param {number} weight
+     * @param {string} reason
+     * @param {string} fromClass
+     * @param {Exchange} exchange
+     */
+    protected emitHold(weight: number, reason: string, fromClass = "", exchange: Currency.Exchange = Currency.Exchange.ALL): void { // TODO currently not used, remove?
         logger.warn("emitHold() might be removed in the future");
         this.lastTradeFromClass = fromClass ? fromClass : this.className;
         this.lastTradeState = this.createTradeState();
         this.emit("hold", weight, reason, exchange);
     }
 
-    protected emitClose(weight: number, reason = "", fromClass = "", exchange: Currency.Exchange = Currency.Exchange.ALL): void {
+    /**
+     * Emit a close call from this strategy.
+     * @param {number} The weight The weight of the call. If you emit this from within a candle tick (candleTick() or checkIndicators() function)
+     *          and there are multiple (possibly conflicting) orders during that candle tick, then only the order with the highest weight will be forwarded.
+     *          Usually you can just use this.defaultWeight or Number.MAX_VALUE for important stops.
+     * @param {string} reason The reason of this trade for logging and smartphone notifications.
+     * @param {string} fromClass The name of the strategy this order is originally coming from. Only applicable if the 'orderStrategy'
+     *          setting is used. Automatically added when using 'tradeStrategy' (see StrategyAction).
+     *          Can be empty if your strategy doesn't forward orders.
+     * @param {Exchange} exchange The exchange on which this trade shall be executed. Only meaningful in arbitrage mode.
+     *          Ignore it for trading.
+     */
+    protected emitClose(weight: number, reason: string, fromClass = "", exchange: Currency.Exchange = Currency.Exchange.ALL): void {
         this.lastTradeAction = "close";
         if (this.isDisabled()) {
             this.log("Skipping CLOSE signal because strategy is disabled");
@@ -666,7 +709,14 @@ export abstract class AbstractStrategy extends AbstractGenericStrategy {
         this.emit("close", weight, reason, exchange);
     }
 
-    protected emitBuyClose(weight: number, reason = "") {
+    /**
+     * Emit a buy or close event depending on the 'order' setting of this strategy.
+     * Useful to call within stop strategies or other strategies where the order changes depending on your position type (long/short).
+     * See emitClose() for parameters.
+     * @param {number} weight
+     * @param {string} reason
+     */
+    protected emitBuyClose(weight: number, reason: string) {
         if (!this.action.order) {
             logger.error("Order action must be defined to call emitBuyClose in %s", this.className);
             return;
@@ -677,7 +727,14 @@ export abstract class AbstractStrategy extends AbstractGenericStrategy {
             this.emitClose(weight, reason);
     }
 
-    protected emitSellClose(weight: number, reason = "") {
+    /**
+     * Emit a sell or close event depending on the 'order' setting of this strategy.
+     * Useful to call within stop strategies or other strategies where the order changes depending on your position type (long/short).
+     * See emitClose() for parameters.
+     * @param {number} weight
+     * @param {string} reason
+     */
+    protected emitSellClose(weight: number, reason: string) {
         if (!this.action.order) {
             logger.error("Order action must be defined to call emitSellClose in %s", this.className);
             return;
@@ -689,6 +746,10 @@ export abstract class AbstractStrategy extends AbstractGenericStrategy {
             this.emitClose(weight, reason);
     }
 
+    /**
+     * Shorthand function to call emitBuy/emitSell/emitClose with a ScheduledTrade object as parameter.
+     * @param {ScheduledTrade} scheduledTrade
+     */
     protected executeTrade(scheduledTrade: ScheduledTrade) {
         switch (scheduledTrade.action)
         {
