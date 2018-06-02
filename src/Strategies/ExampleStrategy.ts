@@ -208,7 +208,6 @@ export default class ExampleStrategy extends TechnicalStrategy {
     // Your custom functions start here
 
     protected demoLogFunctions() {
-
         // These lines will only be printed if "enableLog" is set to true in the strategy config JSON.
         // You can use them to log any output such as candles while trading.
         let price = 20000;
