@@ -77,19 +77,23 @@ export default class ExampleStrategy extends TechnicalStrategy {
     }
 
     /**
-     * This is called on every trade
+     * This is called on every trade. That includes trades from other strategies running on the same currency pair.
      * You can remove this function if you don't use it.
-     * @param {TradeAction} action
-     * @param {Order} order
-     * @param {Trade[]} trades
-     * @param {TradeInfo} info
+     * @param {TradeAction} action what type of trade just happened
+     * @param {Order} order the order that started this trade
+     * @param {Trade[]} trades the trades that got executed from this order. Will only be set for market orders (orders that execute
+     *          immediately). For limit orders (orders placed to the order book) trades will be an empty array.
+     * @param {TradeInfo} info Meta info for this trade such as:
+     *          - the strategy that started it
+     *          - the reason for it (used for notifications and logging)
+     *          - the profit/loss of this trade (if it was a "close" action)
+     *          - the exchange on which this trade happened
      */
     public onTrade(action: TradeAction, order: Order.Order, trades: Trade.Trade[], info: TradeInfo): void {
         super.onTrade(action, order, trades, info);
         if (action === "close") {
             // do some cleanup after closing a position
         }
-
     }
 
     /**
@@ -192,7 +196,8 @@ export default class ExampleStrategy extends TechnicalStrategy {
     }
 
     /**
-     *
+     * This is called every time a trade happens. That includes trades from other strategies running on the same currency pair.
+     * You can remove this function if you don't use it.
      */
     protected resetValues(): void {
         // put your code here

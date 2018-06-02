@@ -18,10 +18,10 @@ import {AbstractTakeProfitStrategy} from "../Strategies/AbstractTakeProfitStrate
 export type TradeDirection = "up" | "down" | "both";
 
 export interface TradeInfo {
-    strategy: AbstractStrategy;
-    reason?: string;
-    pl?: number;
-    exchange?: AbstractExchange;
+    strategy: AbstractStrategy; // the strategy that started this trade
+    reason?: string; // the reason for this trade used for logging and notifications
+    pl?: number; // the profit/loss for this trade. only set if this trade closed a position.
+    exchange?: AbstractExchange; // the exchange this trade happened
 }
 
 export interface BotTrade { // a trade by our bot, Trade.Trade is a trade by everyone
