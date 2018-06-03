@@ -37,7 +37,7 @@ interface ExampleStrategyAction extends TechnicalStrategyAction {
 /**
  * This is an example strategy. You can use it as a template to create your own strategy.
  * This file shows a lot available features and is therefore longer than most strategies.
- * Your first strategy can have only 50-100 lines of code. See NOOP.ts for a minimal example.
+ * It's possible to have your first strategy with only 50-100 lines of code. See NOOP.ts for a minimal example.
  */
 export default class ExampleStrategy extends TechnicalStrategy {
     public action: ExampleStrategyAction;
@@ -185,7 +185,7 @@ export default class ExampleStrategy extends TechnicalStrategy {
      * @returns {Promise<void>}
      */
     protected async currentCandleTick(candle: Candle.Candle, isNew: boolean): Promise<void> {
-        // overwrite this in your subclass if your strategy needs the current candle
+        // put your code here
         return super.currentCandleTick(candle, isNew);
     }
 
