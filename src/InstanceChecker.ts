@@ -116,6 +116,7 @@ export default class InstanceChecker extends AbstractSubController {
 
                     this.checkBotApiResponsive(botName).then((isResponsive) => {
                         if (isResponsive === false) {
+                            // TODO verify again that it's still running?
                             const msg = 'Killing possibly stuck process: PID ' + PID;
                             logger.warn(msg)
                             this.notifyBotKill(botName, msg)

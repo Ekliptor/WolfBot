@@ -386,6 +386,8 @@ export class Controller extends AbstractController { // TODO impelment graceful 
 
     protected writeStartParametersFile() {
         return new Promise<void>((resolve, reject) => {
+            if (process.env.IS_CHILD)
+                return resolve()
             let params = process.argv.slice(2).join(" ");
             const paramsFile = path.join(/*utils.appDir, */nconf.get("lastParamsFile")); // use working dir
             fs.writeFile(paramsFile, params, {encoding: "utf8"}, (err) => {

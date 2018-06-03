@@ -236,6 +236,18 @@ export abstract class AbstractStrategy extends AbstractGenericStrategy {
         return 0.0;
     }
 
+    /**
+     * This is called on every trade. That includes trades from other strategies running on the same currency pair.
+     * @param {TradeAction} action what type of trade just happened
+     * @param {Order} order the order that started this trade
+     * @param {Trade[]} trades the trades that got executed from this order. Will only be set for market orders (orders that execute
+     *          immediately). For limit orders (orders placed to the order book) trades will be an empty array.
+     * @param {TradeInfo} info Meta info for this trade such as:
+     *          - the strategy that started it
+     *          - the reason for it (used for notifications and logging)
+     *          - the profit/loss of this trade (if it was a "close" action)
+     *          - the exchange on which this trade happened
+     */
     public onTrade(action: TradeAction, order: Order.Order, trades: Trade.Trade[], info: TradeInfo): void {
         // overwrite this function in your strategy to get feedback of the trades done by our AbstractTrader implementation
         if (info.strategy.isIgnoreTradeStrategy() === true)
@@ -284,6 +296,14 @@ export abstract class AbstractStrategy extends AbstractGenericStrategy {
             return;
     }
 
+    /**
+     * Your balance with the exchange has just been synced. This happens every 2-5 minutes (see updateMarginPositionsSec and
+     * updatePortfolioSec). This does NOT mean your balance has changed (it might be the same).
+     * Normally you only need this function to allow for manual deposits (or trading) while the strategy is running.
+     * @param {number} coins the coins you hold on the exchange (for non-margin trading in config)
+     * @param {MarginPosition} position the current margin position (for margin trading enabled in config)
+     * @param {Exchange} exchangeLabel the exchange that has been synced
+     */
     public onSyncPortfolio(coins: number, position: MarginPosition, exchangeLabel: Currency.Exchange): void {
         // coins can be 0 and position be an empty position (0 amount) if there is no open position
         // overwrite this function to sync coin balances/strategy position etc... and ensure positions are closed with more advanced logic
@@ -564,6 +584,10 @@ export abstract class AbstractStrategy extends AbstractGenericStrategy {
         return info;
     }
 
+    /**
+     * Save the strategy state before the bot closes.
+     * @returns {GenericStrategyState}
+     */
     public serialize() {
         let state = super.serialize();
         state.entryPrice = this.entryPrice;
@@ -581,6 +605,10 @@ export abstract class AbstractStrategy extends AbstractGenericStrategy {
         return state;
     }
 
+    /**
+     * Restore the strategy state after the bot has restarted.
+     * @param state
+     */
     public unserialize(state: GenericStrategyState) {
         super.unserialize(state);
         this.entryPrice = state.entryPrice;

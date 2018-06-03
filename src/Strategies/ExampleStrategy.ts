@@ -57,7 +57,20 @@ export default class ExampleStrategy extends TechnicalStrategy {
         if (typeof this.action.low !== "number")
             this.action.low = 30;
 
+        /**
+         * Add an indicator under a unique name
+         * @param {name} the unique name of the indicator (must be unique within your strategy class)
+         * @param {type} the type of the indicator. There must be a class with the same name available in the /Indicators folder.
+         * @param {params} the parameters for this indicator. They depend on the type.
+         */
         this.addIndicator("RSI", "RSI", this.action);
+
+        // now add a 2nd RSI with different parameters
+        let customParams = Object.assign({}, this.action); // copy the action to modify it
+        // You can also read those RSI parameters from other "action" properties.
+        // Before passing them to addIndicator() RSI expects them to be named "interval" ("low" and "high" are checked in this class only)
+        customParams.interval = 25;
+        this.addIndicator("myOtherRSI", "RSI", customParams);
 
         // Add strategy output info about the state of some variables of your strategy.
         // This information will be displayed in the "Strategy" tab during live trading.
@@ -97,10 +110,13 @@ export default class ExampleStrategy extends TechnicalStrategy {
     }
 
     /**
+     * Your balance with the exchange has just been synced. This happens every 2-5 minutes (see updateMarginPositionsSec and
+     * updatePortfolioSec). This does NOT mean your balance has changed (it might be the same).
+     * Normally you only need this function to allow for manual deposits (or trading) while the strategy is running.
      * You can remove this function if you don't use it.
-     * @param {number} coins
-     * @param {MarginPosition} position
-     * @param {Exchange} exchangeLabel
+     * @param {number} coins the coins you hold on the exchange (for non-margin trading in config)
+     * @param {MarginPosition} position the current margin position (for margin trading enabled in config)
+     * @param {Exchange} exchangeLabel the exchange that has been synced
      */
     public onSyncPortfolio(coins: number, position: MarginPosition, exchangeLabel: Currency.Exchange): void {
         super.onSyncPortfolio(coins, position, exchangeLabel)
@@ -201,6 +217,7 @@ export default class ExampleStrategy extends TechnicalStrategy {
      */
     protected resetValues(): void {
         // put your code here
+        this.myValue = -1;
         super.resetValues();
     }
 
@@ -208,7 +225,6 @@ export default class ExampleStrategy extends TechnicalStrategy {
     // Your custom functions start here
 
     protected demoLogFunctions() {
-
         // These lines will only be printed if "enableLog" is set to true in the strategy config JSON.
         // You can use them to log any output such as candles while trading.
         let price = 20000;

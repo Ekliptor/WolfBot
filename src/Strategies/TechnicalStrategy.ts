@@ -82,6 +82,10 @@ export abstract class TechnicalStrategy extends AbstractStrategy implements Tech
         return plotData;
     }
 
+    /**
+     * Save the strategy state before the bot closes.
+     * @returns {GenericStrategyState}
+     */
     public serialize() {
         // can't come from mixin when we have to call super
         let state = super.serialize();
@@ -98,6 +102,10 @@ export abstract class TechnicalStrategy extends AbstractStrategy implements Tech
         return state;
     }
 
+    /**
+     * Restore the strategy state after the bot has restarted.
+     * @param state
+     */
     public unserialize(state: GenericStrategyState) {
         super.unserialize(state);
         this.candles = Candle.Candle.copy(state.candles);
@@ -133,8 +141,20 @@ export abstract class TechnicalStrategy extends AbstractStrategy implements Tech
     // TechnicalAnalysis mixin members
     public init: (options) => void;
     public addCandle: (candle: Candle.Candle) => void;
+
+    /**
+     * Add an indicator under a unique name
+     * @param {name} the unique name of the indicator (must be unique within your strategy class)
+     * @param {type} the type of the indicator. There must be a class with the same name available in the /Indicators folder.
+     * @param {params} the parameters for this indicator. They depend on the type.
+     */
     public addIndicator: (name: string, type: string, params: TechnicalStrategyAction) => void;
+
+    /**
+     * Get an indicator by its unique name.
+     */
     public getIndicator: (name: string) => AbstractIndicator;
+
     public getBollinger: (name: string) => BollingerIndicator;
     public getAroon: (name: string) => AroonIndicator;
     public getMACD: (name: string) => MACDIndicator;
@@ -149,6 +169,13 @@ export abstract class TechnicalStrategy extends AbstractStrategy implements Tech
     public allCustomIndicatorsReady: () => boolean;
     public resetTechnicalValues: () => void;
 
+    /**
+     * Called when new trades happen on the exchange.
+     * This function is called every few seconds (depending on how many trades happen for the currency pair set with this.action.pair).
+     * Use this for fast trading or fast stops, scalping, etc...
+     * @param {Trade[]} trades the new trades
+     * @returns {Promise<void>}
+     */
     protected tick(trades: Trade.Trade[]) {
         return new Promise<void>((resolve, reject) => {
             for (let ind of this.indicators)
@@ -160,6 +187,11 @@ export abstract class TechnicalStrategy extends AbstractStrategy implements Tech
         })
     }
 
+    /**
+     * Called when a new candle is ready. Meaning it is called once every this.action.candleSize minutes.
+     * @param {Candle} candle the new candle
+     * @returns {Promise<void>}
+     */
     protected candleTick(candle: Candle.Candle): Promise<void> {
         return new Promise<void>((resolve, reject) => {
             this.addCandle(candle);
@@ -200,6 +232,9 @@ export abstract class TechnicalStrategy extends AbstractStrategy implements Tech
         return Math.abs(change) < this.action.thresholds.sidewaysPercent;
     }
 
+    /**
+     * This is called every time a trade happens. That includes trades from other strategies running on the same currency pair.
+     */
     protected resetValues(): void {
         this.resetTechnicalValues();
         super.resetValues();
