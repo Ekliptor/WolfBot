@@ -8,8 +8,8 @@ import {Currency, Trade, Candle} from "@ekliptor/bit-models";
 import * as _ from "lodash";
 
 interface ObvAction extends TechnicalStrategyAction {
-    interval: number; // default 14. use 0 for unlimited (since bot is collecting candles)
-    openReversal: boolean; // default true. open a position in the opposite direction if price fails to make a new high/low on OBV max
+    interval: number; // default 14. Use 0 for unlimited (since bot is collecting candles).
+    openReversal: boolean; // default true. Open a position in the opposite direction if price fails to make a new high/low on OBV max.
 }
 
 /**

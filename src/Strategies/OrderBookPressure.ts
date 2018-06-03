@@ -10,18 +10,18 @@ import {TradeInfo} from "../Trade/AbstractTrader";
 import * as helper from "../utils/helper";
 
 interface OrderBookPressureAction extends TechnicalStrategyAction {
-    ticks: number; // for how many candle ticks the pressure has to persist to open a position
-    percentChange: number; // how many percent shall the price be changed by orders?
-    minDiffPercent: number; // open a position if the cost to rise/lower the price by "percentChange" differes this much
+    ticks: number; // For how many candle ticks the pressure has to persist to open a position.
+    percentChange: number; // How many percent shall the price be changed by orders?
+    minDiffPercent: number; // Open a position if the cost to rise/lower the price by "percentChange" differs this much.
     // 450 is a good number for strong USD_BTC pressure, otherwise 80 - depending on percentChange
     // TODO option to also open if the trend continues for x ticks and EMA confirms it
 
-    // the percentage to increase an existing position (from another strategy) if that position has a profit
-    // if enabled this strategy will work as a 2nd strategy only (not open a new position)
+    // The percentage to increase an existing position (from another strategy) if that position has a profit
+    // if enabled this strategy will work as a 2nd strategy only (not open a new position).
     increaseProfitPosition: number; // optional, default 0% = disabled
 
     // EMA cross params (optional)
-    confirmLineCross: boolean; // default true. use EMA to confirm the order book pressure trend before opening a position
+    confirmLineCross: boolean; // default true. Use EMA to confirm direction of the order book pressure trend before opening a position.
     CrossMAType: "EMA" | "DEMA" | "SMA"; // optional, default EMA
     short: number; // default 2
     long: number; // default 7

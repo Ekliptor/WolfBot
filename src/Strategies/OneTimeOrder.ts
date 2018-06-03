@@ -5,21 +5,21 @@ import {AbstractStrategy, StrategyAction} from "./AbstractStrategy";
 import {Currency, Trade, Candle} from "@ekliptor/bit-models";
 
 interface OneTimeAction extends StrategyAction {
-    order: "buy" | "sell";
-    stop: number; // 0.05226790 BTC // the trigger (and price) at which to place the order
+    order: "buy" | "sell"; // The type of the order.
+    stop: number; // 0.05226790 BTC // The trigger (and price) at which to place the order.
 
-    // optional. default buy = <, sell = >
-    // does the price have to be higher or lower than the stop?
-    // "pass" means the price has to pass this threshold
+    // optional. default buy <, sell >
+    // Does the price have to be higher or lower than the stop?
+    // 'pass' means the price has to pass this threshold.
     comp: "<" | ">" | "pass";
 
-    forceMaker: boolean; // optional. default false, force the order to be a maker order
+    forceMaker: boolean; // optional. default false. Only place a maker order (not paying the higher taker fee).
     // TODO stop % - option to trigger the order at x% away from the moment the bot starts
 }
 
 /**
  * Place a one-time order once the price reaches a certain level
- * can not be done with a stop because a buy stop triggers at increasing price (and sell at decreasing)
+ * can not be done with a stop because a buy stop triggers at increasing price (and sell at decreasing).
  * Also useful with a trade strategy such as RSIScalpOrderer to wait for the order to be put in at the right moment.
  */
 export default class OneTimeOrder extends AbstractStrategy {

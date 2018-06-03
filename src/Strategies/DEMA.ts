@@ -11,13 +11,15 @@ import {TradeInfo} from "../Trade/AbstractTrader";
 interface DemaAction extends TechnicalStrategyAction {
     // optional parameters
     CrossMAType: "EMA" | "DEMA" | "SMA"; // default DEMA // TODO add HMA https://discuss.tradewave.net/t/hull-moving-average/287
-    autoSensitivity: boolean; // default false. automatically adjust how strong a line crossing must be based on the current market volatility
-    minVolatility: number; // default 0.01 (0 = always open positions). min Bollinger Bandwidth value to open/close a position
-    closeDecreasingDiff: number; // default 0 = disabled. close a position if the line diff is decreasing for x candle ticks
-    resetLastCloseCount: number; // default 10 (0 = disabled). after how many candles shall the last close line diff be reset to 0
+    short: number;
+    long: number;
+    autoSensitivity: boolean; // default false. Automatically adjust how strong a line crossing must be based on the current market volatility
+    minVolatility: number; // default 0.01 (0 = always open positions). Min Bollinger Bandwidth value to open/close a position. Increasing this value prevents opening positions in sideways markets.
+    closeDecreasingDiff: number; // default 0 = disabled. Close a position if the line diff is decreasing for x candle ticks.
+    resetLastCloseCount: number; // default 10 (0 = disabled). After how many candles shall the last close line diff be reset to 0.
     // TODO add scalping (instead of selling on a drop). only needed for larger candle sizes (>1h)
     // TODO option to disable strategy below a certain volatility (to switch between DEMA and WaveSurfer)
-    dynamicPersistence: boolean; // default false. decrease the persistence count on high volatility markets
+    dynamicPersistence: boolean; // default false. Decrease the persistence count on high volatility markets.
 
     // optional, for defaults see BolloingerBandsParams
     N: number; // time period for MA
@@ -28,8 +30,10 @@ interface DemaAction extends TechnicalStrategyAction {
 }
 
 /**
- * Strategy that emits buy/sell based on the DEMA indicator of the short and long line.
- * Strategy has an open market position over 70% of the time.
+ * Strategy that emits buy/sell based on DEMA, EMA or SMA indicator crosses of the short and long line.
+ * A buy signal is given when the sort line (faster) crosses above the long line (slower). A sell signal
+ * when the short line crosses below the long line.
+ * Strategy has an open market position over 70% of the time (depending on your values for 'long' and 'short').
  */
 export default class DEMA extends AbstractTurnStrategy {
     public action: DemaAction;

@@ -730,46 +730,45 @@
       "trendCandleThreshold": "optional, default 76 - The min value of the Aroon up/down to open a long/short position (to prevent opening positions in sideways markets)."
     },
     "DEMA": {
-      "desc": "",
-      "CrossMAType": "",
-      "autoSensitivity": "",
-      "minVolatility": "",
-      "closeDecreasingDiff": "",
-      "resetLastCloseCount": "",
-      "dynamicPersistence": "",
-      "N": "",
-      "K": "",
-      "MAType": ""
+      "desc": "Strategy that emits buy/sell based on DEMA, EMA or SMA indicator crosses of the short and long line. A buy signal is given when the sort line (faster) crosses above the long line (slower). A sell signal when the short line crosses below the long line.",
+      "CrossMAType": "optional, default DEMA - The indicator to use. Values: DEMA|EMA|SMA",
+      "short": "Number of candles for the short EMA line.",
+      "long": "Number of candles for the long EMA line.",
+      "autoSensitivity": "optional, default false - Automatically adjust how strong a line crossing must be based on the current market volatility.",
+      "minVolatility": "optional, default 0.01 (0 = always open positions) - Min Bollinger Bandwidth value to open/close a position. Increasing this value prevents opening positions in sideways markets.",
+      "closeDecreasingDiff": "optional, default 0 (disabled). Close a position if the line diff is decreasing for x candle ticks.",
+      "resetLastCloseCount": "optional, default 10 (0 = disabled) - After how many candles shall the last close line diff be reset to 0.",
+      "dynamicPersistence": "optional, default false. Decrease the persistence count on high volatility markets."
     },
     "MFI": {
-      "desc": "",
-      "low": "",
-      "high": "",
-      "interval": "",
-      "trendCandles": ""
+      "desc": "Strategy that emits buy/sell based on the MFI indicator. MFI is an oscillator that contains both price and volume. You can think of it as RSI with volume.",
+      "low": "Below this value MFI will be considered oversold. The strategy will queue a buy order to be executed after 'trendCandles' going up.",
+      "high": "Above this value MFI will be considered overbought. The strategy will queue a sell order to be executed after 'trendCandles' going down.",
+      "interval": "The number of candles to use for MFI computation.",
+      "trendCandles": "optional, default 1. Wait for x candles in the same direction as MFI before opening a position. 0 = immediately, 1 immediately on current candle, 2 = after 1 full tick"
     },
     "OBV": {
-      "desc": "",
-      "interval": "",
-      "openReversal": ""
+      "desc": "Strategy that emits buy/sell based on the OBV indicator. We look if OBV makes new highs/lows on price highs/lows. Then we assume the trend to continue (breakout). Otherwise we open a position in the opposite direction. This strategy only opens positions. You need a stop-loss and/or take profit strategy.",
+      "interval": "optional, default 14 - Use 0 for unlimited (since bot is collecting candles).",
+      "openReversal": "optional, default true - Open a position in the opposite direction if price fails to make a new high/low on OBV max."
     },
     "OneTimeOrder": {
-      "desc": "",
-      "order": "",
-      "stop": "",
-      "comp": "",
-      "forceMaker": ""
+      "desc": "Place a one-time order once the price reaches a certain level can not be done with a stop because a buy stop triggers at increasing price (and sell at decreasing). Also useful with a trade strategy such as RSIScalpOrderer to wait for the order to be put in at the right moment.",
+      "order": "The type of the order. Values: buy|sell",
+      "stop": "The trigger (and price) at which to place the order.",
+      "comp": "optional, default buy <, sell > - Does the price have to be higher or lower than the stop? 'pass' means the price has to pass this threshold. Values <|>|pass",
+      "forceMaker": "optional, default false - Only place a maker order (not paying the higher taker fee)."
     },
     "OrderBookPressure": {
-      "desc": "",
-      "ticks": "",
-      "percentChange": "",
-      "minDiffPercent": "",
-      "increaseProfitPosition": "",
-      "confirmLineCross": "",
-      "CrossMAType": "",
-      "short": "",
-      "long": ""
+      "desc": "A strategy that watches the order book to see how much money is needed to rise/lower the price by x percent. Then it assumes the market will move in the 'cheaper' direction and trades accordingly. Works well on highly leveraged markets such as OKEX futures. Exchanges have to be fast (responsive), so Bitfinex is also a good candidate even though they allow hidden orders (hidden from order book).",
+      "ticks": "For how many candle ticks the pressure has to persist to open a position.",
+      "percentChange": "How many percent shall the price be changed by orders?",
+      "minDiffPercent": "Open a position if the cost to rise/lower the price by 'percentChange' differs this much. 450 is a good number for strong USD_BTC pressure, otherwise 80 - depending on percentChange",
+      "increaseProfitPosition": "optional, default 0% (disabled) - The percentage to increase an existing position (from another strategy) if that position has a profit if enabled this strategy will work as a 2nd strategy only (not open a new position).",
+      "confirmLineCross": "optional, default true - Use EMA to confirm direction of the order book pressure trend before opening a position.",
+      "CrossMAType": "optional, default EMA - The moving average type to use. Values: EMA|SMA|DEMA",
+      "short": "Number of candles for the short EMA line.",
+      "long": "Number of candles for the long EMA line."
     },
     "OrderPartitioner": {
     },

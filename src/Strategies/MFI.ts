@@ -8,16 +8,16 @@ import {Currency, Trade, Candle, Order} from "@ekliptor/bit-models";
 import {TradeInfo} from "../Trade/AbstractTrader";
 
 interface MfiAction extends TechnicalStrategyAction {
-    low: number;
-    high: number;
-    interval: number;
+    low: number; // Below this value MFI will be considered oversold. The strategy will queue a buy order to be executed after 'trendCandles' going up.
+    high: number; // Above this value MFI will be considered overbought. The strategy will queue a sell order to be executed after 'trendCandles' going down.
+    interval: number; // The number of candles to use for MFI computation.
 
-    trendCandles: number; // default 1. wait for x candles in the same direction as MFI before opening a position
+    trendCandles: number; // default 1. Wait for x candles in the same direction as MFI before opening a position.
     // 0 = immediately, 1 immediately on current candle, 2 = after 1 full tick
 }
 
 /**
- * Strategy that emits buy/sell based on the MFI indicator.
+ * Strategy that emits buy/sell based on the MFI indicator. MFI is an oscillator that contains both price and volume. You can think of it as RSI with volume.
  * http://stockcharts.com/school/doku.php?id=chart_school:technical_indicators:money_flow_index_mfi
  */
 export default class MFI extends TechnicalStrategy {
