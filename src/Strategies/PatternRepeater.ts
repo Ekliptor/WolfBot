@@ -9,18 +9,19 @@ import {TradeInfo} from "../Trade/AbstractTrader";
 import {ChartMark} from "./AbstractGenericStrategy";
 
 interface PatternRepeaterAction extends TechnicalStrategyAction {
-    patternSize: number;        // the size in candles the pattern shall have
-    patternRepeat: number;      // the number of times the % changes of the candles have to repeat before we consider it a pattern
-    maxOffset: number;          // optional, default 1. how many candles the highs/lows can be different in reptetitions to still be considered a pattern
-    // optional, default true. always open a position in the other direction after a profitable trade (we can assume our pattern will work again)
-    // only long positions will be repeated
+    patternSize: number;        // The size in candles the pattern shall have.
+    patternRepeat: number;      // The number of times the % changes of the candles have to repeat before we consider it a pattern.
+    maxOffset: number;          // optional, default 1. How many candles the highs/lows can be different in reptetitions to still be considered a pattern.
+    // optional, default true. Always open a position in the other direction after a profitable trade (we can assume our pattern will work again)
+    // Only long positions will be repeated.
     repeatProfit: boolean;
-    takeProfitCandleSize: number; // optional, default 10. in minutes
+    takeProfitCandleSize: number; // optional, default 10. The candle size minutes to wait for the first candle opposite to our open position after a close order has been issued.
+    // The close order runs on 'candleSize' (the main candle size) and 'patternSize'.
 
     // Falling Knife Protection - don't buy/sell on overbought/oversold
     // RSI parameters (optional)
     interval: number;   // default 14
-    low: number;        // default 30
+    low: number;        // default 20
     high: number;       // default 80 - crypto currencies have a trend to explode upwards
 }
 

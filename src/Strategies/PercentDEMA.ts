@@ -10,17 +10,18 @@ import {TradeInfo} from "../Trade/AbstractTrader";
 import * as helper from "../utils/helper";
 
 interface PercentDemaAction extends TechnicalStrategyAction {
-    long: number; // the number of candles for the indicator
-    minPercent: number; // how strong the current price has to change from the DEMA to open a position
+    long: number; // The number of candles for the indicator.
+    minPercent: number; // How strong the current price has to change from the DEMA to open a position.
 
     // optional parameters
     CrossMAType: "EMA" | "DEMA" | "SMA"; // default DEMA
-    takeProfitTicks: number; // default 0 = disabled. close a position early if the MACD histogram decreases for x candles
-    closeLossEarly: boolean; // default = true. close positions at a loss after takeProfitTicks too
+    takeProfitTicks: number; // default 0 = disabled. Close a position early if the MACD histogram decreases for x candles.
+    closeLossEarly: boolean; // default = true. Close positions at a loss after takeProfitTicks too.
 }
 
 /**
  * Strategy that emits buy/sell based on the % change of a single (long) DEMA line (instead of line crosses of 2 DEMAs).
+ * This works best for daytrading with a short candle size such as 30min or 15min.
  */
 export default class PercentDEMA extends AbstractTurnStrategy {
     public action: PercentDemaAction;

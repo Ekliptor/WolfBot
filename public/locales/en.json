@@ -786,30 +786,31 @@
     },
     "PatternRepeater": {
       "desc": "A strategy that tries to identify patterns of x candles in size (patternSize) that repeat at least patternRepeat times. Then assumes this pattern will repeat x times, adjust price levels and trade accordingly. Backfinder is a good tool to find the good candle size of patterns. Can not be done with a stop because a buy stop triggers at increasing price (and sell at decreasing). Works well with high volume coins (ETH, LTC,..) but can fail badly with small coins because they have irregular spikes quite often",
-      "patternSize": "",
-      "patternRepeat": "",
-      "maxOffset": "",
-      "repeatProfit": "",
-      "takeProfitCandleSize": "",
-      "interval": "",
-      "low": "",
-      "high": ""
+      "patternSize": "The size in candles the pattern shall have.",
+      "patternRepeat": "The number of times the % changes of the candles have to repeat before we consider it a pattern.",
+      "maxOffset": "optional, default 1 - How many candles the highs/lows can be different in reptetitions to still be considered a pattern.",
+      "repeatProfit": "optional, default true - Always open a position in the other direction after a profitable trade (we can assume our pattern will work again). Only long positions will be repeated.",
+      "takeProfitCandleSize": "optional, default 10 - The candle size minutes to wait for the first candle opposite to our open position after a close order has been issued. The close order runs on 'candleSize' (the main candle size) and 'patternSize'.",
+      "interval": "optional, default 14 - RSI interval for Falling Knife Protection: Don't buy/sell on overbought/oversold. The number of candles to use for RSI computation.",
+      "low": "optional, default 20 - Below this value RSI will be considered oversold.",
+      "high": "optional, default 80 - Above this value RSI will be considered overbought."
     },
     "PercentDEMA": {
-      "desc": "",
-      "long": "",
-      "minPercent": "",
-      "CrossMAType": "",
-      "takeProfitTicks": "",
-      "closeLossEarly": ""
+      "desc": "Strategy that emits buy/sell based on the % change of a single (long) DEMA line (instead of line crosses of 2 DEMAs). This works best for daytrading with a short candle size such as 30min or 15min.",
+      "long": "The number of candles for the indicator.",
+      "minPercent": "How strong the current price has to change from the DEMA to open a position.",
+      "CrossMAType": "optional, default DEMA - The moving average type to use for the 'requireMAMatch' option. Values: EMA|SMA|DEMA",
+      "takeProfitTicks": "optional, default 0 (disabled). Close a position early if the MACD histogram decreases for x candles.",
+      "closeLossEarly": "optional, default true - Close positions at a loss after takeProfitTicks too."
     },
     "PriceRangeTrader": {
-      "desc": "",
-      "minChangePercent": "",
-      "intervalSec": ""
+      "desc": "Detect if a price always jumps between a high a low and buy/sell accordingly. Works well in sideways markets (that usually have low volume). It is meant for fast trades, possibly many trades per hour if there are changes >= 'minChangePercent'. This strategy can be a faster alternative to using BollingerBands in a sideways market and sell at the upper band and buy at the lower band.",
+      "minChangePercent": "The min percentage between the low and high price point to open a position.",
+      "intervalSec": "The number of seconds after which a price point expires.",
+      "logTradeTicks": "optional, default 300 - Log the current low and high price points after every x trade ticks. 'enableLog' must be set to true."
     },
     "PriceSpikeDetector": {
-      "desc": "",
+      "desc": "Detect if the price of spikes x % up/down (compared to the last candle). This strategy works great at detecting fast pumps in a coin. It should be used with a small candle size such as 3-15min and a 'spikePercent' according to your coin's price changes. You should look at the chart and set the 'spikePercent' value high enough so that this strategy only triggers about once a week for your coin. This is to avoid false positives and jump on late spikes too late.",
       "spikePercent": "",
       "endOfSpike": "",
       "historyCandle": "",
@@ -823,7 +824,7 @@
       "onlyDailyTrend": ""
     },
     "ProtectProfit": {
-      "desc": "",
+      "desc": "A different kind of stop loss strategy that protects our profits by selling/buying before our position turns into a loss.",
       "profit": "",
       "profitFactor": "",
       "time": "",

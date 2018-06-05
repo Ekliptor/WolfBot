@@ -5,8 +5,9 @@ import {AbstractStrategy, StrategyAction} from "./AbstractStrategy";
 import {Currency, Trade} from "@ekliptor/bit-models";
 
 interface PriceRangeAction extends StrategyAction {
-    minChangePercent: number; // 2 %
-    intervalSec: number; // 120 // in seconds
+    minChangePercent: number; // 2 % The min percentage between the low and high price point to open a position.
+    intervalSec: number; // 300 // The number of seconds after which a price point expires.
+    logTradeTicks: number; // optional, default 300 - Log the current low and high price points after every x trade ticks. 'enableLog' must be set to true.
 }
 
 class PricePoint {
@@ -21,10 +22,11 @@ class PricePoint {
 
 /**
  * Detect if a price always jumps between a high a low and buy/sell accordingly.
+ * Works well in sideways markets (that usually have low volume). It is meant for fast trades, possibly many trades per hour
+ * if there are changes >= 'minChangePercent'.
+ * This strategy can be a faster alternative to using BollingerBands in a sideways market and sell at the upper band and buy at the lower band.
  */
 export default class PriceRangeTrader extends AbstractStrategy {
-    public static readonly TRADE_TICK_LOG = 200;
-
     protected action: PriceRangeAction;
     protected low: PricePoint = null;
     protected high: PricePoint = null;
@@ -32,6 +34,8 @@ export default class PriceRangeTrader extends AbstractStrategy {
 
     constructor(options) {
         super(options)
+        if (!this.action.logTradeTicks)
+            this.action.logTradeTicks = 300;
     }
 
     // ################################################################
@@ -43,8 +47,8 @@ export default class PriceRangeTrader extends AbstractStrategy {
 
             if (this.low && this.high) {
                 const change = "change " + this.changePercent.toFixed(3) + "%";
-                if (this.tradeTick >= PriceRangeTrader.TRADE_TICK_LOG) {
-                    this.tradeTick -= PriceRangeTrader.TRADE_TICK_LOG;
+                if (this.tradeTick >= this.action.logTradeTicks) {
+                    this.tradeTick -= this.action.logTradeTicks;
                     this.log("market price", this.marketPrice);
                     this.log("low", this.low.rate, "high", this.high.rate, change);
                 }

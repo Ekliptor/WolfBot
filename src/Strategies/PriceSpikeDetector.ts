@@ -33,6 +33,9 @@ interface PriceSpikeAction extends AbstractMomentumAction {
 
 /**
  * Detect if the price of spikes x % up/down (compared to the last candle).
+ * This strategy works great at detecting fast pumps in a coin. It should be used with a small candle size such as 3-15min and a
+ * 'spikePercent' according to your coin's price changes. You should look at the chart and set the 'spikePercent' value high enough so that
+ * this strategy only triggers about once a week for your coin. This is to avoid false positives and jump on late spikes too late.
  */
 export default class PriceSpikeDetector extends AbstractMomentumStrategy {
     protected static readonly CHECK_TRADES_PERCENT = 65; // how many % of trades of the spike candle shall we wait for when using endOfSpike == true
