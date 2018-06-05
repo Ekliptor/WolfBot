@@ -9,17 +9,18 @@ import {MarginPosition} from "../structs/MarginPosition";
 import * as helper from "../utils/helper";
 
 interface ProtectProfitAction extends AbstractStopStrategyAction {
-    profit: number; // 0.8% // in %. the threshold at which we sell once we get below that profit
-    profitFactor: number; // 2.6 // how much it has to fall back from "profit" to be closed, for example factor 2.0 -> from 0.8% to 0.4%
+    profit: number; // 0.8% // in %. The threshold in percent at which we enable this stop after we have reached that amount of profit.
+    profitFactor: number; // 2.1 // How much a position has to fall back from 'profit' to be closed. For example profitFactor 2.0 -> from 0.8% to 0.4%
     // time the threshold has to be passed to trigger the stop
-    time: number; // default = 120. in seconds, optional
+    time: number; // default = 120. in seconds, optional // The number of seconds the position has to be below the defined profit target to be closed. A value of 0 closes it immediately.
     minOpenTime: number; // default = 900. in seconds, optional // TODO move to the "profit" threshold
-    ensureProfitPercent: number; // 0.25% // only close if we really have this profit - might cause a position not to be closed.
+    // The number of seconds a position has to be open before it can be closed. This is useful if you are doing scalping and want to wait at least x seconds for the price to reverse before taking a loss.
+    ensureProfitPercent: number; // 0.25% (0 = disabled) // Only close if we really have this profit according to the exchange API. Useful if you do manual trading along with the bot. This setting might cause a position to be never closed.
     // entryPrice + trading fees also make it difficult to be certain. rise this value to be more sure at the risk of missing to close the position
 
     // only works for margin/futures trading
-    useRealProfitLoss: boolean; // default false. use the real p/l value from exchange (instead of entryPrice). useful if we manually increase the position
-    // only updated every 6min with margin position // TODO some exchanges publish the position via Websocket too
+    useRealProfitLoss: boolean; // default false. Use the real profit/loss value from the exchange API (instead of this strategy's entry price) for all computations. Useful if increase the position by manual trading.
+    // Only updated about every 6min with margin position.. // TODO some exchanges publish the position via Websocket too
     // TODO use RSI with a bigger candleSize and close only if the trend against our position is strong
 }
 
@@ -51,7 +52,7 @@ export default class ProtectProfit extends AbstractStopStrategy {
     constructor(options) {
         super(options)
         if (typeof this.action.profitFactor !== "number")
-            this.action.profitFactor = 2.6;
+            this.action.profitFactor = 2.1;
         if (typeof this.action.time !== "number")
             this.action.time = 120;
         if (!this.action.time)

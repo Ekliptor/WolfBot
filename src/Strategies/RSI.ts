@@ -9,13 +9,17 @@ import {Currency, Trade, Candle} from "@ekliptor/bit-models";
 export type RSIMode = "trend" | "reverse" | "both";
 
 interface RsiAction extends TechnicalStrategyAction {
+    interval: number;
     low: number;
     high: number;
-    mode: RSIMode; // optional, default "trend". if "reverse" buy on RSI low and sell on RSI high (only if currentRSI > lastRSI)
+    mode: RSIMode; // optional, default "trend".
+    // 'trend' means we buy on overbought and sell on oversold. This should be used with smaller candle sizes from 5-60min.
+    // 'reverse' means we buy on RSI low and sell on RSI high. In 'reverse' mode trades only  happen if currentRSI > lastRSI to prevent buying into a falling knife
+    // (resp. currentRSI < lastRSI for sell orders).
 }
 
 /**
- * Strategy that emits buy/sell based on the RSI indicator.
+ * Strategy that emits buy/sell signals based on the RSI indicator.
  *
  * as 2nd strategy for PlanRunner:
  * "RSI": {

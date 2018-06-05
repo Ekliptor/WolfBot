@@ -11,6 +11,7 @@
 // --noBrowser (optional): disable the browser module used for crawling data
 // --debug (optional): print verbose debug output for developers
 // --uiDev (optional): reload HTML templates and JavaScript every second from disk
+// --monitor (optional): only monitor a bot instance in the same parent folder
 
 // AI config
 // --config: the name of the AI config file under /config/machine-learning/ to run find the optimal parameters

@@ -29,7 +29,7 @@ import {LendingExchangeMap} from "./Exchanges/AbstractLendingExchange";
 import {RawTelegramMessage} from "./Social/Crawler/Telegram";
 
 
-export class Controller extends AbstractController { // TODO impelment graceful shutdown api command (stop & delete tasks)
+export class Controller extends AbstractController { // TODO implement graceful shutdown api command (stop & delete tasks)
     protected exchangeConntroller: ExchangeController = null;
     protected notificationController: NotificationController;
     protected tradeAdvisor: TradeAdvisor = null;
@@ -235,6 +235,18 @@ export class Controller extends AbstractController { // TODO impelment graceful 
         //let reconnect = nconf.get('server:reconnect')
         //let canReconnect = reconnect && reconnect.method != ''
 
+        if (!this.instanceChecker)
+            this.instanceChecker = new InstanceChecker();
+        if (argv.monitor === true) {
+            this.instanceChecker.process().then(() => {
+                cb && cb(true)
+            }).catch((err) => {
+                logger.error("Error during instance checking mode", err)
+                cb && cb(true)
+            })
+            return
+        }
+
         let tasks = []
         let scheduleAgain = true // always true here since we don't reconnect our IP
         if (this.exchangeConntroller === null)
@@ -278,8 +290,6 @@ export class Controller extends AbstractController { // TODO impelment graceful 
                 // add more tasks here...
             }
 
-            if (!this.instanceChecker)
-                this.instanceChecker = new InstanceChecker();
             tasks.push(this.instanceChecker.process())
             tasks.push(this.loginController.process())
 

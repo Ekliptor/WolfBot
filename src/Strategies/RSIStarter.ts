@@ -10,6 +10,7 @@ import * as helper from "../utils/helper";
 interface RSIStarterAction extends TechnicalStrategyAction {
     low: number;
     high: number;
+    interval: number;
     lowStartFactor: number; // optional, default 0.75, max 1.0 = always immediately. the bot will enter a trend immediately if RSI <= lowStartFactor*low, otherwise wait for the end of it and go long
     candlePercentReverse: number; // optional, default 4.0. how many percent the last candle has to go in the other direction to enter the market at the end of a spike/drop
     pauseCandles: number; // optional, default 25. how many candles to pause after a bad trade

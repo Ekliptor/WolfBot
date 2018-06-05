@@ -14,6 +14,8 @@ const exec = child_process.exec
 import * as os from "os";
 import * as db from "./database";
 import * as helper from "./utils/helper";
+import * as argvFunction from "minimist";
+const argv = argvFunction(process.argv.slice(2));
 
 
 export default class InstanceChecker extends AbstractSubController {
@@ -31,8 +33,15 @@ export default class InstanceChecker extends AbstractSubController {
 
     public process() {
         return new Promise<void>((resolve, reject) => {
-            if (!nconf.get('serverConfig:checkInstances') || nconf.get('trader') === "Backtester"/*nconf.get('trader') !== "RealTimeTrader"*/ || process.env.IS_CHILD)
-                return resolve();
+            if (argv.monitor === true)
+                nconf.set('serverConfig:checkInstances', true); // argument overwrites config setting
+
+            if (!nconf.get('serverConfig:checkInstances') || nconf.get('trader') === "Backtester"/*nconf.get('trader') !== "RealTimeTrader"*/ || process.env.IS_CHILD) {
+                if (argv.monitor === true)
+                    setTimeout(resolve.bind(this), InstanceChecker.INSTANCE_CHECK_INTERVAL_SEC);
+                else
+                    return resolve();
+            }
 
             this.checkInstances().then(() => {
                 resolve()
@@ -43,6 +52,10 @@ export default class InstanceChecker extends AbstractSubController {
         })
     }
 
+    /**
+     * Returns the name of the first directory that matches our project name.
+     * @returns {string}
+     */
     public static getOwnInstanceName() {
         let dirParts = utils.appDir.split(path.sep);
         let name = "";
@@ -76,18 +89,28 @@ export default class InstanceChecker extends AbstractSubController {
 
     protected getNextInstanceName() {
         let name = InstanceChecker.getOwnInstanceName()
-        if (!name || name.match(/[0-9]+$/) === null) {
+        if (!name) {
             if (!nconf.get("debug"))
                 logger.warn("Unable to get next instance to monitor bots. Dir path: %s", utils.appDir)
             return "";
         }
-        name = name.replace(/[0-9]+$/, (substring) => {
-            let cur = parseInt(substring);
-            cur++;
-            if (cur > nconf.get("serverConfig:instanceCount"))
-                cur = 1;
-            return cur.toString();
-        })
+        if (argv.monitor === true) {
+            // we have 1 instance named Sensor and its monitoring instanced named Sensor_monitor
+            let removeRegex = new RegExp(utils.escapeRegex(nconf.get("serverConfig:monitoringInstanceDir")) + "$");
+            name = name.replace(removeRegex, "");
+        }
+        else {
+            // we have multiple instances named Sensor1, Sensor2,...
+            if (name.match(/[0-9]+$/) === null)
+                return "";
+            name = name.replace(/[0-9]+$/, (substring) => {
+                let cur = parseInt(substring);
+                cur++;
+                if (cur > nconf.get("serverConfig:instanceCount"))
+                    cur = 1;
+                return cur.toString();
+            })
+        }
         logger.verbose("Next instance name to check: %s", name)
         return name;
     }

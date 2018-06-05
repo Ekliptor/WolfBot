@@ -16,6 +16,7 @@ export interface VolumeSpikeAction extends AbstractMomentumAction {
     tradeOppositeDirection: boolean; // optional. default "false" = don't trade if we have an open position in the other direction
     strongRate: boolean; // optional. default true = adjust the rate to ensure the order gets filled immediately
     onlyDailyTrend: boolean; // optional. default true = only trade when the spike is in the same direction as the 24h % change
+    keepCandleCount: number; // optional, default 3 // The number of candles to keep to compute the average volume.
 }
 
 /**
@@ -24,8 +25,6 @@ export interface VolumeSpikeAction extends AbstractMomentumAction {
  * This can also be used with longer candle intervals (>= 24h) to detect if attention in a coin is rising.
  */
 export default class VolumeSpikeDetector extends AbstractMomentumStrategy {
-    protected static readonly KEEP_CANDLE_COUNT = 3;
-
     protected action: VolumeSpikeAction;
     protected avgCandles: Candle.Candle[] = [];
     protected avgCandleVolume: number = 0;
@@ -37,6 +36,8 @@ export default class VolumeSpikeDetector extends AbstractMomentumStrategy {
             this.action.historyCandle = 36;
         if (!this.action.minPriceChangePercent)
             this.action.minPriceChangePercent = 3.0;
+        if (!this.action.keepCandleCount)
+            this.action.keepCandleCount = 3;
 
         this.addInfoFunction("avgCandleCount", () => {
             return this.avgCandles.length;
@@ -97,7 +98,7 @@ export default class VolumeSpikeDetector extends AbstractMomentumStrategy {
     }
 
     protected removeOldCandles() {
-        let i = this.avgCandles.length - VolumeSpikeDetector.KEEP_CANDLE_COUNT;
+        let i = this.avgCandles.length - this.action.keepCandleCount;
         if (i > 0)
             this.avgCandles.splice(0, i) // remove oldest ones
     }
@@ -114,7 +115,7 @@ export default class VolumeSpikeDetector extends AbstractMomentumStrategy {
     }
 
     protected checkVolumeSpike(candle: Candle.Candle) {
-        if (this.avgCandleVolume === 0 || this.avgCandles.length < VolumeSpikeDetector.KEEP_CANDLE_COUNT)
+        if (this.avgCandleVolume === 0 || this.avgCandles.length < this.action.keepCandleCount)
             return;
         const volumeSpike = candle.getVolumeBtc() / this.avgCandleVolume;
         if (volumeSpike < this.action.spikeFactor)

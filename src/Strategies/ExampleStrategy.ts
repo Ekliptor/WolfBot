@@ -75,7 +75,9 @@ export default class ExampleStrategy extends TechnicalStrategy {
         // Add strategy output info about the state of some variables of your strategy.
         // This information will be displayed in the "Strategy" tab during live trading.
         this.addInfo("myValue", "myValue"); // simply add a member variable
-        this.addInfoFunction("RSI", () => { // add a function under a given label where you can return custom data
+        this.addInfoFunction("RSI", () => {
+            // add a function under a given label where you can return custom data
+            // return the RSI value. All indicator values are only updated once every this.action.candleSize minutes.
             return this.indicators.get("RSI").getValue();
         });
         this.addInfoFunction("random", () => {

@@ -8,24 +8,27 @@ import {TradeDirection} from "../Trade/AbstractTrader";
 import {AbstractMomentumAction, AbstractMomentumStrategy} from "./AbstractMomentumStrategy";
 
 interface PriceSpikeAction extends AbstractMomentumAction {
-    spikePercent: number; // 3.0% // as x% price difference (higher/lower) as the last candle
+    spikePercent: number; // 3.0% // As x% price difference positive value higher, negative value lower) as the last candle.
     endOfSpike: boolean; // optional, default false. true = wait until the spike reverses, false = buy/sell immediately with the spike
-    historyCandle: number; // optional, default 36. how many candles to look back to compare if price really is a spike. set 0 to disable it
+    historyCandle: number; // optional, default 36. How many candles to look back to compare if price really is a spike. Set to 0 to disable it.
 
-    // optionally set a min/max price
+    // Optionally set a min/max price. This strategy will only trade on spikes if the price is above/below that value.
     stop: number; // 0.05226790 BTC
-    // optional. default buy = <, sell = >
-    // does the price have to be higher or lower than the stop?
+    // optional. default buy <, sell >
+    // Does the price have to be higher or lower than the stop?
     comp: "<" | ">";
 
-    // look at last x candles to check for a spike too. default disabled
+    // Look at last x candles to check for a spike too. If their combined spike is above x% this strategy will trade. default disabled
     spikeHistoryPercent: number; // 5.5%
-    historyCandleCount: number; // 3
+    historyCandleCount: number; // 3 // The number of candles to go back for 'spikeHistoryPercent'
 
     tradeDirection: TradeDirection | "notify" | "watch"; // optional. default "both"
-    tradeOppositeDirection: boolean; // optional. default "false" = don't trade if we have an open position in the other direction
-    strongRate: boolean; // optional. default true = adjust the rate to ensure the order gets filled immediately
-    onlyDailyTrend: boolean; // optional. default true = only trade when the spike is in the same direction as the 24h % change
+    tradeOppositeDirection: boolean; // optional. default false = don't trade if we have an open position in the other direction. 'true' means this strategy will always open a position.
+    strongRate: boolean; // optional. default true // 'true' means this strategy will use a rate well above/below the current rate to ensure the order gets filled immediately during the spike. This is similar to submitting a market order.
+    onlyDailyTrend: boolean; // optional. default true = Only trade when the spike is in the same direction as the 24h % change.
+
+    checkTradesEndPercent: number; // optional, default 65 // How many % of trades of the spike candle shall we wait for when using endOfSpike == true
+    reverseSpikeTimeoutSec: number;  // optional, default 120 // After this time the reversal of a spike will be ignored (don't send a trade signal anymore). Only applies if endOfSpike is set to true.
 
     // TODO option to allow closing opposite positions when used as secondary strategy
     // TODO option to only open positions with x% of total trading size
@@ -38,9 +41,6 @@ interface PriceSpikeAction extends AbstractMomentumAction {
  * this strategy only triggers about once a week for your coin. This is to avoid false positives and jump on late spikes too late.
  */
 export default class PriceSpikeDetector extends AbstractMomentumStrategy {
-    protected static readonly CHECK_TRADES_PERCENT = 65; // how many % of trades of the spike candle shall we wait for when using endOfSpike == true
-    protected static readonly REVERSE_SPIKE_TIMEOUT_SEC = 60; // after this time the reversal of a spike will be ignored (abort sending trade signals)
-
     protected action: PriceSpikeAction;
     protected lastCandle: Candle.Candle = null;
     protected candleTrend: TrendDirection = "none";
@@ -65,6 +65,10 @@ export default class PriceSpikeDetector extends AbstractMomentumStrategy {
             this.action.historyCandleCount = 0;
         else
             this.action.historyCandleCount = Math.floor(this.action.historyCandleCount);
+        if (!this.action.checkTradesEndPercent)
+            this.action.checkTradesEndPercent = 65;
+        if (!this.action.reverseSpikeTimeoutSec)
+            this.action.reverseSpikeTimeoutSec = 120;
         if (!this.action.tradeDirection)
             this.action.tradeDirection = "both"; // overwrite from parent
 
@@ -185,7 +189,7 @@ export default class PriceSpikeDetector extends AbstractMomentumStrategy {
     }
 
     protected waitForEndOfSpike(candleTrend: TrendDirection, priceDiffPercent: number) {
-        this.checkTradeCount = Math.ceil(this.lastCandle.trades / 100 * PriceSpikeDetector.CHECK_TRADES_PERCENT);
+        this.checkTradeCount = Math.ceil(this.lastCandle.trades / 100 * this.action.checkTradesEndPercent);
         this.candleTrend = candleTrend;
         const priceDiffPercentTxt = priceDiffPercent.toFixed(2) + "%";
         this.log("Ongoing price spike", this.candleTrend, priceDiffPercentTxt, "- Waiting for the trend to turn, required trades:", this.checkTradeCount);
@@ -231,7 +235,7 @@ export default class PriceSpikeDetector extends AbstractMomentumStrategy {
             this.reverseSpikeTimeout = this.getMarketTime();
             return false;
         }
-        else if (this.reverseSpikeTimeout.getTime() + PriceSpikeDetector.REVERSE_SPIKE_TIMEOUT_SEC*1000 < this.getMarketTime().getTime()) {
+        else if (this.reverseSpikeTimeout.getTime() + this.action.reverseSpikeTimeoutSec*1000 < this.getMarketTime().getTime()) {
             this.log("Reverse spike timed out. Resetting values");
             this.resetValues();
             return true;
