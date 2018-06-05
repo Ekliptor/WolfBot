@@ -145,6 +145,11 @@ export class Config extends AbstractController {
         });
 
         this.displayTab(this.selectedTab);
+        if (data.devMode !== true) {
+            setTimeout(() => {
+                $(".tabScripts, #tabTradingDev").addClass("hidden");
+            }, 100);
+        }
     }
 
     protected displayTab(tab: ConfigTab) {
@@ -207,7 +212,7 @@ export class Config extends AbstractController {
         });
         if (data.premium === true)
             this.$("#debug").addClass("hidden");
-        this.$("#devMode").prop("checked", data.devMode); // TODO checkbox not working?
+        this.$("#devMode").prop("checked", data.devMode);
         this.$("#devMode").change((event) => {
             const checked = $(event.target).is(":checked");
             if (checked === true)

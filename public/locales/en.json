@@ -771,16 +771,65 @@
       "long": "Number of candles for the long EMA line."
     },
     "OrderPartitioner": {
+      "desc": "Strategy that partitions orders of the last candle tick into buckets of different sizes by volume. It then displays you the buy/sell ratios for these volume buckets. You can open trades once this ratio crosses a certain threshold. Signal is to weak to be used alone, should be used together with other strategies (such as MACD or RSI).",
+      "tradeCount": "The number of trades sorted by amount we want to display.",
+      "percentChange": "How many percent shall the price be changed by orders on the order book?",
+      "whalePercentage": "optional, default 5.0% - % volume level for the high volume orders that shall be considered 'whales'",
+      "fishPercentage": "optional, default 3.0% - % volume level for the low volume orders that shall be considered 'small fish'",
+      "maxTradesDisplay": "optional, default 30 - How many single trades to display at most per bucket.",
+      "CrossMAType": "optional, default EMA - The moving average type to use for the 'requireMAMatch' option. Values: EMA|SMA|DEMA",
+      "short": "Number of candles for the short EMA line.",
+      "long": "Number of candles for the long EMA line.",
+      "requireMAMatch": "optional, default false - Require the moving average to match the trades buy/sell ratio to open a position.",
+      "volumeBuySellLongThreshold": "The min ratio for buy-sell orders to open a long position (recommended > 65).",
+      "volumeBuySellShortThreshold": "The max ratio for buy-sell orders to open a short position (recommended < 35)."
     },
     "PatternRepeater": {
+      "desc": "A strategy that tries to identify patterns of x candles in size (patternSize) that repeat at least patternRepeat times. Then assumes this pattern will repeat x times, adjust price levels and trade accordingly. Backfinder is a good tool to find the good candle size of patterns. Can not be done with a stop because a buy stop triggers at increasing price (and sell at decreasing). Works well with high volume coins (ETH, LTC,..) but can fail badly with small coins because they have irregular spikes quite often",
+      "patternSize": "",
+      "patternRepeat": "",
+      "maxOffset": "",
+      "repeatProfit": "",
+      "takeProfitCandleSize": "",
+      "interval": "",
+      "low": "",
+      "high": ""
     },
     "PercentDEMA": {
+      "desc": "",
+      "long": "",
+      "minPercent": "",
+      "CrossMAType": "",
+      "takeProfitTicks": "",
+      "closeLossEarly": ""
     },
     "PriceRangeTrader": {
+      "desc": "",
+      "minChangePercent": "",
+      "intervalSec": ""
     },
     "PriceSpikeDetector": {
+      "desc": "",
+      "spikePercent": "",
+      "endOfSpike": "",
+      "historyCandle": "",
+      "stop": "",
+      "comp": "",
+      "spikeHistoryPercent": "",
+      "historyCandleCount": "",
+      "tradeDirection": "",
+      "tradeOppositeDirection": "",
+      "strongRate": "",
+      "onlyDailyTrend": ""
     },
     "ProtectProfit": {
+      "desc": "",
+      "profit": "",
+      "profitFactor": "",
+      "time": "",
+      "minOpenTime": "",
+      "ensureProfitPercent": "",
+      "useRealProfitLoss": ""
     },
     "RSI": {
     },

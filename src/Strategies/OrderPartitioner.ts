@@ -5,17 +5,16 @@ import {AbstractStrategy, StrategyAction} from "./AbstractStrategy";
 import {Currency, Trade, Candle, Order} from "@ekliptor/bit-models";
 import * as helper from "../utils/helper";
 import * as Heap from "qheap";
-import all = When.all;
 import {TechnicalStrategy, TechnicalStrategyAction} from "./TechnicalStrategy";
 
 interface OrderPartitionerAction extends TechnicalStrategyAction {
-    tradeCount: number; // the number of trades sorted by amount we want to display
-    percentChange: number; // how many percent shall the price be changed by orders on the order book?
+    tradeCount: number; // The number of trades sorted by amount we want to display.
+    percentChange: number; // How many percent shall the price be changed by orders on the order book?
 
     // optional values
-    whalePercentage: number; // 5% // % volume level for the high volume orders that shall be considered "whales"
-    fishPercentage: number; // 3% // % volume level for the low volume orders that shall be considered "small fish"
-    maxTradesDisplay: number; // 30 // how many trades to display at most
+    whalePercentage: number; // 5% // % volume level for the high volume orders that shall be considered 'whales'
+    fishPercentage: number; // 3% // % volume level for the low volume orders that shall be considered 'small fish'
+    maxTradesDisplay: number; // 30 // How many single trades to display at most per bucket.
 
     // TODO count buy/sell trades over specified intervals
 
@@ -25,8 +24,9 @@ interface OrderPartitionerAction extends TechnicalStrategyAction {
     long: number; // default 7
 
     // trading config. optional, default disabled
-    volumeBuySellLongThreshold: number; // 65 // the min ratio for buy-sell orders to open a long position
-    volumeBuySellShortThreshold: number; // 35 // the max ratio for buy-sell orders to open a short position
+    requireMAMatch: boolean; // optional, default false. Require the moving average to match the trades buy/sell ratio to open a position.
+    volumeBuySellLongThreshold: number; // 65 // The min ratio for buy-sell orders to open a long position.
+    volumeBuySellShortThreshold: number; // 35 // The max ratio for buy-sell orders to open a short position.
 }
 
 class PartitionTrade implements Trade.SimpleTrade {
@@ -47,7 +47,10 @@ class PartitionTrade implements Trade.SimpleTrade {
 }
 
 /**
- * Strategy that partitions orders of the last candle tick into different sizes by volume.
+ * Strategy that partitions orders of the last candle tick into buckets of different sizes by volume.
+ * It then displays you the buy/sell ratios for these volume buckets. You can open trades once this ratio
+ * crosses a certain threshold. Signal is to weak to be used alone, should be used together with other strategies
+ * (such as MACD or RSI).
  */
 export default class OrderPartitioner extends TechnicalStrategy {
     protected static WATCH_ORDERBOOK = false;
@@ -85,7 +88,7 @@ export default class OrderPartitioner extends TechnicalStrategy {
         if (typeof this.action.whalePercentage !== "number")
             this.action.whalePercentage = 5.0;
         if (typeof this.action.fishPercentage !== "number")
-            this.action.fishPercentage = 5.0;
+            this.action.fishPercentage = 3.0;
         if (!this.action.maxTradesDisplay)
             this.action.maxTradesDisplay = 30;
         if (!this.action.CrossMAType)
@@ -94,6 +97,8 @@ export default class OrderPartitioner extends TechnicalStrategy {
             this.action.short = 2;
         if (!this.action.long)
             this.action.long = 7;
+        if (typeof this.action.requireMAMatch !== "boolean")
+            this.action.requireMAMatch = false;
 
         this.addIndicator("EMA", this.action.CrossMAType, this.action); // can be type EMA, DEMA or SMA
 
@@ -370,16 +375,28 @@ export default class OrderPartitioner extends TechnicalStrategy {
         if (this.strategyPosition !== "none")
             return; // only trade once
         const volumeBuySell = this.getBuySellPercentage(this.volumeBuyCount, this.volumeSellCount); // or use "buySell" to include all trades
-        if (volumeBuySell > this.action.volumeBuySellLongThreshold) {
+        if (volumeBuySell > this.action.volumeBuySellLongThreshold && this.isEmaTrendUp()) {
             this.log("UP volume trend detected, ratio", volumeBuySell)
             this.emitBuy(this.defaultWeight, "volumeBuySell value: " + volumeBuySell);
         }
-        else if (volumeBuySell < this.action.volumeBuySellShortThreshold) {
+        else if (volumeBuySell < this.action.volumeBuySellShortThreshold && this.isEmaTrendDown()) {
             this.log("DOWN volume trend detected, ratio", volumeBuySell)
             this.emitSell(this.defaultWeight, "volumeBuySell value: " + volumeBuySell);
         }
         else
             this.log("No volume trend detected")
+    }
+
+    protected isEmaTrendUp() {
+        if (this.action.requireMAMatch === false)
+            return true;
+        return this.indicators.get("EMA").getLineDiffPercent() > 0.0;
+    }
+
+    protected isEmaTrendDown() {
+        if (this.action.requireMAMatch === false)
+            return true;
+        return this.indicators.get("EMA").getLineDiffPercent() < 0.0;
     }
 
     protected plotChart() {
