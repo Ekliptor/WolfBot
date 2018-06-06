@@ -14,7 +14,8 @@ interface RSIStarterAction extends TechnicalStrategyAction {
     lowStartFactor: number; // optional, default 0.75, max 1.0 = always immediately. the bot will enter a trend immediately if RSI <= lowStartFactor*low, otherwise wait for the end of it and go long
     candlePercentReverse: number; // optional, default 4.0. how many percent the last candle has to go in the other direction to enter the market at the end of a spike/drop
     pauseCandles: number; // optional, default 25. how many candles to pause after a bad trade
-    historyCandleSize: number; // optional, default 60. candle size in min to check for the long trend
+    historyCandleSize: number; // optional, default 10. Candle size in min to check for the long trend.
+    historyCandleCount: number; // optional, default 5. The number of candles to use for historyCandleSize.
 }
 
 /**
@@ -23,9 +24,6 @@ interface RSIStarterAction extends TechnicalStrategyAction {
  * 2. when there is a sudden spike upwards
  */
 export default class RSIStarter extends TechnicalStrategy {
-    protected static readonly PAUSE_TICKS = 25;
-    protected static readonly HISTORY_CANDLE_SIZE = 10;
-
     public action: RSIStarterAction;
     protected scheduledOrder: TradeAction = null;
     protected pauseTicks: number = 0; // pause after a wrong decision to prevent waiting for a turn in longer trends
@@ -39,9 +37,11 @@ export default class RSIStarter extends TechnicalStrategy {
         if (!this.action.candlePercentReverse)
             this.action.candlePercentReverse = 4.0;
         if (!this.action.pauseCandles)
-            this.action.pauseCandles = RSIStarter.PAUSE_TICKS;
+            this.action.pauseCandles = 20;
         if (!this.action.historyCandleSize)
-            this.action.historyCandleSize = RSIStarter.HISTORY_CANDLE_SIZE;
+            this.action.historyCandleSize = 10;
+        if (!this.action.historyCandleCount)
+            this.action.historyCandleCount = 5;
         this.saveState = true;
 
         this.addIndicator("RSI", "RSI", this.action);
@@ -106,7 +106,7 @@ export default class RSIStarter extends TechnicalStrategy {
 
         // check the longer candle trend and don't buy sell if that trend goes down too. otherwise our momentum turn
         // isn't really a turn, but just a moment of more sells/buys in a longer down/up trend
-        let historyCandles = this.getCandles(this.action.historyCandleSize, 5);
+        let historyCandles = this.getCandles(this.action.historyCandleSize, this.action.historyCandleCount);
         let rsi = this.indicators.get("RSI")
         const value = rsi.getValue();
 

@@ -70,6 +70,7 @@ export class MarginPosition {
         // it just looks if we have long or short and compares the price difference
         // also note that AbstractTrader currently doesn't allow to go short if we have an open long position for that currency pair (no mixed trading)
         // but this function should work nevertheless
+        // TODO must be done FIFO for multiple trades in different directions
 
         let totalBase = 0;
         let totalAmount = 0;

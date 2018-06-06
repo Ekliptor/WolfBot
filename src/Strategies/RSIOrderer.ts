@@ -10,23 +10,23 @@ import {AbstractOrderer, AbstractOrdererAction} from "./AbstractOrderer";
 
 interface RsiOrdererAction extends AbstractOrdererAction {
     // RSI values
-    low: number; // 40
-    high: number; // 60
-    immediateLow: number; // 30 // enter the market in the same direction as the RSI points immediately
+    low: number; // 40 // This strategy will start a buy trade after RSI oversold ends.
+    high: number; // 60 // This strategy will start a sell trade after RSI overbought ends.
+    immediateLow: number; // 30 // Enter the market in the same direction as the RSI points immediately
     immediateHigh: number; // 70
     interval: number; // optional, default 6
 
-    onlyImmediate: boolean; // default true. true = only trade on immediate low/high values, false = use low/high for trades in opposite direction
-    waitBounceBack: boolean; // default true = wait for the RSI to bounce back after reaching the low/high threshold. false = open position immediately
-    tradeOnDip: boolean; // default true. buy/sell after the RSI value goes above/below immediate low/high again. otherwise wait for the trend to start
-    expiry: number; // default = 5 candles. execute the order after x candles if the threshold isn't reached. 0 = disabled
-    deleteExpired: boolean; // default true. true = delete expired orders instead of executing them
-    deleteOppositeOrders: boolean; // default false. delete opposite buy/sell orders if immediate thresholds are reached
+    onlyImmediate: boolean; // default true. If true, this strategy only trades on immediate low/high values. On false it use low/high values to start trades in opposite direction.
+    waitBounceBack: boolean; // default true = If true, wait for the RSI to bounce back after reaching the low/high threshold. If false, open position immediately.
+    //tradeOnDip: boolean; // default true. This strategy will buy/sell after the RSI value goes above/below immediate low/high again. Otherwise wait for a new trend to start.
+    expiry: number; // default = 5 candles. Execute the order after x candles if the threshold isn't reached. 0 = disabled
+    deleteExpired: boolean; // default true. If true, delete expired orders instead of executing them after 'expiry' candles have passed.
+    deleteOppositeOrders: boolean; // default false. Delete opposite buy/sell orders if immediate thresholds are reached.
 }
 
 /**
  * Secondary Strategy that executes buy/sell based on the RSI indicator after overbought/oversold periods.
- * Should be used with a smaller candleSize than the main strategy.
+ * Should be used with a smaller candleSize than the main strategy to execute an order defined by your main strategy.
  * // TODO RSICloser strategy subclass for StopLossTurn to close at the optimal moment
  *
  * "RSIOrderer": {
@@ -52,8 +52,8 @@ export default class RSIOrderer extends AbstractOrderer {
             this.action.onlyImmediate = true;
         if (typeof this.action.waitBounceBack !== "boolean")
             this.action.waitBounceBack = true;
-        if (typeof this.action.tradeOnDip !== "boolean")
-            this.action.tradeOnDip = true;
+        //if (typeof this.action.tradeOnDip !== "boolean")
+            //this.action.tradeOnDip = true;
 
         this.addIndicator("RSI", "RSI", this.action);
         this.addInfo("secondLastRSI", "secondLastRSI");

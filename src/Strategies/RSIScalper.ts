@@ -8,23 +8,26 @@ import {Currency, Trade, Candle, Order} from "@ekliptor/bit-models";
 import {TradeInfo} from "../Trade/AbstractTrader";
 
 interface RSIScalperAction extends TechnicalStrategyAction {
-    percentage: number; // the order amount percentage of the config's total trading volume (100% to trade the same amount twice)
+    percentage: number; // The order amount percentage of the config's total trading volume. Use 100% to trade the same amount again and double your position size.
 
     // RSI values
     low: number; // the RSI low to be reached before we look for a bounce back up
     high: number; // the RSI high to be reached before we look for a bounce back down
     interval: number; // optional, default 6
 
-    enterLow: number; // default 50. the max RSI value to open a short position
-    enterHigh: number; // default 50. the min RSI value to open a long position
-    openPosition: boolean; // default = false. true = open new positions, false = only trade in the same direction we already have an open position
-    expiry: number; // default = 14 candles. stop waiting for a bounce back if it doesn't happen for "expiry" candles. 0 = disabled
-    scalpOnce: boolean; // default = true. scalp only once per position or multiple times
+    enterLow: number; // default 50. The max RSI value to open a short position.
+    enterHigh: number; // default 50. The min RSI value to open a long position.
+    openPosition: boolean; // default = false. true means this strategy can also open new positions. false means it will only trade in the same direction if we already have an open position.
+    expiry: number; // default = 14 candles. Stop waiting for a bounce back if it doesn't happen for 'expiry' candles. 0 = disabled
+    scalpOnce: boolean; // default = true. Scalp only once per position to increase its size. If disabled we scalp multiple times on every opportunity.
     // TODO add parameter "scalpingDirection: TradeDirection" to enable/disable scalping only for long/short
 }
 
 /**
- * Strategy that uses the RSI indicator for scalping - buying/selling on recovery after spikes.
+ * Strategy that uses the RSI indicator for scalping. By scaling this strategy means buying/selling on a pull back after spikes.
+ * This strategy is ideal to use together with a main strategy that does about 1 trade per day. If prices move quickly in the opposite
+ * direction and you assume recovery, you can use this strategy to increase the size of your existing position by 'percentage' from
+ * the strategy config.
  */
 export default class RSIScalper extends TechnicalStrategy {
     public action: RSIScalperAction;

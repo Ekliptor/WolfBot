@@ -842,33 +842,35 @@
       "mode": "optional, default trend - 'trend' means we buy on overbought and sell on oversold. This should be used with smaller candle sizes from 5-60min. 'reverse' means we buy on RSI low and sell on RSI high. In 'reverse' mode trades only  happen if currentRSI > lastRSI to prevent buying into a falling knife (resp. currentRSI < lastRSI for sell orders). Values: trend|reverse|both"
     },
     "RSIOrderer": {
-      "interval": "",
-      "low": "",
-      "high": "",
-      "immediateLow": "",
-      "immediateHigh": "",
-      "onlyImmediate": "",
-      "waitBounceBack": "",
-      "tradeOnDip": "",
-      "expiry": "",
-      "deleteExpired": "",
-      "deleteOppositeOrders": ""
+      "desc": "Secondary Strategy that executes buy/sell based on the RSI indicator after overbought/oversold periods. Should be used with a smaller candleSize than the main strategy to execute an order defined by your main strategy.",
+      "interval": "The number of candles to use for RSI computation.",
+      "low": "Below this value RSI will be considered oversold. This strategy will start a buy trade after RSI oversold ends.",
+      "high": "Above this value RSI will be considered overbought. This strategy will start a sell trade after RSI overbought ends.",
+      "immediateLow": "Start a sell trade immediately when reaching this oversold value.",
+      "immediateHigh": "Start a buy trade immediately when reaching this overbought value.",
+      "onlyImmediate": "optional, default true. If true, this strategy only trades on immediate low/high values. On false it use low/high values to start trades in opposite direction.",
+      "waitBounceBack": "optional, default true - If true, wait for the RSI to bounce back after reaching the low/high threshold. If false, open position immediately.",
+      "expiry": "optional, default 5 (0 = disabled) - Execute the order after x candles if the threshold isn't reached.",
+      "deleteExpired": "optional, default true - If true, delete expired orders instead of executing them after 'expiry' candles have passed.",
+      "deleteOppositeOrders": "optional, default false - Delete opposite buy/sell orders if immediate thresholds are reached."
     },
     "RSIScalper": {
-      "percentage": "",
-      "interval": "",
-      "low": "",
-      "high": "",
-      "enterLow": "",
-      "enterHigh": "",
-      "openPosition": "",
-      "expiry": "",
-      "scalpOnce": ""
+      "desc": "Strategy that uses the RSI indicator for scalping. By scaling this strategy means buying/selling on a pull back after spikes. This strategy is ideal to use together with a main strategy that does about 1 trade per day. If prices move quickly in the opposite direction and you assume recovery, you can use this strategy to increase the size of your existing position by 'percentage' from the strategy config.",
+      "percentage": "The order amount percentage of the config's total trading volume. Use 100% to trade the same amount again and double your position size.",
+      "interval": "The number of candles to use for RSI computation.",
+      "low": "Below this value RSI will be considered oversold.",
+      "high": "Above this value RSI will be considered overbought.",
+      "enterLow": "optional, default 50 - The max RSI value to open a short position.",
+      "enterHigh": "optional, default 50 - The min RSI value to open a long position.",
+      "openPosition": "optional, default false - true means this strategy can also open new positions. false means it will only trade in the same direction if we already have an open position.",
+      "expiry": "optional, default 14 (0 = disabled) - Stop waiting for a bounce back if it doesn't happen for 'expiry' candles.",
+      "scalpOnce": "optional, default true - Scalp only once per position to increase its size. If disabled we scalp multiple times on every opportunity."
     },
     "RSIScalpOrderer": {
-      "interval": "",
-      "low": "",
-      "high": "",
+      "desc": "",
+      "interval": "The number of candles to use for RSI computation.",
+      "low": "Below this value RSI will be considered oversold.",
+      "high": "Above this value RSI will be considered overbought.",
       "immediateLow": "",
       "immediateHigh": "",
       "enterLow": "",
@@ -877,13 +879,15 @@
       "deleteExpired": ""
     },
     "RSIStarter": {
-      "interval": "",
-      "low": "",
-      "high": "",
+      "desc": "A strategy that only opens positions based on RSI (should be used together with other strategies): 1. after a sharp drop when the price goes up again (scalping, also see MomentumTurn strategy) 2. when there is a sudden spike upwards",
+      "interval": "The number of candles to use for RSI computation.",
+      "low": "Below this value RSI will be considered oversold.",
+      "high": "Above this value RSI will be considered overbought.",
       "lowStartFactor": "",
       "candlePercentReverse": "",
       "pauseCandles": "",
-      "historyCandleSize": ""
+      "historyCandleSize": "",
+      "historyCandleCount": "optional, default 5. The number of candles to use for historyCandleSize."
     },
     "SARStop": {
     },

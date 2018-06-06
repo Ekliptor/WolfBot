@@ -60,18 +60,21 @@ export class Backtesting extends JsonEditor {
 
         this.loadDatePickerLib(() => {
             const now = Date.now();
+            const useLast = init.lastFromMs !== 0 && init.lastToMs !== 0;
             let options: any = {
-                defaultDate: new Date(now - init.fromDays * 24 * 60 * 60 * 1000)
+                defaultDate: new Date(useLast ? init.lastFromMs : now - init.fromDays * 24 * 60 * 60 * 1000)
             }
-            this.resetHours(options.defaultDate);
+            if (useLast === false)
+                this.resetHours(options.defaultDate);
             if (appData.lang !== "en")
                 options.locale = appData.lang;
             let from = this.$('#from');
             let to = this.$('#to');
             from.find(':input').attr("data-value", options.defaultDate.getTime());
             from.datetimepicker(options).data("DateTimePicker").date(options.defaultDate);
-            options.defaultDate = new Date(now - init.toDays * 24 * 60 * 60 * 1000);
-            this.resetHours(options.defaultDate);
+            options.defaultDate = new Date(useLast ? init.lastToMs : now - init.toDays * 24 * 60 * 60 * 1000);
+            if (useLast === false)
+                this.resetHours(options.defaultDate);
             to.find(':input').attr("data-value", options.defaultDate.getTime());
             to.datetimepicker(options).data("DateTimePicker").date(options.defaultDate);
             this.setDateTimeValue(from);

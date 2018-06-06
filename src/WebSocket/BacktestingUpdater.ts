@@ -23,6 +23,8 @@ const processFile = fs.existsSync(processFiles[0]) ? processFiles[0] : processFi
 export interface BacktestInitData {
     fromDays: number;
     toDays: number;
+    lastFromMs: number;
+    lastToMs: number;
     configFiles: string[];
     selectedConfig: string;
 }
@@ -66,6 +68,8 @@ export class BacktestingUpdater extends AppPublisher {
     protected selectedConfig: string;
     protected backtestRunning = false;
     //protected backtestingSockets = new Map<string, WebSocket>(); // (socket id, socket) // to resume showing progress
+    protected lastBacktestFromMs: number = 0;
+    protected lastBacktestToMs: number = 0;
 
     constructor(serverSocket: ServerSocket, advisor: AbstractAdvisor) {
         super(serverSocket, advisor)
@@ -79,6 +83,8 @@ export class BacktestingUpdater extends AppPublisher {
                 init: {
                     fromDays: nconf.get("data:backtestStartAgoDays"),
                     toDays: nconf.get("data:backtestEndAgoDays"),
+                    lastFromMs: this.lastBacktestFromMs,
+                    lastToMs: this.lastBacktestToMs,
                     configFiles: configFiles,
                     selectedConfig: this.selectedConfig
                 }
@@ -169,6 +175,8 @@ export class BacktestingUpdater extends AppPublisher {
             env.PARENT_PROCESS_ID = process.pid;
             env.START_TIME_MS = data.start.from; // TODO pack data into a message and send it via JSON
             env.END_TIME_MS = data.start.to;
+            this.lastBacktestFromMs = data.start.from;
+            this.lastBacktestToMs = data.start.to;
             env.START_BALANCE = data.start.startBalance;
             env.SLIPPAGE = data.start.slippage;
             env.TRADING_FEE = data.start.tradingFee;
