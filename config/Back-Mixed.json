@@ -6,16 +6,12 @@
       "tradeTotalBtc": 0.7,
       "warmUpMin": 0,
       "strategies": {
-        "STC": {
+        "Sentiment": {
           "low": 25,
           "high": 75,
-          "closePositions": true,
-          "fast": 23,
-          "slow": 50,
-          "stcLength": 10,
-          "factor": 0.5,
+          "interval": 14,
           "pair": "BTC_ETH",
-          "candleSize": 60,
+          "candleSize": 15,
           "tradeStrategy": "RSIScalpOrderer",
           "enableLog": true
         },

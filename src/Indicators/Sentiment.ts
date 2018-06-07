@@ -5,6 +5,30 @@ import {AbstractIndicator, MomentumIndicatorParams} from "./AbstractIndicator";
 import {TaLib, TaLibParams, TaLibResult} from "./TaLib";
 import {Currency, Trade, Candle} from "@ekliptor/bit-models";
 
+class TradeRatioBucket {
+    public readonly candle: number;
+    public longAmount = 0.0;
+    public shortAmount = 0.0;
+
+    constructor(candle: number) {
+        this.candle = candle;
+    }
+
+    public addBuy(trade: Trade.Trade) {
+        this.longAmount += trade.amount;
+        this.shortAmount -= trade.amount; // assume close short
+        if (this.shortAmount < 0.0)
+            this.shortAmount = 0.0;
+    }
+
+    public addSell(trade: Trade.Trade) {
+        this.shortAmount += trade.amount;
+        this.longAmount -= trade.amount; // assume close long
+        if (this.longAmount < 0.0)
+            this.longAmount = 0.0;
+    }
+}
+
 /**
  * Sentiment indicator to check if the market is short or long.
  * This simply counts market buy vs market sell trades. Also known as cumulative volume delta.
@@ -12,40 +36,32 @@ import {Currency, Trade, Candle} from "@ekliptor/bit-models";
  */
 export default class Sentiment extends AbstractIndicator {
     protected params: MomentumIndicatorParams;
-    protected longAmount = 0.0;
-    protected shortAmount = 0.0;
     protected candleCount = 0;
-    // TODO add interval parameter and delete again after some time
+    protected buckets: TradeRatioBucket[] = [];
+    protected currentBucket: TradeRatioBucket = null;
 
     constructor(params: MomentumIndicatorParams) {
         super(params)
+        this.addRatioBucket(); // start with a bucket even before we have a candle
     }
 
     public addCandle(candle: Candle.Candle) {
         return new Promise<void>((resolve, reject) => {
             this.candleCount++;
+            this.addRatioBucket();
             resolve()
         })
     }
 
     public addTrades(trades: Trade.Trade[]) {
         return new Promise<void>((resolve, reject) => {
-            // TODO interval (just like RSI?) to delete old data?
             // TODO better way to differentiate between "buy" and "close short"?
-            // TODO volume of closed trades (sentiment are open positions)
+            // TODO volume of closed/executed trades (sentiment are open positions)
             trades.forEach((trade) => {
-                if (trade.type === Trade.TradeType.BUY) {
-                    this.longAmount += trade.amount;
-                    this.shortAmount -= trade.amount; // assume close short
-                    if (this.shortAmount < 0.0)
-                        this.shortAmount = 0.0;
-                }
-                else if (trade.type === Trade.TradeType.SELL) {
-                    this.shortAmount += trade.amount;
-                    this.longAmount -= trade.amount; // assume close long
-                    if (this.longAmount < 0.0)
-                        this.longAmount = 0.0;
-                }
+                if (trade.type === Trade.TradeType.BUY)
+                    this.currentBucket.addBuy(trade);
+                else if (trade.type === Trade.TradeType.SELL)
+                    this.currentBucket.addSell(trade);
                 else
                     logger.error("Unknown trade type %s in %s", trade.type, this.className)
             })
@@ -54,17 +70,26 @@ export default class Sentiment extends AbstractIndicator {
     }
 
     public getLongAmount() {
-        return this.longAmount;
+        //return this.longAmount;
+        let total = 0.0;
+        for (let i = 0; i < this.buckets.length; i++)
+            total += this.buckets[i].longAmount;
+        return total;
     }
 
     public getShortAmount() {
-        return this.shortAmount;
+        let total = 0.0;
+        for (let i = 0; i < this.buckets.length; i++)
+            total += this.buckets[i].shortAmount;
+        return total;
     }
 
     public getLongShortPercentage() {
-        if (this.longAmount === 0 || this.shortAmount === 0)
+        const longAmount = this.getLongAmount();
+        const shortAmount = this.getShortAmount();
+        if (longAmount === 0 || shortAmount === 0)
             return -1;
-        return this.longAmount / (this.longAmount + this.shortAmount) * 100.0;
+        return longAmount / (longAmount + shortAmount) * 100.0;
     }
 
     public isReady() {
@@ -73,21 +98,29 @@ export default class Sentiment extends AbstractIndicator {
 
     public serialize() {
         let state = super.serialize();
-        state.longAmount = this.longAmount;
-        state.shortAmount = this.shortAmount;
+        //state.longAmount = this.longAmount;
         state.candleCount = this.candleCount;
+        state.buckets = this.buckets;
+        state.currentBucket = this.currentBucket;
         return state;
     }
 
     public unserialize(state: any) {
         super.unserialize(state);
-        this.longAmount = state.longAmount;
-        this.shortAmount = state.shortAmount;
         this.candleCount = state.candleCount;
+        this.buckets = state.buckets;
+        this.currentBucket = state.currentBucket;
     }
 
     // ################################################################
     // ###################### PRIVATE FUNCTIONS #######################
+
+    protected addRatioBucket() {
+        this.currentBucket = new TradeRatioBucket(this.candleCount);
+        this.buckets.push(this.currentBucket);
+        if (this.buckets.length > this.params.interval)
+            this.buckets.shift();
+    }
 
 }
 

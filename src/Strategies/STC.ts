@@ -9,19 +9,20 @@ import {Currency, Trade, Candle} from "@ekliptor/bit-models";
 
 interface StcAction extends TechnicalStrategyAction {
     // strategy config when to go long/short
-    low: number; // 25 // go long if STC goes up from this value
-    high: number; // 75 // go short if STC goes down from this value
-    closePositions: boolean; // default true. close positions if opposite signal occurs
+    low: number; // default 25 // Go long if STC goes up from this value.
+    high: number; // default 75 // Go short if STC goes down from this value.
+    closePositions: boolean; // default true. Close existing positions if an opposite signal occurs.
 
     // STC indicator config (optional)
-    fast: number; // default 23, number of fast EMA candles
-    slow: number; // default 50, number of slow EMA candles
-    stcLength: number; // default 10, how many candles to keep for MACD signal and STC candle data
-    factor: number; // default 0.5, should be <= 1.0. a lower value means STC will forget historic data faster and be more responsive
+    fast: number; // default 23, The number of fast EMA candles.
+    slow: number; // default 50, The number of slow EMA candles.
+    stcLength: number; // default 10, How many candles STC will keep to compute MACD signal and STC candle data.
+    factor: number; // default 0.5, should be <= 1.0. A lower value means STC will forget historic data faster and be more responsive, thus doing more trades.
 }
 
 /**
- * Strategy that emits buy/sell based on the Schaff Trend Cycle.
+ * Strategy that emits buy/sell based on the Schaff Trend Cycle. STC is a faster version of MACD that oscillates around 0.
+ * Sell signals are given when STC goes down from a high and buy signals when it comes up from a low.
  * This strategy also closes positions if an opposite trade signal occurs.
  */
 export default class STC extends TechnicalStrategy {
@@ -31,6 +32,10 @@ export default class STC extends TechnicalStrategy {
 
     constructor(options) {
         super(options)
+        if (!this.action.low)
+            this.action.low = 25;
+        if (!this.action.high)
+            this.action.high = 75;
         if (typeof this.action.closePositions !== "boolean")
             this.action.closePositions = true;
         this.addIndicator("STC", "STC", this.action);

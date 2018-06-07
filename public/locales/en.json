@@ -911,6 +911,14 @@
       "initialOrder": "optional, default empty - Just wait for the first candle trend and follow it."
     },
     "STC": {
+      "desc": "Strategy that emits buy/sell based on the Schaff Trend Cycle. STC is a faster version of MACD that oscillates around 0. Sell signals are given when STC goes down from a high and buy signals when it comes up from a low. This strategy also closes positions if an opposite trade signal occurs.",
+      "low": "optional, default 25 - Go long if STC goes up from this value.",
+      "high": "optional, default 75 - Go short if STC goes down from this value.",
+      "closePositions": "optional, default true - Close existing positions if an opposite signal occurs.",
+      "fast": "optional, default 23 - The number of fast EMA candles.",
+      "slow": "optional, default 50 - The number of slow EMA candles.",
+      "stcLength": "optional, default 10 - How many candles STC will keep to compute MACD signal and STC candle data.",
+      "factor": "optional, default 0.5 (should be <= 1.0) - A lower value means STC will forget historic data faster and be more responsive, thus doing more trades."
     },
     "StochRSI": {
     },
