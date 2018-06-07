@@ -27,14 +27,9 @@
           "pair": "BTC_ETH",
           "enableLog": true
         },
-        "StopLossTurn": {
-          "order": "closeLong",
-          "setback": 3.0,
-          "setbackLong": 4.5,
-          "time": 7200,
-          "reduceTimeByVolatility": false,
-          "low": 52,
-          "high": 56,
+        "SARStop": {
+          "initialStop": false,
+          "time": 30,
           "candleSize": 6,
           "pair": "BTC_ETH",
           "enableLog": false

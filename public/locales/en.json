@@ -879,7 +879,7 @@
       "deleteExpired": "optional, default true - Delete expired orders instead of executing them after expiry."
     },
     "RSIStarter": {
-      "desc": "A strategy that only opens positions based on RSI (should be used together with other strategies): 1. after a sharp drop when the price goes up again (scalping, also see MomentumTurn strategy) 2. when there is a sudden spike upwards",
+      "desc": "A strategy that only opens positions based on RSI (should be used together with other strategies):<br>1. after a sharp drop when the price goes up again (scalping, also see MomentumTurn strategy)<br>2. when there is a sudden spike upwards",
       "interval": "The number of candles to use for RSI computation.",
       "low": "Below this value RSI will be considered oversold.",
       "high": "Above this value RSI will be considered overbought.",
@@ -890,10 +890,25 @@
       "historyCandleCount": "optional, default 5 - The number of candles to use for historyCandleSize."
     },
     "SARStop": {
+      "desc": "A stop loss strategy that uses the Parabolic SAR as a trailing stop. Works great with every other strategy. Increase the acceleration factor for tighter stops if you are doing many trades per day.",
+      "initialStop": "optional, default false - Use the candle high/low of the current candle when opening a position as an initial stop.",
+      "accelerationFactor": "optional, default 0.02 - SAR indicator Acceleration Factor used up to the Maximum value.",
+      "accelerationMax": "optional, default 0.2 - SAR indicator Acceleration Factor Maximum value.",
+      "time": "optional, default 0 seconds - After the stop price is reached start a countdown of x seconds before closing the position. The countdown gets reset if the price moves in the direction of our open position before the counter reaches 0 seconds.",
+      "keepTrendOpen": "optional, default true - Don't close if the last candle moved in our direction (only applicable with 'time' and 'candleSize' set)."
     },
     "Sentiment": {
+      "desc": "Strategy that checks the market sentiment, meaning the volume of buy sv sell orders. It counts all trades and sum up the volume to see if the market majority is long or short. Should be run with a candle size >= 6h or otherwise it will start trading too soon.",
+      "low": "If the ratio of market buy vs sell orders is below this threshold this strategy will go short.",
+      "high": "If the ratio of market buy vs sell orders is above this threshold this strategy will go long.",
+      "interval": "The interval in candles to count market buy vs sell orders."
     },
     "SimpleAndShort": {
+      "desc": "A Strategy that doesn't look for any indicators. Instead it simply decides to buy/sell like this:<br>- If the stock is going up, buy it if I don't have any.<br>- If the stock is going down, short sell it if I don't have any.<br>- place 3 stops above and below the initial price to sell/buy the coin again.<br>Similar to CandleRepeater and DayTrendFollower strategy.<br>Works well with larger candle sizes from 1-4 hours.",
+      "stopStart": "At how many percent loss shall stop loss buy the first 1/3 back.",
+      "takeProfitStart": "At how many percent shall the bot start taking profits.",
+      "historyCandles": "optional, default 1- How many candles the strategy shall look back for the same trend before opening a position. It will only open a position if all candles go into the same direction.",
+      "initialOrder": "optional, default empty - Just wait for the first candle trend and follow it."
     },
     "STC": {
     },

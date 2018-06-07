@@ -7,20 +7,22 @@ import {Currency, Trade, Candle, Order} from "@ekliptor/bit-models";
 import {TradeInfo} from "../Trade/AbstractTrader";
 
 interface SimpleAndShortAction extends StrategyAction {
-    stopStart: number;          // 3% // at how many percent shall stop loss buy the first 1/3 back
-    takeProfitStart: number;    // 10% // at how many percent shall the bot start taking profits
-    historyCandles: number; // (optional, default 1) how many candles the strategy shall look back for the same trend before opening a position
-    initialOrder: "buy" | "sell"; // optional, default just wait for the first candle trend
+    stopStart: number;          // 3% // At how many percent loss shall stop loss buy the first 1/3 back.
+    takeProfitStart: number;    // 10% // At how many percent shall the bot start taking profits.
+    historyCandles: number; // (optional, default 1) How many candles the strategy shall look back for the same trend before opening a position.
+    // It will only open a position if all candles go into the same direction.
+    initialOrder: "buy" | "sell"; // optional, default Just wait for the first candle trend and follow it.
 }
 
 /**
  * A Strategy that doesn't look for any indicators. Instead it simply decides to buy/sell like this:
- * - If the stock is going up, buy it if I don't have any
- * - If the stock is going down, short sell it if I don't have any
- * - place 3 stops above and below the initial price to sell/buy the coin again
+ * - If the stock is going up, buy it if I don't have any.
+ * - If the stock is going down, short sell it if I don't have any.
+ * - place 3 stops above and below the initial price to sell/buy the coin again.
  * Similar to CandleRepeater and DayTrendFollower strategy.
+ * Works well with larger candle sizes from 1-4 hours.
  *
- * alternative to sell all (currently not used, use other strategies)
+ * Alternative to sell all (currently not used, use other strategies)
  * - If I have some and I am losing money from what I bought, sell <- replace by StopLoss strategy
  * - If I have some and it made money (more than the fees) and it is dropping, sell <- replace by TakeProfit strategy
  * https://cryptotrader.org/topics/588268/stop-loss-bot-will-pay-for-this
@@ -42,6 +44,8 @@ export default class SimpleAndShort extends AbstractStrategy {
         super(options)
         if (!this.action.historyCandles)
             this.action.historyCandles = 1;
+        if (this.action.initialOrder !== "buy" && this.action.initialOrder !== "sell")
+            this.action.initialOrder = null;
 
         this.addInfo("trades", "trades");
         this.addInfo("holdingCoins", "holdingCoins");

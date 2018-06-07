@@ -77,10 +77,10 @@ export default class DirectionFollower extends TechnicalStrategy {
         this.addInfoFunction("ADXR", () => {
             return adx.getADXR();
         });
-        this.addInfoFunction("Parabolic SAR", () => {
+        this.addInfoFunction("ParabolicSAR", () => {
             return this.indicators.get("SAR").getValue();
         });
-        this.addInfoFunction("Initial Stop", () => {
+        this.addInfoFunction("InitialStop", () => {
             return this.initialStop;
         });
         this.mainStrategy = true;

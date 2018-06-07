@@ -7,13 +7,14 @@ import {AbstractIndicator} from "../Indicators/AbstractIndicator";
 import {Currency, Trade, Candle} from "@ekliptor/bit-models";
 
 interface SentimentAction extends TechnicalStrategyAction {
-    low: number;
-    high: number;
+    low: number; // If the ratio of market buy vs sell orders is below this threshold this strategy will go short.
+    high: number; // If the ratio of market buy vs sell orders is above this threshold this strategy will go long.
+    interval: number; // The interval in candles to count market buy vs sell orders.
 }
 
 /**
- * Strategy that checks the market sentiment. It counts all trades and sum up the volume to see if the market majority is long or short.
- * Must be run with a candle size >= 12h or otherwise it will start trading too soon.
+ * Strategy that checks the market sentiment, meaning the volume of buy sv sell orders. It counts all trades and sum up the volume to see if the market majority is long or short.
+ * Should be run with a candle size >= 6h or otherwise it will start trading too soon.
  */
 export default class Sentiment extends TechnicalStrategy {
     public action: SentimentAction;
