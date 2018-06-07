@@ -10,23 +10,24 @@ import {AbstractOrderer, AbstractOrdererAction} from "./AbstractOrderer";
 
 interface RSIScalpOrdererAction extends AbstractOrdererAction {
     // RSI values
-    low: number; // the RSI low to be reached before we look for a bounce back up
-    high: number; // the RSI high to be reached before we look for a bounce back down
+    low: number; // After this value has been reached the strategy will wait for an RSI increase that is above 'enterHigh' and then issue a buy trade.
+    high: number; // After this value has been reached the strategy will wait for an RSI decrease that is below 'enterLow' and then issue a sell trade.
     interval: number; // optional, default 6
 
-    immediateLow: number; // 38
-    immediateHigh: number; // 61
+    immediateLow: number; // 38 // Below this value this strategy will immediately sell.
+    immediateHigh: number; // 61 // Above this value this strategy will immediately buy.
 
     onlyBounceBack: boolean; // default false. only use the bounce back to open positions (no immediate RSI values)
-    enterLow: number; // default 50. the max RSI value to open a short position
-    enterHigh: number; // default 50. the min RSI value to open a long position
-    expiry: number; // default = 5 candles. stop waiting for a bounce back if it doesn't happen for "expiry" candles. 0 = disabled
-    deleteExpired: boolean; // default true. true = delete expired orders instead of executing them
+    enterLow: number; // default 50. The max RSI value to open a short position after RSI reached its 'high' value.
+    enterHigh: number; // default 50. The min RSI value to open a long position after RSI reached its 'low' value.
+    expiry: number; // default = 5 candles. Stop waiting for a bounce back if it doesn't happen for 'expiry' candles. 0 = disabled
+    deleteExpired: boolean; // default true. true = Delete expired orders instead of executing them after expiry.
 }
 
 /**
- * Strategy that uses the RSI indicator for scalping - buying/selling on recovery after spikes.
- * Alternatively it will enter the market immediately on higher/lower values.
+ * Strategy that uses the RSI indicator for scalping. By scaling this strategy means buying/selling on a pull back after spikes.
+ * This strategy is meant to be set as 'tradeStrategy' of your main strategy. It should then run on a smaller candle size (3-15min) and execute the
+ * trades of your main strategy at the right moment.
  */
 export default class RSIScalpOrderer extends AbstractOrderer {
     public action: RSIScalpOrdererAction;

@@ -40,6 +40,8 @@ export interface ArbitrageStrategyAction extends StrategyAction {
 export abstract class AbstractArbitrageStrategy extends AbstractStrategy {
     // TODO parent class members such as "candleHistory" contain data of both exchanges. create additional ones to separate them?
     // TODO triangle arbitrage support within 1 exchange: for example ETH_USD <-> BTC_USD <-> BTC_ETH
+    // for triangular look: https://github.com/MikeAnthonyG/BinBot and https://en.wikipedia.org/wiki/Floyd%E2%80%93Warshall_algorithm
+
     protected action: ArbitrageStrategyAction;
     protected exchanges: Currency.Exchange[] = [];
     protected exchangeNames: string[] = [];

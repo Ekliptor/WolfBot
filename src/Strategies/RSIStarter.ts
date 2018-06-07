@@ -11,10 +11,11 @@ interface RSIStarterAction extends TechnicalStrategyAction {
     low: number;
     high: number;
     interval: number;
-    lowStartFactor: number; // optional, default 0.75, max 1.0 = always immediately. the bot will enter a trend immediately if RSI <= lowStartFactor*low, otherwise wait for the end of it and go long
-    candlePercentReverse: number; // optional, default 4.0. how many percent the last candle has to go in the other direction to enter the market at the end of a spike/drop
-    pauseCandles: number; // optional, default 25. how many candles to pause after a bad trade
-    historyCandleSize: number; // optional, default 10. Candle size in min to check for the long trend.
+    lowStartFactor: number; // optional, default 0.75, max 1.0 = always immediately. The bot will enter a trend immediately if RSI <= lowStartFactor*low. Otherwise it will wait for the end of oversold and go long.
+    candlePercentReverse: number; // optional, default 4.0. How many percent the last candle has to go in the other direction to enter the market at the end of a spike/drop.
+    // It's common on a sharp drop that there will be a strong bounce back if the trend reverses (high volume and high price change).
+    pauseCandles: number; // optional, default 25. How many candles to pause after a loss trade.
+    historyCandleSize: number; // optional, default 10. Candle size in minutes to check for the long trend of the market.
     historyCandleCount: number; // optional, default 5. The number of candles to use for historyCandleSize.
 }
 
