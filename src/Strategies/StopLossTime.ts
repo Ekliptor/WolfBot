@@ -6,20 +6,23 @@ import {AbstractStopStrategy, AbstractStopStrategyAction} from "./AbstractStopSt
 import {Currency, Trade} from "@ekliptor/bit-models";
 
 interface StopLossAction extends AbstractStopStrategyAction {
-    stop: number;
-    time: number; // in seconds
-    limit: number;
+    stop: number; // The price at which the stop shall be triggered. For long positions the price has to move below this value, for short positions above.
+    time: number; // default 0. in seconds
+    //limit: number; // Price will be the price of the last trade. Order gets moved if not filled.
 }
 
 /**
- * A regular stop loss strategy with an additional parameter "time".
- * The stop loss will only be triggered after the "stop" value has passed for the specified amount of time.
+ * A simple stop loss strategy with an additional parameter 'time'.
+ * It will start a counter down to 0 seconds if the stop price is reached. The stop will only be triggered after the counter reaches 0.
+ * The counter gets reset every time the price moves above the stop.
  */
 export default class StopLossTime extends AbstractStopStrategy {
     public action: StopLossAction;
 
     constructor(options) {
         super(options)
+        if (!this.action.time)
+            this.action.time = 0;
     }
 
     // ################################################################

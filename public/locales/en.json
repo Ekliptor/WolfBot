@@ -921,10 +921,38 @@
       "factor": "optional, default 0.5 (should be <= 1.0) - A lower value means STC will forget historic data faster and be more responsive, thus doing more trades."
     },
     "StochRSI": {
+      "desc": "Strategy that emits buy/sell based on the Stochastic RSI indicator. StochRSI is an oscillator measuring the RSI low/high values relative to relative to the min and max RSI values over the by 'interval' defined period of candles. This makes StochRSI and indicator of an indicator. The advantage is that StochRSI is guaranteed to reach either its low or high values, thus producing more signals.",
+      "interval": "The number of candles to use for StochRSI computation.",
+      "low": "Below this value StochRSI will be considered oversold.",
+      "high": "Above this value StochRSI will be considered overbought.",
+      "optInFastK_Period": "optional, default 5 - The number of candles for the real (not smoothened) StochRSI value.",
+      "optInFastD_Period": "optional, default 3 - The number of candles for the smoothened StochRSI value. This strategy will use the smoothened StochRSI value for trading.",
+      "optInFastD_MAType": "optional, default 0 (SMA) - The moving average type to use for smoothening the StochRSI value.",
+      "mode": "optional, default trend - 'trend' means we buy on overbought and sell on oversold. This should be used with smaller candle sizes from 5-60min. 'reverse' means we buy on RSI low and sell on RSI high. In 'reverse' mode trades only  happen if currentRSI > lastRSI to prevent buying into a falling knife (resp. currentRSI < lastRSI for sell orders). Values: trend|reverse|both"
     },
     "StopLossTime": {
+      "desc": "A simple stop loss strategy with an additional parameter 'time'. It will start a counter down to 0 seconds if the stop price is reached. The stop will only be triggered after the counter reaches 0. The counter gets reset every time the price moves above the stop.",
+      "stop": "The price at which the stop shall be triggered. For long positions the price has to move below this value, for short positions above.",
+      "time": "optional, default 0 - After the stop price is reached start a countdown of x seconds before closing the position. The countdown gets reset if the price moves in the direction of our open position before the counter reaches 0 seconds."
     },
     "StopLossTurn": {
+      "desc": "",
+      "stop": "",
+      "setback": "",
+      "setbackLong": "",
+      "time": "optional, default 0 - After the stop price is reached start a countdown of x seconds before closing the position. The countdown gets reset if the price moves in the direction of our open position before the counter reaches 0 seconds.",
+      "increaseTimeByVolatility": "",
+      "reduceTimeByVolatility": "",
+      "keepTrendOpen": "",
+      "forceMaker": "",
+      "notifyBeforeStopSec": "",
+      "setbackProfit": "",
+      "triggerProfit": "",
+      "timeProfit": "",
+      "ensureProfit": "",
+      "low": "",
+      "high": "",
+      "interval": ""
     },
     "StopLossTurnPartial": {
     },

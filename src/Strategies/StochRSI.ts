@@ -13,14 +13,17 @@ interface StochRsiAction extends TechnicalStrategyAction {
     interval: number; // the RSI interval
 
     // optional values
-    optInFastK_Period: number; // default 5. the number of candles for the real StochRSI value
-    optInFastD_Period: number; // default 3. the number of candles for the smoothened StochRSI value
-    optInFastD_MAType: number; // default 0=SMA. the MA type for smoothening
+    optInFastK_Period: number; // default 5. The number of candles for the real (not smoothened) StochRSI value.
+    optInFastD_Period: number; // default 3. The number of candles for the smoothened StochRSI value. This strategy will use the smoothened StochRSI value for trading.
+    optInFastD_MAType: number; // default 0=SMA. The moving average type to use for smoothening the StochRSI value.
     mode: RSIMode; // default "trend". if "reverse" buy on RSI low and sell on RSI high (only if currentRSI > lastRSI)
 }
 
 /**
- * Strategy that emits buy/sell based on the StochRSI indicator.
+ * Strategy that emits buy/sell based on the Stochastic RSI indicator. StochRSI is an oscillator measuring the RSI low/high
+ * values relative to relative to the min and max RSI values over the by 'interval' defined period of candles. This makes StochRSI
+ * and indicator of an indicator. The advantage is that StochRSI is guaranteed to reach either its low or high values, thus producing
+ * more signals.
  */
 export default class StochRSI extends TechnicalStrategy {
     public action: StochRsiAction;
