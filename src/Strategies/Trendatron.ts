@@ -7,7 +7,8 @@ import {AbstractIndicator, TrendDirection} from "../Indicators/AbstractIndicator
 import {Currency, Trade, Candle} from "@ekliptor/bit-models";
 
 export interface TrendatronAction extends TechnicalStrategyAction {
-    interval: number; // the number of candles for SMAs to compute GannSwing
+    interval: number; // The number of candles for SMAs to compute GannSwing.
+    stddevPriod: number; // optional, default 20 - The number of candles for the VIX indicator to compute the standard derivation.
 }
 
 /**

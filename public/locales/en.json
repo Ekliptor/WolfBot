@@ -562,7 +562,7 @@
       "K": "optional, default 2 - The factor for upper/lower band of BollingerBands.",
       "MAType": "optional, default 0 (SMA) - The moving average type of BollingerBands.",
       "notifyBeforeStopSec": "optional, default 0 - Send a notification (for example to the smartphone) x seconds before the stop executes. A value of 0 means disabled.",
-      "time": "optional, default 0 seconds - After the stop price is reached start a countdown of x seconds before closing the position. The countdown gets reset if the price moves in the direction of our open position before the counter reaches 0 seconds."
+      "time": "optional, default 0 seconds - After the stop price is reached start a countdown of x seconds before closing the position. The countdown gets reset if the price moves above the stop price before the counter reaches 0 seconds."
     },
     "NOOP": {
       "desc": "This strategy does nothing. It is just a sample and placeholder.",
@@ -894,7 +894,7 @@
       "initialStop": "optional, default false - Use the candle high/low of the current candle when opening a position as an initial stop.",
       "accelerationFactor": "optional, default 0.02 - SAR indicator Acceleration Factor used up to the Maximum value.",
       "accelerationMax": "optional, default 0.2 - SAR indicator Acceleration Factor Maximum value.",
-      "time": "optional, default 0 seconds - After the stop price is reached start a countdown of x seconds before closing the position. The countdown gets reset if the price moves in the direction of our open position before the counter reaches 0 seconds.",
+      "time": "optional, default 0 seconds - After the stop price is reached start a countdown of x seconds before closing the position. The countdown gets reset if the price moves above the stop price before the counter reaches 0 seconds.",
       "keepTrendOpen": "optional, default true - Don't close if the last candle moved in our direction (only applicable with 'time' and 'candleSize' set)."
     },
     "Sentiment": {
@@ -933,14 +933,14 @@
     "StopLossTime": {
       "desc": "A simple stop loss strategy with an additional parameter 'time'. It will start a counter down to 0 seconds if the stop price is reached. The stop will only be triggered after the counter reaches 0. The counter gets reset every time the price moves above the stop.",
       "stop": "The price at which the stop shall be triggered. For long positions the price has to move below this value, for short positions above.",
-      "time": "optional, default 0 - After the stop price is reached start a countdown of x seconds before closing the position. The countdown gets reset if the price moves in the direction of our open position before the counter reaches 0 seconds."
+      "time": "optional, default 0 - After the stop price is reached start a countdown of x seconds before closing the position. The countdown gets reset if the price moves above the stop price before the counter reaches 0 seconds."
     },
     "StopLossTurn": {
-      "desc": "An advanced stop loss strategy with additional parameters to decide if and when to close a positions. List of features:<br>- time counter: It will start a counter down to 0 seconds if the stop price is reached. The stop will only be triggered after the counter reaches 0. The counter gets reset every time the price moves above the stop.<br>- different trailing stop percentages for long and short positions<br>- tighter stop after a position reaches a defined percentage of profit<br>- keep the position open depending on current RSI and current candle trend<br>- Smartphone notifications x minutes before the stop gets executed to allow manual intervention",
+      "desc": "An advanced stop loss strategy with additional parameters to decide if and when to close a positions. List of features:<br>- time counter: It will start a counter down to 0 seconds if the stop price is reached. The stop will only be triggered after the counter reaches 0. The counter gets reset every time the price moves above the stop.<br>- different trailing stop percentages for long and short positions<br>- tighter stop after a position reaches a defined percentage of profit<br>- keep the position open depending on current RSI and current candle trend<br>- automatically adjust stop time counter based on market volatility<br>- Smartphone notifications x minutes before the stop gets executed to allow manual intervention",
       "stop": "optional, default 0 (use 'setback' setting) - A fixed stop price when to sell (< for long position) or buy (> for short position). If present takes precedence over 'setback'.",
       "setback": "The trailing stop percentage the price has to move against an open position for the stop to be triggered.",
       "setbackLong": "optional, default 0 (use 'setback') - The trailing stop percentage the price has to move against an open long position for the stop to be triggered. Use this to define a different (usually higher) stop for long positions.",
-      "time": "optional, default 0 - After the stop price is reached start a countdown of x seconds before closing the position. The countdown gets reset if the price moves in the direction of our open position before the counter reaches 0 seconds.",
+      "time": "optional, default 0 - After the stop price is reached start a countdown of x seconds before closing the position. The countdown gets reset if the price moves above the stop price before the counter reaches 0 seconds.",
       "increaseTimeByVolatility": "optional, default false - Increase the stop time during volatile markets (by a factor between 1 and 2 computed from Bollinger Bandwidth). Takes precedence over reduceTimeByVolatility.",
       "reduceTimeByVolatility": "optional, default true - Reduce the stop time during high volatility market moments (by a divisor between 1 and 2 computed from Bollinger Bandwidth).",
       "keepTrendOpen": "optional, default true - Don't close if the last candle moved in our direction (only applicable with 'time' and 'candleSize' being set).",
@@ -961,7 +961,7 @@
       "stop": "optional, default 0 (use 'setback' setting) - A fixed stop price when to sell (< for long position) or buy (> for short position). If present takes precedence over 'setback'.",
       "setback": "The trailing stop percentage the price has to move against an open position for the stop to be triggered.",
       "setbackLong": "optional, default 0 (use 'setback') - The trailing stop percentage the price has to move against an open long position for the stop to be triggered. Use this to define a different (usually higher) stop for long positions.",
-      "time": "optional, default 0 - After the stop price is reached start a countdown of x seconds before closing the position. The countdown gets reset if the price moves in the direction of our open position before the counter reaches 0 seconds.",
+      "time": "optional, default 0 - After the stop price is reached start a countdown of x seconds before closing the position. The countdown gets reset if the price moves above the stop price before the counter reaches 0 seconds.",
       "increaseTimeByVolatility": "optional, default false - Increase the stop time during volatile markets (by a factor between 1 and 2 computed from Bollinger Bandwidth). Takes precedence over reduceTimeByVolatility.",
       "reduceTimeByVolatility": "optional, default true - Reduce the stop time during high volatility market moments (by a divisor between 1 and 2 computed from Bollinger Bandwidth).",
       "keepTrendOpen": "optional, default true - Don't close if the last candle moved in our direction (only applicable with 'time' and 'candleSize' being set).",
@@ -977,41 +977,85 @@
       "MAType": "optional, default 0 (SMA) - The moving average type of BollingerBands. BollingerBands indicator is being used to determine the market volatility by looking at Bollinger Bandwidth."
     },
     "TakeProfit": {
-      "desc": "",
-      "stop": "",
-      "profit": "",
-      "time": "",
-      "reduceTimeByVolatility": "",
-      "keepTrendOpen": "",
+      "desc": "An advanced take profit strategy with additional parameters to decide if and when to close a positions. List of features:<br>- time counter: It will start a counter down to 0 seconds if the profit stop price is reached. The stop will only be triggered after the counter reaches 0. The counter gets reset every time the price moves above the stop.<br>- automatically adjust stop time counter based on market volatility",
+      "stop": "optional, default 0 (use 'profit' setting) - A fixed stop price when to sell (> for long position) or buy (< for short position). If present takes precedence over 'profit'.",
+      "profit": "The target profit in percent. Once your open position reaches this profit it will be closed.",
+      "time": "optional, default 0 - After the price falls below your profit target again start a countdown of x seconds before closing the position. The countdown gets reset if the price moves above our profit target before the counter reaches 0 seconds.",
+      "reduceTimeByVolatility": "optional, default true - Reduce the stop time during high volatility market moments (by a divisor between 1 and 2 computed from Bollinger Bandwidth).",
+      "keepTrendOpen": "optional, default true - Don't close if the last candle moved in our direction (only applicable with 'time' and 'candleSize' being set).",
       "forceMaker": "optional, default false - Only place a maker order (not paying the higher taker fee). Order will get adjusted in case the price moves away from it.",
-      "minRate": "",
-      "MAType": ""
+      "minRate": "optional, default 0 (disabled) - Only take profit once this market rate has been reached. Price must be above it for long positions and below it for short positions.",
+      "MAType": "optional, default 0 (SMA) - The moving average type of BollingerBands. BollingerBands indicator is being used to determine the market volatility by looking at Bollinger Bandwidth."
     },
     "TakeProfitPartial": {
-      "desc": "See TakeProfit for a more detailed description.",
+      "desc": "An advanced take profit strategy that can close a position partially. Keeping a part of your position open allows you to get further gains if the market moves in the direction of your position while locking in some of your existing profits. See TakeProfit for a more detailed description.",
       "percentage": "The percentage of the open position to close. Must be between 0 and 100%.",
+      "stop": "optional, default 0 (use 'profit' setting) - A fixed stop price when to sell (> for long position) or buy (< for short position). If present takes precedence over 'profit'.",
+      "profit": "The target profit in percent. Once your open position reaches this profit it will be closed.",
+      "time": "optional, default 0 - After the price falls below your profit target again start a countdown of x seconds before closing the position. The countdown gets reset if the price moves above our profit target before the counter reaches 0 seconds.",
+      "reduceTimeByVolatility": "optional, default true - Reduce the stop time during high volatility market moments (by a divisor between 1 and 2 computed from Bollinger Bandwidth).",
+      "keepTrendOpen": "optional, default true - Don't close if the last candle moved in our direction (only applicable with 'time' and 'candleSize' being set).",
+      "forceMaker": "optional, default false - Only place a maker order (not paying the higher taker fee). Order will get adjusted in case the price moves away from it.",
+      "minRate": "optional, default 0 (disabled) - Only take profit once this market rate has been reached. Price must be above it for long positions and below it for short positions.",
+      "MAType": "optional, default 0 (SMA) - The moving average type of BollingerBands. BollingerBands indicator is being used to determine the market volatility by looking at Bollinger Bandwidth."
     },
     "TakeProfitStochRSI": {
+      "desc": "",
+      "percentage": "",
+      "interval": "The number of candles to use for StochRSI computation.",
+      "low": "Below this value StochRSI will be considered oversold.",
+      "high": "Above this value StochRSI will be considered overbought.",
+      "optInFastK_Period": "optional, default 5 - The number of candles for the real (not smoothened) StochRSI value.",
+      "optInFastD_Period": "optional, default 3 - The number of candles for the smoothened StochRSI value. This strategy will use the smoothened StochRSI value for trading.",
+      "optInFastD_MAType": "optional, default 0 (SMA) - The moving average type to use for smoothening the StochRSI value.",
+      "closeRateFactor": "",
+      "time": "",
+      "keepTrendOpen": "",
+      "alwaysIncreaseStop": "",
+      "ensureProfit": "",
+      "orderStrategy": "",
+      "minOpenTicks": ""
     },
     "TimeOrder": {
+      "desc": "",
+      "executeMin": "",
+      "keepTrendOpen": ""
     },
     "Trendatron": {
+      "desc": "",
+      "interval": "",
+      "stddevPriod": ""
     },
     "TrendlineScapler": {
+      "desc": "",
+      "supportLines": "",
+      "resistanceLines": "",
+      "tradeBreakout": "",
+      "expirationPercent": ""
     },
     "TriggerOrder": {
+      "desc": "",
+      "expiry": "",
+      "deleteExpired": "",
+      "deleteOppositeOrders": ""
     },
     "VolumeSpikeDetector": {
+      "desc": ""
     },
     "VolumeSpikeDetectorLong": {
+      "desc": ""
     },
     "VolumeSpikeStopper": {
+      "desc": ""
     },
     "WaveOpener": {
+      "desc": ""
     },
     "WaveStopper": {
+      "desc": ""
     },
     "WaveSurfer": {
+      "desc": ""
     }
   },
   "arbitrageStratDesc": {

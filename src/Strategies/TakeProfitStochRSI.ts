@@ -15,9 +15,9 @@ interface TakeProfitStochRSIAction extends AbstractTakeProfitStrategyAction {
     high: number; // the RSI high value to close a long position
     interval: number; // the RSI interval
     // optional values
-    optInFastK_Period: number; // default 5. the number of candles for the real StochRSI value
-    optInFastD_Period: number; // default 3. the number of candles for the smoothened StochRSI value
-    optInFastD_MAType: number; // default 0=SMA. the MA type for smoothening
+    optInFastK_Period: number; // default 5. The number of candles for the real StochRSI value.
+    optInFastD_Period: number; // default 3. The number of candles for the smoothened StochRSI value.
+    optInFastD_MAType: number; // default 0=SMA. The MA type for smoothening.
 
     closeRateFactor: number; // 0.9992 // optional, default 1.0, must be < 1. multiply the close rate by this to set the stop below (for shorts 1-x is added)
     time: number; // optional, default 300 sec. wait before exeuting the stop order after reaching the threshold

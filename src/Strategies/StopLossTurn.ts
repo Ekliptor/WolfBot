@@ -47,6 +47,7 @@ interface StopLossTurnAction extends AbstractStopStrategyAction {
  * - different trailing stop percentages for long and short positions
  * - tighter stop after a position reaches a defined percentage of profit
  * - keep the position open depending on current RSI and current candle trend
+ * - automatically adjust stop time counter based on market volatility
  * - Smartphone notifications x minutes before the stop gets executed to allow manual intervention
  */
 export default class StopLossTurn extends AbstractStopStrategy {

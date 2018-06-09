@@ -9,19 +9,21 @@ import {TechnicalStrategyAction} from "./TechnicalStrategy";
 interface TakeProfitAction extends /*StrategyAction*/AbstractTakeProfitStrategyAction {
     // assuming we pay 0.25% taker fee for buying and selling, this value should be > 0.5%
     // add interest rates for margin trading (0.13% on average for BTC on poloniex) ==> > 0.63%
-    stop: number; // optional. a fixed stop price when to sell (> long position) or buy (< short position). if present takes precedence over "profit"
+    stop: number; // optional. A fixed stop price when to sell (> for long position) or buy (< for short position). If present takes precedence over 'profit'.
     profit: number; // 2.3% // in %
 
     time: number; // in seconds, optional. only close the position if the price doesn't reach a new high/low within this time
-    reduceTimeByVolatility: boolean; // optional, default true. reduce the stop time during high volatility market moments
-    keepTrendOpen: boolean; // optional, default true, don't close if the last candle moved in our direction (only applicable with "time" and "candleSize")
+    reduceTimeByVolatility: boolean; // optional, default true. Reduce the stop time during high volatility market moments.
+    keepTrendOpen: boolean; // optional, default true, Don't close if the last candle moved in our direction (only applicable with 'time' and 'candleSize' set).
     forceMaker: boolean; // optional, default true, force the order to be a maker order
-    minRate: number; // optional // only take profit once this market rate has been reached
+    minRate: number; // optional // Only take profit once this market rate has been reached. Price must be above it for long positions and below it for short positions.
     // TODO option to always immediately take the profit once the profit threshold has been reached
 }
 
 /**
- * Take profit at x % of price increase/decrease from the market entry time.
+ * An advanced take profit strategy with additional parameters to decide if and when to close a positions. List of features:
+ * - time counter: It will start a counter down to 0 seconds if the profit stop price is reached. The stop will only be triggered after the counter reaches 0. The counter gets reset every time the price moves above the stop.
+ * - automatically adjust stop time counter based on market volatility
  */
 export default class TakeProfit extends AbstractTakeProfitStrategy {
     protected static readonly KEEP_TREND_OPEN = true;
