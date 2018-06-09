@@ -9,7 +9,8 @@ import * as helper from "../utils/helper";
 
 interface StopLossTurnAction extends AbstractStopStrategyAction {
     stop: number; // optional. A fixed stop price when to sell (< for long position) or buy (> for short position). If present takes precedence over 'setback'.
-    setback: number; // 1.3% // in % // TODO dynamic stop depending on % difference of x candle high/low. or optimize it with our empirical test suite?
+    setback: number; // 1.3% // in % // The trailing stop percentage the price has to move against an open position for the stop to be triggered.
+    // TODO dynamic stop depending on % difference of x candle high/low. or optimize it with our empirical test suite?
     setbackLong: number; // 2.5% // optional a higher setback for long positions. default = 0 = setback for both. setbackProfit takes precedence
     // TODO add setback bonus + depending on current volume (or set stop to min 24h high/low by collecting candle closes)
     // TODO add an option to immediately open a position in the other direction?
@@ -20,19 +21,18 @@ interface StopLossTurnAction extends AbstractStopStrategyAction {
     time: number; // in seconds, optional
     // close early if the last high/low is x minutes back (instead of waiting for the stop to trigger)
     //closeTimeMin: number; // in minutes, optional, only use this if we have a profit already // removed, use TakeProfit strategy
-    increaseTimeByVolatility: boolean; // optional, default false. increase the stop time during volatile markets. takes precedence over reduceTimeByVolatility
-    reduceTimeByVolatility: boolean; // optional, default true. reduce the stop time during high volatility market moments
-    keepTrendOpen: boolean; // optional, default true, don't close if the last candle moved in our direction (only applicable with "time" and "candleSize")
+    increaseTimeByVolatility: boolean; // optional, default false. Increase the stop time during volatile markets (by a factor between 1 and 2 computed from Bollinger Bandwidth). Takes precedence over reduceTimeByVolatility.
+    reduceTimeByVolatility: boolean; // optional, default true. Reduce the stop time during high volatility market moments (by a divisor between 1 and 2 computed from Bollinger Bandwidth).
+    keepTrendOpen: boolean; // optional, default true, Don't close if the last candle moved in our direction (only applicable with 'time' and 'candleSize' being set).
     forceMaker: boolean; // optional false, force the order to be a maker order
     //protectProfit: number; // optional, default 0 = disabled. close a a position immediately before a profit turns into a loss once this profit % is reached
-    notifyBeforeStopSec: number; // optional, notify seconds before the stop executes
+    notifyBeforeStopSec: number; // optional, Send a push notification x seconds before the stop executes.
 
-    // optional higher stop after a certain profit
-    setbackProfit: number; // 2.5% // how much loss we allow once triggerProfit is reached (same value for long and short)
-    triggerProfit: number; // 4.5% // the min profit to be reached for setbackProfit to replace setback (allow higher losses)
-    timeProfit: number; // in seconds. a higher/lower time to close if position is in profit. reduce/increase time by volatility doesn't apply
-    ensureProfit: boolean; // default true. ensure there is really profit before closing at "setbackProfit" (otherwise fallback to the normal stop)
-    // TODO higher stop time too?
+    // optional: Use a higher stop after a certain profit has been reached.
+    setbackProfit: number; // 2.5% // How much loss we allow once 'triggerProfit' is reached (same value for long and short positions).
+    triggerProfit: number; // 4.5% // The minimum profit to be reached for setbackProfit to replace setback. Use this to either allow higher losses or set tighter trailing stops, depending on your trading strategy.
+    timeProfit: number; // in seconds. A higher/lower time to close if position is in profit. Reduce/increase time by volatility doesn't apply to this value.
+    ensureProfit: boolean; // default true. Ensure there is really profit before closing at 'setbackProfit' (otherwise fallback to the normal stop). Keep in mind that open positions are only being synced every few minutes.
     // TODO decrease time counter on high volatility, see TakeProfit?
 
     // optional RSI values: don't close short if RSI < low (long if RSI > high)
