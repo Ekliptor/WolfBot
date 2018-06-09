@@ -936,8 +936,8 @@
       "time": "optional, default 0 - After the stop price is reached start a countdown of x seconds before closing the position. The countdown gets reset if the price moves in the direction of our open position before the counter reaches 0 seconds."
     },
     "StopLossTurn": {
-      "desc": "",
-      "stop": "",
+      "desc": "An advanced stop loss strategy with additional parameters to decide if and when to close a positions. List of features:<br>- time counter: It will start a counter down to 0 seconds if the stop price is reached. The stop will only be triggered after the counter reaches 0. The counter gets reset every time the price moves above the stop.<br>- different trailing stop percentages for long and short positions<br>- tighter stop after a position reaches a defined percentage of profit<br>- keep the position open depending on current RSI and current candle trend<br>- Smartphone notifications x minutes before the stop gets executed to allow manual intervention",
+      "stop": "optional, default 0 (use 'setback' setting) - A fixed stop price when to sell (< for long position) or buy (> for short position). If present takes precedence over 'setback'.",
       "setback": "",
       "setbackLong": "",
       "time": "optional, default 0 - After the stop price is reached start a countdown of x seconds before closing the position. The countdown gets reset if the price moves in the direction of our open position before the counter reaches 0 seconds.",
@@ -950,13 +950,27 @@
       "triggerProfit": "",
       "timeProfit": "",
       "ensureProfit": "",
-      "low": "",
-      "high": "",
-      "interval": ""
+      "interval": "optional, default 9 - The number of candles to use for RSI computation.",
+      "low": "optional, default 0 (disabled) - Below this value RSI will be considered oversold. This strategy will never close short positions during RSI oversold.",
+      "high": "optional, default 0 (disabled) - Above this value RSI will be considered overbought. This strategy will never close long positions during RSI overbought.",
+      "N": "",
+      "K": "",
+      "MAType": ""
     },
     "StopLossTurnPartial": {
     },
     "TakeProfit": {
+      "desc": "",
+      "stop": "",
+      "profit": "",
+      "time": "",
+      "reduceTimeByVolatility": "",
+      "keepTrendOpen": "",
+      "forceMaker": "",
+      "minRate": "",
+      "N": "",
+      "K": "",
+      "MAType": ""
     },
     "TakeProfitPartial": {
     },

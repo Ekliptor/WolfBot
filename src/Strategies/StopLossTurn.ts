@@ -8,7 +8,7 @@ import {TradeInfo} from "../Trade/AbstractTrader";
 import * as helper from "../utils/helper";
 
 interface StopLossTurnAction extends AbstractStopStrategyAction {
-    stop: number; // optional. a fixed stop price when to sell (< long position) or buy (> short position). if present takes precedence over "setback"
+    stop: number; // optional. A fixed stop price when to sell (< for long position) or buy (> for short position). If present takes precedence over 'setback'.
     setback: number; // 1.3% // in % // TODO dynamic stop depending on % difference of x candle high/low. or optimize it with our empirical test suite?
     setbackLong: number; // 2.5% // optional a higher setback for long positions. default = 0 = setback for both. setbackProfit takes precedence
     // TODO add setback bonus + depending on current volume (or set stop to min 24h high/low by collecting candle closes)
@@ -36,14 +36,18 @@ interface StopLossTurnAction extends AbstractStopStrategyAction {
     // TODO decrease time counter on high volatility, see TakeProfit?
 
     // optional RSI values: don't close short if RSI < low (long if RSI > high)
-    low: number; // 52 // default 0 = disabled
-    high: number; // 56
+    low: number; // 52 // default 0 = disabled // This strategy will never close short positions during RSI oversold.
+    high: number; // 56 // This strategy will never close long positions during RSI overbought.
     interval: number; // default 9
 }
 
 /**
- * A stop loss strategy that follows a trend and triggers after the market moves "setback" percent into the other direction.
- * aka Trailing Stop Loss
+ * An advanced stop loss strategy with additional parameters to decide if and when to close a positions. List of features:
+ * - time counter: It will start a counter down to 0 seconds if the stop price is reached. The stop will only be triggered after the counter reaches 0. The counter gets reset every time the price moves above the stop.
+ * - different trailing stop percentages for long and short positions
+ * - tighter stop after a position reaches a defined percentage of profit
+ * - keep the position open depending on current RSI and current candle trend
+ * - Smartphone notifications x minutes before the stop gets executed to allow manual intervention
  */
 export default class StopLossTurn extends AbstractStopStrategy {
     protected static readonly KEEP_TREND_OPEN = true;
