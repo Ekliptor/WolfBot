@@ -13,8 +13,10 @@ import {TradeInfo} from "../Trade/AbstractTrader";
 import {MarginPosition} from "../structs/MarginPosition";
 
 /**
- * A simple version of WaveSurfer as StopLoss that only exits the market once a candle moves in the
- * other direction. The candle size should be larger.
+ * A simpler version of WaveSurfer that only closes positions once the market moves x candles in the
+ * other direction. The value of x depends on 'minSurfCandles' and 'patternSize'. This strategy can be used
+ * as a stop loss strategy. The candle size should be larger than when opening positions (>1h).
+ * See WaveSurfer strategy for more details.
  */
 export default class WaveStopper extends AbstractWaveSurfer {
 

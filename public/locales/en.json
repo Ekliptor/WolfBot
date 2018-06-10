@@ -550,8 +550,8 @@
       "order": "The order to execute. Can be: buy|sell|closeLong|closeShort",
       "pair": "Enter the currency pair you want to trade with this strategy. For example: USD_BTC, BTC_ETC,...",
       "candleSize": "The candle size in minutes this strategy will use for technical analysis and other indicators that depend on candles.",
-      "tradeStrategy": "The name of the strategy to execute buy/sell orders. Useful to only buy/sell based on 2nd strategy data (for example forwarding the buy order from a strategy with 12h candles to a RSI strategy with 15min candles to execute the trade on RSI oversold...)",
-      "orderStrategy": "More advanced alternative to the 'tradeStrategy' setting. If used, this strategy will pass a TriggerOrderCommand to the 'orderStrategy' (instead of just reacting to the buy/sell signal). See the docs of TriggerOrderCommand for details.",
+      "tradeStrategy": "The name of the strategy to execute buy/sell orders. Useful to only buy/sell based on 2nd strategy data (for example forwarding the buy order from a strategy with 12h candles to a RSI strategy with 15min candles to execute the trade on RSI oversold...). This strategy must be added to your config too.",
+      "orderStrategy": "More advanced alternative to the 'tradeStrategy' setting. If used, this strategy will pass a TriggerOrderCommand to the 'orderStrategy' (instead of just reacting to the buy/sell signal). See the docs of TriggerOrderCommand and the TriggerOrder strategy for details. This strategy must be added to your config too.",
       "fallback": "Enable this to use this strategy as a fallback strategy only. This means that it will only execute buy/sell orders if there is already an open position. Closing existing position will be completely disabled (i.e. done by the main strategy).",
       "enableLog": "Print all strategy actions to the log of the bot.",
       "percentDecrease": "Decrease the minimum interest rate of your loans by this percentage every hour if not all of your funds have been taken as loans.",
@@ -785,7 +785,7 @@
       "volumeBuySellShortThreshold": "The max ratio for buy-sell orders to open a short position (recommended < 35)."
     },
     "PatternRepeater": {
-      "desc": "A strategy that tries to identify patterns of x candles in size (patternSize) that repeat at least patternRepeat times. Then assumes this pattern will repeat x times, adjust price levels and trade accordingly. Backfinder is a good tool to find the good candle size of patterns. Can not be done with a stop because a buy stop triggers at increasing price (and sell at decreasing). Works well with high volume coins (ETH, LTC,..) but can fail badly with small coins because they have irregular spikes quite often",
+      "desc": "A strategy that tries to identify patterns of x candles in size (patternSize) that repeat at least patternRepeat times. Then assumes this pattern will repeat x times, adjust price levels and trade accordingly. Backfinder is a good tool to find the good candle size of patterns. This strategy can not be done with a stop because a buy stop triggers at increasing price (and sell at decreasing). Works well with high volume coins (ETH, LTC,..) but can fail badly with small coins because they have irregular spikes quite often.",
       "patternSize": "The size in candles the pattern shall have.",
       "patternRepeat": "The number of times the % changes of the candles have to repeat before we consider it a pattern.",
       "maxOffset": "optional, default 1 - How many candles the highs/lows can be different in reptetitions to still be considered a pattern.",
@@ -821,7 +821,7 @@
       "tradeDirection": "optional, default both - The direction in which this strategy shall open positions. 'notify' means you will only receive notifications to do a trade. 'watch' only computes the spike values for manual inspection. Values: up|down|both|notify|watch",
       "tradeOppositeDirection": "optional, default false - If set to 'false' we don't trade if we have an open position in the other direction. 'true' means this strategy will always open a position.",
       "strongRate": "optional, default true - 'true' means this strategy will use a rate well above/below the current rate to ensure the order gets filled immediately during the spike. This is similar to submitting a market order.",
-      "onlyDailyTrend": "optional, default true - Only trade when the spike is in the same direction as the 24h % change.",
+      "onlyDailyTrend": "optional, default true - Only trade when the spike is in the same direction as the 24h % price change.",
       "checkTradesEndPercent": "optional, default 65 - How many % of trades of the spike candle shall we wait for when using endOfSpike == true",
       "reverseSpikeTimeoutSec": "optional, default 120 - After this time the reversal of a spike will be ignored (don't send a trade signal anymore). Only applies if endOfSpike is set to true."
     },
@@ -1000,73 +1000,149 @@
       "MAType": "optional, default 0 (SMA) - The moving average type of BollingerBands. BollingerBands indicator is being used to determine the market volatility by looking at Bollinger Bandwidth."
     },
     "TakeProfitStochRSI": {
-      "desc": "",
-      "percentage": "",
+      "desc": "A take profit strategy looking at the Stochastic RSI. It initiates to close a long position at RSI overbought and a short position at RSI oversold. Closing is done by forwarding the order as a stop to an order strategy. Works well with candle sizes of 1h or more and an order strategy running on 1min candles.<br>good RSI values: TakeProfit at 1h candles on > 87 and < 11",
+      "percentage": "optional, default 100% - Take profit by partially closing x% of the open position.",
       "interval": "The number of candles to use for StochRSI computation.",
-      "low": "Below this value StochRSI will be considered oversold.",
-      "high": "Above this value StochRSI will be considered overbought.",
+      "low": "Below this value StochRSI will be considered oversold. This strategy will initiate to close short positions.",
+      "high": "Above this value StochRSI will be considered overbought. This strategy will initiate to close long positions.",
       "optInFastK_Period": "optional, default 5 - The number of candles for the real (not smoothened) StochRSI value.",
       "optInFastD_Period": "optional, default 3 - The number of candles for the smoothened StochRSI value. This strategy will use the smoothened StochRSI value for trading.",
       "optInFastD_MAType": "optional, default 0 (SMA) - The moving average type to use for smoothening the StochRSI value.",
-      "closeRateFactor": "",
-      "time": "",
-      "keepTrendOpen": "",
-      "alwaysIncreaseStop": "",
-      "ensureProfit": "",
-      "orderStrategy": "",
-      "minOpenTicks": ""
+      "closeRateFactor": "optional, default 0.9992 - Move the stop for the closing rate a little bit away from the last price. This multiplies the close rate by this to set the stop below (for shorts 1-x is added).",
+      "time": "optional, default 0 - After the price falls below your profit target again start a countdown of x seconds before closing the position. The countdown gets reset if the price moves above our profit target before the counter reaches 0 seconds.",
+      "keepTrendOpen": "optional, default true - Don't close if the last candle moved in our direction (only applicable with 'time' and 'candleSize' being set).",
+      "alwaysIncreaseStop": "optional, default false - Move the stop closer to the market price after every candle tick of this strategy even if RSI is no more oversold/overbought.",
+      "ensureProfit": "optional, default true - Check if we still have profit after 'time' has passed. Otherwise don't close the position. Keep in mind that open positions are only being synced every few minutes.",
+      "minOpenTicks": "optional, default 12 - How many ticks a position shall be open at least before it can be closed. If this strategy uses the same candle size as the main strategy. it's implicitly open at least 1 tick with value 0."
     },
     "TimeOrder": {
-      "desc": "",
-      "executeMin": "",
-      "keepTrendOpen": ""
+      "desc": "A simple strategy that buys or sells after a specified amount of time has passed. This is useful to place a manual order after the dip of a spike to buy more if you assume this is the start of a new trend. Also useful after a buy from spikes of VolumeSpikeDetector or PriceSpikeDetector.",
+      "executeMin": "A countdown in minutes after which the buy/sell order will be executed.",
+      "keepTrendOpen": "optional, default true - Don't execute the order yet if the last candle moved in our direction (only applicable with 'candleSize' being set)."
     },
     "Trendatron": {
-      "desc": "",
-      "interval": "",
-      "stddevPriod": ""
+      "desc": "A strategy that follows waves of the chart by doing swing trading. It does this by combining 4 SMAs to Gann Swing indicator and adding VIX to check for volatility. Additionally it supports scalping, meaning it can buy more after sharp drops in price.",
+      "interval": "The number of candles for SMAs to compute GannSwing.",
+      "stddevPriod": "optional, default 20 - The number of candles for the VIX indicator to compute the standard derivation."
     },
     "TrendlineScapler": {
-      "desc": "",
-      "supportLines": "",
-      "resistanceLines": "",
-      "tradeBreakout": "",
-      "expirationPercent": ""
+      "desc": "Strategy has pre-configured support/resistance lines. Whenever the price gets close to that line we open a trade in the other direction (expecting a bounce back). Alternatively it can wait for breakouts at those price levels.<br>Works well with high leverage (10x - 20x) and RSI strategy for entry.<br>Works well on 1min candle size together with a trade strategy such as RSIOrderer or RSIScalpOrderer.<br>This strategy doesn't close positions. You must add a stop-loss and take profit strategy.",
+      "supportLines": "The price levels where we want to open long a position.",
+      "resistanceLines": "The price levels where we want to open short a position.",
+      "tradeBreakout": "optional, default false - A value of false means we will assume the price will bounce back within the trading range. If set to true we wait for the support/resistance to get broken and trade the breakout direction.",
+      "expirationPercent": "optional, default 3% - Only execute orders at price levels that are within x% of the set support/resistance lines."
     },
     "TriggerOrder": {
-      "desc": "",
-      "expiry": "",
-      "deleteExpired": "",
-      "deleteOppositeOrders": ""
+      "desc": "Strategy that receives a order from another strategy (such as StopLoss or TakeProfit) and executes it once the threshold triggers. This strategy works with a small candle size (1min) while the strategy giving the order can have a larger candle size. This strategy doesn't have its own config, but instead uses some parameters from the pending order to be executed by it."
     },
     "VolumeSpikeDetector": {
-      "desc": ""
+      "desc": "Detect if there is a spike in the trade volume of a coin. This usually means a sharp spike/drop is happening (especially for smaller Altcoins). This strategy works great at detecting fast pumps in a coin. It should be used with a small candle size such as 3-15min and a 'spikeFactor' according to your coin's volume profile changes. You should look at the chart and set the 'spikeFactor' value high enough so that this strategy only triggers about once a week for your coin. Take a look at VolumeSpikeDetectorLong for volume spikes in longer candle intervals (>= 12h) to detect if attention in a coin is rising.",
+      "spikeFactor": "The minimum spike to open a position. Defined as x times higher than the average volume.",
+      "minVolBtc": "The minimum volume for the current candle and average volume to prevent spikes near 0 trading volume. Defined in the base currency of your trading pair, usually BTC or USD.",
+      "historyCandle": "optional, default 36 - How many candles to look back to compare if price and volume really are a spike. Set 0 to disable it.",
+      "tradeDirection": "optional, default both - The direction in which this strategy shall open positions. 'notify' means you will only receive notifications to do a trade. 'watch' only computes the spike values for manual inspection. Values: up|down|both|notify|watch",
+      "minPriceChangePercent": "optional, default 3.0 - The minimum percent the price has to change to confirm the volume spike and trade on it. If you are trading on small candles (5min) then a value of 1.5 or lower can also be a good setting. See PriceSpikeDetector for a strategy looking only at price spikes.",
+      "tradeOppositeDirection": "optional, default false - If set to 'false' we don't trade if we have an open position in the other direction. 'true' means this strategy will always open a position.",
+      "strongRate": "optional, default true - 'true' means this strategy will use a rate well above/below the current rate to ensure the order gets filled immediately during the spike. This is similar to submitting a market order.",
+      "onlyDailyTrend": "optional, default true - Only trade when the spike is in the same direction as the 24h % price change.",
+      "keepCandleCount": "optional, default 3 - The number of candles to keep to compute the average volume. Should be increased for small candle sizes such as 5min."
     },
     "VolumeSpikeDetectorLong": {
-      "desc": ""
+      "desc": "VolumeSpikeDetector version for longer intervals (daily) to detect if interest/attention in a coin is rising. Half day is also a good interval (especially since the bot might not run 24h without restart to collect enough data). This class only sends notifications and doesn't trade.",
+      "spikeFactor": "The minimum spike to send a trade notification. Defined as x times higher than the average volume.",
+      "keepCandleCount": "optional, default 3 - The number of candles to keep to compute the average volume."
     },
     "VolumeSpikeStopper": {
-      "desc": ""
+      "desc": "VolumeSpikeDetector version that closes a position immediately if there is a huge spike in volume (somebody dropping/buying lots of money) against an open position. Works well on 30min candle size.",
+      "spikeFactor": "The minimum volume spike to close an open position if the price moves against our position. Defined as x times higher than the average volume.",
+      "keepCandleCount": "optional, default 3 - The number of candles to keep to compute the average volume. Should be increased for small candle sizes such as 5min."
     },
     "WaveOpener": {
-      "desc": ""
+      "desc": "A WaveSurfer strategy that only opens positions. It will open long positions at the lowest candle of a wave and short positions at the highest candle of a wave. Works well with large and smaller candle sizes (15min up to 4h). See WaveSurfer strategy for more details.",
+      "minSurfCandles": "The minimum number of candles to keep a position open. Will usually be less than 'patternSize'.",
+      "patternSize": "optional, default 2 - The number of candles to keep to search for a pattern. 2 will mean we keep 4 candles (2 recent lows, 2 recent highs). 2 is a good value for larger candles above 1h. For fast trading on lower candles you should increase this to 5 or more.",
+      "takeProfitCandleSize": "optional, default 10 - The candle size in minutes of the candles this strategy uses to close a protitable position. At the end of the wave (consisting of bigger candles) it will schedule to close the position on the first candle of this small size moving against our position.",
+      "historyPriceCandles": "optional, default 6 - The number of candles to look for price history to decide if the bot should open long or short.",
+      "lossPauseCandles": "optional, default 0 - How many candles the bot shall pause trading after closing a position at a loss. The assumption is that the market is currently very irregular and no wave pattern can be detected.",
+      "maxVolatility": "This strategy will not enter or exit the market above this volatility. Can only be enabled if this is the only main strategy for your currency pair. A value > 0 means Bollinger Bandwidth has to be below this value. Remember that this means your volatility values will change a lot if you change the candle size (as do all unbound technical indicators).",
+      "openBreakouts": "optional default true - Open a new position even if the current candle isn't the min/max candle as long as it confirms with the current on EMA crossover trend.",
+      "tradeDirection": "optional, default both - The direction in which this strategy shall open positions. Values: up|down|both",
+      "latestCandlePercent": "optional, default 20% - How recent (in percent of 2*patternSize) the latest min/max candle has to be for the bot to open a position in the opposite direction (consider the wave to turn).",
+      "longTrend": "optional, default candles - How this strategy detects the long trend. 'ticker' means long trend will be set from daily ticker instead of pattern candles. Use 'up' or 'down' to force the direction of new positions this strategy will open at the right moment of a wave. Values: candles|ticker|up|down",
+      "notifyBeforeExit": "optional, default true - Send a notification 1 candle tick before exiting the market at a loss.",
+      "onlyFollowIndicatorTrend": "optional, default true - Only trade if the EMA indicator matches our candle pattern and candle trend. The EMA indicator trend is usually longer (more time back) that the candle trend.",
+      "tradeIncreaseingTrendOnly": "optional, default true - Only open a position if the EMA crossover line difference is increasing.",
+      "CrossMAType": "optional, default EMA - The moving average type to use for identifying trend directions. Values: EMA|SMA|DEMA",
+      "short": "optional, default 2 - Number of candles for the short EMA line.",
+      "long": "optional, default 7 - Number of candles for the long EMA line.",
+      "interval": "optional, default 14 - RSI interval for Falling Knife Protection: Don't buy/sell on overbought/oversold. The number of candles to use for RSI computation.",
+      "low": "optional, default 20 - Below this value RSI will be considered oversold.",
+      "high": "optional, default 80 - Above this value RSI will be considered overbought.",
+      "MAType": "optional, default 0 (SMA) - The moving average type of BollingerBands. BollingerBands indicator is being used to determine the market volatility by looking at Bollinger Bandwidth."
     },
     "WaveStopper": {
-      "desc": ""
+      "desc": "A simpler version of WaveSurfer that only closes positions once the market moves x candles in the other direction. The value of x depends on 'minSurfCandles' and 'patternSize'. This strategy can be used as a stop loss strategy. The candle size should be larger than when opening positions (>1h). See WaveSurfer strategy for more details.",
+      "minSurfCandles": "The minimum number of candles to keep a position open. Will usually be less than 'patternSize'.",
+      "patternSize": "optional, default 2 - The number of candles to keep to search for a pattern. 2 will mean we keep 4 candles (2 recent lows, 2 recent highs). 2 is a good value for larger candles above 1h. For fast trading on lower candles you should increase this to 5 or more.",
+      "takeProfitCandleSize": "optional, default 10 - The candle size in minutes of the candles this strategy uses to close a protitable position. At the end of the wave (consisting of bigger candles) it will schedule to close the position on the first candle of this small size moving against our position.",
+      "historyPriceCandles": "optional, default 6 - The number of candles to look for price history to decide if the bot should open long or short.",
+      "lossPauseCandles": "optional, default 0 - How many candles the bot shall pause trading after closing a position at a loss. The assumption is that the market is currently very irregular and no wave pattern can be detected.",
+      "maxVolatility": "This strategy will not enter or exit the market above this volatility. Can only be enabled if this is the only main strategy for your currency pair. A value > 0 means Bollinger Bandwidth has to be below this value. Remember that this means your volatility values will change a lot if you change the candle size (as do all unbound technical indicators).",
+      "openBreakouts": "optional default true - Open a new position even if the current candle isn't the min/max candle as long as it confirms with the current on EMA crossover trend.",
+      "tradeDirection": "optional, default both - The direction in which this strategy shall open positions. Values: up|down|both",
+      "latestCandlePercent": "optional, default 20% - How recent (in percent of 2*patternSize) the latest min/max candle has to be for the bot to open a position in the opposite direction (consider the wave to turn).",
+      "longTrend": "optional, default candles - How this strategy detects the long trend. 'ticker' means long trend will be set from daily ticker instead of pattern candles. Use 'up' or 'down' to force the direction of new positions this strategy will open at the right moment of a wave. Values: candles|ticker|up|down",
+      "notifyBeforeExit": "optional, default true - Send a notification 1 candle tick before exiting the market at a loss.",
+      "onlyFollowIndicatorTrend": "optional, default true - Only trade if the EMA indicator matches our candle pattern and candle trend. The EMA indicator trend is usually longer (more time back) that the candle trend.",
+      "tradeIncreaseingTrendOnly": "optional, default true - Only open a position if the EMA crossover line difference is increasing.",
+      "CrossMAType": "optional, default EMA - The moving average type to use for identifying trend directions. Values: EMA|SMA|DEMA",
+      "short": "optional, default 2 - Number of candles for the short EMA line.",
+      "long": "optional, default 7 - Number of candles for the long EMA line.",
+      "interval": "optional, default 14 - RSI interval for Falling Knife Protection: Don't buy/sell on overbought/oversold. The number of candles to use for RSI computation.",
+      "low": "optional, default 20 - Below this value RSI will be considered oversold.",
+      "high": "optional, default 80 - Above this value RSI will be considered overbought.",
+      "MAType": "optional, default 0 (SMA) - The moving average type of BollingerBands. BollingerBands indicator is being used to determine the market volatility by looking at Bollinger Bandwidth."
     },
     "WaveSurfer": {
-      "desc": ""
+      "desc": "A strategy that tries to identify patterns in the trade history of x candles in size (2*patternSize). Then it assumes this pattern will repeat times, adjust price levels and trades accordingly. Backfinder is a good tool to find the good candle size of patterns. Works well with high volume coins (ETH, LTC,..) but can fail badly with small coins because they have irregular spikes quite often. This is a more advanced version of the PatternRepeater strategy.",
+      "minSurfCandles": "The minimum number of candles to keep a position open. Will usually be less than 'patternSize'.",
+      "patternSize": "optional, default 2 - The number of candles to keep to search for a pattern. 2 will mean we keep 4 candles (2 recent lows, 2 recent highs). 2 is a good value for larger candles above 1h. For fast trading on lower candles you should increase this to 5 or more.",
+      "takeProfitCandleSize": "optional, default 10 - The candle size in minutes of the candles this strategy uses to close a protitable position. At the end of the wave (consisting of bigger candles) it will schedule to close the position on the first candle of this small size moving against our position.",
+      "historyPriceCandles": "optional, default 6 - The number of candles to look for price history to decide if the bot should open long or short.",
+      "lossPauseCandles": "optional, default 0 - How many candles the bot shall pause trading after closing a position at a loss. The assumption is that the market is currently very irregular and no wave pattern can be detected.",
+      "maxVolatility": "This strategy will not enter or exit the market above this volatility. Can only be enabled if this is the only main strategy for your currency pair. A value > 0 means Bollinger Bandwidth has to be below this value. Remember that this means your volatility values will change a lot if you change the candle size (as do all unbound technical indicators).",
+      "openBreakouts": "optional default true - Open a new position even if the current candle isn't the min/max candle as long as it confirms with the current on EMA crossover trend.",
+      "tradeDirection": "optional, default both - The direction in which this strategy shall open positions. Values: up|down|both",
+      "latestCandlePercent": "optional, default 20% - How recent (in percent of 2*patternSize) the latest min/max candle has to be for the bot to open a position in the opposite direction (consider the wave to turn).",
+      "longTrend": "optional, default candles - How this strategy detects the long trend. 'ticker' means long trend will be set from daily ticker instead of pattern candles. Use 'up' or 'down' to force the direction of new positions this strategy will open at the right moment of a wave. Values: candles|ticker|up|down",
+      "notifyBeforeExit": "optional, default true - Send a notification 1 candle tick before exiting the market at a loss.",
+      "onlyFollowIndicatorTrend": "optional, default true - Only trade if the EMA indicator matches our candle pattern and candle trend. The EMA indicator trend is usually longer (more time back) that the candle trend.",
+      "tradeIncreaseingTrendOnly": "optional, default true - Only open a position if the EMA crossover line difference is increasing.",
+      "CrossMAType": "optional, default EMA - The moving average type to use for identifying trend directions. Values: EMA|SMA|DEMA",
+      "short": "optional, default 2 - Number of candles for the short EMA line.",
+      "long": "optional, default 7 - Number of candles for the long EMA line.",
+      "interval": "optional, default 14 - RSI interval for Falling Knife Protection: Don't buy/sell on overbought/oversold. The number of candles to use for RSI computation.",
+      "low": "optional, default 20 - Below this value RSI will be considered oversold.",
+      "high": "optional, default 80 - Above this value RSI will be considered overbought.",
+      "MAType": "optional, default 0 (SMA) - The moving average type of BollingerBands. BollingerBands indicator is being used to determine the market volatility by looking at Bollinger Bandwidth."
     }
   },
   "arbitrageStratDesc": {
     "Spread": {
-      "desc": "todo main desc",
-      "todo": "move to sub path arbitrage to avoid name conflicts"
+      "desc": "Arbitrage strategy that computes the average price across exchanges. If the price is x% higher/lower than avg on exchanges:<br>1. buy at the cheaper exchange and (short) sell at the expensive exchange<br>2. close positions after price difference moves x% closer",
+      "spreadEntry": "How many % the market spread between the 2 exchanges has to be to open positions on both of them.",
+      "spreadTarget": "Targeted profit in %. This takes trading fees into account. See the 'tradingFees' setting.<br>Positions will be closed according to this equation: spreadExit = spreadEntry - 4*fees - spreadTarget -> will usually negative, meaning prices flipped",
+      "trailingSpreadStop": "After reaching spreadTarget, place a trailing stop to exit the market. Set this to 0 to exit immediately,"
     }
   },
   "lendingStratDesc": {
     "DEMA": {
-      "desc": "fooo DEMA"
+      "desc": "Strategy that updates of lending interest rates based on the value of the DEMA indicator.",
+      "CrossMAType": "optional, default DEMA - The moving average type to compute the average interest rate from. The value of this will be the interest rate we start placing loans at. Values: EMA|SMA|DEMA",
+      "long": "optional, default 7 - Number of candles for the DEMA line.",
+      "autoSensitivity": "optional, default false - Automatically adjust how many % above the DEMA the interest rate should be on highly volatile markets.",
+      "deltaPercent": "optional, default 0% - Increase the minimum lending rate by %x above DEMA. Use negative values to decrease it.",
+      "MAType": "optional, default 0 (SMA) - The moving average type of BollingerBands. BollingerBands indicator is being used to determine the market volatility by looking at Bollinger Bandwidth."
     }
   }
 }

@@ -12,7 +12,7 @@
           "onlyFollowIndicatorTrend": false,
           "openBreakouts": true,
           "tradeDirection": "both",
-          "PATTERN_SIZE": 3,
+          "patternSize": 3,
           "latestCandlePercent": 20,
           "longTrend": "candles",
           "pair": "BTC_ETH",

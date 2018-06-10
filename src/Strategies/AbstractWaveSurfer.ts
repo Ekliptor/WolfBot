@@ -10,26 +10,34 @@ import {MarginPosition} from "../structs/MarginPosition";
 import {ChartMark} from "./AbstractGenericStrategy";
 
 export interface WaveSurferAction extends TechnicalStrategyAction {
-    minSurfCandles: number;
-    PATTERN_SIZE: number; // optional, default 2. the number of candles keep to search for a pattern. 2 will mean we keep 4 candles (2 low, 2 high)
+    minSurfCandles: number; // The minimum number of candles to keep a position open. Will usually be less than 'patternSize'.
+    patternSize: number; // optional, default 2. The number of candles to keep to search for a pattern. 2 will mean we keep 4 candles (2 recent lows, 2 recent highs).
+    // 2 is a good value for larger candles above 1h. For fast trading on lower candles you should increase this to 5 or more.
+
     //takeProfitCandles: number; // always 1 for now
     //breakoutVolatility: number; // the min bollinger bandwidth that must exist to assume/risk breakouts
-    takeProfitCandleSize: number; // optional, default 10. in minutes
-    historyPriceCandles: number; // optional, default 6 - number of candles to look for price history to decide if the bot should open long or short
-    lossPauseCandles: number; // optional, default 0 - how many candles the bot shall pause trading after a loss trade
-    maxVolatility: number; // optional, default 0 = disabled. strategy will not enter/exit the market above this volatility (only if this is the only main strategyy)
+    takeProfitCandleSize: number; // optional, default 10. The candle size in minutes of the candles this strategy uses to close a protitable position.
+    // At the end of the wave (consisting of bigger candles) it will schedule to close the position on the first candle of this small size moving against our position.
+
+    historyPriceCandles: number; // optional, default 6 - The number of candles to look for price history to decide if the bot should open long or short.
+    lossPauseCandles: number; // optional, default 0 - How many candles the bot shall pause trading after closing a position at a loss. The assumption is
+    // that the market is currently very irregular and no wave pattern can be detected.
+
+    maxVolatility: number; // optional, default 0 = disabled. This strategy will not enter or exit the market above this volatility. Can only be enabled if this is the only main strategy for your currency pair.
+    // A value > 0 means Bollinger Bandwidth has to be below this value.
     // volatility depends on candle size: don't use min + max for different strategies. we use isActiveStrategy() instead to check the other strategy
-    openBreakouts: boolean; // default true. open even if the current candle isn't the min/max candle based on EMA trend
+
+    openBreakouts: boolean; // default true. Open a new position even if the current candle isn't the min/max candle as long as it confirms with the current on EMA crossover trend.
 
     tradeDirection: TradeDirection; // optional. default "both" - can also be set globally on config level
 
-    latestCandlePercent: number; // default 20%. how recent the min/max candle has to be for the bot to open a position (consider the wave to turn)
-    longTrend: "candles" | "ticker" | "up" | "down"; // default candles. ticker means long trend will be set from daily ticker instead of pattern candles
-    notifyBeforeExit: boolean; // default true. send a notification 1 tick before exiting the market at a loss
+    latestCandlePercent: number; // default 20%. How recent (in percent of 2*patternSize) the latest min/max candle has to be for the bot to open a position in the opposite direction (consider the wave to turn).
+    longTrend: "candles" | "ticker" | "up" | "down"; // default candles. How this strategy detects the long trend. Ticker means long trend will be set from daily ticker instead of pattern candles.
+    notifyBeforeExit: boolean; // default true. Send a notification 1 candle tick before exiting the market at a loss.
 
     // both recommended true for longer periods (positions open > 3h)
-    onlyFollowIndicatorTrend: boolean; // optional, default true. only trade if the (longer) indicator matches our candle pattern + candle trend
-    tradeIncreaseingTrendOnly: boolean; // optional, default true. only open a position if the EMA line diff is increasing
+    onlyFollowIndicatorTrend: boolean; // optional, default true. Only trade if the EMA indicator matches our candle pattern and candle trend. The EMA indicator trend is usually longer (more time back) that the candle trend.
+    tradeIncreaseingTrendOnly: boolean; // optional, default true. Only open a position if the EMA crossover line difference is increasing.
     // TODO measure volatility and open x% (more or less than 100% possible) of total trading value on high volatility
     // TODO increase minSurfCandles on low volatility? currently still kind of 50:50 to make profit in low volatility markets
     // TODO include speed option? % change in price, see PriceSpikeDetector
@@ -44,7 +52,7 @@ export interface WaveSurferAction extends TechnicalStrategyAction {
     // Falling Knife Protection - don't buy/sell on overbought/oversold
     // RSI parameters (optional)
     interval: number;   // default 14
-    low: number;        // default 30
+    low: number;        // default 20
     high: number;       // default 80 - crypto currencies have a trend to explode upwards
 
     // optional, for defaults see BolloingerBandsParams
@@ -93,8 +101,8 @@ export abstract class AbstractWaveSurfer extends TechnicalStrategy {
 
     constructor(options) {
         super(options)
-        if (options.PATTERN_SIZE)
-            this.PATTERN_SIZE = options.PATTERN_SIZE;
+        if (options.patternSize)
+            this.PATTERN_SIZE = options.patternSize; // pattern size is set as a member variable and can't be changed after startup
         if (options.minSurfCandles)
             this.action.minSurfCandles = options.minSurfCandles;
         //let minPatternFactor = Math.max(this.action.minSurfCandles, 2); // using 1 causes ever candle to be added to highs + lows

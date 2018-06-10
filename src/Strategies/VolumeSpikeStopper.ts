@@ -9,6 +9,8 @@ import {default as VolumeSpikeDetector, VolumeSpikeAction} from "./VolumeSpikeDe
 
 interface VolumeSpikeStopperAction extends VolumeSpikeAction {
     spikeFactor: number; // 1.7 // as x times higher/lower as avg
+    keepCandleCount: number; // optional, default 3 // The number of candles to keep to compute the average volume.
+
     // not used here
     //minVolBtc: number; // 1.2 // minVol for current candle and avg in BTC to prevent spikes from 0 trading volume
     //historyCandle: number; // optional, default 36. how many candles to look back to compare if price/volume really is a spike. set 0 to disable it
@@ -19,7 +21,8 @@ interface VolumeSpikeStopperAction extends VolumeSpikeAction {
 }
 
 /**
- * VolumeSpikeDetector version that closes a position immediately if there is a huge spike in volume (somebody dropping/buying lots of money).
+ * VolumeSpikeDetector version that closes a position immediately if there is a huge spike in volume (somebody dropping/buying lots of money)
+ * against an open position.
  * Works well on 30min candle size.
  */
 export default class VolumeSpikeStopper extends VolumeSpikeDetector {
@@ -42,7 +45,7 @@ export default class VolumeSpikeStopper extends VolumeSpikeDetector {
         // - any further history candle comparisons
         if (this.strategyPosition === "none")
             return; // nothing to do
-        if (this.avgCandleVolume === 0 || this.avgCandles.length < VolumeSpikeDetector.KEEP_CANDLE_COUNT)
+        if (this.avgCandleVolume === 0 || this.avgCandles.length < this.action.keepCandleCount)
             return;
         const volumeSpike = candle.getVolumeBtc() / this.avgCandleVolume;
         if (volumeSpike < this.action.spikeFactor)

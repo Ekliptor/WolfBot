@@ -7,12 +7,13 @@ import {TradeDirection} from "../Trade/AbstractTrader";
 import {AbstractMomentumAction, AbstractMomentumStrategy} from "./AbstractMomentumStrategy";
 
 export interface VolumeSpikeAction extends AbstractMomentumAction {
-    spikeFactor: number; // 3.0 // as x times higher/lower as avg
-    minVolBtc: number; // 1.2 // minVol for current candle and avg in BTC to prevent spikes from 0 trading volume
-    historyCandle: number; // optional, default 36. how many candles to look back to compare if price/volume really is a spike. set 0 to disable it
+    spikeFactor: number; // 3.0 // The minimum spike to open a position. Defined as x times higher than the average volume.
+    minVolBtc: number; // 1.2 // The minimum volume for the current candle and average volume to prevent spikes near 0 trading volume. Defined in the base currency of your trading pair, usually BTC or USD.
+    historyCandle: number; // optional, default 36. How many candles to look back to compare if price and volume really are a spike. Set 0 to disable it.
 
     tradeDirection: TradeDirection | "notify" | "watch"; // optional. default "up"
-    minPriceChangePercent: number; // default 3.0 // 1.5 for 5min candles // 3.5 is already too much for coins as Sia
+    // The minimum percent the price has to change to confirm the volume spike and trade on it. If you are trading on small candles (5min) then a value of 1.5 or lower can also be a good setting. See PriceSpikeDetector for a strategy looking only at price spikes.
+    minPriceChangePercent: number; // default 3.0 // 1.5 for 5min candles // 3.5 is already too much for small coins as Sia on Poloniex
     tradeOppositeDirection: boolean; // optional. default "false" = don't trade if we have an open position in the other direction
     strongRate: boolean; // optional. default true = adjust the rate to ensure the order gets filled immediately
     onlyDailyTrend: boolean; // optional. default true = only trade when the spike is in the same direction as the 24h % change
@@ -21,8 +22,12 @@ export interface VolumeSpikeAction extends AbstractMomentumAction {
 
 /**
  * Detect if there is a spike in the trade volume of a coin.
- * this usually means a sharp spike/drop is happening (especially for smaller altcoins)
- * This can also be used with longer candle intervals (>= 24h) to detect if attention in a coin is rising.
+ * This usually means a sharp spike/drop is happening (especially for smaller Altcoins).
+ * This strategy works great at detecting fast pumps in a coin. It should be used with a small candle size such as 3-15min and
+ * a 'spikeFactor' according to your coin's volume profile changes. You should look at the chart and set the 'spikeFactor' value
+ * high enough so that this strategy only triggers about once a week for your coin.
+ * This is to avoid false positives and jump on late spikes too late.
+ * Take a look at VolumeSpikeDetectorLong for volume spikes in longer candle intervals (>= 12h) to detect if attention in a coin is rising.
  */
 export default class VolumeSpikeDetector extends AbstractMomentumStrategy {
     protected action: VolumeSpikeAction;

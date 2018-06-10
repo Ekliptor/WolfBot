@@ -9,6 +9,8 @@ import {default as VolumeSpikeDetector, VolumeSpikeAction} from "./VolumeSpikeDe
 
 interface VolumeSpikeLongAction extends VolumeSpikeAction {
     spikeFactor: number; // 3.0 // as x times higher/lower as avg
+    keepCandleCount: number; // optional, default 3 // The number of candles to keep to compute the average volume.
+
     // not used here
     //minVolBtc: number; // 1.2 // minVol for current candle and avg in BTC to prevent spikes from 0 trading volume
     //historyCandle: number; // optional, default 36. how many candles to look back to compare if price/volume really is a spike. set 0 to disable it
@@ -20,7 +22,7 @@ interface VolumeSpikeLongAction extends VolumeSpikeAction {
 
 /**
  * VolumeSpikeDetector version for longer intervals (daily) to detect if interest/attention in a coin is rising.
- * Half day is also a good interval (especially since the bot might not run 24h without restart to collect enough data)
+ * Half day is also a good interval (especially since the bot might not run 24h without restart to collect enough data).
  * This class only sends notifications and doesn't trade.
  */
 export default class VolumeSpikeDetectorLong extends VolumeSpikeDetector {
@@ -39,7 +41,7 @@ export default class VolumeSpikeDetectorLong extends VolumeSpikeDetector {
         // - checking for min BTC trading volume
         // - checking for price
         // - any further history candle comparisons
-        if (this.avgCandleVolume === 0 || this.avgCandles.length < VolumeSpikeDetector.KEEP_CANDLE_COUNT)
+        if (this.avgCandleVolume === 0 || this.avgCandles.length < this.action.keepCandleCount)
             return;
         const volumeSpike = candle.getVolumeBtc() / this.avgCandleVolume;
         if (volumeSpike < this.action.spikeFactor)

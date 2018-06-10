@@ -14,7 +14,8 @@ import {GenericStrategyState} from "./AbstractGenericStrategy";
 
 
 /**
- * This is the action interface for your strategy. It defines all parameters that are available for this strategy.
+ * This is the action interface for your strategy. It defines all parameters that are available for this strategy
+ * (meaning settings the user can supply and change at runtime).
  * Those parameters can be set in the ExampleStrategy.json config file in the /config folder.
  *
  * Every config file can use this strategy, but it is good practice to create 1 config file with the same name as

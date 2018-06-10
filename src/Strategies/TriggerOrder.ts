@@ -21,7 +21,8 @@ export interface TriggerOrderAction extends StrategyAction {
 /**
  * Strategy that receives a order from another strategy (such as StopLoss or TakeProfit) and executes it
  * once the threshold triggers. This strategy works with a small candle size (1min) while the strategy giving the order
- * can have a larger candle size.
+ * can have a larger candle size. This strategy doesn't have its own config, but instead uses some parameters from the pending
+ * order to be executed by it.
  */
 export default class TriggerOrder extends AbstractTriggerOrder {
     public action: TriggerOrderAction;

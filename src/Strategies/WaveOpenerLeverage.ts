@@ -8,9 +8,11 @@ import {AbstractIndicator, TrendDirection} from "../Indicators/AbstractIndicator
 import {Currency, Trade, Candle, Order} from "@ekliptor/bit-models";
 import {IndexStrategy, IndexStrategyAction, MarketTrend} from "./Mixins/IndexStrategy";
 import {AbstractWaveSurfer} from "./AbstractWaveSurfer";
+import {TradeDirection} from "../Trade/AbstractTrader";
 
 interface WaveOpenerLeverageAction extends IndexStrategyAction {
     minSurfCandles: number;
+    patternSize: number; // optional, default 2. the number of candles keep to search for a pattern. 2 will mean we keep 4 candles (2 low, 2 high)
     //takeProfitCandles: number; // always 1 for now
     //breakoutVolatility: number; // the min bollinger bandwidth that must exist to assume/risk breakouts
     takeProfitCandleSize: number; // optional, default 10. in minutes
@@ -18,11 +20,15 @@ interface WaveOpenerLeverageAction extends IndexStrategyAction {
     lossPauseCandles: number; // optional, default 0 - how many candles the bot shall pause trading after a loss trade
     maxVolatility: number; // optional, default 0 = disabled. strategy will not enter/exit the market above this volatility (only if this is the only main strategyy)
     openBreakouts: boolean; // default true. open even if the current candle isn't the min/max candle based on EMA trend
+
+    tradeDirection: TradeDirection; // optional. default "both" - can also be set globally on config level
+
     latestCandlePercent: number; // default 40%. how recent the min/max candle has to be for the bot to open a position (consider the wave to turn)
+    longTrend: "candles" | "ticker" | "up" | "down"; // default candles. ticker means long trend will be set from daily ticker instead of pattern candles
+    notifyBeforeExit: boolean; // default true. send a notification 1 candle tick before exiting the market at a loss
+
     onlyFollowIndicatorTrend: boolean; // optional, default false. only trade if the (longer) indicator matches our candle pattern + candle trend
     tradeIncreaseingTrendOnly: boolean; // optional, default true. only open a position if the EMA line diff is increasing
-
-    patternSize: number; // optional, default 6. how many candles to keep in the pattern (to search for highs + lows)
 
     // EMA cross params (optional)
     CrossMAType: "EMA" | "DEMA" | "SMA"; // optional, default EMA

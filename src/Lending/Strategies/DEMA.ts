@@ -10,8 +10,8 @@ import {LendingTradeInfo} from "../AbstractLendingTrader";
 interface DemaAction extends TechnicalLendingStrategyAction {
     // optional parameters
     CrossMAType: "EMA" | "DEMA" | "SMA"; // default DEMA
-    autoSensitivity: boolean; // default false. automatically adjust how many % above the EMA the interest rate should be on highly volatile markets
-    deltaPercent: number; // default 0% - increase the min lending rate by %x above EMA. use negative values to decrease it
+    autoSensitivity: boolean; // default false. Automatically adjust how many % above the DEMA the interest rate should be on highly volatile markets.
+    deltaPercent: number; // default 0% - Increase the minimum lending rate by %x above DEMA. Use negative values to decrease it.
 
     // optional, for defaults see BolloingerBandsParams
     N: number; // time period for MA
@@ -20,8 +20,7 @@ interface DemaAction extends TechnicalLendingStrategyAction {
 }
 
 /**
- * Strategy that emits buy/sell based on the DEMA indicator of the short and long line.
- * Strategy has an open market position over 70% of the time.
+ * Strategy that updates of lending interest rates based on the value of the DEMA indicator.
  */
 export default class DEMA extends TechnicalLendingStrategy {
     // TODO find the biggest wall in orderBook and ensure we place below that

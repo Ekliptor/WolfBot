@@ -10,14 +10,14 @@ import {TradeAction} from "../../Strategies/AbstractStrategy";
 import {MarginPosition} from "../../structs/MarginPosition";
 
 interface SpreadAction extends ArbitrageStrategyAction {
-    spreadEntry: number; // 0.8% // how many % the market spread has to be to open positions
-    spreadTarget: number; // 0.5% // targeted profit in % (takes trading fees into account)
-    // spreadExit = spreadEntry - 4*fees - spreadTarget -> will usually negative, meaning prices flipped
-    trailingSpreadStop: number; // 0.08% // after reaching spreadTarget, place a trailing stop to exit the market. set to 0 to exit immediately
+    spreadEntry: number; // 0.8% // How many % the market spread between the 2 exchanges has to be to open positions on both of them.
+    spreadTarget: number; // 0.5% // Targeted profit in %. This takes trading fees into account. See the 'tradingFees' setting.
+    // Positions will be closed according to this equation: spreadExit = spreadEntry - 4*fees - spreadTarget -> will usually negative, meaning prices flipped
+    trailingSpreadStop: number; // 0.08% // After reaching spreadTarget, place a trailing stop to exit the market. Set this to 0 to exit immediately,
 }
 
 /**
- * Strategy that computes the average price across exchanges.
+ * Arbitrage strategy that computes the average price across exchanges.
  * If the price is x% higher/lower than avg on exchanges:
  * 1. buy at the cheaper exchange and (short) sell at the expensive exchange
  * 2. close positions after price difference moves x% closer

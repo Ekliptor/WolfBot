@@ -13,7 +13,9 @@ export interface TrendatronAction extends TechnicalStrategyAction {
 
 /**
  * Port of the Trendatron.coffee strategy.
- * It's a strategy that follows the waves by doing swing trading. Additionally it supports scalping.
+ * A strategy that follows waves of the chart by doing swing trading. It does this by combining 4 SMAs to
+ * Gann Swing indicator and adding VIX to check for volatility.
+ * Additionally it supports scalping, meaning it can buy more after sharp drops in price.
  */
 export default class Trendatron extends TechnicalStrategy {
     // scalping tries to buy into huge price drops once the price starts to increase a little

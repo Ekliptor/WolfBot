@@ -8,18 +8,19 @@ import * as helper from "../utils/helper";
 
 
 interface TrendlineScalperAction extends StrategyAction {
-    supportLines: number[]; // the price levels where we want to open long a position
-    resistanceLines: number[]; // the price levels where we want to open short a position
+    supportLines: number[]; // The price levels where we want to open long a position.
+    resistanceLines: number[]; // The price levels where we want to open short a position.
 
     // optional values
-    tradeBreakout: boolean; // default false = assume price will bounce. true = wait for support/resistance to get broken and trade the breakout direction
-    expirationPercent: number; // default 3%. expire orders after they move away x% from the set rate
+    tradeBreakout: boolean; // default false - A value of false means we will assume the price will bounce back within the trading range. If set to true we wait for the support/resistance to get broken and trade the breakout direction.
+    expirationPercent: number; // default 3%. Only execute orders at price levels that are within x% of the set support/resistance lines.
     // TODO automatically detect lines (see this.trendlines and IntervalExtremes.ts)
 }
 
 /**
  * Strategy has pre-configured support/resistance lines. Whenever the price gets close to that line we open a trade in the other
- * direction (expecting a bounce back). Works well with high leverage (10x - 20x) and RSI strategy for entry.
+ * direction (expecting a bounce back). Alternatively it can wait for breakouts at those price levels.
+ * Works well with high leverage (10x - 20x) and RSI strategy for entry.
  * Works well on 1min candle size together with a trade strategy such as RSIOrderer or RSIScalpOrderer.
  * This strategy doesn't close positions. You must add a stop-loss and take profit strategy.
  */

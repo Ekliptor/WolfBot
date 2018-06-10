@@ -9,7 +9,7 @@ import {default as TriggerOrder} from "./TriggerOrder";
 import {AbstractTriggerOrder, TriggerOrderCommand} from "./AbstractTriggerOrder";
 
 interface TakeProfitStochRSIAction extends AbstractTakeProfitStrategyAction {
-    percentage: number; // optional, default 100%. take profit by closing x% of the position.
+    percentage: number; // optional, default 100%. Take profit by partially closing x% of the open position.
     // StochRSI values
     low: number; // the RSI low value to close a short position
     high: number; // the RSI high value to close a long position
@@ -19,18 +19,20 @@ interface TakeProfitStochRSIAction extends AbstractTakeProfitStrategyAction {
     optInFastD_Period: number; // default 3. The number of candles for the smoothened StochRSI value.
     optInFastD_MAType: number; // default 0=SMA. The MA type for smoothening.
 
-    closeRateFactor: number; // 0.9992 // optional, default 1.0, must be < 1. multiply the close rate by this to set the stop below (for shorts 1-x is added)
-    time: number; // optional, default 300 sec. wait before exeuting the stop order after reaching the threshold
-    keepTrendOpen: boolean; // optional, default true, don't close if the last candle moved in our direction (only applicable with "time" and "candleSize")
-    alwaysIncreaseStop: boolean; // optional, default false. move the stop closer to the market price even if RSI is no more at min/max
-    ensureProfit: boolean; // optional, default true. check if we still have profit after "time" has passed. otherwise don't close the position
+    closeRateFactor: number; // 0.9992 // optional, default 1.0, Must be < 1. Move the stop for the closing rate a little bit away from the last price. This multiplies the close rate by this to set the stop below (for shorts 1-x is added).
+    time: number; // optional, default 300 sec. wait before executing the stop order after reaching the threshold
+    keepTrendOpen: boolean; // optional, default true, Don't close if the last candle moved in our direction (only applicable with 'time' and 'candleSize' set).
+    alwaysIncreaseStop: boolean; // optional, default false. Move the stop closer to the market price after every candle tick of this strategy even if RSI is no more oversold/overbought.
+    ensureProfit: boolean; // optional, default true. Check if we still have profit after 'time' has passed. Otherwise don't close the position.
     orderStrategy: string;
-    minOpenTicks: number; // optional, default 12. how many ticks a position shall be open at least. if we use the same candle size it's implicitly open at least 1 tick with value 0
+    minOpenTicks: number; // optional, default 12. How many ticks a position shall be open at least before it can be closed. If this strategy uses the same candle size as the main strategy. it's implicitly open at least 1 tick with value 0.
 }
 
 /**
- * Take profit when StochRSI is at it's high/low. Works well with candle sizes >= 1h.
- * good values: TakeProfit at 1h candles on > 87 and < 11
+ * A take profit strategy looking at the Stochastic RSI. It initiates to close a long position at RSI overbought
+ * and a short position at RSI oversold. Closing is done by forwarding the order as a stop to an order strategy.
+ * Works well with candle sizes of 1h or more and an order strategy running on 1min candles.
+ * good RSI values: TakeProfit at 1h candles on > 87 and < 11
  */
 export default class TakeProfitStochRSI extends AbstractTakeProfitStrategy {
     public action: TakeProfitStochRSIAction;
@@ -43,7 +45,7 @@ export default class TakeProfitStochRSI extends AbstractTakeProfitStrategy {
         if (!this.action.percentage)
             this.action.percentage = 100;
         if (typeof this.action.closeRateFactor !== "number")
-            this.action.closeRateFactor = 1.0;
+            this.action.closeRateFactor = 0.9992;
         if (typeof this.action.time !== "number")
             this.action.time = 300;
         if (typeof this.action.keepTrendOpen !== "boolean")
