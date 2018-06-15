@@ -1,7 +1,7 @@
 <!-- main -->
 <h1 class="bottom20">{tr:welcomeTo} {tr:siteName}</h1>
 <h2 class="bottom20">{tr:firstSteps}</h2>
-<div id="startWizard">
+<div id="startWizard" class="startWizard">
   <div class="panel panel-primary">
     <div class="panel-heading">{tr:tradingFirst}</div>
     <div class="panel-body" style="display: none">
@@ -21,19 +21,64 @@
   <div class="panel panel-primary">
     <div class="panel-heading">{tr:arbitrageFirst}</div>
     <div class="panel-body" style="display: none">
-      {tr:arbitrageFirstTxt}
+      <ol>
+        <li>{tr:goConfigPage}</li>
+        <li>{tr:lendingModePage}</li>
+        <li>{tr:chooseStrategy}</li>
+        <li>{tr:adjustAddStrategies}</li>
+        <li>{tr:enterAPIKeysPage}</li>
+        <li>{tr:viewStratPage}</li>
+      </ol>
     </div>
   </div>
   <div class="panel panel-primary">
     <div class="panel-heading">{tr:lendingFirst}</div>
     <div class="panel-body" style="display: none">
-      {tr:lendingFirstTxt}
+      <ol>
+        <li>{tr:goConfigPage}</li>
+        <li>{tr:arbitrageModePage}</li>
+        <li>{tr:chooseStrategy}</li>
+        <li>{tr:adjustAddStrategies}</li>
+        <li>{tr:enterAPIKeysPage}</li>
+        <li>{tr:viewStratPage}</li>
+      </ol>
     </div>
   </div>
   <div class="panel panel-primary">
     <div class="panel-heading">{tr:developerFirst}</div>
     <div class="panel-body" style="display: none">
-      {tr:developerFirstTxt}
+      <ul>
+        <li>{tr:checkSource}{tr:colon}
+          <a target="_blank" href="https://github.com/Ekliptor/WolfBot"><br>
+            <img src="/images/github-ico.png" width="32" height="32" alt="{tr:github}" title="{tr:github}"> {tr:github}
+          </a>
+        </li>
+        <li>{tr:visitStratTutorials}{tr:colon}<br>
+          <a target="_blank" href="https://forum.wolfbot.org/forums/strategy-development.17/">
+            <img src="/icons/fav/icon_57.png" width="32" height="32" alt="{tr:siteName}" title="{tr:siteName}"> {tr:strategyDev}
+          </a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</div>
+<h2 class="bottom20 top30">{tr:getInvolved}</h2>
+<div id="getInvolvedFront" class="startWizard">
+  <div class="panel panel-success">
+    <div class="panel-heading">{tr:placesTalk}</div>
+    <div class="panel-body">
+      <ul>
+        <li>{tr:chatDiscord}{tr:colon}<br>
+          <a target="_blank" href="https://discord.gg/xdfjXP">
+            <img src="/images/discord-ico.png" width="32" height="32" alt="{tr:discord}" title="{tr:discord}"> {tr:discord}
+          </a>
+        </li>
+        <li>{tr:discussForum}{tr:colon}<br>
+          <a target="_blank" href="https://forum.wolfbot.org/">
+            <img src="/icons/fav/icon_57.png" width="32" height="32" alt="{tr:siteName}" title="{tr:siteName}"> {tr:siteName} {tr:forum}
+          </a>
+        </li>
+      </ul>
     </div>
   </div>
 </div>

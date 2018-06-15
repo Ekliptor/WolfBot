@@ -9042,12 +9042,12 @@ i.fa {
   margin-right: 10px;
   margin-bottom: 10px; }
 
-#startWizard {
+.startWizard {
   text-align: center;
   width: 60%;
   margin-left: 150px; }
 
-#startWizard .panel {
+.startWizard .panel {
   text-align: left;
   margin-bottom: 20px; }
 
