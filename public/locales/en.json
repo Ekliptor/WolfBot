@@ -1144,5 +1144,6 @@
       "deltaPercent": "optional, default 0% - Increase the minimum lending rate by %x above DEMA. Use negative values to decrease it.",
       "MAType": "optional, default 0 (SMA) - The moving average type of BollingerBands. BollingerBands indicator is being used to determine the market volatility by looking at Bollinger Bandwidth."
     }
-  }
+  },
+  "discord": "Discord"
 }
