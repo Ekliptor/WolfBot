@@ -298,6 +298,7 @@ import "./SAR";
 import "./Sentiment";
 import "./SMA";
 import "./STC";
+import "./Stochastic";
 import "./StochRSI";
 import "./TristarPattern";
 import "./VIX";

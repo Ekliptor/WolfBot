@@ -107,6 +107,8 @@ export default class Sentiment extends AbstractIndicator {
 
     public unserialize(state: any) {
         super.unserialize(state);
+        if (!state.currentBucket) // update from old version
+            return;
         this.candleCount = state.candleCount;
         this.buckets = state.buckets;
         this.currentBucket = state.currentBucket;

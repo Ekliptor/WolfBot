@@ -36,7 +36,7 @@ export class Home extends AbstractController {
     // ###################### PRIVATE FUNCTIONS #######################
 
     protected addClickListeners() {
-        this.$(".panel-heading").click((event) => {
+        this.$("#startWizard .panel-heading").click((event) => {
             const panelBody = $(event.target).parent().find(".panel-body");
             panelBody.fadeToggle("slow");
         });

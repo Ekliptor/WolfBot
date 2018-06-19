@@ -13,7 +13,7 @@ import {TechnicalStrategy, TechnicalStrategyAction} from "./TechnicalStrategy";
 
 type IntervalPoint = "halfDay" | "daily" | "2Days" | "3days" | "weekly" | "2Weeks" | "monthly";
 const ALL_INTERVALS: IntervalPoint[] = ["halfDay", "daily", "2Days", "3days", "weekly", "2Weeks", "monthly"];
-const INTERVAL_SEC_MAP = new Map<string, number>([
+const INTERVAL_SEC_MAP = new Map<IntervalPoint, number>([
     ["halfDay", 12*utils.constants.HOUR_IN_SECONDS],
     ["daily", 24*utils.constants.HOUR_IN_SECONDS],
     ["2Days", 2*24*utils.constants.HOUR_IN_SECONDS],
