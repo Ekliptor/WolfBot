@@ -596,6 +596,7 @@ export abstract class AbstractStrategy extends AbstractGenericStrategy {
         state.done = this.done;
         state.lastRun = this.lastRun;
         state.lastTrade = this.lastTrade;
+        state.closedPositions = this.closedPositions;
         state.lastTradeTimeClass = this.lastTradeTimeClass;
         state.lastTradeTimePair = this.lastTradeTimePair;
         state.positionOpenTicks = this.positionOpenTicks;
@@ -618,6 +619,7 @@ export abstract class AbstractStrategy extends AbstractGenericStrategy {
         this.done = state.done;
         this.lastRun = state.lastRun;
         this.lastTrade = state.lastTrade;
+        this.closedPositions = state.closedPositions === true;
         this.lastTradeTimeClass = state.lastTradeTimeClass;
         this.lastTradeTimePair = state.lastTradeTimePair;
         if (typeof state.holdingCoins === "number")
