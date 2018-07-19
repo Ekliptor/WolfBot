@@ -5,7 +5,13 @@ import {PageData} from "../types/PageData";
 import {AppData} from "../types/AppData";
 import {AppFunc, HelpersClass} from "@ekliptor/browserutils";
 import {AppClass, App} from "../index";
-import {ConfigReq, ConfigRes, ConfigTab} from "../../../src/WebSocket/ConfigEditor";
+import {
+    ConfigReq,
+    ConfigRes,
+    ConfigTab,
+    ExchangeApiConfig,
+    ExchangeApiKeyMap
+} from "../../../src/WebSocket/ConfigEditor";
 import {Strategies} from "./Strategies";
 import * as $ from "jquery";
 import * as i18next from "i18next";
@@ -37,6 +43,7 @@ export class Config extends AbstractController {
             return Hlp.showMsg(data.errorTxt ? data.errorTxt : AppF.tr(data.errorCode ? data.errorCode : 'unknownError'), 'danger');
         else if (data.saved) {
             this.$("#saveConfig").fadeOut("slow");
+            this.$("#saveKey").fadeOut("slow");
             return Hlp.showMsg(AppF.tr('savedConfig'), 'success', AppClass.cfg.successMsgRemoveSec);
         }
 
@@ -186,10 +193,16 @@ export class Config extends AbstractController {
         });
         data.traders.forEach((trader) => {
             this.$("#traders").append(this.getSelectOption(trader, AppF.tr(trader), data.selectedTrader === trader))
+        });
+        let firstEx = true;
+        data.exchanges.forEach((exchangeName) => {
+            this.$("#exchanges").append(this.getSelectOption(exchangeName, exchangeName, firstEx))
+            firstEx = false;
         })
-        App.initMultiSelect((optionEl, checked) => {
+        App.initMultiSelect((optionEl, checked) => { // this must be called after adding all options to select elements
             const id = optionEl.attr("id");
-            Hlp.showMsg(AppF.tr('restartRequiredConf'), 'warning');
+            if (id !== "exchanges")
+                Hlp.showMsg(AppF.tr('restartRequiredConf'), 'warning');
             if (id === "configs") {
                 this.canEdit = false;
                 this.currentConfigFile = optionEl.val().substr(1).replace(/\.json$/, "");
@@ -200,6 +213,8 @@ export class Config extends AbstractController {
                 this.send({traderChange: optionEl.val()});
             else if (id === "tradingMode")
                 this.send({tradingModeChange: optionEl.val()});
+            else if (id === "exchanges")
+                this.showEditExchangeApiKeys(optionEl.val());
         });
         if (data.lending === true)
             (this.$("#traders") as any).multiselect('disable'); // TODO wait for typings
@@ -215,18 +230,39 @@ export class Config extends AbstractController {
         this.$("#devMode").prop("checked", data.devMode);
         this.$("#devMode").change((event) => {
             const checked = $(event.target).is(":checked");
+            //> scrips tab removed, use local IDE
+            /*
             if (checked === true)
                 $(".tabScripts, #tabTradingDev").removeClass("hidden");
             else
                 $(".tabScripts, #tabTradingDev").addClass("hidden");
+            */
             this.send({devMode: checked})
         });
 
         // Exchange API Keys
         this.$("#configExchangeForm input[type=text]").change((event) => {
             this.$("#saveKey").fadeIn("slow");
-            // TODO implement storing keys + user management
-            // TODO populate exchange menu
+        });
+        this.showEditExchangeApiKeys(this.$("#exchanges").val());
+        //this.$("#saveKey").click((event) => { // we want to use the browser to validate the form
+        this.$("#configExchangeForm").submit((event) => {
+            event.preventDefault();
+            let saveReq: ExchangeApiKeyMap = {}
+            const exchangeName = this.$("#exchanges").val();
+            saveReq[exchangeName] = {
+                key: this.$("#apiKey").val(),
+                secret: this.$("#apiSecret").val(),
+                key2: "",
+                secret2: ""
+            };
+            if (this.$("#key2Panel").is(":visible") === true) {
+                saveReq[exchangeName].key2 = this.$("#apiKey2").val();
+                saveReq[exchangeName].secret2 = this.$("#apiSecret2").val();
+            }
+            this.send({
+                saveKey: saveReq
+            })
         });
     }
 
@@ -337,10 +373,28 @@ export class Config extends AbstractController {
         });
     }
 
+    protected showEditExchangeApiKeys(exchangeName: string) {
+        let exchangeKey = this.fullData.exchangeKeys[exchangeName];
+        if (!exchangeKey)
+            return AppF.log("Error getting exchange key " + exchangeName);
+        this.$("#apiKey").val(exchangeKey.key);
+        this.$("#apiSecret").val(exchangeKey.secret);
+        this.$("#apiKey2").val(exchangeKey.key2 || "");
+        this.$("#apiSecret2").val(exchangeKey.secret2 || "");
+        if (exchangeKey.key2 === undefined) {
+            this.$("#key2Panel").fadeOut("slow");
+            this.$("#apiKey2, #apiSecret2").removeAttr("required");
+        }
+        else {
+            this.$("#key2Panel").fadeIn("slow");
+            this.$("#apiKey2, #apiSecret2").attr("required", "required");
+        }
+    }
+
     protected setCanEdit() {
-        setTimeout(() => {
+        setTimeout(() => { // delay it or else the save button shows (change event fired on init)
             this.canEdit = true;
-        }, 600);
+        }, 1200);
     }
 
     protected translateSchema(schema: any) {

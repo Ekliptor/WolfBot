@@ -12,7 +12,7 @@
               "action": "buy",
               "comp": "<",
               "position": "none",
-              "rate": 52.1,
+              "rate": 29.7,
               "reason": "middle high",
               "indicators": ["RSI"]
             },
@@ -20,7 +20,7 @@
               "action": "sell",
               "comp": ">",
               "position": "none",
-              "rate": 94.0,
+              "rate": 43.6,
               "reason": "middle high",
               "indicators": ["RSI"]
             }
@@ -104,8 +104,8 @@
           "mode": "bounce",
           "tradeInterval": "halfDay",
           "notifyPriceInterval": "3days",
-          "low": 30,
-          "high": 70,
+          "low": 25,
+          "high": 75,
           "candleSize": 60,
           "pair": "USD_BTG",
           "tradeStrategy": "RSIScalpOrderer",
@@ -146,7 +146,7 @@
               "action": "buy",
               "comp": "<",
               "position": "none",
-              "rate": 1.179,
+              "rate": 1.0,
               "reason": "middle high",
               "indicators": ["RSI"]
             },
@@ -154,7 +154,7 @@
               "action": "sell",
               "comp": ">",
               "position": "none",
-              "rate": 2.445,
+              "rate": 1.7,
               "reason": "middle high",
               "indicators": ["RSI"]
             }
@@ -238,8 +238,8 @@
           "mode": "bounce",
           "tradeInterval": "halfDay",
           "notifyPriceInterval": "3days",
-          "low": 30,
-          "high": 70,
+          "low": 25,
+          "high": 75,
           "candleSize": 60,
           "pair": "USD_SAN",
           "tradeStrategy": "RSIScalpOrderer",
@@ -282,7 +282,7 @@
               "action": "buy",
               "comp": "<",
               "position": "none",
-              "rate": 2.08,
+              "rate": 0.99,
               "reason": "middle high",
               "indicators": ["RSI"]
             },
@@ -290,7 +290,7 @@
               "action": "sell",
               "comp": ">",
               "position": "none",
-              "rate": 2.89,
+              "rate": 1.78,
               "reason": "middle high",
               "indicators": ["RSI"]
             }
@@ -327,8 +327,8 @@
           "mode": "bounce",
           "tradeInterval": "halfDay",
           "notifyPriceInterval": "3days",
-          "low": 30,
-          "high": 70,
+          "low": 25,
+          "high": 75,
           "candleSize": 60,
           "pair": "USD_EDO",
           "tradeStrategy": "RSIScalpOrderer",
@@ -419,7 +419,7 @@
               "action": "buy",
               "comp": "<",
               "position": "none",
-              "rate": 16.1,
+              "rate": 17.3,
               "reason": "middle high",
               "indicators": ["RSI"]
             },
@@ -427,7 +427,7 @@
               "action": "sell",
               "comp": ">",
               "position": "none",
-              "rate": 36.06,
+              "rate": 21.21,
               "reason": "middle high",
               "indicators": ["RSI"]
             }
@@ -511,8 +511,8 @@
           "mode": "bounce",
           "tradeInterval": "halfDay",
           "notifyPriceInterval": "3days",
-          "low": 30,
-          "high": 70,
+          "low": 25,
+          "high": 75,
           "candleSize": 60,
           "pair": "USD_ETC",
           "tradeStrategy": "RSIScalpOrderer",
@@ -555,7 +555,7 @@
               "action": "buy",
               "comp": "<",
               "position": "none",
-              "rate": 0.7,
+              "rate": 1.29,
               "reason": "middle high",
               "indicators": ["RSI"]
             },
@@ -563,7 +563,7 @@
               "action": "sell",
               "comp": ">",
               "position": "none",
-              "rate": 1.31,
+              "rate": 2.3,
               "reason": "middle high",
               "indicators": ["RSI"]
             }
@@ -647,8 +647,8 @@
           "mode": "bounce",
           "tradeInterval": "halfDay",
           "notifyPriceInterval": "3days",
-          "low": 30,
-          "high": 70,
+          "low": 25,
+          "high": 75,
           "candleSize": 60,
           "pair": "USD_ETP",
           "tradeStrategy": "RSIScalpOrderer",
@@ -691,7 +691,7 @@
               "action": "buy",
               "comp": "<",
               "position": "none",
-              "rate": 0.0755,
+              "rate": 0.0631,
               "reason": "middle high",
               "indicators": ["RSI"]
             },
@@ -699,7 +699,7 @@
               "action": "sell",
               "comp": ">",
               "position": "none",
-              "rate": 0.089,
+              "rate": 0.0789,
               "reason": "middle high",
               "indicators": ["RSI"]
             }
@@ -783,8 +783,8 @@
           "mode": "bounce",
           "tradeInterval": "halfDay",
           "notifyPriceInterval": "3days",
-          "low": 30,
-          "high": 70,
+          "low": 25,
+          "high": 75,
           "candleSize": 60,
           "pair": "BTC_ETH",
           "tradeStrategy": "RSIScalpOrderer",
@@ -827,7 +827,7 @@
               "action": "buy",
               "comp": "<",
               "position": "none",
-              "rate": 0.153,
+              "rate": 0.1095,
               "reason": "middle high",
               "indicators": ["RSI"]
             },
@@ -835,7 +835,7 @@
               "action": "sell",
               "comp": ">",
               "position": "none",
-              "rate": 0.199,
+              "rate": 0.129,
               "reason": "middle high",
               "indicators": ["RSI"]
             }
@@ -919,8 +919,8 @@
           "mode": "bounce",
           "tradeInterval": "halfDay",
           "notifyPriceInterval": "3days",
-          "low": 30,
-          "high": 70,
+          "low": 25,
+          "high": 75,
           "candleSize": 60,
           "pair": "BTC_BCH",
           "tradeStrategy": "RSIScalpOrderer",
@@ -963,7 +963,7 @@
               "action": "buy",
               "comp": "<",
               "position": "none",
-              "rate": 0.0158,
+              "rate": 0.01209,
               "reason": "middle high",
               "indicators": ["RSI"]
             },
@@ -971,7 +971,7 @@
               "action": "sell",
               "comp": ">",
               "position": "none",
-              "rate": 0.01797,
+              "rate": 0.0143,
               "reason": "middle high",
               "indicators": ["RSI"]
             }
@@ -1055,8 +1055,8 @@
           "mode": "bounce",
           "tradeInterval": "halfDay",
           "notifyPriceInterval": "3days",
-          "low": 30,
-          "high": 70,
+          "low": 25,
+          "high": 75,
           "candleSize": 60,
           "pair": "BTC_LTC",
           "tradeStrategy": "RSIScalpOrderer",
@@ -1099,7 +1099,7 @@
               "action": "buy",
               "comp": "<",
               "position": "none",
-              "rate": 0.00193,
+              "rate": 0.002137,
               "reason": "middle high",
               "indicators": [
                 "RSI"
@@ -1109,7 +1109,7 @@
               "action": "sell",
               "comp": ">",
               "position": "none",
-              "rate": 0.0037,
+              "rate": 0.0031,
               "reason": "middle high",
               "indicators": [
                 "RSI"
@@ -1183,7 +1183,7 @@
               "action": "buy",
               "comp": "<",
               "position": "none",
-              "rate": 0.007,
+              "rate": 0.00539,
               "reason": "middle high",
               "indicators": ["RSI"]
             }
@@ -1255,7 +1255,7 @@
               "action": "buy",
               "comp": "<",
               "position": "none",
-              "rate": 0.0002,
+              "rate": 0.000153,
               "reason": "middle high",
               "indicators": ["RSI"]
             },
@@ -1263,7 +1263,7 @@
               "action": "sell",
               "comp": ">",
               "position": "none",
-              "rate": 0.000285,
+              "rate": 0.000271,
               "reason": "middle high",
               "indicators": ["RSI"]
             }
@@ -1335,7 +1335,7 @@
               "action": "buy",
               "comp": "<",
               "position": "none",
-              "rate": 0.00169,
+              "rate": 0.00118,
               "reason": "middle high",
               "indicators": ["RSI"]
             }
@@ -1407,7 +1407,7 @@
               "action": "buy",
               "comp": "<",
               "position": "none",
-              "rate": 0.000037,
+              "rate": 0.0000689,
               "reason": "middle high",
               "indicators": ["RSI"]
             },
@@ -1415,7 +1415,7 @@
               "action": "sell",
               "comp": ">",
               "position": "none",
-              "rate": 0.0001009,
+              "rate": 0.0000889,
               "reason": "middle high",
               "indicators": ["RSI"]
             }
@@ -1487,7 +1487,7 @@
               "action": "buy",
               "comp": "<",
               "position": "none",
-              "rate": 0.024,
+              "rate": 0.0181,
               "reason": "middle high",
               "indicators": ["RSI"]
             },

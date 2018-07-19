@@ -539,8 +539,8 @@
   "exchangeKeys": "Exchange API keys",
   "apiKey": "API Key",
   "apiSecret": "API Secret",
-  "apiKey2": "2nd API Key (optional)",
-  "twoKeys": "It is recommended to add 2 API keys for every exchange. This ensures better reliability of the API when doing many requests simultaneously.",
+  "apiKey2": "2nd API Key (required for faster API on some exchanges)",
+  "twoKeys": "This 2nd key ensures better reliability of the API when doing many requests simultaneously.",
   "requiredTwoKeys": "Exchange {{name}} requires 2 API keys",
   "enterNameTxt": "Please enter your account from:",
   "subscriptionNotFound": "You don't have a subscription for this trading bot. Please purchase subscription on our website.",
@@ -1161,5 +1161,6 @@
   "github": "Github",
   "forum": "Forum",
   "chatDiscord": "Chat with other traders and developers on Discord",
-  "discussForum": "Discuss everything about WolfBot and trading in our forum"
+  "discussForum": "Discuss everything about WolfBot and trading in our forum",
+  "bookmarkPage": "Advice: You can bookmark this page to access your bot more easily."
 }

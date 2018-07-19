@@ -246,6 +246,7 @@ export class AppClass {
         let logs = AppF.translate(pageData.html.layout.logs);
         $(AppClass.cfg.appSel).append(logs);
 
+        // TODO sometimes dropdown menu doesn't show. but showing is pure HTML, delaying this shouldn't have any effect. add navbar and delay content widget?
         let config = this.controllers.get("Config") as Config;
         $("#restartBot").click(() => {
             config.restartBot();
@@ -266,6 +267,7 @@ export class AppClass {
      */
     protected renderView(name: string) {
         return new Promise<RenderViewResponse>((resolve, reject) => {
+            $("body").removeClass().addClass(name);
             let controller = this.controllers.get(name[0].toUpperCase() + name.substr(1));
             if (controller) {
                 this.activeController = controller;

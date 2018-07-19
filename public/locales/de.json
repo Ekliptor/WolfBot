@@ -348,5 +348,6 @@
   "readOn": "Weiterlesen",
   "contactUs": "Kontaktieren Sie uns",
   "acceptTosPrivacy": "Ich akzeptiere die {{terms}} und habe die {{privacy}} gelesen.",
-  "acceptTosPrivacyCheck": "Um einen Account anzulegen müssen Sie unsere Allgemeinen Geschäftsbedingungen akzeptieren und unsere Datenschutzrichtlinien lesen."
+  "acceptTosPrivacyCheck": "Um einen Account anzulegen müssen Sie unsere Allgemeinen Geschäftsbedingungen akzeptieren und unsere Datenschutzrichtlinien lesen.",
+  "bookmarkPage": "Tipp: Speichern Sie diese Seite unter Ihrem Favoriten, um auf Ihren Bot einfacher zugreifen zu können."
 }

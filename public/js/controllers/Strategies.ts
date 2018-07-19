@@ -10,6 +10,7 @@ import * as TradingView from "../libs/tv/charting_library.min";
 import {TradingViewDatafeed} from "../classes/WebSocket/TradingViewDatafeed";
 import {ConfigCurrencyPair} from "../../../src/Trade/TradeConfig";
 import {StrategyPosition} from "../../../src/Strategies/AbstractStrategy";
+import {conf} from "@ekliptor/apputils";
 
 
 declare var pageData: PageData, appData: AppData;
@@ -287,7 +288,7 @@ export class Strategies extends AbstractController {
             charts_storage_url: 'https://saveload.tradingview.com',
             charts_storage_api_version: "1.1",
             client_id: 'wolfbot.org',
-            user_id: 'Test1'
+            user_id: config.userToken // this ID is used by the server to store + load the user charts
             //charts_storage_url: "http://null.com"
         });
     }

@@ -5,6 +5,7 @@
 
 // TODO https://blog.bitmex.com/funding-mean-reversions-2018/
 // TODO look at time spread of futures
+// TODO tradingview buy vs sell widget: https://coinfarm.online/index.asp?tcs=1h
 
 
 import * as utils from "@ekliptor/apputils";

@@ -51,7 +51,7 @@ export class LogReceiver extends ClientSocketReceiver {
                 $("#pauseTrading, #pauseOpeningPositions").addClass("hidden");
             }
 
-            if (data.state.devMode === false)
+            //if (data.state.devMode === false) //> scrips tab removed, use local IDE
                 $(".tabScripts").addClass("hidden");
 
             if (data.state.error === true)

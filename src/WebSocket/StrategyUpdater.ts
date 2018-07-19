@@ -28,6 +28,7 @@ export interface GenericStrategyUpdate {
     baseCurrency: string;
     activeNr: number;
     mainStrategyName: string;
+    userToken: string;
 }
 export interface StrategyUpdate extends GenericStrategyUpdate {
     marginTrading: boolean;
@@ -91,7 +92,8 @@ export class StrategyUpdater extends AppPublisher {
                         pl: mainStrategy.getProfitLoss(),
                         plPercent: mainStrategy.getProfitLossPercent(),
                         activeNr: this.activeConfigCurrencyNr,
-                        mainStrategyName: mainStrategy.getClassName()
+                        mainStrategyName: mainStrategy.getClassName(),
+                        userToken: nconf.get("serverConfig:userToken")
                     }
                     if (config.configNr === this.activeConfigCurrencyNr) { // only send strategy data for the active tab
                         pairStrategies.forEach((strat) => {
@@ -122,7 +124,8 @@ export class StrategyUpdater extends AppPublisher {
                         currencyPairStr: marketName,
                         baseCurrency: marketName,
                         activeNr: this.activeConfigCurrencyNr,
-                        mainStrategyName: pairStrategies[0].getClassName() // lending doesn't have main strategies (usually only 1)
+                        mainStrategyName: pairStrategies[0].getClassName(), // lending doesn't have main strategies (usually only 1)
+                        userToken: nconf.get("serverConfig:userToken")
                     }
                     if (config.configNr === this.activeConfigCurrencyNr) { // only send strategy data for the active tab
                         pairStrategies.forEach((strat) => {

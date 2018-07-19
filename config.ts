@@ -24,6 +24,8 @@ config.config = {
     "searchHosts": [''], // elasticsearch host:port
     "mongoMaxKeyStrLen": 800, // max 1024 bytes for WiredTiger
     "httpTimeoutSec": 10, // for our own webserver
+    "localAddress": "", // bind outgoing requests to a specific local IP
+    "projectUrl": "https://wolfbot.org",
 
     "tempDir": "./temp/",
     "fullTempDir": "", // set on every start. use this to get the fully resolved path
@@ -85,6 +87,7 @@ config.config = {
 
     "cachingMin": {
         "staticFiles": 1440,
+        "proxyDefaultCache": 60
     },
 
     "data": {

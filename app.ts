@@ -153,6 +153,10 @@ dispatcher.onGet('/dl/', (req, res) => {
     Controller.sendFile(req, res)
 })
 
+dispatcher.onGet(new RegExp('^/js/libs/tv/.+$'), (req, res) => {
+    Controller.proxyRequest(req, res) // no auth check for now
+})
+
 dispatcher.onPost('/login/', (req, res) => {
     //if (checkPostAuth(req.formFields, res) === false) // allowed without API key
         //return

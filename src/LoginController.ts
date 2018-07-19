@@ -3,6 +3,8 @@ import {AbstractSubController} from "./AbstractSubController";
 const logger = utils.logger
     , nconf = utils.nconf;
 import * as path from "path";
+import {Currency, Trade, Candle, Order, Funding, serverConfig} from "@ekliptor/bit-models";
+import * as crypto from "crypto";
 
 
 export interface NodeConfigFile {
@@ -20,6 +22,7 @@ export class LoginController extends AbstractSubController {
     protected loginValid: boolean = false;
     protected subscriptionValid: boolean = false;
     protected nodeConfig: NodeConfigFile = null;
+    protected tokenGenerated = false;
 
     constructor() {
         super()
@@ -50,8 +53,13 @@ export class LoginController extends AbstractSubController {
         return new Promise<void>((resolve, reject) => {
             if (nconf.get("serverConfig:premium") === false ||
                 !nconf.get("serverConfig:username") || !nconf.get("serverConfig:password") ||
-                this.lastCheckedLogin.getTime() + nconf.get("serverConfig:checkLoginIntervalMin")*utils.constants.MINUTE_IN_SECONDS*1000 > Date.now())
-                return resolve()
+                this.lastCheckedLogin.getTime() + nconf.get("serverConfig:checkLoginIntervalMin")*utils.constants.MINUTE_IN_SECONDS*1000 > Date.now()) {
+                if (this.tokenGenerated === false) {
+                    nconf.set("serverConfig:userToken", this.getUserToken());
+                    this.tokenGenerated = true;
+                }
+                return resolve();
+            }
 
             this.lastCheckedLogin = new Date();
             this.loadConfig().then(() => {
@@ -77,10 +85,7 @@ export class LoginController extends AbstractSubController {
                 username: nconf.get("serverConfig:username"),
                 password: nconf.get("serverConfig:password")
             }
-            nconf.save(null, (err) => {
-                if (err)
-                    logger.error("Error saving new user account config", err);
-            });
+            serverConfig.saveConfigLocal();
             let options = {
                 cloudscraper: true,
                 urlencoded: true // must be true with cloudscraper
@@ -127,6 +132,7 @@ export class LoginController extends AbstractSubController {
     protected setLoggedIn() {
         const loggedIn = this.isLoginValid() && this.isSubscriptionValid();
         nconf.set("serverConfig:loggedIn", loggedIn);
+        nconf.set("serverConfig:userToken", this.getUserToken());
         // generate a new apiKey if login failed to ensure user can't access it anymore
         // (another user won't get this bot because we re-install the VM)
         if (nconf.get("serverConfig:premium") === true && loggedIn === false)
@@ -184,9 +190,12 @@ export class LoginController extends AbstractSubController {
         keys[random] = true;
         nconf.remove("apiKeys"); // can't delete config from .ts file. config from .json is overwritten. always remove because we don't allow multiple keys
         nconf.set("apiKeys", keys);
-        nconf.save(null, (err) => {
-            if (err)
-                logger.error("Error saving new API key config", err);
-        });
+        serverConfig.saveConfigLocal();
+    }
+
+    protected getUserToken() {
+        let secret = nconf.get("serverConfig:userTokenSeed") + utils.appDir + nconf.get("serverConfig:username");
+        let hash = crypto.createHash('sha512').update(secret, 'utf8').digest('hex');
+        return utils.toBase64(hash, 'hex'); // use the URL safe version of base64
     }
 }

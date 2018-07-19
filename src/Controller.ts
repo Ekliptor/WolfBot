@@ -23,6 +23,7 @@ import * as https from "https";
 import WebSocketController from './WebSocketController';
 import {ServerSocket} from "./WebSocket/ServerSocket";
 import{FileResponder} from "./Web/FileResponder";
+import{HttpProxy} from "./Web/HttpProxy";
 import {TaLib, TaLibParams, TaLibResult} from "./Indicators/TaLib";
 import {Brain} from "./AI/Brain";
 import {LendingExchangeMap} from "./Exchanges/AbstractLendingExchange";
@@ -44,6 +45,8 @@ export class Controller extends AbstractController { // TODO implement graceful 
     protected serverSocket: ServerSocket = null;
     protected websocketController: WebSocketController = null;
     protected fileResponder = new FileResponder();
+    protected httpProxy = new HttpProxy();
+
     protected lastUpdateCheck = new Date(); // set to now. we just check at start before loading the Controller class
     protected lastConfigLoad = new Date(0); // load immediately on startup
 
@@ -426,6 +429,10 @@ export class Controller extends AbstractController { // TODO implement graceful 
 
     public sendFile(req: http.IncomingMessage, res: http.ServerResponse) {
         this.fileResponder.respond(req, res);
+    }
+
+    public proxyRequest(req: http.IncomingMessage, res: http.ServerResponse) {
+        this.httpProxy.respond(req, res);
     }
 
     public async login(req: http.IncomingMessage, res: http.ServerResponse) {

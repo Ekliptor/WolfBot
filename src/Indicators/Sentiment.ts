@@ -27,6 +27,10 @@ class TradeRatioBucket {
         if (this.longAmount < 0.0)
             this.longAmount = 0.0;
     }
+
+    public static unserialize(bucket: any): TradeRatioBucket {
+        return Object.assign(new TradeRatioBucket(bucket.candle), bucket);
+    }
 }
 
 /**
@@ -110,8 +114,8 @@ export default class Sentiment extends AbstractIndicator {
         if (!state.currentBucket) // update from old version
             return;
         this.candleCount = state.candleCount;
-        this.buckets = state.buckets;
-        this.currentBucket = state.currentBucket;
+        this.buckets = state.buckets.map(b => TradeRatioBucket.unserialize(b));
+        this.currentBucket = TradeRatioBucket.unserialize(state.currentBucket);
     }
 
     // ################################################################

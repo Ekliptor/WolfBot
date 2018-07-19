@@ -20,6 +20,7 @@ import {SocialController} from "../Social/SocialController";
 import {SocialConfig} from "../Social/SocialConfig";
 import {BotConfigMode} from "../Trade/AbstractConfig";
 import * as db from "../database";
+import {setUserUpdateSec} from "@ekliptor/bit-models/build/models/user";
 
 export type ConfigTab = "tabGeneral" | "tabTrading" | "tabTradingDev";
 const CONFIG_TABS: ConfigTab[] = ["tabGeneral", "tabTrading", "tabTradingDev"];
@@ -29,6 +30,15 @@ export interface ConfigEditorData {
     schema: {
 
     }
+}
+export interface ExchangeApiConfig {
+    key: string;
+    secret: string
+    key2?: string;
+    secret2?: string;
+}
+export interface ExchangeApiKeyMap {
+    [exchangeName: string]: ExchangeApiConfig;
 }
 export interface ConfigData {
     debugMode?: boolean;
@@ -54,6 +64,8 @@ export interface ConfigRes extends ConfigData {
     configFileData?: string;
     jsonEditorData?: ConfigEditorData;
     tabs?: ConfigTab[];
+    exchanges?: string[];
+    exchangeKeys?: ExchangeApiKeyMap;
 
     changed?: boolean;
     saved?: boolean;
@@ -62,6 +74,7 @@ export interface ConfigReq extends ConfigData {
     saveConfig?: string;
     configName?: string;
     configChange?: string;
+    saveKey?: ExchangeApiKeyMap;
     traderChange?: string;
     tradingModeChange?: BotTrade.TradingMode;
     setPaused?: boolean;
@@ -155,7 +168,9 @@ export class ConfigEditor extends AppPublisher {
                 debugMode: nconf.get("debugRestart"),
                 devMode: nconf.get("serverConfig:user:devMode"),
                 tabs: CONFIG_TABS,
-                selectedTab: this.selectedTab
+                selectedTab: this.selectedTab,
+                exchanges: Array.from(Currency.ExchangeName.keys()),
+                exchangeKeys: this.getExchangeKeys()
             });
         }).catch((err) => {
             logger.error("Error loading config view data", err)
@@ -214,6 +229,28 @@ export class ConfigEditor extends AppPublisher {
                 this.send(clientSocket, {error: true, errorTxt: "Error saving config."})
             })
         }
+        if (typeof data.saveKey === "object") {
+            for (let exchangeName in data.saveKey)
+            {
+                if (Currency.ExchangeName.has(exchangeName) === false) {
+                    logger.error("Can not update unknown exchange API keys %s", exchangeName);
+                    continue;
+                }
+                // for UI users we can only have 1 set of keys per instance
+                let currentKey = nconf.get("serverConfig:apiKey:exchange:" + exchangeName)[0];
+                let props = Object.keys(data.saveKey[exchangeName]);
+                props.forEach((prop ) => {
+                    if (currentKey[prop] === undefined)
+                        return;
+                    else if (data.saveKey[exchangeName][prop] == "")
+                        return;
+                    currentKey[prop] = data.saveKey[exchangeName][prop];
+                });
+                nconf.set("serverConfig:apiKey:exchange:" + exchangeName, [currentKey]);
+                serverConfig.saveConfigLocal();
+            }
+            this.send(clientSocket, {saved: true})
+        }
         else if (typeof data.debugMode === "boolean") {
             if (nconf.get("serverConfig:premium")) {
                 logger.error("Can not set debug mode in premium bot");
@@ -225,7 +262,8 @@ export class ConfigEditor extends AppPublisher {
         }
         else if (typeof data.devMode === "boolean") {
             nconf.set("serverConfig:user:devMode", data.devMode)
-            serverConfig.saveConfig(db.get(), nconf.get("serverConfig"))
+            //serverConfig.saveConfig(db.get(), nconf.get("serverConfig"))
+            serverConfig.saveConfigLocal();
             this.send(clientSocket, {saved: true})
         }
         else if (data.restart === true) {
@@ -813,6 +851,28 @@ export class ConfigEditor extends AppPublisher {
             else if (curType === 'object')
                 this.addObjectSubTypes(parent.properties[prop], value[prop])
         }
+    }
+
+    protected getExchangeKeys() {
+        let keys = nconf.get("serverConfig:apiKey:exchange");
+        let userKeys: ExchangeApiKeyMap = {};
+        for (let exchangeName in keys)
+        {
+            let exchangeKeys = keys[exchangeName];
+            if (Array.isArray(exchangeKeys) === false || exchangeKeys.length === 0) {
+                logger.warn("Invalid exchange API config for %s", exchangeName, exchangeKeys);
+                continue;
+            }
+            userKeys[exchangeName] = {
+                key: exchangeKeys[0].key,
+                //secret: exchangeKeys[0].secret, // don't display secrets on the client
+                secret: "",
+                key2: exchangeKeys[0].key2,
+                //secret2: exchangeKeys[0].secret2
+                secret2: ""
+            };
+        }
+        return userKeys;
     }
 
     protected send(ws: WebSocket, data: ConfigRes, options?: ServerSocketSendOptions) {
