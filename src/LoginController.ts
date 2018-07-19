@@ -139,6 +139,7 @@ export class LoginController extends AbstractSubController {
             this.generateApiKey();
         else if (Object.keys(nconf.get("apiKeys")).length === 0) // first start
             this.generateApiKey();
+
     }
 
     protected hasThisBotSubscription(subscriptions: any[]) {

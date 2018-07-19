@@ -236,6 +236,7 @@ export class ConfigEditor extends AppPublisher {
                     logger.error("Can not update unknown exchange API keys %s", exchangeName);
                     continue;
                 }
+
                 // for UI users we can only have 1 set of keys per instance
                 let currentKey = nconf.get("serverConfig:apiKey:exchange:" + exchangeName)[0];
                 let props = Object.keys(data.saveKey[exchangeName]);

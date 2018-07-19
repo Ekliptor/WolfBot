@@ -120,6 +120,7 @@ export class StrategyUpdater extends AppPublisher {
                         nr: config.configNr,
                         exchange: config.exchange,
                         exchanges: [config.exchange],
+
                         strategies: {},
                         currencyPairStr: marketName,
                         baseCurrency: marketName,

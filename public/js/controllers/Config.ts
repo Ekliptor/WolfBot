@@ -256,6 +256,7 @@ export class Config extends AbstractController {
                 key2: "",
                 secret2: ""
             };
+
             if (this.$("#key2Panel").is(":visible") === true) {
                 saveReq[exchangeName].key2 = this.$("#apiKey2").val();
                 saveReq[exchangeName].secret2 = this.$("#apiSecret2").val();
