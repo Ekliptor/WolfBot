@@ -15,6 +15,8 @@ A more detailed list of all features: https://wolfbot.org/features/
 
 The list of supported exchanges: https://wolfbot.org/features/exchanges/
 
+The full strategy documentation: https://wolfbot.org/strategy-docs/
+
 ## Getting Started
 
 ### Requirements
