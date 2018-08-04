@@ -4,13 +4,13 @@ import {WebSocketOpcode} from "../../../src/WebSocket/opcodes";
 import {PageData} from "../types/PageData";
 import {AppData} from "../types/AppData";
 import {AppFunc, HelpersClass} from "@ekliptor/browserutils";
-import {LendingStrategyUpdate, StrategyUpdate} from "../../../src/WebSocket/StrategyUpdater";
+import {LendingStrategyUpdate, StrategyMeta, StrategyUpdate} from "../../../src/WebSocket/StrategyUpdater";
 import * as $ from "jquery";
 import * as TradingView from "../libs/tv/charting_library.min";
 import {TradingViewDatafeed} from "../classes/WebSocket/TradingViewDatafeed";
 import {ConfigCurrencyPair} from "../../../src/Trade/TradeConfig";
 import {StrategyPosition} from "../../../src/Strategies/AbstractStrategy";
-import {conf} from "@ekliptor/apputils";
+import * as i18next from "i18next";
 
 
 declare var pageData: PageData, appData: AppData;
@@ -21,6 +21,7 @@ export class Strategies extends AbstractController {
     protected feed: TradingViewDatafeed;
     protected showingChart: ConfigCurrencyPair = null;
     protected configCache: any[] = []; // TradeConfig[]
+    protected showingImportState: string = "";
 
     constructor(socket: ClientSocket, feed: TradingViewDatafeed) {
         super(socket)
@@ -28,6 +29,8 @@ export class Strategies extends AbstractController {
     }
 
     public onData(data: any) {
+        if (data.meta && data.meta.importLabel)
+            setTimeout(this.showImportState.bind(this, data.meta), 100);
         if (data.full) {
             // full data only contains strategy data for the active tab
             this.$().empty().append(AppF.translate(pageData.html.strategies.main));
@@ -291,6 +294,14 @@ export class Strategies extends AbstractController {
             user_id: config.userToken // this ID is used by the server to store + load the user charts
             //charts_storage_url: "http://null.com"
         });
+    }
+
+    protected showImportState(meta: StrategyMeta) {
+        if (this.showingImportState === meta.importLabel)
+            return;
+        this.showingImportState = meta.importLabel;
+        const stateType = meta.importLabel.toLowerCase().indexOf("failed") !== -1 ? "warning" : "success";
+        Hlp.showMsg(i18next.t(meta.importLabel), stateType);
     }
 
     /*

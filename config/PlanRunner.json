@@ -52,15 +52,6 @@
           "fallback": false,
           "enableLog": true
         },
-        "BollingerStop": {
-          "time": 3600,
-          "notifyBeforeStopSec": 1800,
-          "stopBand": "opposite",
-          "delayTicks": 2,
-          "candleSize": 60,
-          "pair": "USD_BTC",
-          "enableLog": false
-        },
         "OrderPartitioner": {
           "tradeCount": 20,
           "percentChange": 0.35,

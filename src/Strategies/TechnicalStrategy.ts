@@ -135,6 +135,17 @@ export abstract class TechnicalStrategy extends AbstractStrategy implements Tech
         calcCandle(0);
     }
 
+    /**
+     * Return the min number of candles this strategy needs to start trading.
+     * This is used to fetch a history and run backtest.
+     * @returns {number}
+     */
+    public getMinWarumCandles() {
+        let numbers = [this.action.interval, this.action.long, this.action.short].filter(n => n !== undefined);
+        let maxCandles = Math.max(...numbers);
+        return maxCandles + Math.ceil(maxCandles / 100 + nconf.get("serverConfig:importWarmupAddPercent"));
+    }
+
     // ################################################################
     // ###################### PRIVATE FUNCTIONS #######################
 

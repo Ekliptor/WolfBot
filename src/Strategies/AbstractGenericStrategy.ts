@@ -293,12 +293,21 @@ export abstract class AbstractGenericStrategy extends EventEmitter {
         this.updateIndicatorCandles();
     }
 
-    public canUnserialize(state: any) {
+    public canUnserialize(state: any, fromOtherStrategyState = false) {
         if (this.runningCandleSize !== state.runningCandleSize) {
             logger.warn("Skipped restoring %s data because candle size changed from %s min to %s min", this.className, state.runningCandleSize, this.runningCandleSize)
             return false;
         }
         return true;
+    }
+
+    /**
+     * Return the min number of candles this strategy needs to start trading.
+     * This is used to fetch a history and run backtest.
+     * @returns {number}
+     */
+    public getMinWarumCandles() {
+        return 0;
     }
 
     public createTradeState() {

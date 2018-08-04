@@ -95,9 +95,9 @@ export default class InstanceChecker extends AbstractSubController {
             return "";
         }
         if (argv.monitor === true) {
-            // we have 1 instance named Sensor and its monitoring instanced named Sensor_monitor
+            // we have 1 instance named Sensor1 and its monitoring instanced named Sensor_monitor
             let removeRegex = new RegExp(utils.escapeRegex(nconf.get("serverConfig:monitoringInstanceDir")) + "$");
-            name = name.replace(removeRegex, "");
+            name = name.replace(removeRegex, "1");
         }
         else {
             // we have multiple instances named Sensor1, Sensor2,...
@@ -129,7 +129,7 @@ export default class InstanceChecker extends AbstractSubController {
             const child = exec("ps aux | grep -v grep | grep '" + bundleRoot + "' | grep -v '_manual' | grep -v 'child' | awk '{print $2}'", options, (err, stdout, stderr) => {
                 if (err)
                     return reject(err)
-                let processIds = stdout.split("\n") // should only be 1 bot
+                let processIds = stdout.toString().split("\n") // should only be 1 bot // should already be a string
                 processIds.forEach((strPID) => {
                     if (strPID == '')
                         return

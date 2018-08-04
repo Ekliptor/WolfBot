@@ -54,7 +54,7 @@ export class LogPublisher extends AppPublisher {
                 error: this.advisor.isErrorState()
             }
         }
-        if (this.advisor instanceof TradeAdvisor)
+        if (this.advisor instanceof TradeAdvisor && traders.length !== 0)
             state.state.trader.pausedOpeningPositions = (traders[0] as AbstractTrader).getPausedOpeningPositions();
         this.publish(state)
     }

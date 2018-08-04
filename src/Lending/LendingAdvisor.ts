@@ -19,8 +19,9 @@ import {AbstractLendingTrader, LendingTradeInfo} from "./AbstractLendingTrader";
 import {AbstractLendingStrategy, LendingStrategyOrder, LendingTradeAction} from "./Strategies/AbstractLendingStrategy";
 import {AbstractLendingExchange, LendingExchangeMap} from "../Exchanges/AbstractLendingExchange";
 import {CandleMarketStream} from "../Trade/CandleMarketStream";
-import {AbstractAdvisor} from "../AbstractAdvisor";
+import {AbstractAdvisor, RestoryStrategyStateMap} from "../AbstractAdvisor";
 import {TradeBook} from "../Trade/TradeBook";
+import ExchangeController from "../ExchangeController";
 
 
 export class CandleMakerMap extends GenericCandleMakerMap<Funding.FundingTrade> {
@@ -70,7 +71,7 @@ export class LendingAdvisor extends AbstractAdvisor {
     protected candleBatchers = new CandleBatcherMap();
     protected lastSentTrades = new LastSentTradesMap();
 
-    constructor(configFilename: string, exchanges: ExchangeMap) {
+    constructor(configFilename: string, /*exchanges: ExchangeMap*/exchangeController: ExchangeController) {
         super()
         this.configFilename = configFilename;
         if (!this.configFilename) {
@@ -82,36 +83,40 @@ export class LendingAdvisor extends AbstractAdvisor {
         if (this.configFilename.substr(-5) !== ".json")
             this.configFilename += ".json";
         //this.exchanges = exchanges
+        this.exchangeController = exchangeController;
+        let exchanges = this.exchangeController.getExchanges();
         this.exchanges = new LendingExchangeMap();
         for (let ex of exchanges)
             this.exchanges.set(ex[0], ex[1] as AbstractLendingExchange);
 
         this.tradeBook = new TradeBook(null, this);
-        this.loadConfig();
-        if (this.errorState)
-            return;
-        this.loadTrader();
-        this.connectTrader();
-        this.connectCandles();
+        this.checkRestoreConfig().then(() => {
+            if (this.exchangeController.isExchangesIdle() === true)
+                return;
+            this.loadConfig();
+            if (this.errorState)
+                return;
+            AbstractAdvisor.backupOriginalConfig();
+            this.loadTrader();
+            this.connectTrader();
+            this.connectCandles();
 
-        // sanity check
-        for (let strategyList of this.strategies)
-        {
-            const configCurrencyPair = strategyList[0];
-            if (strategyList[1].length !== 1)
-                logger.error("There should be exactly 1 lending strategy per currency: %s - count: %s", configCurrencyPair, strategyList.length)
-        }
+            // sanity check
+            for (let strategyList of this.strategies)
+            {
+                const configCurrencyPair = strategyList[0];
+                if (strategyList[1].length !== 1)
+                    logger.error("There should be exactly 1 lending strategy per currency: %s - count: %s", configCurrencyPair, strategyList.length)
+            }
 
-        if (nconf.get('trader') !== "Backtester")
-            this.restoreState();
+            if (nconf.get('trader') !== "Backtester")
+                this.restoreState();
+            this.loadedConfig = true;
+        });
     }
 
     public process() {
-        return new Promise<void>((resolve, reject) => {
-            // our trades come from MarketStreams: no stream data -> no price changes
-            if (!this.errorState)
-                resolve()
-        })
+        return super.process();
     }
 
     public getExchanges() {
@@ -168,14 +173,19 @@ export class LendingAdvisor extends AbstractAdvisor {
                 }
                 let restoreData = json[currency];
                 currency = currency.replace(/^[0-9]+/, config.configNr.toString()) // restore the real config number in case we changed it
+                let fallback = new RestoryStrategyStateMap();
+                let missingStrategyStates = [];
                 let confStrategies = strategies.get(currency);
                 confStrategies.forEach((strategy) => {
                     let strategyName = strategy.getClassName();
                     if (!restoreData[strategyName]) {
                         strategyName = strategy.getBacktestClassName();
-                        if (!restoreData[strategyName])
+                        if (!restoreData[strategyName]) {
+                            missingStrategyStates.push(strategy);
                             return; // no data for this strategy
+                        }
                     }
+                    fallback.add(restoreData[strategyName]);
                     if (!strategy.getSaveState())
                         return;
                     if (!strategy.canUnserialize(restoreData[strategyName]))
@@ -183,7 +193,25 @@ export class LendingAdvisor extends AbstractAdvisor {
                     strategy.unserialize(restoreData[strategyName])
                     logger.info("Restored lending strategy state of %s %s from %s", currency, strategyName, path.basename(filePath))
                     restored = true;
-                })
+                });
+                if (nconf.get("serverConfig:restoreStateFromOthers")) {
+                    missingStrategyStates.forEach((strategy) => {
+                        let strategyName = strategy.getClassName();
+                        let state = fallback.get(strategy.getAction().candleSize);
+                        if (!state)
+                            return;
+                        if (!strategy.canUnserialize(state, true)) // be sure and check candle size again
+                            return;
+                        try {
+                            strategy.unserialize(state)
+                            logger.info("Restored strategy state of %s %s using fallback from %s", currency, strategyName, path.basename(filePath))
+                            restored = true;
+                        }
+                        catch (err) {
+                            logger.warn("Unable to restore %s %s from another strategy state", currency, strategyName, err);
+                        }
+                    });
+                }
             })
         })
         return restored;

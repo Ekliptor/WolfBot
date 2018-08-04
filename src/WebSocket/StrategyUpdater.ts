@@ -12,10 +12,13 @@ import {LendingConfig} from "../Lending/LendingConfig";
 import {AbstractStrategy, StrategyPosition} from "../Strategies/AbstractStrategy";
 import {LendingAdvisor} from "../Lending/LendingAdvisor";
 import {AbstractGenericStrategy} from "../Strategies/AbstractGenericStrategy";
-import {AbstractAdvisor} from "../AbstractAdvisor";
+import {AbstractAdvisor, BacktestWarmupState} from "../AbstractAdvisor";
 import {AbstractConfig} from "../Trade/AbstractConfig";
 import {Currency} from "@ekliptor/bit-models";
 
+export interface StrategyMeta {
+    importLabel: string;
+}
 export interface GenericStrategyUpdate {
     nr: number;
     exchanges: string[]; // include for lending too for easier compatibility. array with 1 element
@@ -39,6 +42,7 @@ export interface StrategyUpdate extends GenericStrategyUpdate {
     positionAmount: number;
     pl: number;
     plPercent: number;
+    meta: StrategyMeta;
 }
 export interface LendingStrategyUpdate extends GenericStrategyUpdate {
     exchange: string;
@@ -93,7 +97,10 @@ export class StrategyUpdater extends AppPublisher {
                         plPercent: mainStrategy.getProfitLossPercent(),
                         activeNr: this.activeConfigCurrencyNr,
                         mainStrategyName: mainStrategy.getClassName(),
-                        userToken: nconf.get("serverConfig:userToken")
+                        userToken: nconf.get("serverConfig:userToken"),
+                        meta: {
+                            importLabel: this.getWarmupStateLabel(this.advisor.getBacktestWarmupState())
+                        }
                     }
                     if (config.configNr === this.activeConfigCurrencyNr) { // only send strategy data for the active tab
                         pairStrategies.forEach((strat) => {
@@ -120,7 +127,6 @@ export class StrategyUpdater extends AppPublisher {
                         nr: config.configNr,
                         exchange: config.exchange,
                         exchanges: [config.exchange],
-
                         strategies: {},
                         currencyPairStr: marketName,
                         baseCurrency: marketName,
@@ -187,7 +193,10 @@ export class StrategyUpdater extends AppPublisher {
                 return; // only update every x seconds to avoid browser hanging with many strategies
             let update: any = {
                 config: config,
-                strategies: {}
+                strategies: {},
+                meta: { // TODO event system for updates. for quick backtests notifications don't show up
+                    importLabel: this.getWarmupStateLabel(this.advisor.getBacktestWarmupState())
+                }
             }
             if (strategy instanceof AbstractStrategy && strategy.isMainStrategy()) {
                 update.position = strategy.getStrategyPosition();
@@ -199,5 +208,24 @@ export class StrategyUpdater extends AppPublisher {
             this.publish(update);
             this.lastUpdateMap.set(strategy.getClassName(), new Date());
         })
+    }
+
+    protected getWarmupStateLabel(state: BacktestWarmupState): string {
+        switch (state)
+        {
+            case BacktestWarmupState.IDLE:
+                return "";
+            case BacktestWarmupState.BACKTEST_FAILED:
+                return "backtestFailed";
+            case BacktestWarmupState.BACKTEST_DONE:
+                return "backtestDone";
+            case BacktestWarmupState.BACKTESTING:
+                return "backtestRunning";
+            case BacktestWarmupState.IMPORTING:
+                return "importRunning";
+            case BacktestWarmupState.IMPORT_FAILED:
+                return "importFailed";
+        }
+        return utils.test.assertUnreachableCode(state);
     }
 }

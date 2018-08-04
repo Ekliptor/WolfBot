@@ -1,12 +1,13 @@
-const path = require('path');
 import * as utils from "@ekliptor/apputils";
+import {serverConfig} from "@ekliptor/bit-models";
+import * as path from "path";
 const DEST_DIR = path.join(utils.appDir, '..', 'deploy') + path.sep
 
-const fs = require('fs');
 const argv = require('minimist')(process.argv.slice(2));
 const logger = utils.logger;
 const nconf = utils.nconf
 const updater = require("@ekliptor/packed-updater");
+import {AbstractAdvisor} from "./AbstractAdvisor";
 
 updater.setLogger(logger)
 
@@ -31,7 +32,9 @@ export function runUpdater(callback) {
                 path.join(utils.appDir, 'docs'),
                 path.join(utils.appDir, 'temp'),
                 path.join(utils.appDir, 'trades'),
-                path.join(utils.appDir, 'public', 'temp')
+                path.join(utils.appDir, 'public', 'temp'),
+                path.join(utils.appDir, 'bfg.jar')
+                // .json config files don't get bundled because they only exist within the /build dir
             ]
         }
         updater.createBundle(updateOptions, (err, bundle) => {
@@ -51,7 +54,7 @@ export function runUpdater(callback) {
         updateJsonUrl: nconf.get('updateUrl'),
         download: true
     }
-    updater.checkUpdates(updateOptions, (err, bundle) => {
+    updater.checkUpdates(updateOptions, async (err, bundle) => {
         if (err) {
             logger.error('Error checking for updates', err)
             return callback && callback() // continue with current version
@@ -61,6 +64,7 @@ export function runUpdater(callback) {
                 srcPath: utils.appDir,
                 bundle: bundle
             }
+            await prepareConfigBackup(); // updater will overwrite config. restore it afterwards
             updater.installUpdate(installOptions, (err) => {
                 if (err)
                     logger.error('Error installing update', err)
@@ -73,4 +77,10 @@ export function runUpdater(callback) {
             callback && callback()
         }
     })
+}
+
+async function prepareConfigBackup() {
+    await AbstractAdvisor.backupOriginalConfig();
+    nconf.set("serverConfig:user:restoreCfg", true);
+    await serverConfig.saveConfigLocal();
 }

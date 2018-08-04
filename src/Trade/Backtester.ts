@@ -137,6 +137,7 @@ export default class Backtester extends PortfolioTrader {
             // TODO update balances in exchange class. currently not used
 
             let tradeResult: BotEvaluation;
+            this.marketTime = new Date(start); // ensure it's not null if we only import very few trades
             exchange.replay(this.config.markets[0], start, end).then(() => {
                 this.simulateCloseAllMarginPositions(this.currentCoinRate);
                 return this.tradeAdvisor.backtestDone();
@@ -156,7 +157,8 @@ export default class Backtester extends PortfolioTrader {
                     console.log(tradeResult)
                 this.exitBacktest();
             }).catch((err) => {
-                logger.error("Error backtesting", err)
+                logger.error("Error backtesting")
+                utils.test.dumpError(err, logger);
                 setTimeout(() => { // our log is async
                     process.exit(1)
                 }, 500)

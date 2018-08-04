@@ -23,6 +23,7 @@
 <div class="checkbox bottom30">
   <label id="debugCtrls"><input type="checkbox" name="debug" value="" id="debug">{tr:debugMode}</label>
   <label id="devModeCtrls"><input type="checkbox" name="devMode" value="" id="devMode">{tr:devMode}</label>
+  <label id="restoreCfgCtrls"><input type="checkbox" name="restoreCfg" value="" id="restoreCfg">{tr:restoreCfg}</label>
 </div>
 <div class="panel panel-primary">
   <div class="panel-heading">{tr:exchangeKeys}</div>
@@ -46,12 +47,11 @@
           <div class="form-group">
             <label for="apiSecret" class="control-label col-sm-3">{tr:apiSecret}{tr:colon}</label>
             <div class="col-sm-9">
-              <input id="apiSecret" type="text" class="form-control" name="apiSecret" value="" required>
+              <input id="apiSecret" type="text" class="form-control" name="apiSecret" value="" placeholder="{tr:secretOnce}" required>
             </div>
           </div>
         </div>
       </div>
-
       <div id="key2Panel" class="panel panel-default bottom20">
         <div class="panel-heading">{tr:apiKey2}</div>
         <div class="panel-body">
@@ -65,7 +65,7 @@
           <div class="form-group">
             <label for="apiSecret2" class="control-label col-sm-3">{tr:apiSecret}{tr:colon}</label>
             <div class="col-sm-9">
-              <input id="apiSecret2" type="text" class="form-control" name="apiSecret2" value="" required>
+              <input id="apiSecret2" type="text" class="form-control" name="apiSecret2" value="" placeholder="{tr:secretOnce}" required>
             </div>
           </div>
         </div>
@@ -73,6 +73,38 @@
       <div class="form-group">
         <div class="col-sm-offset-3 col-sm-9">
           <button id="saveKey" class="btn btn-success" type="submit" name="saveKey" style="display: none">{tr:save}</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+<div class="panel panel-primary">
+  <div class="panel-heading">{tr:notifications}</div>
+  <div class="panel-body">
+    <form id="notificationsForm" class="row form-horizontal" action="" method="post" enctype="application/x-www-form-urlencoded">
+      <div class="form-group bottom20">
+        <label for="notificationMethod" class="control-label col-sm-2">{tr:notificationMethod}{tr:colon}</label>
+        <div class="col-sm-6">
+          <select id="notificationMethod" class="multiSel" name="notificationMethod"></select>
+        </div>
+        <div class="col-sm-4">
+          <a id="notificationPushoverLink" target="_blank" href="https://pushover.net/">{tr:installApp}</a>
+        </div>
+      </div>
+      <div class="panel panel-default bottom20">
+        <div id="" class="panel-heading notificationKeyTxt">{tr:pushoverKey}</div>
+        <div class="panel-body">
+          <div class="form-group">
+            <label for="notificationKey" class="control-label col-sm-3"><span class="notificationKeyTxt">{tr:pushoverKey}</span>{tr:colon}</label>
+            <div class="col-sm-9">
+              <input id="notificationKey" type="text" class="form-control" name="notificationKey" value="" required>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="form-group">
+        <div class="col-sm-offset-3 col-sm-9">
+          <button id="saveNotification" class="btn btn-success" type="submit" name="saveNotification" style="display: none">{tr:save}</button>
         </div>
       </div>
     </form>

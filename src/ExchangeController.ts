@@ -22,6 +22,7 @@ export default class ExchangeController extends AbstractSubController {
     protected exchanges = new ExchangeMap(); // (exchange name, instance)
     protected configs: TradeConfig[] = [];
     protected connectedExchanges: string[] = []; // the exchanges we are interested in according to our config
+    protected exchangesIdle = false;
 
     constructor(configFilename: string) {
         super()
@@ -70,6 +71,10 @@ export default class ExchangeController extends AbstractSubController {
         return this.exchanges
     }
 
+    public isExchangesIdle() {
+        return this.exchangesIdle;
+    }
+
     /**
      * Loads a single new exchange instance. Useful for social crawler and other non-trading bots.
      * @param {string} exchangeName
@@ -101,6 +106,8 @@ export default class ExchangeController extends AbstractSubController {
     // ###################### PRIVATE FUNCTIONS #######################
 
     protected loadExchanges(activeProcessCount: number) {
+        if (this.exchangesIdle === true)
+            return; // we need to restart our bot for TradeAvisor class to connect to exchanges + events // TODO improve
         if (nconf.get("social"))
             return;
         if (nconf.get('trader') === "Backtester") {
@@ -116,7 +123,12 @@ export default class ExchangeController extends AbstractSubController {
                 this.exchanges.set(exchangeName, exchangeInstance);
             return;
         }
-        let apiKeys = nconf.get("serverConfig:apiKey:exchange")
+        let apiKeys = nconf.get("serverConfig:apiKey:exchange");
+        if (!apiKeys || apiKeys.length === 0) {
+            this.exchangesIdle = true;
+            logger.warn("No exchange keys found in config. All exchanges are idle");
+            return;
+        }
         for (let ex in apiKeys)
         {
             if (this.connectedExchanges.indexOf(ex) === -1)
@@ -126,12 +138,28 @@ export default class ExchangeController extends AbstractSubController {
 
             let exchangeKey = apiKeys[ex];
             if (Array.isArray(exchangeKey) === true) { // support for single API key per process (to avoid conflicts in nonce == increasing integer)
+                if (exchangeKey.length === 0) {
+                    this.exchangesIdle = true; // we could add some exchanges, but then we have to modify TradeAdvisor to skip others
+                    logger.warn("No exchange keys found for %s in config. Keeping exchanges idle.", ex);
+                    return;
+                }
                 let i = activeProcessCount % exchangeKey.length;
                 logger.info("Loading exchange %s with apiKey index %s", ex, i)
                 exchangeKey = exchangeKey[i];
             }
-            else
+            else {
+                if (!exchangeKey) {
+                    this.exchangesIdle = true;
+                    logger.warn("Invalid exchange key found for %s in config. Keeping exchanges idle.", ex);
+                    return;
+                }
                 logger.info("Loading exchange %s", ex)
+            }
+            if (!exchangeKey.key || !exchangeKey.secret) {
+                this.exchangesIdle = true;
+                logger.warn("Empty exchange key found for %s in config. Keeping exchanges idle.", ex);
+                return;
+            }
             const modulePath = path.join(__dirname, "Exchanges", ex);
             let exchangeInstance = this.loadModule<AbstractExchange>(modulePath, exchangeKey);
             if (exchangeInstance) {
@@ -140,6 +168,7 @@ export default class ExchangeController extends AbstractSubController {
                     continue;
                 }
                 this.exchanges.set(ex, exchangeInstance);
+                this.exchangesIdle = false;
             }
         }
     }

@@ -28,6 +28,7 @@ import {TaLib, TaLibParams, TaLibResult} from "./Indicators/TaLib";
 import {Brain} from "./AI/Brain";
 import {LendingExchangeMap} from "./Exchanges/AbstractLendingExchange";
 import {RawTelegramMessage} from "./Social/Crawler/Telegram";
+import {orverrides} from "../configLocal";
 
 
 export class Controller extends AbstractController { // TODO implement graceful shutdown api command (stop & delete tasks)
@@ -273,7 +274,7 @@ export class Controller extends AbstractController { // TODO implement graceful 
             }
             else if (nconf.get("lending") === true) {
                 if (this.lendingAdvisor === null)
-                    this.lendingAdvisor = new LendingAdvisor(argv.config, this.exchangeConntroller.getExchanges());
+                    this.lendingAdvisor = new LendingAdvisor(argv.config, this.exchangeConntroller);
                 tasks.push(this.lendingAdvisor.process())
             }
             else if (nconf.get("social") === true) {
@@ -330,6 +331,7 @@ export class Controller extends AbstractController { // TODO implement graceful 
                 serverConfig.loadServerConfig(db.get(), () => {
                     if (nconf.get('tradeMode') === undefined)
                         nconf.set('tradeMode', nconf.get('serverConfig:tradeMode'))
+                    this.loadLocalConfig();
                     cb && cb()
                 })
             }
@@ -370,6 +372,8 @@ export class Controller extends AbstractController { // TODO implement graceful 
                     nconf.set(prop + ':' + childProp, localConf[prop][childProp]);
             }
         }
+        if (typeof localConf.orverrides === "function")
+            localConf.orverrides();
     }
 
     protected handleDatabaseConnectionError(err) {

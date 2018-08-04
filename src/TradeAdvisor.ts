@@ -20,7 +20,7 @@ import {StrategyGroup} from "./Trade/StrategyGroup";
 import {MarginPosition} from "./structs/MarginPosition";
 import {AbstractGenericTrader} from "./Trade/AbstractGenericTrader";
 import {AbstractGenericStrategy} from "./Strategies/AbstractGenericStrategy";
-import {AbstractAdvisor} from "./AbstractAdvisor";
+import {AbstractAdvisor, RestoryStrategyStateMap, PendingBacktest} from "./AbstractAdvisor";
 import {ArbitrageConfig} from "./Arbitrage/ArbitrageConfig";
 import {AbstractArbitrageStrategy} from "./Arbitrage/Strategies/AbstractArbitrageStrategy";
 import {TradeBook} from "./Trade/TradeBook";
@@ -172,7 +172,6 @@ export interface StrategyAction {
  */
 export default class TradeAdvisor extends AbstractAdvisor {
     protected strategyFile: string;
-    protected exchangeController: ExchangeController;
     protected exchanges: ExchangeMap; // (exchange name, instance)
     protected strategies: StrategyMap = new StrategyMap();
     protected configs: TradeConfig[] = [];
@@ -210,34 +209,36 @@ export default class TradeAdvisor extends AbstractAdvisor {
             this.strategyFile += ".json";
 
         this.tradeBook = new TradeBook(this, null);
-        this.loadConfig();
-        if (this.errorState)
-            return;
-        this.loadTrader();
-        this.connectTrader();
-        this.connectCandles();
+        this.checkRestoreConfig().then(() => {
+            if (this.exchangeController.isExchangesIdle() === true)
+                return;
+            this.loadConfig();
+            if (this.errorState)
+                return;
+            AbstractAdvisor.backupOriginalConfig();
+            this.loadTrader();
+            this.connectTrader();
+            this.connectCandles();
 
-        if (nconf.get('trader') === "Backtester") {
-            if (this.configs.length > 1)
-                logger.warn("More than 1 config entry is not supported when backtesting")
-            for (let trader of this.trader)
-            {
-                if (trader[1] instanceof Backtester)
-                //(<Backtester>trader[1]).backtest() // deprecated because of .jsx conflict
-                    (trader[1] as Backtester).backtest(this.exchangeController)
+            if (nconf.get('trader') === "Backtester") {
+                if (this.configs.length > 1)
+                    logger.warn("More than 1 config entry is not supported when backtesting")
+                for (let trader of this.trader)
+                {
+                    if (trader[1] instanceof Backtester)
+                    //(<Backtester>trader[1]).backtest() // deprecated because of .jsx conflict
+                        (trader[1] as Backtester).backtest(this.exchangeController)
+                }
             }
-        }
-        else
-            this.restoreState();
+            else
+                this.restoreState();
+            this.loadedConfig = true;
+        });
     }
 
     public process() {
-        return new Promise<void>((resolve, reject) => {
-            // TODO is there anything to do on this "heartbeet" tick?
-            // our trades come from MarketStreams: no stream data -> no price changes
-            if (!this.errorState)
-                resolve()
-        })
+        // TODO is there anything to do on this "heartbeet" tick?
+        return super.process();
     }
 
     public getExchanges() {
@@ -316,14 +317,19 @@ export default class TradeAdvisor extends AbstractAdvisor {
                 }
                 let restoreData = json[pair];
                 pair = pair.replace(/^[0-9]+/, config.configNr.toString()) // restore the real config number in case we changed it
+                let fallback = new RestoryStrategyStateMap();
+                let missingStrategyStates = [];
                 let confStrategies = strategies.get(pair);
                 confStrategies.forEach((strategy) => {
                     let strategyName = strategy.getClassName();
                     if (!restoreData[strategyName]) {
                         strategyName = strategy.getBacktestClassName();
-                        if (!restoreData[strategyName])
+                        if (!restoreData[strategyName]) {
+                            missingStrategyStates.push(strategy);
                             return; // no data for this strategy
+                        }
                     }
+                    fallback.add(restoreData[strategyName]);
                     if (!strategy.getSaveState())
                         return;
                     if (!strategy.canUnserialize(restoreData[strategyName]))
@@ -331,7 +337,33 @@ export default class TradeAdvisor extends AbstractAdvisor {
                     strategy.unserialize(restoreData[strategyName])
                     logger.info("Restored strategy state of %s %s from %s", pair, strategyName, path.basename(filePath))
                     restored = true;
-                })
+                });
+                let restoreBacktestStates = new Set<AbstractStrategy>(missingStrategyStates);
+                if (nconf.get("serverConfig:restoreStateFromOthers")) {
+                    missingStrategyStates.forEach((strategy) => {
+                        let strategyName = strategy.getClassName();
+                        let state = fallback.get(strategy.getAction().candleSize);
+                        if (!state)
+                            return;
+                        if (!strategy.canUnserialize(state, true)) // be sure and check candle size again
+                            return;
+                        try {
+                            strategy.unserialize(state);
+                            logger.info("Restored strategy state of %s %s using fallback from %s", pair, strategyName, path.basename(filePath))
+                            restored = true;
+                            restoreBacktestStates.delete(strategy);
+                        }
+                        catch (err) {
+                            logger.warn("Unable to restore %s %s from another strategy state", pair, strategyName, err);
+                        }
+                    });
+                }
+                if (confStrategies.length !== 0 && restoreBacktestStates.size !== 0) {
+                    // if there is at least 1 strategy left to be restored for that pair we start a backtest for it (with all strategies)
+                    // TODO only restore if main strategy state is missing? depending on how reliable importing works...
+                    const maxMinutes = this.getMaxWarmupMinutes(confStrategies);
+                    this.createStateFromBacktest(confStrategies[0].getAction().pair, maxMinutes, confStrategies, config);
+                }
             })
         })
         return restored;
@@ -971,5 +1003,36 @@ export default class TradeAdvisor extends AbstractAdvisor {
             freeSpace: false,
             size: 100
         });
+    }
+
+    protected createAllStatesFromBacktest() {
+        if (!nconf.get("serverConfig:restoreStateFromBacktest"))
+            return;
+        if (nconf.get("arbitrage") || nconf.get("lending"))
+            return logger.warn("Restoring strategy states from backtest is only supported in trading mode");
+        let strategies = this.getStrategies();
+        for (let strat of strategies)
+        {
+            let configIndex = parseInt(strat[0].replace(/\-.+$/, "")) - 1;
+            let confStrategies = strat[1];
+            if (confStrategies.length === 0)
+                continue; // can't happen
+            if (this.configs.length <= configIndex) {
+                logger.error("Invalid config index %s/%s. Skipped creating backtest", configIndex, this.configs.length);
+                continue;
+            }
+            const maxMinutes = this.getMaxWarmupMinutes(confStrategies);
+            this.createStateFromBacktest(confStrategies[0].getAction().pair, maxMinutes, confStrategies, this.configs[configIndex]);
+        }
+    }
+
+    protected createStateFromBacktest(currencyPair: Currency.CurrencyPair, minutes: number, strategies: AbstractGenericStrategy[], config: TradeConfig) {
+        if (!nconf.get("serverConfig:restoreStateFromBacktest"))
+            return;
+        if (nconf.get("arbitrage") || nconf.get("lending"))
+            return logger.warn("Restoring strategy states from backtest is only supported in trading mode");
+        this.pendingBacktests.push(new PendingBacktest(currencyPair, minutes, strategies));
+        if (!this.backtestRunning)
+            this.startBacktest();
     }
 }

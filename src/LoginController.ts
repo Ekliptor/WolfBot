@@ -11,6 +11,18 @@ export interface NodeConfigFile {
     id: number;
     url: string;
 }
+export class BotSubscription {
+    id: number;
+    url: string;
+    expiration: Date;
+    coupon: string = ""; // cooupon code
+    discount: number = 0; // percentage of the discount with the coupon
+    constructor(id: number, url: string, expiration: Date) {
+        this.id = id;
+        this.url = url;
+        this.expiration = typeof expiration === "number" ? new Date(expiration*1000) : expiration;
+    }
+}
 
 /**
  * Class to check if the login & subscription on wolfbot.org is valid.
@@ -22,6 +34,7 @@ export class LoginController extends AbstractSubController {
     protected loginValid: boolean = false;
     protected subscriptionValid: boolean = false;
     protected nodeConfig: NodeConfigFile = null;
+    protected subscription: BotSubscription = null;
     protected tokenGenerated = false;
 
     constructor() {
@@ -47,6 +60,10 @@ export class LoginController extends AbstractSubController {
         if (nconf.get("serverConfig:premium") === false)
             return true;
         return this.subscriptionValid;
+    }
+
+    public getSubscription() {
+        return this.subscription;
     }
 
     public process() {
@@ -139,19 +156,26 @@ export class LoginController extends AbstractSubController {
             this.generateApiKey();
         else if (Object.keys(nconf.get("apiKeys")).length === 0) // first start
             this.generateApiKey();
-
     }
 
     protected hasThisBotSubscription(subscriptions: any[]) {
         for (let i = 0; i < subscriptions.length; i++)
         {
             const sub = subscriptions[i];
-            if (/*sub.post_name !== "subscription" || */sub.post_type !== "shop_subscription" || this.isActiveSubscriptionStatus(sub.post_status) === false)
+            if (/*sub.post_name !== "subscription" || */sub.post_type === "shop_subscription" && this.isActiveSubscriptionStatus(sub.post_status) === false)
+                continue; // TODO ensure object is kept when switching from active
+            else if (sub.post_type === "shop_order" && this.isCompletedOrder(sub.post_status) === false)
                 continue;
             // check if we have a subscription for this bot instance
             if (sub.bot_url && typeof sub.bot_url === "object") {
-                if (sub.bot_url.id === this.nodeConfig.id)
+                if (sub.bot_url.id === this.nodeConfig.id) {
+                    this.subscription = new BotSubscription(sub.bot_url.id, sub.bot_url.url, sub.bot_url.expiration);
+                    if (sub.bot_url.coupon) {
+                        this.subscription.coupon = sub.bot_url.coupon;
+                        this.subscription.discount = sub.bot_url.discount;
+                    }
                     return true;
+                }
             }
         }
         return false;
@@ -163,6 +187,15 @@ export class LoginController extends AbstractSubController {
             case "wc-active":
             case "wc-pending-cancel":
             case "wc-switched":
+                return true;
+        }
+        return false;
+    }
+
+    protected isCompletedOrder(status: string) {
+        switch (status)
+        {
+            case "wc-completed":
                 return true;
         }
         return false;

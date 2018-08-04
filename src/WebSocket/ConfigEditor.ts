@@ -40,9 +40,17 @@ export interface ExchangeApiConfig {
 export interface ExchangeApiKeyMap {
     [exchangeName: string]: ExchangeApiConfig;
 }
+export interface NotificationKey {
+    //key: string;
+    receiver?: string;
+}
+export interface NotificationMethodMap {
+    [notificationMethod: string]: NotificationKey;
+}
 export interface ConfigData {
     debugMode?: boolean;
     devMode?: boolean;
+    restoreCfg?: boolean;
     selectedTab?: ConfigTab;
 }
 export interface ConfigRes extends ConfigData {
@@ -66,15 +74,18 @@ export interface ConfigRes extends ConfigData {
     tabs?: ConfigTab[];
     exchanges?: string[];
     exchangeKeys?: ExchangeApiKeyMap;
+    notifications?: NotificationMethodMap;
 
     changed?: boolean;
     saved?: boolean;
+    restart?: boolean;
 }
 export interface ConfigReq extends ConfigData {
     saveConfig?: string;
     configName?: string;
     configChange?: string;
     saveKey?: ExchangeApiKeyMap;
+    saveNotification?: NotificationMethodMap;
     traderChange?: string;
     tradingModeChange?: BotTrade.TradingMode;
     setPaused?: boolean;
@@ -112,7 +123,7 @@ export class ConfigEditor extends AppPublisher {
             if (err)
                 logger.error(err.stack);
             if (options.exit)
-                //process.exit(0);
+            //process.exit(0);
                 setTimeout(process.exit.bind(this, 0), 1500);
         }
         //do something when app is closing (parent will kill the child in ProcessForker)
@@ -167,10 +178,12 @@ export class ConfigEditor extends AppPublisher {
                 premium: nconf.get("serverConfig:premium"),
                 debugMode: nconf.get("debugRestart"),
                 devMode: nconf.get("serverConfig:user:devMode"),
+                restoreCfg: nconf.get("serverConfig:user:restoreCfg"),
                 tabs: CONFIG_TABS,
                 selectedTab: this.selectedTab,
                 exchanges: Array.from(Currency.ExchangeName.keys()),
-                exchangeKeys: this.getExchangeKeys()
+                exchangeKeys: this.getExchangeKeys(),
+                notifications: this.getNotificationMethods()
             });
         }).catch((err) => {
             logger.error("Error loading config view data", err)
@@ -229,14 +242,13 @@ export class ConfigEditor extends AppPublisher {
                 this.send(clientSocket, {error: true, errorTxt: "Error saving config."})
             })
         }
-        if (typeof data.saveKey === "object") {
+        else if (typeof data.saveKey === "object") {
             for (let exchangeName in data.saveKey)
             {
                 if (Currency.ExchangeName.has(exchangeName) === false) {
                     logger.error("Can not update unknown exchange API keys %s", exchangeName);
                     continue;
                 }
-
                 // for UI users we can only have 1 set of keys per instance
                 let currentKey = nconf.get("serverConfig:apiKey:exchange:" + exchangeName)[0];
                 let props = Object.keys(data.saveKey[exchangeName]);
@@ -248,6 +260,27 @@ export class ConfigEditor extends AppPublisher {
                     currentKey[prop] = data.saveKey[exchangeName][prop];
                 });
                 nconf.set("serverConfig:apiKey:exchange:" + exchangeName, [currentKey]);
+                serverConfig.saveConfigLocal();
+            }
+            this.send(clientSocket, {saved: true, restart: true})
+        }
+        else if (typeof data.saveNotification === "object") {
+            for (let method in data.saveNotification)
+            {
+                if (Currency.NotificationMethods.has(method) === false) {
+                    logger.error("Can not update unknown notification method %s", method);
+                    continue;
+                }
+                let currentKey = nconf.get("serverConfig:apiKey:notify:" + method);
+                let props = Object.keys(data.saveNotification[method]);
+                props.forEach((prop ) => {
+                    if (currentKey[prop] === undefined)
+                        return;
+                    else if (data.saveNotification[method][prop] == "")
+                        return;
+                    currentKey[prop] = data.saveNotification[method][prop];
+                });
+                nconf.set("serverConfig:apiKey:notify:" + method, currentKey);
                 serverConfig.saveConfigLocal();
             }
             this.send(clientSocket, {saved: true})
@@ -264,6 +297,11 @@ export class ConfigEditor extends AppPublisher {
         else if (typeof data.devMode === "boolean") {
             nconf.set("serverConfig:user:devMode", data.devMode)
             //serverConfig.saveConfig(db.get(), nconf.get("serverConfig"))
+            serverConfig.saveConfigLocal();
+            this.send(clientSocket, {saved: true})
+        }
+        else if (typeof data.restoreCfg === "boolean") {
+            nconf.set("serverConfig:user:restoreCfg", data.restoreCfg)
             serverConfig.saveConfigLocal();
             this.send(clientSocket, {saved: true})
         }
@@ -300,7 +338,7 @@ export class ConfigEditor extends AppPublisher {
                     //break
                 }
                 //else if (processArgs[i].substr(0, 21) == "--max-old-space-size=")
-                    //processArgs[i] = "--max-old-space-size=1224"; // reduce max memory
+                //processArgs[i] = "--max-old-space-size=1224"; // reduce max memory
             }
             let options = {
                 encoding: 'utf8',
@@ -706,11 +744,17 @@ export class ConfigEditor extends AppPublisher {
                 logger.verbose("Saved strategy state to: %s", filePath)
                 resolve()
             }
-            else { // better performance, otherwise large states can make the bot unresponsive
-                fs.writeFile(filePath, jsonStateStr, {encoding: "utf8"}, (err) => {
-                    if (err)
-                        return reject({txt: "Error saving bot state", err: err})
-                    logger.verbose("Saved strategy state to: %s", filePath)
+            else { // better performance, otherwise large states can make the bot unresponsive. only pack when saving async
+                let packState = nconf.get("serverConfig:gzipState") ? utils.text.packGzip(jsonStateStr) : Promise.resolve(jsonStateStr)
+                packState.then((packedStateStr) => {
+                    fs.writeFile(filePath, packedStateStr, {encoding: "utf8"}, (err) => {
+                        if (err)
+                            return reject({txt: "Error saving bot state", err: err})
+                        logger.verbose("Saved strategy state to: %s", filePath)
+                        resolve()
+                    })
+                }).catch((err) => {
+                    logger.error("Error packing state string", err)
                     resolve()
                 })
             }
@@ -862,6 +906,13 @@ export class ConfigEditor extends AppPublisher {
             let exchangeKeys = keys[exchangeName];
             if (Array.isArray(exchangeKeys) === false || exchangeKeys.length === 0) {
                 logger.warn("Invalid exchange API config for %s", exchangeName, exchangeKeys);
+                userKeys[exchangeName] = { // we must return empty strings so that form inputs show up
+                    key: "",
+                    secret: "",
+                    //key2: Currency.TwoKeyExchanges.has(exchangeName) === true ? "" : undefined, // shouldn't happen. we start with empty strings as config
+                    key2: undefined,
+                    secret2: ""
+                };
                 continue;
             }
             userKeys[exchangeName] = {
@@ -874,6 +925,18 @@ export class ConfigEditor extends AppPublisher {
             };
         }
         return userKeys;
+    }
+
+    protected getNotificationMethods() {
+        let keys = nconf.get("serverConfig:apiKey:notify");
+        let notifyKeys: NotificationMethodMap = {};
+        for (let method in keys)
+        {
+            notifyKeys[method] = Object.assign({}, keys[method]);
+            if ((notifyKeys[method] as any).appToken) // Pushover appToken can not be changed
+                delete (notifyKeys[method] as any).appToken;
+        }
+        return notifyKeys;
     }
 
     protected send(ws: WebSocket, data: ConfigRes, options?: ServerSocketSendOptions) {

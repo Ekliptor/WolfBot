@@ -8,6 +8,13 @@ import {ServerOptions} from "ws";
 
 export type SubscriptionAction = "sub" | "unsub"; // {action: x}
 
+export class ClientSocketOnServer extends WebSocket {
+    public id: string = null; // unique ID for every client socket connection
+    constructor(address: string, protocols?: string | string[], options?: WebSocket.ClientOptions) {
+        super(address, protocols, options)
+    }
+}
+
 /**
  * A class sending data to 1 or many WebSocket clients.
  */
@@ -192,7 +199,7 @@ export class ServerSocket extends WebSocket.Server {
             }
             return s4() + s4() + '-' + s4();
         }
-        this.on("connection", (ws, request) => {
+        this.on("connection", (ws: ClientSocketOnServer, request) => {
             let params = utils.url.getUrlParameters(request.url)
             let keys = nconf.get('apiKeys')
             if (!params["apiKey"] || keys[params["apiKey"]] !== true) {
@@ -204,7 +211,7 @@ export class ServerSocket extends WebSocket.Server {
                 return;
             }
             if (ws.id === undefined)
-                ws.id = getUniqueID(); // TODO or create a subclass?
+                ws.id = getUniqueID(); // TODO instantiate subclass?
             else
                 logger.error("Property 'id' is already defined for incoming WebSocket connection", ws.id)
 

@@ -150,4 +150,12 @@ export class TradeConfig extends AbstractConfig {
             return path.join(utils.appDir, "config", "social")
         return path.join(utils.appDir, "config") // trading
     }
+
+    public static getConfigRootDir() {
+        return path.join(utils.appDir, "config")
+    }
+
+    public static getConfigBackupRootDir() {
+        return path.join(utils.appDir, "config-bak")
+    }
 }

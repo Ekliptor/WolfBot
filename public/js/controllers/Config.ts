@@ -10,7 +10,7 @@ import {
     ConfigRes,
     ConfigTab,
     ExchangeApiConfig,
-    ExchangeApiKeyMap
+    ExchangeApiKeyMap, NotificationMethodMap
 } from "../../../src/WebSocket/ConfigEditor";
 import {Strategies} from "./Strategies";
 import * as $ from "jquery";
@@ -42,9 +42,11 @@ export class Config extends AbstractController {
         if (data.error)
             return Hlp.showMsg(data.errorTxt ? data.errorTxt : AppF.tr(data.errorCode ? data.errorCode : 'unknownError'), 'danger');
         else if (data.saved) {
-            this.$("#saveConfig").fadeOut("slow");
-            this.$("#saveKey").fadeOut("slow");
-            return Hlp.showMsg(AppF.tr('savedConfig'), 'success', AppClass.cfg.successMsgRemoveSec);
+            this.$("#saveConfig, #saveKey, #saveNotification").fadeOut("slow");
+            Hlp.showMsg(AppF.tr('savedConfig'), 'success', AppClass.cfg.successMsgRemoveSec);
+            if (data.restart)
+                this.showRestartMsg();
+            return;
         }
 
         if (!this.isVisible())
@@ -198,11 +200,17 @@ export class Config extends AbstractController {
         data.exchanges.forEach((exchangeName) => {
             this.$("#exchanges").append(this.getSelectOption(exchangeName, exchangeName, firstEx))
             firstEx = false;
-        })
+        });
+        let notificationMethods = Object.keys(data.notifications);
+        let firstNotification = true;
+        notificationMethods.forEach((method) => {
+            this.$("#notificationMethod").append(this.getSelectOption(method, method, firstNotification))
+            firstNotification = false;
+        });
         App.initMultiSelect((optionEl, checked) => { // this must be called after adding all options to select elements
             const id = optionEl.attr("id");
             if (id !== "exchanges")
-                Hlp.showMsg(AppF.tr('restartRequiredConf'), 'warning');
+                this.showRestartMsg();
             if (id === "configs") {
                 this.canEdit = false;
                 this.currentConfigFile = optionEl.val().substr(1).replace(/\.json$/, "");
@@ -215,6 +223,8 @@ export class Config extends AbstractController {
                 this.send({tradingModeChange: optionEl.val()});
             else if (id === "exchanges")
                 this.showEditExchangeApiKeys(optionEl.val());
+            else if (id === "notificationMethod")
+                this.showNotificationKeyInput(optionEl.val());
         });
         if (data.lending === true)
             (this.$("#traders") as any).multiselect('disable'); // TODO wait for typings
@@ -226,18 +236,31 @@ export class Config extends AbstractController {
             this.send({debugMode: $(event.target).is(":checked")})
         });
         if (data.premium === true)
-            this.$("#debug").addClass("hidden");
+            this.$("#debugCtrls").addClass("hidden");
         this.$("#devMode").prop("checked", data.devMode);
         this.$("#devMode").change((event) => {
             const checked = $(event.target).is(":checked");
-            //> scrips tab removed, use local IDE
-            /*
+            //> scrips tab removed, use local IDE: .tabScripts
             if (checked === true)
-                $(".tabScripts, #tabTradingDev").removeClass("hidden");
+                $("#tabTradingDev").removeClass("hidden");
             else
-                $(".tabScripts, #tabTradingDev").addClass("hidden");
-            */
+                $("#tabTradingDev").addClass("hidden");
             this.send({devMode: checked})
+        });
+        this.$("#restoreCfg").prop("checked", data.restoreCfg);
+        this.$("#restoreCfg").change((event) => {
+            const checked = $(event.target).is(":checked");
+            if (checked === true) {
+                Hlp.confirm(AppF.tr('restoreCfgMsg'), (answer) => {
+                    if (answer !== true) {
+                        this.$("#restoreCfg").prop("checked", false);
+                        return;
+                    }
+                    this.send({restoreCfg: checked})
+                });
+            }
+            else
+                this.send({restoreCfg: checked})
         });
 
         // Exchange API Keys
@@ -245,6 +268,7 @@ export class Config extends AbstractController {
             this.$("#saveKey").fadeIn("slow");
         });
         this.showEditExchangeApiKeys(this.$("#exchanges").val());
+        this.showNotificationKeyInput(this.$("#notificationMethod").val());
         //this.$("#saveKey").click((event) => { // we want to use the browser to validate the form
         this.$("#configExchangeForm").submit((event) => {
             event.preventDefault();
@@ -256,13 +280,28 @@ export class Config extends AbstractController {
                 key2: "",
                 secret2: ""
             };
-
             if (this.$("#key2Panel").is(":visible") === true) {
                 saveReq[exchangeName].key2 = this.$("#apiKey2").val();
                 saveReq[exchangeName].secret2 = this.$("#apiSecret2").val();
             }
             this.send({
                 saveKey: saveReq
+            })
+        });
+
+        // Notification method
+        this.$("#notificationsForm input[type=text]").change((event) => {
+            this.$("#saveNotification").fadeIn("slow");
+        });
+        this.$("#notificationsForm").submit((event) => {
+            event.preventDefault();
+            let saveReq: NotificationMethodMap = {}
+            const method = this.$("#notificationMethod").val();
+            saveReq[method] = {
+                receiver: this.$("#notificationKey").val()
+            };
+            this.send({
+                saveNotification: saveReq
             })
         });
     }
@@ -392,6 +431,14 @@ export class Config extends AbstractController {
         }
     }
 
+    protected showNotificationKeyInput(notifytMethod: string) {
+        let notifyKeys = this.fullData.notifications[notifytMethod];
+        if (!notifyKeys)
+            return AppF.log("Error getting notification method data " + notifytMethod);
+        let firstValue = /*notifyKeys.key || */notifyKeys.receiver;
+        this.$("#notificationKey").val(firstValue);
+    }
+
     protected setCanEdit() {
         setTimeout(() => { // delay it or else the save button shows (change event fired on init)
             this.canEdit = true;
@@ -509,6 +556,22 @@ export class Config extends AbstractController {
         if (this.fullData.lending === true)
             return "lendingStratDesc.";
         return "stratDesc.";
+    }
+
+    protected showRestartMsg() {
+        let msg = AppF.tr('restartRequiredConf');
+        let vars =  {
+            title: AppF.tr('restartNow'),
+            href: "javascript:;",
+            id: "restartLnk"
+        }
+        msg += " " + AppF.translate(pageData.html.misc.link, vars);
+        Hlp.showMsg(msg, 'warning');
+        setTimeout(() => {
+            $("#restartLnk").click((event) => {
+                this.restartBot();
+            });
+        }, 100);
     }
 
     protected send(data: ConfigReq) {

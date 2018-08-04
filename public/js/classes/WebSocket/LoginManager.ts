@@ -31,6 +31,8 @@ export class LoginManager extends AbstractController {
             AppF.setCookie("apiKey", data.loginRes.apiKey, pageData.cookieLifeDays);
             this.reloadPage();
         }
+        else if (data.expirationMsg)
+            this.showExpirationMsg(data);
     }
 
     public render() {
@@ -64,6 +66,19 @@ export class LoginManager extends AbstractController {
 
     protected showLoginError(data: LoginUpdateRes) {
         $("#loginError").text(i18next.t(data.errorCode ? data.errorCode : "unknownError"));
+    }
+
+    protected showExpirationMsg(data: LoginUpdateRes) {
+        const subs = data.expirationMsg.subscription;
+        let msgVars = { // simply always add all variables
+            date: subs.expiration.toLocaleDateString() + " " + subs.expiration.toLocaleTimeString(),
+            percent: subs.discount,
+            code: subs.coupon
+        }
+        Hlp.showMsg(i18next.t(data.expirationMsg.label, msgVars), data.expirationMsg.level);
+        if (!subs.discount || !subs.coupon)
+            return;
+        Hlp.showMsg(i18next.t("beforeDiscount", msgVars), "success");
     }
 
     protected send(data: LoginUpdateReq) {

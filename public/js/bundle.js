@@ -2888,6 +2888,8 @@ class LoginManager extends AbstractController_1.AbstractController {
             AppF.setCookie("apiKey", data.loginRes.apiKey, pageData.cookieLifeDays);
             this.reloadPage();
         }
+        else if (data.expirationMsg)
+            this.showExpirationMsg(data);
     }
     render() {
         return new Promise((resolve, reject) => {
@@ -2917,6 +2919,18 @@ class LoginManager extends AbstractController_1.AbstractController {
     // ###################### PRIVATE FUNCTIONS #######################
     showLoginError(data) {
         $("#loginError").text(i18next.t(data.errorCode ? data.errorCode : "unknownError"));
+    }
+    showExpirationMsg(data) {
+        const subs = data.expirationMsg.subscription;
+        let msgVars = {
+            date: subs.expiration.toLocaleDateString() + " " + subs.expiration.toLocaleTimeString(),
+            percent: subs.discount,
+            code: subs.coupon
+        };
+        Hlp.showMsg(i18next.t(data.expirationMsg.label, msgVars), data.expirationMsg.level);
+        if (!subs.discount || !subs.coupon)
+            return;
+        Hlp.showMsg(i18next.t("beforeDiscount", msgVars), "success");
     }
     send(data) {
         //return super.send(data); // we use HTTP for now to keep the WS area secured
@@ -3497,9 +3511,11 @@ class Config extends AbstractController_1.AbstractController {
         if (data.error)
             return Hlp.showMsg(data.errorTxt ? data.errorTxt : AppF.tr(data.errorCode ? data.errorCode : 'unknownError'), 'danger');
         else if (data.saved) {
-            this.$("#saveConfig").fadeOut("slow");
-            this.$("#saveKey").fadeOut("slow");
-            return Hlp.showMsg(AppF.tr('savedConfig'), 'success', index_1.AppClass.cfg.successMsgRemoveSec);
+            this.$("#saveConfig, #saveKey, #saveNotification").fadeOut("slow");
+            Hlp.showMsg(AppF.tr('savedConfig'), 'success', index_1.AppClass.cfg.successMsgRemoveSec);
+            if (data.restart)
+                this.showRestartMsg();
+            return;
         }
         if (!this.isVisible())
             return;
@@ -3643,10 +3659,16 @@ class Config extends AbstractController_1.AbstractController {
             this.$("#exchanges").append(this.getSelectOption(exchangeName, exchangeName, firstEx));
             firstEx = false;
         });
+        let notificationMethods = Object.keys(data.notifications);
+        let firstNotification = true;
+        notificationMethods.forEach((method) => {
+            this.$("#notificationMethod").append(this.getSelectOption(method, method, firstNotification));
+            firstNotification = false;
+        });
         index_1.App.initMultiSelect((optionEl, checked) => {
             const id = optionEl.attr("id");
             if (id !== "exchanges")
-                Hlp.showMsg(AppF.tr('restartRequiredConf'), 'warning');
+                this.showRestartMsg();
             if (id === "configs") {
                 this.canEdit = false;
                 this.currentConfigFile = optionEl.val().substr(1).replace(/\.json$/, "");
@@ -3659,6 +3681,8 @@ class Config extends AbstractController_1.AbstractController {
                 this.send({ tradingModeChange: optionEl.val() });
             else if (id === "exchanges")
                 this.showEditExchangeApiKeys(optionEl.val());
+            else if (id === "notificationMethod")
+                this.showNotificationKeyInput(optionEl.val());
         });
         if (data.lending === true)
             this.$("#traders").multiselect('disable'); // TODO wait for typings
@@ -3669,24 +3693,38 @@ class Config extends AbstractController_1.AbstractController {
             this.send({ debugMode: $(event.target).is(":checked") });
         });
         if (data.premium === true)
-            this.$("#debug").addClass("hidden");
+            this.$("#debugCtrls").addClass("hidden");
         this.$("#devMode").prop("checked", data.devMode);
         this.$("#devMode").change((event) => {
             const checked = $(event.target).is(":checked");
-            //> scrips tab removed, use local IDE
-            /*
+            //> scrips tab removed, use local IDE: .tabScripts
             if (checked === true)
-                $(".tabScripts, #tabTradingDev").removeClass("hidden");
+                $("#tabTradingDev").removeClass("hidden");
             else
-                $(".tabScripts, #tabTradingDev").addClass("hidden");
-            */
+                $("#tabTradingDev").addClass("hidden");
             this.send({ devMode: checked });
+        });
+        this.$("#restoreCfg").prop("checked", data.restoreCfg);
+        this.$("#restoreCfg").change((event) => {
+            const checked = $(event.target).is(":checked");
+            if (checked === true) {
+                Hlp.confirm(AppF.tr('restoreCfgMsg'), (answer) => {
+                    if (answer !== true) {
+                        this.$("#restoreCfg").prop("checked", false);
+                        return;
+                    }
+                    this.send({ restoreCfg: checked });
+                });
+            }
+            else
+                this.send({ restoreCfg: checked });
         });
         // Exchange API Keys
         this.$("#configExchangeForm input[type=text]").change((event) => {
             this.$("#saveKey").fadeIn("slow");
         });
         this.showEditExchangeApiKeys(this.$("#exchanges").val());
+        this.showNotificationKeyInput(this.$("#notificationMethod").val());
         //this.$("#saveKey").click((event) => { // we want to use the browser to validate the form
         this.$("#configExchangeForm").submit((event) => {
             event.preventDefault();
@@ -3704,6 +3742,21 @@ class Config extends AbstractController_1.AbstractController {
             }
             this.send({
                 saveKey: saveReq
+            });
+        });
+        // Notification method
+        this.$("#notificationsForm input[type=text]").change((event) => {
+            this.$("#saveNotification").fadeIn("slow");
+        });
+        this.$("#notificationsForm").submit((event) => {
+            event.preventDefault();
+            let saveReq = {};
+            const method = this.$("#notificationMethod").val();
+            saveReq[method] = {
+                receiver: this.$("#notificationKey").val()
+            };
+            this.send({
+                saveNotification: saveReq
             });
         });
     }
@@ -3826,6 +3879,13 @@ class Config extends AbstractController_1.AbstractController {
             this.$("#apiKey2, #apiSecret2").attr("required", "required");
         }
     }
+    showNotificationKeyInput(notifytMethod) {
+        let notifyKeys = this.fullData.notifications[notifytMethod];
+        if (!notifyKeys)
+            return AppF.log("Error getting notification method data " + notifytMethod);
+        let firstValue = /*notifyKeys.key || */ notifyKeys.receiver;
+        this.$("#notificationKey").val(firstValue);
+    }
     setCanEdit() {
         setTimeout(() => {
             this.canEdit = true;
@@ -3933,6 +3993,21 @@ class Config extends AbstractController_1.AbstractController {
         if (this.fullData.lending === true)
             return "lendingStratDesc.";
         return "stratDesc.";
+    }
+    showRestartMsg() {
+        let msg = AppF.tr('restartRequiredConf');
+        let vars = {
+            title: AppF.tr('restartNow'),
+            href: "javascript:;",
+            id: "restartLnk"
+        };
+        msg += " " + AppF.translate(pageData.html.misc.link, vars);
+        Hlp.showMsg(msg, 'warning');
+        setTimeout(() => {
+            $("#restartLnk").click((event) => {
+                this.restartBot();
+            });
+        }, 100);
     }
     send(data) {
         super.send(data);
@@ -4466,15 +4541,19 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const AbstractController_1 = __webpack_require__(/*! ./base/AbstractController */ "./public/js/controllers/base/AbstractController.ts");
 const $ = __webpack_require__(/*! jquery */ "jquery");
 const TradingView = __webpack_require__(/*! ../libs/tv/charting_library.min */ "./public/js/libs/tv/charting_library.min.js");
+const i18next = __webpack_require__(/*! i18next */ "i18next");
 class Strategies extends AbstractController_1.AbstractController {
     constructor(socket, feed) {
         super(socket);
         this.opcode = 12 /* STRATEGIES */;
         this.showingChart = null;
         this.configCache = []; // TradeConfig[]
+        this.showingImportState = "";
         this.feed = feed;
     }
     onData(data) {
+        if (data.meta && data.meta.importLabel)
+            setTimeout(this.showImportState.bind(this, data.meta), 100);
         if (data.full) {
             // full data only contains strategy data for the active tab
             this.$().empty().append(AppF.translate(pageData.html.strategies.main));
@@ -4718,6 +4797,13 @@ class Strategies extends AbstractController_1.AbstractController {
             user_id: config.userToken // this ID is used by the server to store + load the user charts
             //charts_storage_url: "http://null.com"
         });
+    }
+    showImportState(meta) {
+        if (this.showingImportState === meta.importLabel)
+            return;
+        this.showingImportState = meta.importLabel;
+        const stateType = meta.importLabel.toLowerCase().indexOf("failed") !== -1 ? "warning" : "success";
+        Hlp.showMsg(i18next.t(meta.importLabel), stateType);
     }
     /*
     protected getBaseCurrency(strategies: any) {

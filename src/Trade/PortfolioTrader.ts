@@ -766,6 +766,8 @@ export abstract class PortfolioTrader extends AbstractTrader {
             const pairStr = currencyPair.toString();
             let htmlOutput = utils.stringifyBeautiful(tradeResult) + "\r\n\r\n" + this.tradesLog.join("\r\n");
             let candles = this.maxCandles.get(pairStr);
+            if (candles === undefined)
+                candles =[];
             let data = candles.map((period) => {
                 return {
                     time: period.start.getTime(),
@@ -810,10 +812,10 @@ export abstract class PortfolioTrader extends AbstractTrader {
                         return reject({txt: "Error writing trade graph", err: err})
                     logger.info("Wrote trade graph to %s", target)
 
-                    let state = {} // TODO gzip + base64 encode for faster uploads
+                    let state = {}
                     state[confPair] = this.tradeAdvisor.serializeStrategyData(confPair);
                     // don't serialize all states during backfind
-                    if (!process.env.IS_CHILD && Object.keys(state).length !== 0 && Object.keys(state[confPair]).length !== 0) {
+                    if ((!process.env.IS_CHILD || process.env.SAVE_STATE) && Object.keys(state).length !== 0 && Object.keys(state[confPair]).length !== 0) {
                         target = target.replace(/\.html/, ".json")
                         // use EJSON so Date objects are serialized to preverve the timezone
                         let stateStr = utils.EJSON.stringify(state)
