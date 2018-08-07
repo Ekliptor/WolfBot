@@ -62,6 +62,7 @@ typings/
 models
 
 # private files
+config-bak
 bfg.jar
 build
 docs

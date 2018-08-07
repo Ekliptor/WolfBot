@@ -147,6 +147,18 @@ export class LendingAdvisor extends AbstractAdvisor {
         return super.getCandleBatchers(currencyPair, exchangeLabel);
     }
 
+    public getStrategyInfos() {
+        let infos = {}
+        for (let strat of this.strategies)
+        {
+            let configCurrencyPair = strat[0];
+            let strategies = strat[1];
+            let strategyInfos = strategies.map(s => s.getInfo()) // TODO remove spaces from keys for nicer JSON?
+            infos[configCurrencyPair] = strategyInfos;
+        }
+        return infos;
+    }
+
     public unserializeStrategyData(json: any, filePath: string) {
         let strategies = this.getLendingStrategies();
         let configs = this.getConfigs();

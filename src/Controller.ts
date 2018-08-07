@@ -415,11 +415,13 @@ export class Controller extends AbstractController { // TODO implement graceful 
         })
     }
 
-    public getStatus() {
+    public async getStatus() {
         let status = {
             //tasks: Object.keys(this.tasks).length
             ready: false,
-            strategyInfos: this.tradeAdvisor ? this.tradeAdvisor.getStrategyInfos() : null
+            strategyInfos: this.tradeAdvisor ? this.tradeAdvisor.getStrategyInfos() : (this.lendingAdvisor ? this.lendingAdvisor.getStrategyInfos() : null),
+            social: this.socialController ? await this.socialController.getAllCrawlerData() : null,
+            predictions: this.brain && this.brain.getLiveOracle() ? this.brain.getLiveOracle().getPredictions() : null
         }
         if (status.strategyInfos !== null) // add more checks if we use different features later
             status.ready = true;

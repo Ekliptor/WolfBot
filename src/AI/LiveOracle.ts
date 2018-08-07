@@ -108,7 +108,7 @@ export class LiveOracle extends EventEmitter {
                 combinedIndicatorValues[pairStr] = indicatorValues;
             }
             catch (err) {
-                return logger.error("Error computing indicator data", err)
+                logger.error("Error computing indicator data", err)
             }
         }
         return combinedIndicatorValues;

@@ -14,6 +14,7 @@ const AbstractCrawler = argv.noBrowser === true ? null : require("./Crawler/Abst
 //import {RawTelegramMessage, default as Telegram} from "./Crawler/Telegram";
 const RawTelegramMessage = argv.noBrowser === true ? null : require("./Crawler/Telegram").RawTelegramMessage;
 const Telegram = argv.noBrowser === true ? null : require("./Crawler/Telegram").default;
+// TODO use dynamic import statements or reference elision
 import {AbstractWebPlugin} from "./AbstractWebPlugin";
 import {AbstractAdvisor} from "../AbstractAdvisor";
 import {ExchangeMap} from "../Exchanges/AbstractExchange";
@@ -81,6 +82,7 @@ export class SocialController extends AbstractAdvisor {
         this.loadNotifier();
         if (this.errorState)
             return;
+        let foo = new Telegram();
         this.tickerWatcher = new TickerWatcher(this.exchangeController);
     }
 

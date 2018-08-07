@@ -121,11 +121,11 @@ dispatcher.beforeFilter(/\//, (req, res, chain) => { //any url
     chain.next(req, res, chain);
 });
 
-dispatcher.onPost('/state/', (req, res) => {
+dispatcher.onPost('/state/', async (req, res) => {
     res.writeHead(200, {'Content-Type': 'application/json; charset=UTF-8'})
     if (checkPostAuth(req.formFields, res) === false)
         return
-    let output = Controller.getStatus()
+    let output = await Controller.getStatus()
     res.end(utils.EJSON.stringify(output))
 })
 
