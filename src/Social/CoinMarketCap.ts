@@ -4,15 +4,42 @@ const logger = utils.logger
 import {Candle, Currency, Order, Ticker, SocialAction, CoinMarketInfo} from "@ekliptor/bit-models";
 import * as helper from "../utils/helper";
 import * as db from "../database";
+import * as querystring from "querystring";
 
 
-export interface CoinMarketCapListEntry {
-    // TODO
+export interface CoinMarketCapApiStatus {
+    timestamp: string; // "2018-06-02T22:51:28.209Z"
+    error_code: number;
+    error_message: string;
+    elapsed: number;
+    credit_count: number;
 }
-export interface CoinMarketCapList {
-    data: CoinMarketCapListEntry[];
+export interface CoinMarketCapCurrencyData {
+    id: number;
+    name: string;
+    symbol: string;
+    slug: string;
+    circulating_supply: number;
+    total_supply: number;
+    max_supply: number;
+    date_added: string;
+    num_market_pairs: number;
+    cmc_rank: number;
+    last_updated: string;
+    quote: {
+        [quoteCurrency: string]: { // USD default
+            price: number;
+            volume_24h: number;
+            percent_change_1h: number;
+            percent_change_24h: number;
+            percent_change_7d: number;
+            market_cap: number;
+            last_updated: string;
+        }
+    }
 }
 export interface CoinMarketCapTicker {
+    /* old ticker
     data: {
         id: number;
         name: string;
@@ -38,46 +65,159 @@ export interface CoinMarketCapTicker {
         timestamp: number;
         error: string;
     }
+    */
+    data: {
+        [currencyID: string]: CoinMarketCapCurrencyData; // key is the same as id number below
+    }
+    status: CoinMarketCapApiStatus;
+}
+export interface CoinMarketCapList {
+    data: CoinMarketCapCurrencyData[];
+    status: CoinMarketCapApiStatus;
+}
+
+export interface CoinMarketCapOptions {
+    apiKey: string;
+}
+export class CoinMarketCapListOptions { // https://pro.coinmarketcap.com/api/v1#operation/getV1CryptocurrencyListingsLatest
+    public start = 1;
+    public limit = 400;
+    public convert = "USD";
+    public sort = "market_cap";
+    public sort_dir = "desc";
+    public cryptocurrency_type = "all";
+    constructor() {
+    }
 }
 
 export class CoinMarketCap {
-    constructor() {
+    protected options: CoinMarketCapOptions;
+
+    constructor(options: CoinMarketCapOptions) {
+        this.options = options;
     }
 
-    public listCurrencies() {
+    public listCurrencies(options: CoinMarketCapListOptions = new CoinMarketCapListOptions()) {
         return new Promise<CoinMarketCapList>((resolve, reject) => {
-            reject("listCurrencies() is not implemented yet") // TODO
-        })
-    }
-
-    public getCurrencyTicker(currency: Currency.Currency) {
-        return new Promise<CoinMarketCapTicker>((resolve, reject) => {
-            reject("getCurrencyTicker() is not implemented yet") // TODO convert to currencyID and call getCurrencyTickerById() (load them on startup)
-        })
-    }
-
-    public getCurrencyTickerById(currencyID: number) {
-        return new Promise<CoinMarketCapTicker>((resolve, reject) => {
-            const url = utils.sprintf("https://api.coinmarketcap.com/v2/ticker/%s/", currencyID)
+            const url = "https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest?" + querystring.stringify(options);
             utils.getPageCode(url, (body, response) => {
                 if (body === false)
-                    return reject({txt: "Error crawling CoinMarketCap ticker", currencyID: currencyID, err: response})
+                    return reject({txt: "Error crawling CoinMarketCap ticker", options: options, err: response})
                 let json = utils.parseJson(body);
-                if (!json || !json.data)
-                    return reject({txt: "Received invalid ticker data JSON from CoinMarketCap", currencyID: currencyID, body: body})
+                if (this.isInvalidResponse(json) === true)
+                    return reject({txt: "Received invalid ticker data JSON from CoinMarketCap", options: options, body: body})
                 resolve(json);
-            }, CoinMarketCap.getHttpOptions())
+            }, this.getHttpOptions())
         })
     }
 
-    public static getHttpOptions() {
-        return {
-            cloudscraper: true,
-            timeout: nconf.get("serverConfig:crawlPricesHttpTimeoutSec")*1000,
-            userAgent: nconf.get("projectName") + " Bot" // must be specified or else their API times out. CF custom protection settings?
+    /**
+     * Get market data of a currency.
+     * @param {Currency} currency
+     * @param {string} quoteCurrencies
+     * @returns {Promise<CoinMarketCapTicker>}
+     */
+    public async getCurrencyTicker(currency: Currency.Currency, quoteCurrencies = "USD"): Promise<CoinMarketCapTicker> {
+        // their pro API now allows us to fetch data by currency symbol too
+        let ticker = await this.getLatestData({
+            symbol: this.currencyToCoinMarketCapSymbol(currency),
+            convert: quoteCurrencies
+        });
+        return ticker;
+    }
+
+    /**
+     * Get market data for multiple currencies at once.
+     * @param {Currency[]} currencies
+     * @param {string} quoteCurrencies
+     * @returns {Promise<CoinMarketCapTicker>}
+     */
+    public async getCurrencyTickers(currencies: Currency.Currency[], quoteCurrencies = "USD"): Promise<CoinMarketCapTicker> {
+        // their pro API now allows us to fetch data by currency symbol too
+        let ticker = await this.getLatestData({
+            symbol: currencies.map(c => this.currencyToCoinMarketCapSymbol(c)).join(","),
+            convert: quoteCurrencies
+        });
+        return ticker;
+    }
+
+    /**
+     * Get market data of a currency by CoinMarketCap ID
+     * @param {number} currencyID
+     * @param {string} quoteCurrencies a comma separated list of currencies to convert the data to
+     * @returns {Promise<CoinMarketCapTicker>}
+     */
+    public async getCurrencyTickerById(currencyID: number, quoteCurrencies = "USD"): Promise<CoinMarketCapTicker> {
+        let ticker = await this.getLatestData({
+            id: currencyID,
+            convert: quoteCurrencies
+        });
+        return ticker;
+    }
+
+    public currencyToCoinMarketCapSymbol(currency: Currency.Currency) {
+        let label = Currency.getCurrencyLabel(currency);
+        switch (label)
+        {
+            case "IOTA":        return "MIOTA";
+        }
+        return label;
+    }
+
+    public currencyFromCoinMarketCapSymbol(currencyStr: string): Currency.Currency {
+        switch (currencyStr)
+        {
+            case "NEO":     return Currency.Currency.NEO;
+            case "VEN":     return Currency.Currency.VET;
+            case "MIOTA":   return Currency.Currency.IOTA;
+            default:
+                let currency = Currency.Currency[currencyStr];
+                if (currency)
+                    return currency;
+                let currencyAlternative = Currency.getAlternativSymbol(currencyStr)
+                if (currencyAlternative) {
+                    currency = Currency.Currency[currencyAlternative];
+                    if (currency)
+                        return currency;
+                }
+                logger.warn("Unable to convert CoinMarketCap currency (not supported?) %s", currencyStr)
+                return 0;
         }
     }
 
     // ################################################################
     // ###################### PRIVATE FUNCTIONS #######################
+
+    protected getLatestData(queryParams: any) {
+        return new Promise<CoinMarketCapTicker>((resolve, reject) => {
+            //const url = utils.sprintf("https://api.coinmarketcap.com/v2/ticker/%s/", currencyID)
+            const currencyID = queryParams.id ? queryParams.id : queryParams.symbol;
+            const url = "https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest?" + querystring.stringify(queryParams);
+            utils.getPageCode(url, (body, response) => {
+                if (body === false)
+                    return reject({txt: "Error crawling CoinMarketCap ticker", currencyID: currencyID, err: response})
+                let json = utils.parseJson(body);
+                if (this.isInvalidResponse(json) === true)
+                    return reject({txt: "Received invalid ticker data JSON from CoinMarketCap", currencyID: currencyID, body: body})
+                resolve(json);
+            }, this.getHttpOptions())
+        })
+    }
+
+    protected isInvalidResponse(json: any) {
+        if (!json || !json.data || (typeof json.status === "object" && json.status !== null && json.status.error_code !== 0))
+            return true;
+        return false;
+    }
+
+    protected getHttpOptions() {
+        return {
+            cloudscraper: true,
+            timeout: nconf.get("serverConfig:crawlPricesHttpTimeoutSec")*1000,
+            userAgent: nconf.get("projectName") + " Bot", // must be specified or else their API times out. CF custom protection settings?
+            headers: {
+                "X-CMC_PRO_API_KEY": this.options.apiKey
+            }
+        }
+    }
 }

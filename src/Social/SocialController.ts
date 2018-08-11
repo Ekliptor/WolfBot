@@ -24,6 +24,7 @@ import * as helper from "../utils/helper";
 import {PriceWatcher} from "./PriceWatcher";
 import {TickerWatcher} from "./TickerWatcher";
 import ExchangeController from "../ExchangeController";
+import {CoinMarketCap, CoinMarketCapCurrencyData} from "./CoinMarketCap";
 
 
 export class CrawlerMap extends Map<string, /*AbstractCrawler*/AbstractWebPlugin> { // (class name, instance)
@@ -36,6 +37,29 @@ export interface SocialUpdate { // for SocialUpdater and here
         postStats: { // Map converted to object (Maps can't be serialized to JSON)
             [currency: string]: SocialPost.SocialPostAggregate[]
         }
+    }
+}
+export interface PriceDataObject {
+    [key: string]: CoinMarketCapCurrencyData;
+}
+export class PriceDataMap extends Map<string, CoinMarketCapCurrencyData> { // (currency symbol,
+    constructor() {
+        super()
+    }
+    public static fromSocialData(data: SocialUpdate) {
+        let map = new PriceDataMap();
+        for (let network in data)
+        {
+            for (let currency in data[network].postStats)
+                map.set(currency, null);
+        }
+        return map;
+    }
+    public toObject() {
+        let obj: PriceDataObject = {};
+        for (let item of this)
+            obj[item[0]] = item[1];
+        return obj;
     }
 }
 export class SpikeNotification {
@@ -64,6 +88,8 @@ export class SocialController extends AbstractAdvisor {
     protected notifiedSpikes = new NotificationSpikeMap();
     protected priceWatcher = new PriceWatcher();
     protected tickerWatcher: TickerWatcher;
+
+    protected coinMarketCap = new CoinMarketCap({apiKey: nconf.get("serverConfig:apiKey:coinMarketCap:apiKey")});
 
     constructor(configFilename: string, exchangeController: ExchangeController) {
         super()
@@ -150,6 +176,25 @@ export class SocialController extends AbstractAdvisor {
                 resolve(update)
             }).catch((err) => {
                 reject({txt: "Error getting crawler data", err: err})
+            })
+        })
+    }
+
+    public getPriceData(data: SocialUpdate) {
+        return new Promise<PriceDataMap>((resolve, reject) => {
+            let currencyMap = PriceDataMap.fromSocialData(data);
+            let fetchCurrencies = Array.from(currencyMap.keys()).map(c => Currency.Currency[c]);
+            this.coinMarketCap.getCurrencyTickers(fetchCurrencies).then((ticker) => {
+                for (let currency in ticker.data)
+                {
+                    let currencyData = ticker.data[currency];
+                    currencyMap.set(currency, currencyData);
+                }
+                console.log(currencyMap)
+                resolve(currencyMap)
+            }).catch((err) => {
+                logger.error("Error fetching price data for social currency data", err)
+                resolve(currencyMap) // return empty data
             })
         })
     }

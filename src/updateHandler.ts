@@ -8,6 +8,7 @@ const logger = utils.logger;
 const nconf = utils.nconf
 const updater = require("@ekliptor/packed-updater");
 import {AbstractAdvisor} from "./AbstractAdvisor";
+import {TradeConfig} from "./Trade/TradeConfig";
 
 updater.setLogger(logger)
 
@@ -33,7 +34,8 @@ export function runUpdater(callback) {
                 path.join(utils.appDir, 'temp'),
                 path.join(utils.appDir, 'trades'),
                 path.join(utils.appDir, 'public', 'temp'),
-                path.join(utils.appDir, 'bfg.jar')
+                path.join(utils.appDir, 'bfg.jar'),
+                TradeConfig.getConfigBackupRootDir()
                 // .json config files don't get bundled because they only exist within the /build dir
             ]
         }
@@ -80,6 +82,8 @@ export function runUpdater(callback) {
 }
 
 async function prepareConfigBackup() {
+    if (nconf.get("serverConfig:premium") !== true)
+        return;
     await AbstractAdvisor.backupOriginalConfig();
     nconf.set("serverConfig:user:restoreCfg", true);
     await serverConfig.saveConfigLocal();

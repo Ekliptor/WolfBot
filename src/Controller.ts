@@ -301,7 +301,7 @@ export class Controller extends AbstractController { // TODO implement graceful 
             return Promise.all(tasks)
         }).then(() => {
             let totalTime = utils.test.getPassedTime(now)
-            //logger.info('Controller process end... total time ' + totalTime)
+            //logger.verbose('Controller process end... total time ' + totalTime)
         }).catch((err) => {
             let subject = 'Error in Controller process'
             logger.error(subject, err)
@@ -415,14 +415,17 @@ export class Controller extends AbstractController { // TODO implement graceful 
         })
     }
 
-    public async getStatus() {
+    public async getStatus(req: http.IncomingMessage) {
         let status = {
-            //tasks: Object.keys(this.tasks).length
             ready: false,
             strategyInfos: this.tradeAdvisor ? this.tradeAdvisor.getStrategyInfos() : (this.lendingAdvisor ? this.lendingAdvisor.getStrategyInfos() : null),
             social: this.socialController ? await this.socialController.getAllCrawlerData() : null,
+            prices: null,
             predictions: this.brain && this.brain.getLiveOracle() ? this.brain.getLiveOracle().getPredictions() : null
         }
+        let postData = utils.getJsonPostData((req as any).formFields)
+        if (this.socialController && postData && postData.prices == true)
+            status.prices = (await this.socialController.getPriceData(status.social)).toObject();
         if (status.strategyInfos !== null) // add more checks if we use different features later
             status.ready = true;
         return {data: status}

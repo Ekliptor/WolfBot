@@ -2,7 +2,7 @@ import * as utils from "@ekliptor/apputils";
 const logger = utils.logger
     , nconf = utils.nconf;
 import {AbstractSubController} from "./AbstractSubController";
-import {Currency, Trade, Candle, Order, Funding} from "@ekliptor/bit-models";
+import {Currency, Trade, Candle, Order, Funding, serverConfig} from "@ekliptor/bit-models";
 import * as db from "./database";
 import {AbstractExchange, ExchangeMap} from "./Exchanges/AbstractExchange";
 import {default as HistoryDataExchange, HistoryExchangeMap, HistoryDataExchangeOptions} from "./Exchanges/HistoryDataExchange";
@@ -235,8 +235,18 @@ export abstract class AbstractAdvisor extends AbstractSubController {
 
     public process() {
         return new Promise<void>((resolve, reject) => {
-            if (this.loadedConfig === false)
-                return setTimeout(this.process.bind(this), 100);
+            if (this.loadedConfig === false) {
+                //return setTimeout(this.process.bind(this), 100); // creates a new stack. first promise doesn't get resolved
+                let checkConfigLoaded = () => {
+                    setTimeout(async () => {
+                        if (this.loadedConfig === false)
+                            return checkConfigLoaded();
+                        resolve();
+                    }, 100);
+                }
+                checkConfigLoaded();
+                return
+            }
             // our trades come from MarketStreams: no stream data -> no price changes
             if (!this.errorState)
                 resolve()
@@ -547,6 +557,7 @@ export abstract class AbstractAdvisor extends AbstractSubController {
                     logger.info("Restoring backup of %s config files", fileOps.length)
                     await fileOps;
                     nconf.set("serverConfig:user:restoreCfg", false)
+                    serverConfig.saveConfigLocal();
                 }
                 catch (err) {
                     logger.error("Error restoring config backup", err)

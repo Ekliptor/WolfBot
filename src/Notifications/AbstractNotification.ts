@@ -6,6 +6,7 @@ import * as path from "path";
 
 export interface NotificationOpts {
     receiver: string; // email address, user token...
+    adminReceiver: string; // admin address for crash reports (on premium bots)
 }
 
 export abstract class AbstractNotification {
@@ -37,16 +38,16 @@ export abstract class AbstractNotification {
         return AbstractNotification.instance;
     }
 
-    public send(notification: Notification): Promise<void> {
+    public send(notification: Notification, forceAdmin = false): Promise<void> {
         // TODO add a limit "max messages per time per notification-type" in here instead of classes outside
         notification.title = this.getBotDirName() + " " + notification.title;
-        return this.sendNotification(notification);
+        return this.sendNotification(notification, forceAdmin);
     }
 
     // ################################################################
     // ###################### PRIVATE FUNCTIONS #######################
 
-    protected abstract sendNotification(notification: Notification): Promise<void>;
+    protected abstract sendNotification(notification: Notification, forceAdmin: boolean): Promise<void>;
 
     protected getBotDirName() {
         return path.basename(utils.appDir);

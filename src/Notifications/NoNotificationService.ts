@@ -17,7 +17,7 @@ export default class NoNotificationService extends AbstractNotification {
     // ################################################################
     // ###################### PRIVATE FUNCTIONS #######################
 
-    protected sendNotification(notification: Notification) {
+    protected sendNotification(notification: Notification, forceAdmin: boolean) {
         return new Promise<void>((resolve, reject) => {
             logger.info("%s: %s - %s", this.className, notification.title, notification.text)
             resolve()

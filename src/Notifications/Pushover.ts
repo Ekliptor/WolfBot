@@ -18,12 +18,12 @@ export default class Pushover extends AbstractNotification {
     // ################################################################
     // ###################### PRIVATE FUNCTIONS #######################
 
-    protected sendNotification(notification: Notification) {
+    protected sendNotification(notification: Notification, forceAdmin: boolean) {
         return new Promise<void>((resolve, reject) => {
             // https://pushover.net/api
             let data: any = {
                 token: nconf.get("serverConfig:apiKey:notify:Pushover:appToken"),
-                user: this.options.receiver,
+                user: forceAdmin === true && this.options.adminReceiver ? this.options.adminReceiver : this.options.receiver,
                 message: notification.text,
                 title: notification.title
             }

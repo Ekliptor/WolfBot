@@ -14,6 +14,7 @@ const argv = argvFunction(process.argv.slice(2));
 export class PriceWatcher extends AbstractSubController {
     protected lastCleanupMarketInfoCollections = new Date();
     protected lastCrawledPrices = new Date(0);
+    protected coinMarketCap = new CoinMarketCap({apiKey: nconf.get("serverConfig:apiKey:coinMarketCap:apiKey")});
 
     constructor() {
         super()
@@ -38,6 +39,7 @@ export class PriceWatcher extends AbstractSubController {
             return;
         this.lastCrawledPrices = new Date();
 
+        /*
         const url = nconf.get("serverConfig:crawlPricesUrl")
         let httpOptions = CoinMarketCap.getHttpOptions();
         utils.getPageCode(url, (body, response) => {
@@ -46,15 +48,19 @@ export class PriceWatcher extends AbstractSubController {
             let json = utils.parseJson(body);
             if (!json || !json.data)
                 return logger.error("Received invalid price data JSON from %s", url)
+        */
+        this.coinMarketCap.listCurrencies().then((list) => {
             let infos = []
             //json.data.forEach((coinPriceData) => {
-            for (let prop in json.data)
+            //for (let prop in json.data)
+            for (let coinPriceData of list.data)
             {
-                const coinPriceData = json.data[prop]; // indexed by the number (id?) as key. very strange
-                let currency = this.currencyFromCoinMarketCapSymbol(coinPriceData.symbol);
+                //const coinPriceData = json.data[prop]; // indexed by the number (id?) as key. very strange
+                let currency = this.coinMarketCap.currencyFromCoinMarketCapSymbol(coinPriceData.symbol);
                 if (!currency)
-                    return;
+                    continue;
                 let info = new CoinMarketInfo.CoinMarketInfo(currency);
+                /*
                 info.priceUSD = helper.parseFloatVal(coinPriceData.price_usd);
                 info.priceBTC = helper.parseFloatVal(coinPriceData.price_btc);
                 info.volume24hUSD = helper.parseFloatVal(coinPriceData["24h_volume_usd"]);
@@ -65,6 +71,18 @@ export class PriceWatcher extends AbstractSubController {
                 info.percentChange24h = helper.parseFloatVal(coinPriceData.percent_change_24h);
                 info.percentChange7d = helper.parseFloatVal(coinPriceData.percent_change_7d);
                 info.lastUpdated = new Date(helper.parseFloatVal(coinPriceData.last_updated) * 1000); // from unix timestamp string
+                */
+                info.priceUSD = coinPriceData.quote.USD.price;
+                //info.priceBTC = coinPriceData.quote.BTC.price; // TODO upgrade plan to allow multiple conversions
+                info.priceBTC = 0.0;
+                info.volume24hUSD = coinPriceData.quote.USD.volume_24h;
+                info.marketCapUSD = coinPriceData.quote.USD.market_cap;
+                info.availableSupply = coinPriceData.circulating_supply;
+                info.totalSupply = coinPriceData.total_supply;
+                info.percentChange1h = coinPriceData.quote.USD.percent_change_1h;
+                info.percentChange24h = coinPriceData.quote.USD.percent_change_24h;
+                info.percentChange7d = coinPriceData.quote.USD.percent_change_7d;
+                info.lastUpdated = new Date(coinPriceData.last_updated) // from ISO string
                 infos.push(info)
             }
             CoinMarketInfo.insert(db.get(), infos).then(() => {
@@ -72,7 +90,9 @@ export class PriceWatcher extends AbstractSubController {
             }).catch((err) => {
                 logger.error("Error adding price infos to database", err)
             })
-        }, httpOptions)
+        }/*, httpOptions*/).catch((err) => {
+            logger.error("Error crawling coin market cap currency price list", err)
+        })
     }
 
     protected cleanupOldPriceData() {
@@ -88,25 +108,5 @@ export class PriceWatcher extends AbstractSubController {
                 return logger.error("Error deleting old price data", err);
             logger.verbose("Deleted old price data")
         })
-    }
-
-    protected currencyFromCoinMarketCapSymbol(currencyStr: string): Currency.Currency {
-        switch (currencyStr)
-        {
-            case "NEO":     return Currency.Currency.NEO;
-            case "VEN":     return Currency.Currency.VET;
-            default:
-                let currency = Currency.Currency[currencyStr];
-                if (currency)
-                    return currency;
-                let currencyAlternative = Currency.getAlternativSymbol(currencyStr)
-                if (currencyAlternative) {
-                    currency = Currency.Currency[currencyAlternative];
-                    if (currency)
-                        return currency;
-                }
-                logger.warn("Unable to convert CoinMarketCap currency (not supported?) %s", currencyStr)
-                return 0;
-        }
     }
 }

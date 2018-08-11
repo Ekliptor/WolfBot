@@ -125,7 +125,7 @@ dispatcher.onPost('/state/', async (req, res) => {
     res.writeHead(200, {'Content-Type': 'application/json; charset=UTF-8'})
     if (checkPostAuth(req.formFields, res) === false)
         return
-    let output = await Controller.getStatus()
+    let output = await Controller.getStatus(req)
     res.end(utils.EJSON.stringify(output))
 })
 

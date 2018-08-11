@@ -22,6 +22,7 @@ export default class InstanceChecker extends AbstractSubController {
     public static readonly INSTANCE_CHECK_INTERVAL_SEC = 300; // must be >= 5min (time the cron will restart crashed bots)
 
     protected lastCheck: Date = null;
+    protected lastResponse = new Date(); // assume working on startup
     protected notifier: AbstractNotification;
     protected lastNotification: Date = null;
 
@@ -80,6 +81,7 @@ export default class InstanceChecker extends AbstractSubController {
             let name = this.getNextInstanceName()
             this.checkInstanceRunning(name).then(() => {
                 this.lastCheck = new Date();
+                this.checkLastRespnseTime(name);
                 resolve()
             }).catch((err) => {
                 reject(err)
@@ -142,7 +144,7 @@ export default class InstanceChecker extends AbstractSubController {
                             // TODO verify again that it's still running?
                             const msg = 'Killing possibly stuck process: PID ' + PID;
                             logger.warn(msg)
-                            this.notifyBotKill(botName, msg)
+                            this.notifyBotKill(botName, "is unresponsive", msg)
                             try {
                                 process.kill(PID, "SIGKILL") // just kill it. bots get (re-)started by our bash script
                             }
@@ -151,10 +153,13 @@ export default class InstanceChecker extends AbstractSubController {
                             }
                             this.copyBotLogfile(botName);
                         }
-                        else
+                        else {
                             logger.verbose("Bot %s with PID %s is running", botName, PID)
+                            // store timestamp when bot was last running and also send notification
+                            // checking modification timestamp of logfile doesn't mean bot is up (might crash on startup)
+                            this.lastResponse = new Date();
+                        }
                         resolve()
-                        // TODO also check modification timestamp of logfile to decide if bot is running
                     }).catch((err) => {
                         logger.error("Error checking if bot api is responsive", err)
                         resolve()
@@ -162,6 +167,15 @@ export default class InstanceChecker extends AbstractSubController {
                 })
             })
         })
+    }
+
+    protected checkLastRespnseTime(botName: string) {
+        if (nconf.get("debug"))
+            return; // don't send notification with local single debugging instance
+        if (this.lastResponse.getTime() + nconf.get("serverConfig:assumeBotCrashedMin") * utils.constants.MINUTE_IN_SECONDS*1000 > Date.now())
+            return;
+        const msg = utils.sprintf("Last response: %s", utils.test.getPassedTime(this.lastResponse.getTime()));
+        this.notifyBotKill(botName, "is not starting", msg);
     }
 
     protected checkBotApiResponsive(botName: string) {
@@ -224,13 +238,14 @@ export default class InstanceChecker extends AbstractSubController {
         })
     }
 
-    protected notifyBotKill(botName: string, message: string) {
+    protected notifyBotKill(botName: string, title: string, message: string) {
         const pauseMs = nconf.get('serverConfig:notificationPauseMin') * utils.constants.MINUTE_IN_SECONDS * 1000;
-        if (this.lastNotification && this.lastNotification.getTime() + pauseMs > Date.now()) // TODO lastNotification per bot?
+        if (this.lastNotification && this.lastNotification.getTime() + pauseMs > Date.now()) // lastNotification per bot? we only monitor 1 instance per bot
             return;
-        let headline = botName + " is unresponsive";
+        let headline = botName + " " + title;
         let notification = new Notification(headline, message, false);
-        this.notifier.send(notification).then(() => {
+        // TODO setting to always force a specific notification method (Pushover for admin notifications)
+        this.notifier.send(notification, true).then(() => {
         }).catch((err) => {
             logger.error("Error sending %s notification", this.className, err)
         });
