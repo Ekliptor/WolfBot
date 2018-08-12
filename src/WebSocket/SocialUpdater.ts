@@ -26,6 +26,7 @@ export class SocialUpdater extends AppPublisher {
             maxAge: this.getMaxAge(),
             days: nconf.get("serverConfig:postDisplayAgeDays"),
             listTopSocialCurrencies: nconf.get("serverConfig:listTopSocialCurrencies"),
+            maxLinePlotCurrencies: nconf.get("serverConfig:maxLinePlotCurrencies"),
             serverDate: new Date()
         });
         this.socialController.getAllCrawlerData().then((data) => {

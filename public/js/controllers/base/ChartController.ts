@@ -15,6 +15,7 @@ export interface PlotData {
 export class PlotChartOptions {
     legend: string[];
     dataPointsKey = "dataPoints";
+    maxLines: number = Number.MAX_VALUE;
     constructor(legend: string[]) {
         this.legend = legend;
     }
@@ -58,6 +59,8 @@ export abstract class ChartController extends AbstractController {
         ];
         for (let i = 0; i < plotData.length; i++)
         {
+            if (i >= plotOptions.maxLines) // limit the number of lines to show graphs more clearly
+                break;
             let curPlotData = plotData[i];
             const nextColor = colors[i % colors.length];
             data.datasets.push({

@@ -47,6 +47,7 @@ export abstract class ServerSocketPublisher {
                 if (!this.subscribers.has(clientSocket))
                     this.subscribers.set(clientSocket, new Date());
                 this.onSubscription(clientSocket, initialRequest); // allow sending the data 2x if this is the first page (for persistent subscriptions)
+                this.schedulePing(clientSocket);
                 return;
             }
             else if (data.action === "unsub") {
@@ -74,6 +75,10 @@ export abstract class ServerSocketPublisher {
         return this.serverSocket.send(ws, ServerSocket.stringify(this.opcode, data), options)
     }
 
+    protected sendWithOpcode(ws: WebSocket, opcode: WebSocketOpcode, data: any, options?: ServerSocketSendOptions) {
+        return this.serverSocket.send(ws, ServerSocket.stringify(opcode, data), options)
+    }
+
     protected publish(data: any, excludeClients = new Set<WebSocket>(), options?: ServerSocketSendOptions) {
         return new Promise<void>((resolve, reject) => {
             if (this.clientSocket !== undefined) {
@@ -93,6 +98,15 @@ export abstract class ServerSocketPublisher {
                 resolve();
             })
         })
+    }
+
+    protected schedulePing(clientSocket: WebSocket) {
+        setTimeout(() => {
+            this.sendWithOpcode(clientSocket, WebSocketOpcode.PING, {ping: Date.now()}).then((success) => {
+                if (success !== false)
+                    this.schedulePing(clientSocket);
+            });
+        }, nconf.get("serverConfig:websocketPingMs"))
     }
 
     // TODO add functions to publish binary data

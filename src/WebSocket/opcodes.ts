@@ -5,6 +5,7 @@ export const enum WebSocketOpcode {
     ERROR = 2,
     WARNING = 3,
     CLOSE = 4,
+    PING = 5,
 
     // application opcodes
     STATUS = 10,

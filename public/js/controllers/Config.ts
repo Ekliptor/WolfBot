@@ -79,7 +79,7 @@ export class Config extends AbstractController {
             let disconnected = AppF.translate(pageData.html.misc.disablePage, vars);
             $(AppClass.cfg.appSel).append(disconnected);
             this.send({restart: true})
-            let checkRestartDone = () => {
+            let checkRestartDone = (responseCount) => {
                 setTimeout(() => {
                     let data = new FormData(); // multipart POST data
                     data.append("data", JSON.stringify({ // postDataAsJson() function
@@ -95,19 +95,29 @@ export class Config extends AbstractController {
                         data: data
                     }).done((data)  =>{
                         if (data.data && data.data.ready === true) {
-                            // check for content to see if the app is really ready (and not just the http server running + updater restarting again)
-                            setTimeout(() => {
-                                document.location.reload(true);
-                            }, 1500);
+                            responseCount++;
+                            if (responseCount > 1) { // wait for 2 responses to ensure it's not the update process
+                                // check for content to see if the app is really ready (and not just the http server running + updater restarting again)
+                                setTimeout(() => {
+                                    document.location.reload(true);
+                                }, 1500);
+                            }
+                            else
+                                checkRestartDone(responseCount);
                         }
-                        else
-                            checkRestartDone();
+                        else {
+                            if (responseCount > 0)
+                                responseCount--;
+                            checkRestartDone(responseCount);
+                        }
                     }).fail((err) => {
-                        checkRestartDone();
+                        if (responseCount > 0)
+                            responseCount--;
+                        checkRestartDone(responseCount);
                     })
                 }, 1000);
             }
-            checkRestartDone();
+            checkRestartDone(0);
         })
     }
 

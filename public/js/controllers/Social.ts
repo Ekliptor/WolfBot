@@ -20,6 +20,7 @@ export class Social extends ChartController {
     protected chartLibsLoaded = true; // currently always included globally
     protected maxAge: Date = null;
     protected listTopSocialCurrencies: number = 0;
+    protected maxLinePlotCurrencies: number = 0;
     protected chartLegendDays: number = 0;
     protected serverDate: Date = null;
     protected chartLegend: string[] = [];
@@ -30,10 +31,13 @@ export class Social extends ChartController {
     }
 
     public onData(data: any) {
+        if (data.ping)
+            return;
         if (data.maxAge) {
             this.maxAge = new Date(data.maxAge); // if we use JSON (instead of EJSON)
             this.chartLegendDays = data.days;
             this.listTopSocialCurrencies = data.listTopSocialCurrencies;
+            this.maxLinePlotCurrencies = data.maxLinePlotCurrencies;
             this.serverDate = new Date(data.serverDate);
             this.createChartLegend();
             return;
@@ -126,13 +130,16 @@ export class Social extends ChartController {
                 activityPlotDataSorted.push(value);
             })
             let activityOpts = new PlotChartOptions(this.chartLegend);
+            activityOpts.maxLines = this.maxLinePlotCurrencies;
             this.plotLineChart("#chart-" + network + "-activity", activityPlotDataSorted, activityOpts);
             this.listTopCurrencies("#chart-" + network + "-activity", network, activityPlotDataSorted);
             let activityChangeOpts = new PlotChartOptions(this.chartLegend);
             activityChangeOpts.dataPointsKey = "dataPointsChange";
+            activityChangeOpts.maxLines = this.maxLinePlotCurrencies;
             this.plotLineChart("#chart-" + network + "-activityChange", activityPlotDataSorted, activityChangeOpts);
             let sentimentOpts = new PlotChartOptions(this.chartLegend);
             sentimentOpts.dataPointsKey = "dataPointsSentiment";
+            sentimentOpts.maxLines = this.maxLinePlotCurrencies;
             this.plotLineChart("#chart-" + network + "-sentiment", activityPlotDataSorted, sentimentOpts);
         }
         this.nextData = null;

@@ -22,6 +22,7 @@ export default class InstanceChecker extends AbstractSubController {
     public static readonly INSTANCE_CHECK_INTERVAL_SEC = 300; // must be >= 5min (time the cron will restart crashed bots)
 
     protected lastCheck: Date = null;
+    protected lastPort: number = 0;
     protected lastResponse = new Date(); // assume working on startup
     protected notifier: AbstractNotification;
     protected lastNotification: Date = null;
@@ -174,7 +175,7 @@ export default class InstanceChecker extends AbstractSubController {
             return; // don't send notification with local single debugging instance
         if (this.lastResponse.getTime() + nconf.get("serverConfig:assumeBotCrashedMin") * utils.constants.MINUTE_IN_SECONDS*1000 > Date.now())
             return;
-        const msg = utils.sprintf("Last response: %s", utils.test.getPassedTime(this.lastResponse.getTime()));
+        const msg = utils.sprintf("Last response: %s\nPort: %s", utils.test.getPassedTime(this.lastResponse.getTime()), this.lastPort);
         this.notifyBotKill(botName, "is not starting", msg);
     }
 
@@ -183,6 +184,7 @@ export default class InstanceChecker extends AbstractSubController {
             this.getBotApiPort(botName).then((port) => {
                 const apiUrl = "https://localhost:" + port + "/state/"
                 logger.verbose("Checking instance %s with URL: ", botName, apiUrl)
+                this.lastPort = port;
                 let data = {apiKey: helper.getFirstApiKey()}
                 let reqOptions = {skipCertificateCheck: true}
                 utils.postDataAsJson(apiUrl, data, (body, res) => {
@@ -223,13 +225,16 @@ export default class InstanceChecker extends AbstractSubController {
     protected getBotApiPort(botName: string) {
         return new Promise<number>((resolve, reject) => {
             let collection = db.get().collection(Process.COLLECTION_NAME)
-            collection.findOne({
+            // TODO better support for multiple hosts. but our kill command only works locally either way
+            // sort by lastContact to get the most recent one
+            collection.find({
                 name: botName,
-                hostname: os.hostname() // TODO better support for multiple hosts. but our kill command only works locally either way
-            }).then((doc) => {
-                if (!doc)
+                hostname: os.hostname()
+            }).sort({lastContact: -1}).limit(1).toArray().then((docs) => {
+                if (!docs || docs.length === 0)
                     return reject({txt: "Bot to get api port not found in database", name: botName, hostname: os.hostname()})
-                else if (!doc.apiPort)
+                const doc = docs[0];
+                if (!doc.apiPort)
                     return reject({txt: "ApiPort for bot not set in database", name: botName, hostname: os.hostname()})
                 resolve(doc.apiPort)
             }).catch((err) => {

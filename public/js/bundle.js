@@ -2679,6 +2679,8 @@ class ClientSocket extends eventemitter2_1.EventEmitter2 {
                 let type = message[0] === 2 /* ERROR */ ? "error" : "warning";
                 return AppF.log("Received WebSocket %s message:", type, message[1]);
             }
+            if (message[0] === 5 /* PING */)
+                return;
             let receiver = this.receivers.get(message[0]);
             if (receiver !== undefined)
                 receiver.onData(message[1]);
@@ -3545,7 +3547,7 @@ class Config extends AbstractController_1.AbstractController {
             let disconnected = AppF.translate(pageData.html.misc.disablePage, vars);
             $(index_1.AppClass.cfg.appSel).append(disconnected);
             this.send({ restart: true });
-            let checkRestartDone = () => {
+            let checkRestartDone = (responseCount) => {
                 setTimeout(() => {
                     let data = new FormData(); // multipart POST data
                     data.append("data", JSON.stringify({
@@ -3561,19 +3563,29 @@ class Config extends AbstractController_1.AbstractController {
                         data: data
                     }).done((data) => {
                         if (data.data && data.data.ready === true) {
-                            // check for content to see if the app is really ready (and not just the http server running + updater restarting again)
-                            setTimeout(() => {
-                                document.location.reload(true);
-                            }, 1500);
+                            responseCount++;
+                            if (responseCount > 1) { // wait for 2 responses to ensure it's not the update process
+                                // check for content to see if the app is really ready (and not just the http server running + updater restarting again)
+                                setTimeout(() => {
+                                    document.location.reload(true);
+                                }, 1500);
+                            }
+                            else
+                                checkRestartDone(responseCount);
                         }
-                        else
-                            checkRestartDone();
+                        else {
+                            if (responseCount > 0)
+                                responseCount--;
+                            checkRestartDone(responseCount);
+                        }
                     }).fail((err) => {
-                        checkRestartDone();
+                        if (responseCount > 0)
+                            responseCount--;
+                        checkRestartDone(responseCount);
                     });
                 }, 1000);
             };
-            checkRestartDone();
+            checkRestartDone(0);
         });
     }
     pauseTrading() {
@@ -4331,16 +4343,20 @@ class Social extends ChartController_1.ChartController {
         this.chartLibsLoaded = true; // currently always included globally
         this.maxAge = null;
         this.listTopSocialCurrencies = 0;
+        this.maxLinePlotCurrencies = 0;
         this.chartLegendDays = 0;
         this.serverDate = null;
         this.chartLegend = [];
         this.nextData = null;
     }
     onData(data) {
+        if (data.ping)
+            return;
         if (data.maxAge) {
             this.maxAge = new Date(data.maxAge); // if we use JSON (instead of EJSON)
             this.chartLegendDays = data.days;
             this.listTopSocialCurrencies = data.listTopSocialCurrencies;
+            this.maxLinePlotCurrencies = data.maxLinePlotCurrencies;
             this.serverDate = new Date(data.serverDate);
             this.createChartLegend();
             return;
@@ -4426,13 +4442,16 @@ class Social extends ChartController_1.ChartController {
                 activityPlotDataSorted.push(value);
             });
             let activityOpts = new ChartController_1.PlotChartOptions(this.chartLegend);
+            activityOpts.maxLines = this.maxLinePlotCurrencies;
             this.plotLineChart("#chart-" + network + "-activity", activityPlotDataSorted, activityOpts);
             this.listTopCurrencies("#chart-" + network + "-activity", network, activityPlotDataSorted);
             let activityChangeOpts = new ChartController_1.PlotChartOptions(this.chartLegend);
             activityChangeOpts.dataPointsKey = "dataPointsChange";
+            activityChangeOpts.maxLines = this.maxLinePlotCurrencies;
             this.plotLineChart("#chart-" + network + "-activityChange", activityPlotDataSorted, activityChangeOpts);
             let sentimentOpts = new ChartController_1.PlotChartOptions(this.chartLegend);
             sentimentOpts.dataPointsKey = "dataPointsSentiment";
+            sentimentOpts.maxLines = this.maxLinePlotCurrencies;
             this.plotLineChart("#chart-" + network + "-sentiment", activityPlotDataSorted, sentimentOpts);
         }
         this.nextData = null;
@@ -5191,6 +5210,7 @@ const AbstractController_1 = __webpack_require__(/*! ./AbstractController */ "./
 class PlotChartOptions {
     constructor(legend) {
         this.dataPointsKey = "dataPoints";
+        this.maxLines = Number.MAX_VALUE;
         this.legend = legend;
     }
 }
@@ -5229,6 +5249,8 @@ class ChartController extends AbstractController_1.AbstractController {
             "#daded7"
         ];
         for (let i = 0; i < plotData.length; i++) {
+            if (i >= plotOptions.maxLines) // limit the number of lines to show graphs more clearly
+                break;
             let curPlotData = plotData[i];
             const nextColor = colors[i % colors.length];
             data.datasets.push({

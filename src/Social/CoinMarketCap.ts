@@ -160,6 +160,7 @@ export class CoinMarketCap {
         switch (label)
         {
             case "IOTA":        return "MIOTA";
+            case "STR":         return "XLM";
         }
         return label;
     }

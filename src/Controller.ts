@@ -394,11 +394,16 @@ export class Controller extends AbstractController { // TODO implement graceful 
     }
 
     protected setLastActive() {
+        if (process.env.IS_CHILD)
+            return; // doesn't have a port
         //Process.setLastActive(db.get())
         let proc = Process.getProcessObject()
         proc.apiPort = nconf.get('tlsPort')
         proc.name = InstanceChecker.getOwnInstanceName();
-        Process.setLastActive(db.get(), proc)
+        Process.setLastActive(db.get(), proc, (err) => {
+            if (err)
+                logger.error("Error setting process active in database", err);
+        })
     }
 
     protected writeStartParametersFile() {

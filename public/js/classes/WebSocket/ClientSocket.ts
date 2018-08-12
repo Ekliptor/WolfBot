@@ -122,6 +122,8 @@ export class ClientSocket extends EventEmitter2 {
                 let type = message[0] === WebSocketOpcode.ERROR ? "error" : "warning";
                 return AppF.log("Received WebSocket %s message:", type, message[1]);
             }
+            if (message[0] === WebSocketOpcode.PING)
+                return;
 
             let receiver = this.receivers.get(message[0]);
             if (receiver !== undefined)
