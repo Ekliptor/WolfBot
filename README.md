@@ -11,6 +11,12 @@ It is written in TypeScript for NodeJS + MongoDB.
 * **Backtesting**: test your trade strategies in simulation on historical data
 * **Web Plugins**: Access social media data from Twitter, Reddit, Telegram Channels, RSS Feeds,... to trade based on news and real world events (not part of open source version yet)
 
+Screenshots of the Trading UI:
+
+https://wolfbot.org/wp-content/uploads/2018/06/trading-1024x605.png
+https://wolfbot.org/wp-content/uploads/2018/06/trading_strat-1024x564.png
+https://wolfbot.org/wp-content/uploads/2018/06/config_strat-1024x606.png
+
 A more detailed list of all features: https://wolfbot.org/features/
 
 The list of supported exchanges: https://wolfbot.org/features/exchanges/

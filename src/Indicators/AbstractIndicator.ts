@@ -280,6 +280,7 @@ export abstract class AbstractIndicator extends DataPlotCollector {
 }
 
 // force loading dynamic imports for TypeScript
+import "./ADLine";
 import "./ADX";
 import "./Aroon";
 import "./BollingerBands";

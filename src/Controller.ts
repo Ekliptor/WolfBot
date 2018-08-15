@@ -431,7 +431,7 @@ export class Controller extends AbstractController { // TODO implement graceful 
         let postData = utils.getJsonPostData((req as any).formFields)
         if (this.socialController && postData && postData.prices == true)
             status.prices = (await this.socialController.getPriceData(status.social)).toObject();
-        if (status.strategyInfos !== null) // add more checks if we use different features later
+        if (process.uptime() > 5.0 && (status.strategyInfos !== null || status.social !== null)) // add more checks if we use different features later
             status.ready = true;
         return {data: status}
     }

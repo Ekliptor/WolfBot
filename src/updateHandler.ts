@@ -83,7 +83,7 @@ export function runUpdater(callback) {
 
 async function prepareConfigBackup() {
     if (nconf.get("serverConfig:premium") !== true)
-        return;
+        return; // always overwrite configs in developer instances
     await AbstractAdvisor.backupOriginalConfig();
     nconf.set("serverConfig:user:restoreCfg", true);
     await serverConfig.saveConfigLocal();

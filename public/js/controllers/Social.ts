@@ -31,8 +31,6 @@ export class Social extends ChartController {
     }
 
     public onData(data: any) {
-        if (data.ping)
-            return;
         if (data.maxAge) {
             this.maxAge = new Date(data.maxAge); // if we use JSON (instead of EJSON)
             this.chartLegendDays = data.days;
