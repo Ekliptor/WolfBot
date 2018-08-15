@@ -13,11 +13,11 @@ It is written in TypeScript for NodeJS + MongoDB.
 
 Screenshots of the Trading UI:
 
-https://wolfbot.org/wp-content/uploads/2018/06/trading-1024x605.png
+[Trading Chart](https://wolfbot.org/wp-content/uploads/2018/06/trading-1024x605.png)
 
-https://wolfbot.org/wp-content/uploads/2018/06/trading_strat-1024x564.png
+[Live Strategy data](https://wolfbot.org/wp-content/uploads/2018/06/trading_strat-1024x564.png)
 
-https://wolfbot.org/wp-content/uploads/2018/06/config_strat-1024x606.png
+[Strategy configuration](https://wolfbot.org/wp-content/uploads/2018/06/config_strat-1024x606.png)
 
 A more detailed list of all features: https://wolfbot.org/features/
 
