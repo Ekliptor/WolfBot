@@ -15,32 +15,6 @@
   dependencies:
     ejson "^2.1.2"
 
-"@ekliptor/chromehelpers@^1.0.0":
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/@ekliptor/chromehelpers/-/chromehelpers-1.0.0.tgz#c0440cc04706cc69adc4b4b0aa35e498a41649de"
-  dependencies:
-    "@ekliptor/apputils" "^0.1.5"
-    "@ekliptor/mitm-local" "^1.5.3"
-    async "^2.1.4"
-    portfinder "^1.0.13"
-    proxy-login-automator "^1.1.5"
-    source-map-support "^0.4.11"
-
-"@ekliptor/mitm-local@^1.5.3":
-  version "1.5.4"
-  resolved "https://registry.yarnpkg.com/@ekliptor/mitm-local/-/mitm-local-1.5.4.tgz#188a9cf1cb550ccc0cafe42944a00b46200541dd"
-  dependencies:
-    http-shutdown "^1.1.0"
-    mkdirp "^0.5.1"
-
-"@ekliptor/phantomhelpers@^1.0.5":
-  version "1.0.5"
-  resolved "https://registry.yarnpkg.com/@ekliptor/phantomhelpers/-/phantomhelpers-1.0.5.tgz#6d22f0e2cef4959e041caa27a4c6a17fcd19862f"
-  dependencies:
-    "@ekliptor/mitm-local" "^1.5.3"
-    gm "^1.23.0"
-    request "^2.79.0"
-
 "@protobufjs/aspromise@^1.1.1", "@protobufjs/aspromise@^1.1.2":
   version "1.1.2"
   resolved "https://registry.yarnpkg.com/@protobufjs/aspromise/-/aspromise-1.1.2.tgz#9b8b0cc663d669a7d8f6f5d0893a14d348f30fbf"
@@ -263,6 +237,10 @@
   version "10.5.7"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-10.5.7.tgz#960d9feb3ade2233bcc9843c918d740b4f78a7cf"
 
+"@types/node@^10.0.0":
+  version "10.7.1"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-10.7.1.tgz#b704d7c259aa40ee052eec678758a68d07132a2e"
+
 "@types/node@^6.0.96":
   version "6.0.116"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-6.0.116.tgz#2f9cd62b4ecc4927e3942e2655c182eecf5b45f1"
@@ -317,6 +295,13 @@
   version "1.1.28"
   resolved "https://registry.yarnpkg.com/@types/progress/-/progress-1.1.28.tgz#b9c9bd9f985c14a147ace99a017fd8f208e11882"
   dependencies:
+    "@types/node" "*"
+
+"@types/puppeteer@^1.5.0":
+  version "1.6.0"
+  resolved "https://registry.yarnpkg.com/@types/puppeteer/-/puppeteer-1.6.0.tgz#3dc6613cfbbb5e91443f5137fb4831973857ab7f"
+  dependencies:
+    "@types/events" "*"
     "@types/node" "*"
 
 "@types/redis@^0.12.35":
@@ -1421,7 +1406,7 @@ concat-map@0.0.1:
   version "0.0.1"
   resolved "https://registry.yarnpkg.com/concat-map/-/concat-map-0.0.1.tgz#d8a96bd77fd68df7793a73036a3ba0d5405d477b"
 
-concat-stream@^1.5.2, concat-stream@~1.6.0:
+concat-stream@1.6.2, concat-stream@^1.5.2, concat-stream@~1.6.0:
   version "1.6.2"
   resolved "https://registry.yarnpkg.com/concat-stream/-/concat-stream-1.6.2.tgz#904bdf194cd3122fc675c77fc4ac3d4ff0fd1a34"
   dependencies:
@@ -1570,7 +1555,7 @@ debug@2.6.8:
   dependencies:
     ms "2.0.0"
 
-debug@^2.1.1, debug@^2.2.0, debug@^2.3.3, debug@^2.6.6, debug@^2.6.8:
+debug@2.6.9, debug@^2.1.1, debug@^2.2.0, debug@^2.3.3, debug@^2.6.6, debug@^2.6.8:
   version "2.6.9"
   resolved "https://registry.yarnpkg.com/debug/-/debug-2.6.9.tgz#5d128515df134ff327e90a4c93f4e077a536341f"
   dependencies:
@@ -2303,6 +2288,15 @@ extglob@^2.0.4:
     regex-not "^1.0.0"
     snapdragon "^0.8.1"
     to-regex "^3.0.1"
+
+extract-zip@^1.6.6:
+  version "1.6.7"
+  resolved "https://registry.yarnpkg.com/extract-zip/-/extract-zip-1.6.7.tgz#a840b4b8af6403264c8db57f4f1a74333ef81fe9"
+  dependencies:
+    concat-stream "1.6.2"
+    debug "2.6.9"
+    mkdirp "0.5.1"
+    yauzl "2.4.1"
 
 extsprintf@1.3.0:
   version "1.3.0"
@@ -3102,7 +3096,11 @@ http-signature@~1.2.0:
     jsprim "^1.2.2"
     sshpk "^1.7.0"
 
-https-proxy-agent@^2.0.0:
+http-status-codes@^1.3.0:
+  version "1.3.0"
+  resolved "https://registry.yarnpkg.com/http-status-codes/-/http-status-codes-1.3.0.tgz#9cd0e71391773d0671b489d41cbc5094aa4163b6"
+
+https-proxy-agent@^2.0.0, https-proxy-agent@^2.2.1:
   version "2.2.1"
   resolved "https://registry.yarnpkg.com/https-proxy-agent/-/https-proxy-agent-2.2.1.tgz#51552970fa04d723e04c56d04178c3f92592bbc0"
   dependencies:
@@ -4024,6 +4022,10 @@ mime@^1.3.4, mime@^1.4.1:
   version "1.6.0"
   resolved "https://registry.yarnpkg.com/mime/-/mime-1.6.0.tgz#32cd9e5c64553bd58d19a568af452acff04981b1"
 
+mime@^2.0.3:
+  version "2.3.1"
+  resolved "https://registry.yarnpkg.com/mime/-/mime-2.3.1.tgz#b1621c54d63b97c47d3cfe7f7215f7d64517c369"
+
 "minimatch@2 || 3", minimatch@>=0.0.4, minimatch@^3.0.0, minimatch@^3.0.2, minimatch@^3.0.3, minimatch@^3.0.4:
   version "3.0.4"
   resolved "https://registry.yarnpkg.com/minimatch/-/minimatch-3.0.4.tgz#5166e286457f03306064be5497e8dbb0c3d32083"
@@ -4762,6 +4764,10 @@ protobufjs@^6.8.4:
     "@types/node" "^10.1.0"
     long "^4.0.0"
 
+proxy-from-env@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/proxy-from-env/-/proxy-from-env-1.0.0.tgz#33c50398f70ea7eb96d21f7b817630a55791c7ee"
+
 proxy-login-automator@^1.1.5:
   version "1.2.4"
   resolved "https://registry.yarnpkg.com/proxy-login-automator/-/proxy-login-automator-1.2.4.tgz#39b48612aec17d36c52fe0d25570ca5cbf6a8e14"
@@ -4796,6 +4802,19 @@ punycode@>=0.2.0:
 punycode@^1.4.1:
   version "1.4.1"
   resolved "https://registry.yarnpkg.com/punycode/-/punycode-1.4.1.tgz#c0d5a63b2718800ad8e1eb0fa5269c84dd41845e"
+
+puppeteer@^1.6.0:
+  version "1.7.0"
+  resolved "https://registry.yarnpkg.com/puppeteer/-/puppeteer-1.7.0.tgz#edcba2300a50847202c0f19fd15e7a96171ff3bd"
+  dependencies:
+    debug "^3.1.0"
+    extract-zip "^1.6.6"
+    https-proxy-agent "^2.2.1"
+    mime "^2.0.3"
+    progress "^2.0.0"
+    proxy-from-env "^1.0.0"
+    rimraf "^2.6.1"
+    ws "^5.1.1"
 
 qheap@^1.4.0:
   version "1.4.0"
@@ -4976,7 +4995,7 @@ request-promise@^4.2.0:
     stealthy-require "^1.1.0"
     tough-cookie ">=2.3.3"
 
-"request@>= 2.35.0", request@^2.72.0, request@^2.79.0, request@^2.81.0:
+"request@>= 2.35.0", request@^2.72.0, request@^2.79.0:
   version "2.87.0"
   resolved "https://registry.yarnpkg.com/request/-/request-2.87.0.tgz#32f00235cd08d482b4d0d68db93a829c0ed5756e"
   dependencies:
@@ -5108,7 +5127,7 @@ right-align@^0.1.1:
   dependencies:
     align-text "^0.1.1"
 
-rimraf@2, rimraf@^2.2.8:
+rimraf@2, rimraf@^2.2.8, rimraf@^2.6.1:
   version "2.6.2"
   resolved "https://registry.yarnpkg.com/rimraf/-/rimraf-2.6.2.tgz#2ed8150d24a16ea8651e6d6ef0f47c4158ce7a36"
   dependencies:
@@ -5884,6 +5903,10 @@ traverse@~0.5.1:
   version "0.5.2"
   resolved "https://registry.yarnpkg.com/traverse/-/traverse-0.5.2.tgz#e203c58d5f7f0e37db6e74c0acb929bb09b61d85"
 
+triple-beam@^1.3.0:
+  version "1.3.0"
+  resolved "https://registry.yarnpkg.com/triple-beam/-/triple-beam-1.3.0.tgz#a595214c7298db8339eeeee083e4d10bd8cb8dd9"
+
 tunnel-agent@^0.6.0:
   version "0.6.0"
   resolved "https://registry.yarnpkg.com/tunnel-agent/-/tunnel-agent-0.6.0.tgz#27a5dea06b36b04a0a9966774b290868f0fc40fd"
@@ -6391,3 +6414,9 @@ yargs@~3.10.0:
     cliui "^2.1.0"
     decamelize "^1.0.0"
     window-size "0.1.0"
+
+yauzl@2.4.1:
+  version "2.4.1"
+  resolved "https://registry.yarnpkg.com/yauzl/-/yauzl-2.4.1.tgz#9528f442dab1b2284e58b4379bb194e22e0c4005"
+  dependencies:
+    fd-slicer "~1.0.1"

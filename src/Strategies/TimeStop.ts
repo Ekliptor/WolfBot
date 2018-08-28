@@ -7,46 +7,56 @@ import {Currency, Trade, Order, Candle} from "@ekliptor/bit-models";
 import {TradeInfo} from "../Trade/AbstractTrader";
 import * as helper from "../utils/helper";
 
-interface SARStopAction extends AbstractStopStrategyAction {
-    initialStop: boolean; // optional, default false // Use the candle high/low of the current candle when opening a position as an initial stop.
 
-    // SAR params (optional)
-    accelerationFactor: number; // default 0.02 // SAR indicator Acceleration Factor used up to the Maximum value.
-    accelerationMax: number; // default 0.2 // SAR indicator Acceleration Factor Maximum value.
+type ClosePositionState = "always" | "profit" | "loss";
 
-    time: number; // in seconds, optional // The time until the stop gets executed.
-    // close early if the last high/low is x minutes back (instead of waiting for the stop to trigger)
-    keepTrendOpen: boolean; // optional, default true, Don't close if the last candle moved in our direction (only applicable with 'time' and 'candleSize' set).
+interface TimeStopAction extends AbstractStopStrategyAction {
+    minCandles: number; // 12 // The minimum number of candles a position has to be open before being closed.
+    trailingStopPerc: number; // optional, default 0.05% // The trailing stop percentage that will be placed after minCandles have passed.
+    closePosition: ClosePositionState; // optional, default always // Only close a position if its profit/loss is in that defined state.
+
+    time: number; // in seconds, optional // The time until the stop gets executed after the trailing stop has been reached.
+    keepTrendOpen: boolean; // optional, default false, Don't close if the last candle moved in our direction (only applicable with 'time' and 'candleSize' set).
+    notifyBeforeStopSec: number; // optional, notify seconds before the stop executes
+
+    // optional RSI values: don't close short if RSI < low (long if RSI > high)
+    low: number; // 52 // default 0 = disabled // This strategy will never close short positions during RSI oversold.
+    high: number; // 56 // This strategy will never close long positions during RSI overbought.
+    interval: number; // default 9
 }
 
 /**
- * A stop loss strategy that uses the Parabolic SAR as a trailing stop. Works great with every other strategy.
- * Increase the acceleration factor for tighter stops if you are doing many trades per day.
+ * A different kind of close-strategy, similar to a stop-loss strategy. This strategy places a trailing stop after a position was open
+ * for a certain amount of candles. It can optionally look at RSI values before closing a position or only close if the position has a profit or loss.
+ * Ideal for daytraders who want to exit the market after a certain amount of time to minimize risks.
  */
-export default class SARStop extends AbstractStopStrategy {
-    public action: SARStopAction;
-    protected initialStop: number = -1;
+export default class TimeStop extends AbstractStopStrategy {
+    public action: TimeStopAction;
     protected trailingStopPrice: number = -1;
     //protected priceTime: Date = new Date(Date.now() +  365*utils.constants.DAY_IN_SECONDS * 1000); // time of the last high/low
-    //protected lastRSI: number = -1; // identical ro RSI because it's updated on every candle tick
+    protected lastRSI: number = -1; // identical ro RSI because it's updated on every candle tick
 
     constructor(options) {
         super(options)
-        if (typeof this.action.initialStop !== "boolean")
-            this.action.initialStop = false;
+        //if (typeof this.action.minCandles !== "number")
+            //this.action.minCandles = 12;
+        if (["always", "profit", "loss"].indexOf(this.action.closePosition) === -1)
+            this.action.closePosition = "always";
+        if (typeof this.action.trailingStopPerc !== "number")
+            this.action.trailingStopPerc = 0.05;
         if (!this.action.time)
             this.stopCountStart = new Date(0); // sell immediately
         if (this.action.keepTrendOpen === undefined)
-            this.action.keepTrendOpen = true;
-        //if (!this.action.interval)
-            //this.action.interval = 9; // for RSI
+            this.action.keepTrendOpen = false;
+        if (!this.action.interval)
+            this.action.interval = 9;
 
-        //if (this.action.low > 0 && this.action.high > 0)
-            //this.addIndicator("RSI", "RSI", this.action);
-        this.addIndicator("SAR", "SAR", this.action);
+        if (this.action.low > 0 && this.action.high > 0)
+            this.addIndicator("RSI", "RSI", this.action);
 
         //this.addInfo("highestPrice", "highestPrice");
         //this.addInfo("lowestPrice", "lowestPrice");
+        this.addInfo("positionOpenTicks", "positionOpenTicks");
         this.addInfoFunction("stop", () => {
             return this.getStopPrice();
         });
@@ -56,43 +66,36 @@ export default class SARStop extends AbstractStopStrategy {
         this.addInfo("stopCountStart", "stopCountStart");
         this.addInfo("entryPrice", "entryPrice");
 
-        this.addInfoFunction("ParabolicSAR", () => {
-            return this.indicators.get("SAR").getValue();
+        this.addInfoFunction("positionState", () => {
+            return this.getPositionState();
         });
-        this.addInfoFunction("InitialStop", () => {
-            return this.initialStop;
-        });
-
-        /*
         if (this.action.low > 0 && this.action.high > 0) {
             this.addInfoFunction("RSI", () => {
                 return this.indicators.get("RSI").getValue();
             });
         }
-        */
 
         this.saveState = true;
     }
 
     public onTrade(action: TradeAction, order: Order.Order, trades: Trade.Trade[], info: TradeInfo) {
         super.onTrade(action, order, trades, info);
-        if (action !== "close" && this.initialStop === -1 && this.candle)
-            this.initialStop = action === "buy" ? this.candle.low : this.candle.high;
         if (action === "close") {
-            this.initialStop = -1;
             this.trailingStopPrice = -1;
         }
     }
 
     public serialize() {
         let state = super.serialize();
-        state.initialStop = this.initialStop;
+        state.trailingStopPrice = this.trailingStopPrice;
+        state.lastRSI = this.lastRSI;
         return state;
     }
 
     public unserialize(state: any) {
         super.unserialize(state);
-        this.initialStop = state.initialStop;
+        this.trailingStopPrice = state.trailingStopPrice;
+        this.lastRSI = state.lastRSI;
     }
 
     // ################################################################
@@ -104,6 +107,7 @@ export default class SARStop extends AbstractStopStrategy {
                 return resolve();
 
             if (this.strategyPosition !== "none") {
+                this.updateStop();
                 if (this.action.order === "sell" || this.action.order === "closeLong")
                     this.checkStopSell();
                 else if (this.action.order === "buy" || this.action.order === "closeShort")
@@ -128,34 +132,35 @@ export default class SARStop extends AbstractStopStrategy {
     }
 
     protected checkIndicators() {
-        this.checkStop();
+        if (this.action.low  > 0 && this.action.high > 0) {
+            let rsi = this.indicators.get("RSI")
+            const value = rsi.getValue();
+
+            if (value > this.action.high) {
+                this.log("RSI UP trend detected, value", value)
+            }
+            else if (value < this.action.low) {
+                this.log("RSI DOWN trend detected, value", value)
+            }
+            else
+                this.log("no RSI trend detected, value", value);
+            this.lastRSI = value;
+        }
     }
 
-    protected checkStop() {
-        // here we just update our stop and let the timeout in the strategy close the position
-        if (this.action.initialStop === true && this.initialStop !== -1) {
-            if (this.strategyPosition === "long" && this.candle.close < this.initialStop) {
-                this.log("initial long stop reached, value " + this.initialStop.toFixed(8));
-                this.trailingStopPrice = this.initialStop;
-                //this.strategyPosition = "none"; // to prevent the strategy being stuck // Backtester can sync state now too
-            }
-            else if (this.strategyPosition === "short" && this.candle.close > this.initialStop) {
-                this.log("initial short stop reached, value"  + this.initialStop.toFixed(8));
-                this.trailingStopPrice = this.initialStop;
-                //this.strategyPosition = "none";
-            }
+    protected updateStop() {
+        if (this.positionOpenTicks < this.action.minCandles)
+            return;
+        if (this.strategyPosition === "long") {
+            const nextStop = this.avgMarketPrice - this.avgMarketPrice/100.0*this.action.trailingStopPerc;
+            if (nextStop > this.trailingStopPrice)
+                this.trailingStopPrice = nextStop;
+            //this.strategyPosition = "none"; // to prevent the strategy being stuck // Backtester can sync state now too
         }
-
-        // use SAR as trailing stop
-        let sar = this.indicators.get("SAR")
-        if (this.strategyPosition === "long" && this.candle.close < sar.getValue()) {
-            this.log("SAR long stop reached, value " + sar.getValue().toFixed(8));
-            this.trailingStopPrice = sar.getValue();
-            //this.strategyPosition = "none";
-        }
-        else if (this.strategyPosition === "short" && this.candle.close > sar.getValue()) {
-            this.log("SAR short stop reached, value " + sar.getValue().toFixed(8));
-            this.trailingStopPrice = sar.getValue();
+        else if (this.strategyPosition === "short") {
+            const nextStop = this.avgMarketPrice + this.avgMarketPrice/100.0*this.action.trailingStopPerc;
+            if (nextStop < this.trailingStopPrice)
+                this.trailingStopPrice = nextStop;
             //this.strategyPosition = "none";
         }
     }
@@ -174,8 +179,10 @@ export default class SARStop extends AbstractStopStrategy {
             this.sendStopNotification();
         else if (this.action.keepTrendOpen === true && this.candleTrend === "up")
             return this.logOnce("skipping stop SELL because candle trend is up %", this.candle.getPercentChange());
-        //else if (this.lastRSI !== -1 && this.lastRSI > this.action.high)
-            //return this.logOnce("skipping stop SELL because RSI value indicates up:", this.lastRSI);
+        else if (this.lastRSI !== -1 && this.lastRSI > this.action.high)
+            return this.logOnce("skipping stop SELL because RSI value indicates up:", this.lastRSI);
+        else if (this.canClosePositionByState() === false)
+            return this.logOnce("skipping stop SELL because of required position state:", this.action.closePosition);
         else if (this.stopCountStart.getTime() + this.getStopTimeSec() * 1000 <= this.marketTime.getTime())
             this.closeLongPosition();
     }
@@ -194,8 +201,10 @@ export default class SARStop extends AbstractStopStrategy {
             this.sendStopNotification();
         else if (this.action.keepTrendOpen === true && this.candleTrend === "down")
             return this.logOnce("skipping stop BUY because candle trend is down %", this.candle.getPercentChange());
-        //else if (this.lastRSI !== -1 && this.lastRSI < this.action.low)
-            //return this.logOnce("skipping stop BUY because RSI value indicates down:", this.lastRSI);
+        else if (this.lastRSI !== -1 && this.lastRSI < this.action.low)
+            return this.logOnce("skipping stop BUY because RSI value indicates down:", this.lastRSI);
+        else if (this.canClosePositionByState() === false)
+            return this.logOnce("skipping stop BUY because of required position state:", this.action.closePosition);
         else if (this.stopCountStart.getTime() + this.getStopTimeSec() * 1000 <= this.marketTime.getTime())
             this.closeShortPosition();
     }
@@ -232,6 +241,25 @@ export default class SARStop extends AbstractStopStrategy {
 
     protected getStopTimeSec() {
         return super.getStopTimeSec();
+    }
+
+    protected getPositionState(): ClosePositionState {
+        let profit = false;
+        if (this.position) // margin trading
+            profit = this.hasProfitReal();
+        else
+            profit = this.hasProfit(this.entryPrice);
+        return profit === true ? "profit" : "loss";
+    }
+
+    protected canClosePositionByState() {
+        switch (this.action.closePosition) {
+            case "profit":
+            case "loss":
+                return this.getPositionState() === this.action.closePosition;
+            default: // always
+                return true;
+        }
     }
 
     protected resetValues() {

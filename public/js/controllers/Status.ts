@@ -30,8 +30,10 @@ export class Status extends AbstractController {
             this.$(".installed").attr("data-time", Math.floor(new Date(data.installed).getTime() / 1000));
             if (data.premium === true)
                 this.$("#botEvaluation, #stateForm").addClass("hidden");
-            else
+            else {
                 this.$("#botEvaluation").html(JSON.stringify(data.evaluation, null, 4));
+                this.$("#usernameRow").addClass("hidden");
+            }
             this.removeAsyncLoadingIcon();
             Hlp.updateTimestampsRepeating();
 

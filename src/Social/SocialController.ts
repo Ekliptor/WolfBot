@@ -88,6 +88,7 @@ export class SocialController extends AbstractAdvisor {
     protected notifiedSpikes = new NotificationSpikeMap();
     protected priceWatcher = new PriceWatcher();
     protected tickerWatcher: TickerWatcher;
+    protected spikeNotificationsWorking = false;
 
     protected coinMarketCap = new CoinMarketCap({apiKey: nconf.get("serverConfig:apiKey:coinMarketCap:apiKey")});
 
@@ -183,7 +184,8 @@ export class SocialController extends AbstractAdvisor {
     public getPriceData(data: SocialUpdate) {
         return new Promise<PriceDataMap>((resolve, reject) => {
             let currencyMap = PriceDataMap.fromSocialData(data);
-            let fetchCurrencies = Array.from(currencyMap.keys()).map(c => Currency.Currency[c]);
+            // filter undefined crawled values after conversion
+            let fetchCurrencies = Array.from(currencyMap.keys()).map(c => Currency.Currency[c]).filter(c => c != null);
             this.coinMarketCap.getCurrencyTickers(fetchCurrencies).then((ticker) => {
                 for (let currency in ticker.data)
                 {
@@ -313,6 +315,7 @@ export class SocialController extends AbstractAdvisor {
                     let todayPosts = today.postCount + today.commentCount;
                     let yesterdayPosts = yesterday.postCount + yesterday.commentCount;
                     //console.log("checking %s %s %s", currencyStr, todayPosts, yesterdayPosts)
+                    this.spikeNotificationsWorking = true;
                     if (!this.hasEnoughPosts(networkNr, yesterdayPosts))
                         continue;
                     // extrapolate today's posts to 24h to notice a trend sooner
@@ -323,6 +326,8 @@ export class SocialController extends AbstractAdvisor {
             }
         }).catch((err) => {
             logger.error("Error getting crawler data to check for social spikes", err)
+            if (this.spikeNotificationsWorking === false)
+                this.sendNotification("Error checking for social spikes", err ? err.toString() : "unknown error");
         })
     }
 

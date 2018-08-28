@@ -2,7 +2,7 @@ import * as utils from "@ekliptor/apputils";
 const logger = utils.logger
     , nconf = utils.nconf;
 import * as EventEmitter from 'events';
-import {Trade, Order, Currency, Candle} from "@ekliptor/bit-models";
+import {Trade, Order, Currency, Candle, serverConfig} from "@ekliptor/bit-models";
 import {AbstractExchange, ExchangeMap, OrderParameters} from "../Exchanges/AbstractExchange";
 import * as fs from "fs";
 import {CoinMap} from "./PortfolioTrader";
@@ -18,7 +18,7 @@ export abstract class AbstractGenericTrader extends EventEmitter {
     protected className: string;
     protected exchanges: ExchangeMap; // (exchange name, instance)
     protected isTrading: ActiveTradesMap = new ActiveTradesMap();
-    protected pausedTrading = false;
+    protected pausedTrading = nconf.get("serverConfig:pausedTrading");
     protected restartPausedTimerID: NodeJS.Timer = null;
     protected tradeNotifier: AbstractGenericTrader = null; // TradeNotifier
 
@@ -62,6 +62,8 @@ export abstract class AbstractGenericTrader extends EventEmitter {
             Controller.restart(); // TODO we have to implement a flag to restart the bot paused
         }, nconf.get("serverConfig:restartPausedBotsMin")*utils.constants.MINUTE_IN_SECONDS*1000)
         */
+        nconf.set("serverConfig:pausedTrading", paused)
+        serverConfig.saveConfigLocal();
     }
 
     public getPausedTrading() {

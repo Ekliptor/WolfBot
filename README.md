@@ -29,7 +29,7 @@ The full strategy documentation: https://wolfbot.org/strategy-docs/
 
 ### Requirements
 ```
-NodeJS >= 9
+NodeJS >= 10
 MongoDB >= 3.4
 TypeScript >= 2.8
 yarn >= 1.5 (npm should work too)

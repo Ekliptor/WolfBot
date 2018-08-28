@@ -143,7 +143,7 @@ export default class InstanceChecker extends AbstractSubController {
                     this.checkBotApiResponsive(botName).then((isResponsive) => {
                         if (isResponsive === false) {
                             // TODO verify again that it's still running?
-                            const msg = 'Killing possibly stuck process: PID ' + PID;
+                            const msg = utils.sprintf("Killing possibly stuck process: PID %s, last response %s", PID, utils.test.getPassedTime(this.lastResponse.getTime()));
                             logger.warn(msg)
                             this.notifyBotKill(botName, "is unresponsive", msg)
                             try {
@@ -185,7 +185,9 @@ export default class InstanceChecker extends AbstractSubController {
                 const apiUrl = "https://localhost:" + port + "/state/"
                 logger.verbose("Checking instance %s with URL: ", botName, apiUrl)
                 this.lastPort = port;
-                let data = {apiKey: helper.getFirstApiKey()}
+                let data = {
+                    apiKey: helper.getFirstApiKey()
+                }
                 let reqOptions = {skipCertificateCheck: true}
                 utils.postDataAsJson(apiUrl, data, (body, res) => {
                     if (body === false || !utils.parseJson(body)) { // it's EJSON, but compatible

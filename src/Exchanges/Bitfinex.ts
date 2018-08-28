@@ -899,7 +899,7 @@ export default class Bitfinex extends AbstractLendingExchange implements Externa
                 let reason = "Unknown error";
                 if (event && event.reason)
                     reason = event.reason;
-                //this.onConnectionClose(reason); // wait for timeout if closed without an error
+                this.onConnectionClose(reason); // wait for timeout if closed without an error
                 logger.error("%s WebSocket connection closed with reason: %s", reason)
             })
             //bws.open();

@@ -24,6 +24,7 @@ interface VolumeSpikeStopperAction extends VolumeSpikeAction {
  * VolumeSpikeDetector version that closes a position immediately if there is a huge spike in volume (somebody dropping/buying lots of money)
  * against an open position.
  * Works well on 30min candle size.
+ * Also see VolumeStopper for avg Volume.
  */
 export default class VolumeSpikeStopper extends VolumeSpikeDetector {
     protected action: VolumeSpikeStopperAction;

@@ -29,6 +29,7 @@ import {Brain} from "./AI/Brain";
 import {LendingExchangeMap} from "./Exchanges/AbstractLendingExchange";
 import {RawTelegramMessage} from "./Social/Crawler/Telegram";
 import {orverrides} from "../configLocal";
+import {post} from "../node_modules/@ekliptor/apputils/build/cloudscraper";
 
 
 export class Controller extends AbstractController { // TODO implement graceful shutdown api command (stop & delete tasks)
@@ -50,6 +51,7 @@ export class Controller extends AbstractController { // TODO implement graceful 
 
     protected lastUpdateCheck = new Date(); // set to now. we just check at start before loading the Controller class
     protected lastConfigLoad = new Date(0); // load immediately on startup
+    protected isRunning = false;
 
     constructor() {
         super()
@@ -230,6 +232,7 @@ export class Controller extends AbstractController { // TODO implement graceful 
     protected doProcess(cb) {
         if (nconf.get('serverConfig:enabled') == false) {
             logger.info('Skipped processing because it is disabled globally')
+            this.isRunning = true;
             return cb && cb(true)
         }
         const now = utils.getCurrentTick()
@@ -307,6 +310,7 @@ export class Controller extends AbstractController { // TODO implement graceful 
             logger.error(subject, err)
             this.log(subject, err)
         }).then(() => {
+            this.isRunning = true;
             cb && cb(scheduleAgain)
         })/*.catch((err) => { // shouldn't be reached. reconnect will try for many days
             logger.error('Error reconnecting fore new IP address', err)
@@ -421,17 +425,21 @@ export class Controller extends AbstractController { // TODO implement graceful 
     }
 
     public async getStatus(req: http.IncomingMessage) {
+        const postData = utils.getJsonPostData((req as any).formFields);
         let status = {
             ready: false,
             strategyInfos: this.tradeAdvisor ? this.tradeAdvisor.getStrategyInfos() : (this.lendingAdvisor ? this.lendingAdvisor.getStrategyInfos() : null),
-            social: this.socialController ? await this.socialController.getAllCrawlerData() : null,
+            social: null, // only added on request. CPU intensive to compute
             prices: null,
             predictions: this.brain && this.brain.getLiveOracle() ? this.brain.getLiveOracle().getPredictions() : null
         }
-        let postData = utils.getJsonPostData((req as any).formFields)
-        if (this.socialController && postData && postData.prices == true)
-            status.prices = (await this.socialController.getPriceData(status.social)).toObject();
-        if (process.uptime() > 5.0 && (status.strategyInfos !== null || status.social !== null)) // add more checks if we use different features later
+        if (this.socialController && postData) {
+            if (postData.social === true)
+                status.social = await this.socialController.getAllCrawlerData();
+            if (postData.prices === true)
+                status.prices = (await this.socialController.getPriceData(status.social)).toObject();
+        }
+        if (process.uptime() > 8.0 && this.isRunning === true && (status.strategyInfos !== null || status.social !== null)) // add more checks if we use different features later
             status.ready = true;
         return {data: status}
     }

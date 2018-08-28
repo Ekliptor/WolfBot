@@ -3564,7 +3564,7 @@ class Config extends AbstractController_1.AbstractController {
                     }).done((data) => {
                         if (data.data && data.data.ready === true) {
                             responseCount++;
-                            if (responseCount > 1) { // wait for 2 responses to ensure it's not the update process
+                            if (responseCount > 2) { // wait for 3 responses to ensure it's not the update process
                                 // check for content to see if the app is really ready (and not just the http server running + updater restarting again)
                                 setTimeout(() => {
                                     document.location.reload(true);
@@ -3583,7 +3583,7 @@ class Config extends AbstractController_1.AbstractController {
                             responseCount--;
                         checkRestartDone(responseCount);
                     });
-                }, 1000);
+                }, 1200);
             };
             checkRestartDone(0);
         });
@@ -4518,8 +4518,10 @@ class Status extends AbstractController_1.AbstractController {
             this.$(".installed").attr("data-time", Math.floor(new Date(data.installed).getTime() / 1000));
             if (data.premium === true)
                 this.$("#botEvaluation, #stateForm").addClass("hidden");
-            else
+            else {
                 this.$("#botEvaluation").html(JSON.stringify(data.evaluation, null, 4));
+                this.$("#usernameRow").addClass("hidden");
+            }
             this.removeAsyncLoadingIcon();
             Hlp.updateTimestampsRepeating();
             this.$("#restoreState").click(() => {
@@ -4758,7 +4760,9 @@ class Strategies extends AbstractController_1.AbstractController {
         else {
             TradingView.onready(() => {
                 appData.tvReady = true;
-                this.addTradingViewChart(config, strategyName);
+                setTimeout(() => {
+                    this.addTradingViewChart(config, strategyName);
+                }, 300);
             });
         }
     }

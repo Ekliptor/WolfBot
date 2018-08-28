@@ -135,7 +135,7 @@ export class CoinMarketCap {
     public async getCurrencyTickers(currencies: Currency.Currency[], quoteCurrencies = "USD"): Promise<CoinMarketCapTicker> {
         // their pro API now allows us to fetch data by currency symbol too
         let ticker = await this.getLatestData({
-            symbol: currencies.map(c => this.currencyToCoinMarketCapSymbol(c)).join(","),
+            symbol: currencies.filter(c => this.isSupported(c)).map(c => this.currencyToCoinMarketCapSymbol(c)).join(","),
             convert: quoteCurrencies
         });
         return ticker;
@@ -161,6 +161,10 @@ export class CoinMarketCap {
         {
             case "IOTA":        return "MIOTA";
             case "STR":         return "XLM";
+            case "QTM":         return "QTUM";
+            case "BYTM":        return "BTM";
+            case "PAC":         return "$PAC"; // $PAC and PAC not working on API
+            case "YYW":         return "YOYOW";
         }
         return label;
     }
@@ -171,6 +175,10 @@ export class CoinMarketCap {
             case "NEO":     return Currency.Currency.NEO;
             case "VEN":     return Currency.Currency.VET;
             case "MIOTA":   return Currency.Currency.IOTA;
+            case "QTUM":   return Currency.Currency.QTM;
+            case "BTM":   return Currency.Currency.BYTM;
+            case "$PAC":   return Currency.Currency.PAC;
+            case "YOYOW":   return Currency.Currency.YYW;
             default:
                 let currency = Currency.Currency[currencyStr];
                 if (currency)
@@ -186,6 +194,12 @@ export class CoinMarketCap {
         }
     }
 
+    protected isSupported(currency: Currency.Currency) {
+        if (!currency || currency === Currency.Currency.PAC)
+            return false;
+        return true;
+    }
+
     // ################################################################
     // ###################### PRIVATE FUNCTIONS #######################
 
@@ -195,6 +209,7 @@ export class CoinMarketCap {
             const currencyID = queryParams.id ? queryParams.id : queryParams.symbol;
             const url = "https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest?" + querystring.stringify(queryParams);
             utils.getPageCode(url, (body, response) => {
+                // TODO send notification on "Invalid values for" error?
                 if (body === false)
                     return reject({txt: "Error crawling CoinMarketCap ticker", currencyID: currencyID, err: response})
                 let json = utils.parseJson(body);

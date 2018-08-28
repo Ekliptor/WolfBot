@@ -233,7 +233,9 @@ export class Strategies extends AbstractController {
         else {
             TradingView.onready(() => {
                 appData.tvReady = true;
-                this.addTradingViewChart(config, strategyName);
+                setTimeout(() => { // TradingView undefined error even after tvReady before. new tv lib loads resources async and calls this too soon?
+                    this.addTradingViewChart(config, strategyName);
+                }, 300);
             });
         }
     }

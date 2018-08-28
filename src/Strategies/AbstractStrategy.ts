@@ -96,7 +96,7 @@ export abstract class AbstractStrategy extends AbstractGenericStrategy {
     protected lastTrade: TradeAction = null; // used in subclasses
     protected lastTradeTimeClass: Date = null;
     protected lastTradeTimePair: Date = null;
-    protected positionOpenTicks = -1;
+    protected positionOpenTicks = -1; // the number of candle ticks the position has been open. starts at 1 on the first candle tick the position is open
     private lastTradeAction: TradeAction = null; // used & cached in this class
     protected tradeOnce = false; // set to true so that this strategy can not emit multiple buy/sell events
     protected disabled = false;

@@ -6,7 +6,7 @@ import {StrategyActionName, default as TradeAdvisor} from "../TradeAdvisor";
 import {AbstractStrategy, TradeAction} from "../Strategies/AbstractStrategy";
 import {OrderResult} from "../structs/OrderResult";
 import {AbstractExchange, ExchangeMap, OrderParameters} from "../Exchanges/AbstractExchange";
-import {Trade, Order, Currency, Candle} from "@ekliptor/bit-models";
+import {Trade, Order, Currency, Candle, serverConfig} from "@ekliptor/bit-models";
 import * as fs from "fs";
 import * as path from "path";
 import {MarginPosition} from "../structs/MarginPosition";
@@ -14,6 +14,7 @@ import {controller, controller as Controller} from '../Controller';
 import {AbstractGenericTrader} from "./AbstractGenericTrader";
 import {AbstractStopStrategy} from "../Strategies/AbstractStopStrategy";
 import {AbstractTakeProfitStrategy} from "../Strategies/AbstractTakeProfitStrategy";
+import {AbstractOrderer} from "../Strategies/AbstractOrderer";
 
 export type TradeDirection = "up" | "down" | "both";
 
@@ -40,7 +41,7 @@ export abstract class AbstractTrader extends AbstractGenericTrader {
     protected tradeAdvisor: TradeAdvisor;
     protected static globalExchanges: ExchangeMap = new ExchangeMap() // (exchange name, instance), all exchanges (needed to save HTTP requests to deduplicate requests)
     protected start: number = 0;
-    protected pausedOpeningPositions: boolean = false;
+    protected pausedOpeningPositions: boolean = nconf.get("serverConfig:pausedOpeningPositions");
 
     protected marketRates = new Map<string, number>(); // (currency pair, rate)
 
@@ -91,17 +92,19 @@ export abstract class AbstractTrader extends AbstractGenericTrader {
             this.writeLogLine(msg)
             return;
         }
-        if (this.pausedTrading) {
-            const msg = utils.sprintf("Skipping %s %s in %s because trading is paused: %s - %s", action, pairStr, this.className, strategy.getClassName(), reason)
-            logger.info(msg)
-            this.writeLogLine(msg)
-            return;
-        }
-        if (this.pausedOpeningPositions && action !== "close" && !this.isStopOrTakeProfitStrategy(strategy)) {
-            const msg = utils.sprintf("Skipping %s %s in %s because opening positions is paused: %s - %s", action, pairStr, this.className, strategy.getClassName(), reason)
-            logger.info(msg)
-            this.writeLogLine(msg)
-            return;
+        if (nconf.get("trader") !== "Backtester") {
+            if (this.pausedTrading) {
+                const msg = utils.sprintf("Skipping %s %s in %s because trading is paused: %s - %s", action, pairStr, this.className, strategy.getClassName(), reason)
+                logger.info(msg)
+                this.writeLogLine(msg)
+                return;
+            }
+            if (this.pausedOpeningPositions && action !== "close" && !this.isStopOrTakeProfitStrategy(strategy)) {
+                const msg = utils.sprintf("Skipping %s %s in %s because opening positions is paused: %s - %s", action, pairStr, this.className, strategy.getClassName(), reason)
+                logger.info(msg)
+                this.writeLogLine(msg)
+                return;
+            }
         }
         if (this.isTrading.has(pairStr)) {
             logger.warn("Ignoring action %s %s in %s because last action hasn't finished", action, pairStr, this.className)
@@ -161,6 +164,8 @@ export abstract class AbstractTrader extends AbstractGenericTrader {
 
     public setPausedOpeningPositions(paused: boolean) {
         this.pausedOpeningPositions = paused;
+        nconf.set("serverConfig:pausedOpeningPositions", paused)
+        serverConfig.saveConfigLocal();
     }
 
     public getPausedOpeningPositions() {
@@ -316,4 +321,3 @@ import "./PortfolioTrader";
 import "./RealTimeTrader";
 import "./TradeNotifier";
 import "../Lending/RealTimeLendingTrader";
-import {AbstractOrderer} from "../Strategies/AbstractOrderer";

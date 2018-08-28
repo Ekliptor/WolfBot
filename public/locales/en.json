@@ -1033,6 +1033,18 @@
       "executeMin": "A countdown in minutes after which the buy/sell order will be executed.",
       "keepTrendOpen": "optional, default true - Don't execute the order yet if the last candle moved in our direction (only applicable with 'candleSize' being set)."
     },
+    "TimeStop": {
+      "desc": "A different kind of close-strategy, similar to a stop-loss strategy. This strategy places a trailing stop after a position was open for a certain amount of candles. It can optionally look at RSI values before closing a position or only close if the position has a profit or loss.<br>Ideal for daytraders who want to exit the market after a certain amount of time to minimize risks.",
+      "minCandles": "The minimum number of candles a position has to be open before being closed.",
+      "trailingStopPerc": "optional, default 0.05% - The trailing stop percentage that will be placed after minCandles have passed.",
+      "closePosition": "optional, default 'always' - Only close a position if its profit/loss is in that defined state. Values: always|profit|loss",
+      "time": "optional, default 0 - After the price falls below the trailing stop, start a countdown of x seconds before closing the position. The countdown gets reset if the price moves above the stop before the counter reaches 0 seconds.",
+      "keepTrendOpen": "optional, default true - Don't close if the last candle moved in our direction (only applicable with 'time' and 'candleSize' being set).",
+      "notifyBeforeStopSec": "optional, default 0 (disabled) - Send a push notification x seconds before the stop executes.",
+      "interval": "optional, default 9 - The number of candles to use for RSI computation.",
+      "low": "optional, default 0 (disabled) - Below this value RSI will be considered oversold. This strategy will never close short positions during RSI oversold.",
+      "high": "optional, default 0 (disabled) - Above this value RSI will be considered overbought. This strategy will never close long positions during RSI overbought."
+    },
     "Trendatron": {
       "desc": "A strategy that follows waves of the chart by doing swing trading. It does this by combining 4 SMAs to Gann Swing indicator and adding VIX to check for volatility. Additionally it supports scalping, meaning it can buy more after sharp drops in price.",
       "interval": "The number of candles for SMAs to compute GannSwing.",
@@ -1178,5 +1190,6 @@
   "backtestDone": "Backtesting has finished. Your strategies are now ready to start trading.",
   "backtestFailed": "The backtest failed to generate enough historical data to initialize your trading strategies. Collecting live data to initialize strategies. This might take a few hours.",
   "restoreCfg": "Restore config on restart",
-  "restoreCfgMsg": "This will restore all config files with their default values. Are you sure you want to do this?"
+  "restoreCfgMsg": "This will restore all config files with their default values. Are you sure you want to do this?",
+  "disclaimerMsg": "By using WolfBot you understand that your capital is at risk. This includes, but is not limited to, wrong trading decisions and configuration, exchange API server errors, WolfBot cloud server errors and bugs in WolfBot's core trading and strategy code. WolfBot comes with no warranty, to the extend permitted by applicable law."
 }

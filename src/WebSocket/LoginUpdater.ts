@@ -48,7 +48,6 @@ export class LoginUpdater extends AppPublisher {
     public onSubscription(clientSocket: ClientSocketOnServer, initialRequest: http.IncomingMessage): void {
         //if (nconf.get("serverConfig:loggedIn") === false) // done via http
             //this.requestLoginData();
-        console.log("SUBSC", clientSocket.id)
         this.notifySubscriptionExpiration(clientSocket);
     }
 

@@ -96,7 +96,7 @@ export class Config extends AbstractController {
                     }).done((data)  =>{
                         if (data.data && data.data.ready === true) {
                             responseCount++;
-                            if (responseCount > 1) { // wait for 2 responses to ensure it's not the update process
+                            if (responseCount > 2) { // wait for 3 responses to ensure it's not the update process
                                 // check for content to see if the app is really ready (and not just the http server running + updater restarting again)
                                 setTimeout(() => {
                                     document.location.reload(true);
@@ -115,7 +115,7 @@ export class Config extends AbstractController {
                             responseCount--;
                         checkRestartDone(responseCount);
                     })
-                }, 1000);
+                }, 1200);
             }
             checkRestartDone(0);
         })

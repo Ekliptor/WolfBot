@@ -56,7 +56,7 @@ export class StrategyUpdater extends AppPublisher {
 
     constructor(serverSocket: ServerSocket, advisor: AbstractAdvisor) {
         super(serverSocket, advisor)
-        this.maxConfigNr = advisor.getConfigs().length;
+        this.loadConfigs();
         this.publishStrategyUpdates();
     }
 
@@ -208,6 +208,15 @@ export class StrategyUpdater extends AppPublisher {
             this.publish(update);
             this.lastUpdateMap.set(strategy.getClassName(), new Date());
         })
+    }
+
+    protected loadConfigs() {
+        let load = () => {
+            this.maxConfigNr = this.advisor.getConfigs().length;
+            if (this.maxConfigNr === 0)
+                setTimeout(load.bind(this), 1000); // config files are read async from disk
+        }
+        setTimeout(load.bind(this), 1000);
     }
 
     protected getWarmupStateLabel(state: BacktestWarmupState): string {

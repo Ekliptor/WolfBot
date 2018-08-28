@@ -511,7 +511,7 @@ export abstract class AbstractExchange {
         let getAvg = (timeArr, maxEleents) => {
             if (timeArr.length > maxEleents)
                 timeArr.splice(0, timeArr.length - maxEleents);
-            let sum = _.reduce<number, number>(timeArr, (total, n) => {
+            let sum = _.reduce<number>(timeArr, (total, n) => {
                 return total + n;
             });
             return sum / timeArr.length;
@@ -557,6 +557,10 @@ export abstract class AbstractExchange {
     }
 
     protected onConnectionClose(reason: string): void {
+        if (AbstractExchange.pushApiConnections.has(this.className) === false) {
+            logger.warn("Already closed %s websocket connection. reason %s", this.className, reason)
+            return;
+        }
         logger.warn("Websocket connection to %s closed: Reason: %s", this.className, reason);
         clearTimeout(this.websocketTimeoutTimerID);
         clearTimeout(this.websocketPingTimerID);
