@@ -21,6 +21,8 @@ import {SocialConfig} from "../Social/SocialConfig";
 import {BotConfigMode} from "../Trade/AbstractConfig";
 import * as db from "../database";
 import {setUserUpdateSec} from "@ekliptor/bit-models/build/models/user";
+import {AbstractNotification} from "../Notifications/AbstractNotification";
+import Notification from "../Notifications/Notification";
 
 export type ConfigTab = "tabGeneral" | "tabTrading" | "tabTradingDev";
 const CONFIG_TABS: ConfigTab[] = ["tabGeneral", "tabTrading", "tabTradingDev"];
@@ -86,6 +88,10 @@ export interface ConfigReq extends ConfigData {
     configChange?: string;
     saveKey?: ExchangeApiKeyMap;
     saveNotification?: NotificationMethodMap;
+    notificationMeta?: {
+        title: string;
+        text: string;
+    }
     traderChange?: string;
     tradingModeChange?: BotTrade.TradingMode;
     setPaused?: boolean;
@@ -265,6 +271,7 @@ export class ConfigEditor extends AppPublisher {
             this.send(clientSocket, {saved: true, restart: true})
         }
         else if (typeof data.saveNotification === "object") {
+            const previousNotficiationSetting = JSON.stringify(nconf.get("serverConfig:apiKey:notify"));
             for (let method in data.saveNotification)
             {
                 if (Currency.NotificationMethods.has(method) === false) {
@@ -283,6 +290,8 @@ export class ConfigEditor extends AppPublisher {
                 nconf.set("serverConfig:apiKey:notify:" + method, currentKey);
                 serverConfig.saveConfigLocal();
             }
+            if (JSON.stringify(nconf.get("serverConfig:apiKey:notify")) !== previousNotficiationSetting)
+                this.sendTestNotification(data.notificationMeta.title, data.notificationMeta.text);
             this.send(clientSocket, {saved: true})
         }
         else if (typeof data.debugMode === "boolean") {
@@ -937,6 +946,16 @@ export class ConfigEditor extends AppPublisher {
                 delete (notifyKeys[method] as any).appToken;
         }
         return notifyKeys;
+    }
+
+    protected sendTestNotification(title: string, text: string) {
+        let notifier = AbstractNotification.getInstance();
+        let headline = utils.sprintf(title, nconf.get("projectNameLong"));
+        let notification = new Notification(headline, text, false);
+        notifier.send(notification).then(() => {
+        }).catch((err) => {
+            logger.error("Error sending %s notification", this.className, err)
+        });
     }
 
     protected send(ws: WebSocket, data: ConfigRes, options?: ServerSocketSendOptions) {

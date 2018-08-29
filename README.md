@@ -42,7 +42,7 @@ Webpack >= 4 (only for UI modifications)
 git clone https://github.com/Ekliptor/WolfBot
 yarn install
 ```
-You can use `--production` flag if you only want to run the bot and not make any code changes.
+You can use the `--production` flag if you only want to run the bot and not make any code changes.
 
 
 ### Start trading

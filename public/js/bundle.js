@@ -3768,7 +3768,11 @@ class Config extends AbstractController_1.AbstractController {
                 receiver: this.$("#notificationKey").val()
             };
             this.send({
-                saveNotification: saveReq
+                saveNotification: saveReq,
+                notificationMeta: {
+                    title: i18next.t("notifySetupTitle"),
+                    text: i18next.t("notifySetupTxt")
+                }
             });
         });
     }

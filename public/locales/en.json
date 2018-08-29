@@ -1191,5 +1191,7 @@
   "backtestFailed": "The backtest failed to generate enough historical data to initialize your trading strategies. Collecting live data to initialize strategies. This might take a few hours.",
   "restoreCfg": "Restore config on restart",
   "restoreCfgMsg": "This will restore all config files with their default values. Are you sure you want to do this?",
-  "disclaimerMsg": "By using WolfBot you understand that your capital is at risk. This includes, but is not limited to, wrong trading decisions and configuration, exchange API server errors, WolfBot cloud server errors and bugs in WolfBot's core trading and strategy code. WolfBot comes with no warranty, to the extend permitted by applicable law."
+  "disclaimerMsg": "By using WolfBot you understand that your capital is at risk. This includes, but is not limited to, wrong trading decisions and configuration, exchange API server errors, WolfBot cloud server errors and bugs in WolfBot's core trading and strategy code. WolfBot comes with no warranty, to the extend permitted by applicable law.",
+  "notifySetupTitle": "%s notification setup",
+  "notifySetupTxt": "Notifications have been setup successfully. You will now receive notifications of all configured market events."
 }

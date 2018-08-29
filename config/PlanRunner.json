@@ -109,6 +109,18 @@
           "pair": "USD_BTC",
           "enableLog": true
         },
+        "TimeStop": {
+          "minCandles": 48,
+          "trailingStopPerc": 0.5,
+          "closePosition": "always",
+          "time": 30,
+          "keepTrendOpen": false,
+          "low": 25,
+          "high": 75,
+          "candleSize": 30,
+          "pair": "USD_BTC",
+          "enableLog": false
+        },
         "IntervalExtremes": {
           "tradeDirection": "watch",
           "mode": "bounce",
@@ -398,6 +410,18 @@
           "candleSize": 1,
           "pair": "USD_ETH",
           "enableLog": true
+        },
+        "TimeStop": {
+          "minCandles": 48,
+          "trailingStopPerc": 0.5,
+          "closePosition": "always",
+          "time": 30,
+          "keepTrendOpen": false,
+          "low": 25,
+          "high": 75,
+          "candleSize": 30,
+          "pair": "USD_ETH",
+          "enableLog": false
         },
         "IntervalExtremes": {
           "tradeDirection": "watch",
