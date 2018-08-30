@@ -10,16 +10,38 @@
 <div id="tabContent" class="bottom30"></div>
 <!-- /tabs -->
 <!-- general -->
-<span id="tradingModeCtrl" class="right10">
+<div class="bottom30">
+  <span id="tradingModeCtrl" class="right10">
     <span>{tr:tradingMode}{tr:colon}</span>
   <select id="tradingMode" name="tradingMode" class="multiSel"></select>
   </span>
-<span>{tr:config}{tr:colon} </span>
-<select id="configs" class="multiSel" name="configs"></select>
-<span class="traderCtrl">
+  <span>{tr:config}{tr:colon} </span>
+  <select id="configs" class="multiSel" name="configs"></select>
+  <button id="copyConfig" class="btn btn-primary" type="button" name="copyConfig">{tr:copyConfig}</button>
+  <button id="deleteConfig" class="btn btn-danger" type="button" name="deleteConfig">{tr:deleteConfig}</button>
+</div>
+<div id="copyConfigPanel" class="bottom30" style="display: none">
+  <form id="copyConfigForm" class="row form-inline" action="" method="post" enctype="application/x-www-form-urlencoded">
+    <div class="form-group right5">
+      <label for="copyConfigName" class="control-label col-sm-3">{tr:name}{tr:colon}</label>
+      <div class="col-sm-9">
+        <input id="copyConfigName" type="text" class="form-control" name="copyConfigName" value="" placeholder="{tr:copyConfPlace}">
+      </div>
+    </div>
+    <div class="form-group">
+      <button id="saveConfigFile" class="btn btn-success" type="submit" name="saveConfigFile" style="display: none">{tr:save}</button>
+    </div>
+    <div class="form-group">
+      <button id="cancelNewConfigFile" class="btn btn-warning" type="button" name="cancelNewConfigFile">{tr:cancel}</button>
+    </div>
+  </form>
+</div>
+<div class="bottom30">
+  <span class="traderCtrl">
     <span class="left10">{tr:trader}{tr:colon} </span>
     <select id="traders" class="multiSel" name="traders"></select>
 </span>
+</div>
 <div class="checkbox bottom30">
   <label id="debugCtrls"><input type="checkbox" name="debug" value="" id="debug">{tr:debugMode}</label>
   <label id="devModeCtrls"><input type="checkbox" name="devMode" value="" id="devMode">{tr:devMode}</label>

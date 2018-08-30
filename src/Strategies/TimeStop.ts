@@ -159,7 +159,7 @@ export default class TimeStop extends AbstractStopStrategy {
         }
         else if (this.strategyPosition === "short") {
             const nextStop = this.avgMarketPrice + this.avgMarketPrice/100.0*this.action.trailingStopPerc;
-            if (nextStop < this.trailingStopPrice)
+            if (this.trailingStopPrice === -1 || nextStop < this.trailingStopPrice)
                 this.trailingStopPrice = nextStop;
             //this.strategyPosition = "none";
         }

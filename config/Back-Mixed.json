@@ -27,7 +27,7 @@
           "minCandles": 12,
           "trailingStopPerc": 0.1,
           "closePosition": "always",
-          "time": 30,
+          "time": 3,
           "keepTrendOpen": false,
           "low": 25,
           "high": 75,

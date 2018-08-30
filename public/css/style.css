@@ -8998,6 +8998,9 @@ i.fa {
   height: 100%;
   min-height: 400px; }
 
+#copyConfigName {
+  min-width: 20em; }
+
 .currencyHead {
   font-size: 24px;
   font-weight: bold; }

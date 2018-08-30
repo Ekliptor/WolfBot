@@ -70,6 +70,7 @@ export interface ConfigRes extends ConfigData {
     social?: boolean;
     selectedTradingMode?: BotTrade.TradingMode;
     selectedConfig?: string;
+    activeConfig?: string;
     selectedTrader?: string;
     configFileData?: string;
     jsonEditorData?: ConfigEditorData;
@@ -86,6 +87,8 @@ export interface ConfigReq extends ConfigData {
     saveConfig?: string;
     configName?: string;
     configChange?: string;
+    deleteConfig?: string;
+    copyConfig?: string;
     saveKey?: ExchangeApiKeyMap;
     saveNotification?: NotificationMethodMap;
     notificationMeta?: {
@@ -104,6 +107,7 @@ export class ConfigEditor extends AppPublisher {
 
     protected selectedTradingMode: BotTrade.TradingMode;
     protected selectedConfig: string;
+    protected readonly activeConfig: string; // config file changes require a restart
     protected selectedTrader: string;
     protected savedState = false;
     protected selectedTab: ConfigTab = "tabGeneral";
@@ -112,6 +116,7 @@ export class ConfigEditor extends AppPublisher {
         super(serverSocket, advisor)
         this.selectedTradingMode = nconf.get("lending") === true ? "lending" : (nconf.get("arbitrage") == true ? "arbitrage" : "trading");
         this.selectedConfig = this.advisor.getConfigName();
+        this.activeConfig = this.selectedConfig;
         this.selectedTrader = this.getSelectedTrader();
         nconf.set("debugRestart", nconf.get("debug"))
 
@@ -153,6 +158,7 @@ export class ConfigEditor extends AppPublisher {
             utils.file.listDir(configDir, (err, dirFiles) => {
                 if (err)
                     reject(err)
+                dirFiles = dirFiles.filter(f => f.substr(1).indexOf(path.sep) === -1); // filter files in subfolders (other trading modes)
                 resolve(dirFiles)
             })
         })
@@ -178,6 +184,7 @@ export class ConfigEditor extends AppPublisher {
                 social: nconf.get("social") ? true : false,
                 selectedTradingMode: this.selectedTradingMode,
                 selectedConfig: this.selectedConfig,
+                activeConfig: this.activeConfig,
                 selectedTrader: this.selectedTrader,
                 configFileData: configFileData,
                 jsonEditorData: this.createEditorSchema(configFileData, this.selectedConfig),
@@ -199,18 +206,34 @@ export class ConfigEditor extends AppPublisher {
     protected onData(data: ConfigReq, clientSocket: WebSocket, initialRequest: http.IncomingMessage): void {
         if (typeof data.configChange === "string") {
             this.readConfigFile(data.configChange).then((configFileData) => {
-                this.selectedConfig = data.configChange.substr(1).replace(/\.json$/, "");
+                this.selectedConfig = this.getPlainConfigName(data.configChange);
                 this.send(clientSocket, {
                     configFileData: configFileData
                 });
             }).catch((err) => {
-                const msg = "Error reading config file"
-                logger.error(msg, err)
-                this.send(clientSocket, {
-                    error: true,
-                    errorTxt: msg
-                });
+                logger.error("Error reading config file", err)
+                this.sendErrorMessage(clientSocket, "errorReadingConf");
             })
+        }
+        else if (typeof data.deleteConfig === "string") {
+            this.removeConfigFile(data.deleteConfig).then(() => {
+                this.send(clientSocket, {saved: true})
+            }).catch((err) => {
+                logger.error("Error deleting config file", err)
+                this.sendErrorMessage(clientSocket, "errorDeletingConf");
+            });
+        }
+        else if (typeof data.copyConfig === "string") {
+            data.copyConfig = "/" + data.copyConfig.trim() + ".json";
+            ConfigEditor.listConfigFiles().then(async (files) => {
+                if (this.isExistingConfigFile(data.copyConfig, files))
+                    return this.sendErrorMessage(clientSocket, "errorConfExists");
+                await this.copyConfigFile(data.copyConfig);
+                this.send(clientSocket, {saved: true, configFiles: await ConfigEditor.listConfigFiles()}); // load files again with the new one
+            }).catch((err) => {
+                logger.error("Error copying config file", err)
+                this.sendErrorMessage(clientSocket, "errorCopyingConf");
+            });
         }
         else if (typeof data.traderChange === "string") {
             let traders = nconf.get("traders");
@@ -401,6 +424,31 @@ export class ConfigEditor extends AppPublisher {
                     reject(err)
                 resolve()
             })
+        })
+    }
+
+    protected removeConfigFile(name: string) {
+        return new Promise<void>((resolve, reject) => {
+            const configFile = path.join(ConfigEditor.getConfigDir(), name)
+            if (!utils.file.isSafePath(configFile))
+                return reject({txt: "Can not access path outside of app dir"})
+            fs.unlink(configFile, (err) => {
+                if (err && err.code !== "ENOENT")
+                    return reject({txt: "Error removing config file", err: err});
+                resolve();
+            });
+        })
+    }
+
+    protected copyConfigFile(nameNew: string) {
+        return new Promise<void>((resolve, reject) => {
+            const configFileSrc = path.join(ConfigEditor.getConfigDir(), this.selectedConfig + ".json")
+            const configFileDest = path.join(ConfigEditor.getConfigDir(), nameNew)
+            fs.copyFile(configFileSrc, configFileDest, (err) => {
+                if (err)
+                    return reject({txt: "Error copying config file", err: err});
+                resolve();
+            });
         })
     }
 
@@ -956,6 +1004,21 @@ export class ConfigEditor extends AppPublisher {
         }).catch((err) => {
             logger.error("Error sending %s notification", this.className, err)
         });
+    }
+
+    protected isExistingConfigFile(configNameNew: string, existingFiles: string[]) {
+        const nameNewLower = this.getPlainConfigName(configNameNew.toLocaleLowerCase());
+        for (let i = 0; i < existingFiles.length; i++)
+        {
+            let name = this.getPlainConfigName(existingFiles[i].toLocaleLowerCase());
+            if (nameNewLower === name)
+                return true;
+        }
+        return false;
+    }
+
+    protected getPlainConfigName(filename: string) {
+        return filename.substr(1).replace(/\.json$/, "");
     }
 
     protected send(ws: WebSocket, data: ConfigRes, options?: ServerSocketSendOptions) {

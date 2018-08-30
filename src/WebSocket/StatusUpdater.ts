@@ -10,6 +10,7 @@ import {WebSocketOpcode} from "./opcodes";
 import TradeAdvisor from "../TradeAdvisor";
 import {PortfolioTrader, BotEvaluation} from "../Trade/PortfolioTrader"
 import {AbstractAdvisor} from "../AbstractAdvisor";
+import * as helper from "../utils/helper";
 
 export interface StatusUpdate {
     name: string;
@@ -19,6 +20,7 @@ export interface StatusUpdate {
     serverTime: string;
     started: Date;
     installed: Date;
+    botApiKey: string;
     nodeVersion: string;
     username: string;
     //currencies: string[];
@@ -67,6 +69,7 @@ export class StatusUpdater extends AppPublisher {
                 serverTime: utils.getUnixTimeStr(true, new Date()),
                 started: this.advisor.getStarted(),
                 installed: installDate,
+                botApiKey: helper.getFirstApiKey(),
                 nodeVersion: process.version,
                 username: nconf.get("serverConfig:premium") === true ? nconf.get("serverConfig:username") : "",
                 currencies: this.advisor.getCandleCurrencies().toString().replaceAll(",", ", "),

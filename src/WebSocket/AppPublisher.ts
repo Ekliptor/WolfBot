@@ -20,6 +20,14 @@ export abstract class AppPublisher extends ServerSocketPublisher {
     // ################################################################
     // ###################### PRIVATE FUNCTIONS #######################
 
+    protected sendErrorMessage(clientSocket: WebSocket, errorCode: string) {
+        this.send(clientSocket, {
+            error: true,
+            errorCode: errorCode
+            //errorTxt: msg
+        });
+    }
+
     protected getAggregateOpts() {
         return {
             maxTimeMS: nconf.get("mongoTimeoutSec") * 1000,

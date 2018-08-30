@@ -3513,10 +3513,12 @@ class Config extends AbstractController_1.AbstractController {
         if (data.error)
             return Hlp.showMsg(data.errorTxt ? data.errorTxt : AppF.tr(data.errorCode ? data.errorCode : 'unknownError'), 'danger');
         else if (data.saved) {
-            this.$("#saveConfig, #saveKey, #saveNotification").fadeOut("slow");
+            this.$("#saveConfig, #saveKey, #saveNotification, #copyConfigPanel").fadeOut("slow");
             Hlp.showMsg(AppF.tr('savedConfig'), 'success', index_1.AppClass.cfg.successMsgRemoveSec);
             if (data.restart)
                 this.showRestartMsg();
+            if (data.configFiles)
+                this.rebuildConfigDropdown(data.configFiles);
             return;
         }
         if (!this.isVisible())
@@ -3660,8 +3662,39 @@ class Config extends AbstractController_1.AbstractController {
             this.$("#tradingMode").append(this.getSelectOption(mode, AppF.tr(mode), mode === data.selectedTradingMode));
         });
         data.configFiles.forEach((conf) => {
-            let title = conf.substr(1).replace(/\.json$/, "");
+            let title = this.getPlainConfigName(conf);
             this.$("#configs").append(this.getSelectOption(conf, title, "/" + data.selectedConfig + ".json" === conf));
+        });
+        this.$("#copyConfig").click((event) => {
+            this.$("#copyConfigPanel").fadeIn("slow");
+        });
+        this.$("#copyConfigName").keydown((event) => {
+            this.onCopyConfigNameChange();
+        });
+        this.$("#copyConfigName").change((event) => {
+            this.onCopyConfigNameChange();
+        });
+        this.$("#copyConfigForm").submit((event) => {
+            event.preventDefault();
+            this.send({ copyConfig: this.$("#copyConfigName").val() });
+        });
+        this.$("#cancelNewConfigFile").click((event) => {
+            this.$("#copyConfigPanel").fadeOut("slow");
+        });
+        this.$("#deleteConfig").click((event) => {
+            const valueToRemove = this.$("#configs").val();
+            const valueToRemovePlain = this.getPlainConfigName(valueToRemove);
+            if (data.activeConfig === valueToRemovePlain) {
+                Hlp.alert(AppF.tr('deleteConfigDenied'));
+                return;
+            }
+            Hlp.confirm(i18next.t("deleteConfigConfirm", { name: valueToRemovePlain }), (answer) => {
+                if (answer !== true)
+                    return;
+                this.send({ deleteConfig: valueToRemove });
+                this.$("#configs option[value='" + valueToRemove + "']").remove();
+                this.$("#configs").val("/" + data.activeConfig + ".json").multiselect("rebuild"); // refresh works for changing the value only
+            });
         });
         data.traders.forEach((trader) => {
             this.$("#traders").append(this.getSelectOption(trader, AppF.tr(trader), data.selectedTrader === trader));
@@ -3683,7 +3716,7 @@ class Config extends AbstractController_1.AbstractController {
                 this.showRestartMsg();
             if (id === "configs") {
                 this.canEdit = false;
-                this.currentConfigFile = optionEl.val().substr(1).replace(/\.json$/, "");
+                this.currentConfigFile = this.getPlainConfigName(optionEl.val());
                 this.$("#saveConfig").fadeOut("slow");
                 this.send({ configChange: optionEl.val() });
             }
@@ -4024,6 +4057,21 @@ class Config extends AbstractController_1.AbstractController {
                 this.restartBot();
             });
         }, 100);
+    }
+    onCopyConfigNameChange() {
+        if (this.$("#saveConfigFile").is(":visible") === false)
+            this.$("#saveConfigFile").fadeIn("slow");
+    }
+    rebuildConfigDropdown(configFiles) {
+        this.$("#configs option").remove();
+        configFiles.forEach((conf) => {
+            let title = this.getPlainConfigName(conf);
+            this.$("#configs").append(this.getSelectOption(conf, title, "/" + this.currentConfigFile + ".json" === conf));
+        });
+        this.$("#configs").multiselect("rebuild");
+    }
+    getPlainConfigName(filename) {
+        return filename.substr(1).replace(/\.json$/, "");
     }
     send(data) {
         super.send(data);

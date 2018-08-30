@@ -79,9 +79,10 @@ export default class TradeNotifier extends PortfolioTrader/*AbstractTrader*/ { /
         return new Promise<void>((resolve, reject) => {
             const coinPair = strategy.getAction().pair.toString();
             const rate = strategy.getMarketPrice();
-            this.sendNotification(strategy, "BUY Signal", this.getStrategyDisplayName(strategy) + " triggered for " + coinPair, reason, rate);
+            let balance = this.getExchangeBalance(strategy.getAction().pair);
+            this.sendNotification(strategy, "BUY Signal", this.getStrategyDisplayName(strategy) + " triggered for " + coinPair, reason, rate, balance.pl);
             let order = Order.Order.getOrder(strategy.getAction().pair, Currency.Exchange.ALL, 1, rate, Trade.TradeType.BUY, "", false)
-            this.emitBuy(order, [], {strategy: strategy, reason: reason, exchange: null});
+            this.emitBuy(order, [], {strategy: strategy, pl: balance.pl, reason: reason, exchange: null});
             resolve();
         })
     }
@@ -90,9 +91,10 @@ export default class TradeNotifier extends PortfolioTrader/*AbstractTrader*/ { /
         return new Promise<void>((resolve, reject) => {
             const coinPair = strategy.getAction().pair.toString();
             const rate = strategy.getMarketPrice();
-            this.sendNotification(strategy, "SELL Signal", this.getStrategyDisplayName(strategy) + " triggered for " + coinPair, reason, rate);
+            let balance = this.getExchangeBalance(strategy.getAction().pair);
+            this.sendNotification(strategy, "SELL Signal", this.getStrategyDisplayName(strategy) + " triggered for " + coinPair, reason, rate, balance.pl);
             let order = Order.Order.getOrder(strategy.getAction().pair, Currency.Exchange.ALL, 1, rate, Trade.TradeType.SELL, "", false)
-            this.emitSell(order, [], {strategy: strategy, reason: reason, exchange: null});
+            this.emitSell(order, [], {strategy: strategy, pl: balance.pl, reason: reason, exchange: null});
             resolve();
         })
     }
