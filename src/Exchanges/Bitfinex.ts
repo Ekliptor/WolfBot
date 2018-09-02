@@ -299,7 +299,8 @@ export default class Bitfinex extends AbstractLendingExchange implements Externa
             let tradeCount = 0;
             let stepCount = 1000;
             let stepMs = 90 * utils.constants.MINUTE_IN_SECONDS * 1000;
-            let queryIntervalMs = 1500;
+            const initialStepMs = stepMs;
+            let queryIntervalMs = 2000;
             const brest = this.apiClient.rest/*(2, {transform: true})*/; // v2
             let symbol = "t" + this.currencies.getExchangePair(currencyPair);
             let onFinish = () => {
@@ -337,34 +338,49 @@ export default class Bitfinex extends AbstractLendingExchange implements Externa
                     const errStr = err ? err.toString() : "";
                     let rateLimitError = errStr.indexOf("ERR_RATE_LIMIT") !== -1 || errStr.indexOf("ratelimit") !== -1;
                     if (rateLimitError)
-                        queryIntervalMs += 100;
+                        queryIntervalMs += 200;
                     setTimeout(importNext.bind(this), rateLimitError ? 60000 : 5000); // retry
                 }
                 brest.makePublicRequest("trades/" + symbol + "/hist?" + query, (err, history) => {
                     if (err || Array.isArray(history) === false) {
                         if (currentMs >= endMs && !err && /*Object.keys(history).length === 0*/history.ID === undefined)
                             return onFinish();
-                        else if (typeof history === "object" && history.ID === undefined)
-                            return onFinish(); // API parameter error?
+                        else if (typeof history === "object" && history.ID === undefined) {
+                            logger.error("Received invalid %s response when importing trades", this.className, history)
+                            //return onFinish(); // API parameter error?
+                            currentMs = currentMs + stepMs;
+                            return setTimeout(importNext.bind(this), queryIntervalMs)
+                        }
                         if (!err)
                             currentMs += stepMs; // most likely the exchange was down during that import range
                         return retryError(err ? err : history);
                     }
 
                     if (history.length >= stepCount) {
-                        if (stepMs <= 30000)
-                            return reject({txt: "Unable to get small enough timeframe to import all trades"})
-                        stepMs -= 15 * utils.constants.MINUTE_IN_SECONDS * 1000;
-                        if (stepMs <= 30000)
-                            stepMs = 30000;
-                        logger.warn("%s trade history is incomplete. Retrying with smaller step %s ms", this.className, stepMs)
-                        return setTimeout(importNext.bind(this), queryIntervalMs)
+                        const lastStepMs = stepMs;
+                        if (stepMs <= 30000) {
+                            //return reject({txt: "Unable to get small enough timeframe to import all trades"})
+                            logger.warn("Unable to get small enough timeframe to import all trades. Trade history will have missing trades during volume spikes")
+                        }
+                        else {
+                            stepMs -= 15 * utils.constants.MINUTE_IN_SECONDS * 1000;
+                            if (stepMs <= 30000)
+                                stepMs = 30000;
+                            if (stepMs < lastStepMs) { // to be sure
+                                logger.warn("%s trade history is incomplete, length %s. Retrying with smaller step %s ms", this.className, history.length, stepMs)
+                                return setTimeout(importNext.bind(this), queryIntervalMs)
+                            }
+                        }
                     }
                     else if (history.length === 0) {
                         currentMs += stepMs;
+                        if (stepMs < initialStepMs) // check again with a higher step range to be sure we got all
+                            stepMs = initialStepMs;
                         logger.warn("Received no trade history. current step ms %s", currentMs)
                         return importNext(); // happens with last range or when the exchange was down (no trades)
                     }
+                    if (history.length <= 0.5*stepCount && stepMs < initialStepMs) // increase the time range to fetch again if we get very few trades (time spike is over)
+                        stepMs += 1 * utils.constants.MINUTE_IN_SECONDS * 1000; // increase in smaller intervals
                     let trades = [];
                     history.forEach((rawTrade) => {
                         trades.push(this.fromRawTrade(rawTrade, currencyPair))
@@ -373,7 +389,12 @@ export default class Bitfinex extends AbstractLendingExchange implements Externa
                     Trade.storeTrades(db.get(), trades, (err) => {
                         if (err)
                             logger.error("Error storing trades", err)
+                        const previousMs = currentMs;
                         currentMs = trades.length > 0 ? trades[trades.length-1].date.getTime()+1 : currentMs + stepMs;
+                        if (currentMs <= previousMs) {
+                            logger.error("Current fetch time range must be bigger than the previous one. Incrementing with default step %s", stepMs);
+                            currentMs = previousMs + stepMs;
+                        }
                         logger.verbose("%s %s import at %s with %s trades", this.className, currencyPair.toString(), utils.date.toDateTimeStr(new Date(currentMs)), tradeCount)
                         // max 90 reqs per minute, but not true: https://www.bitfinex.com/posts/188
                         setTimeout(importNext.bind(this), queryIntervalMs) // avoid hitting the rate limit -> temporary ban

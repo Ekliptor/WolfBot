@@ -291,6 +291,12 @@ export abstract class AbstractExchange {
         this.startPolling();
     }
 
+    public unsubscribeFromMarkets() {
+        this.currencyPairs = [];
+        this.orderBook.clear();
+        this.closeConnection("unsubscribing from markets");
+    }
+
     public getClassName() {
         return this.className;
     }
@@ -577,7 +583,7 @@ export abstract class AbstractExchange {
         // add a feature to auto import missing trades or suspend trading for candleSize * numberOfCandles of the longest strategy
     }
 
-    protected closeConnection(reason) {
+    protected closeConnection(reason: string) {
         let socket = AbstractExchange.pushApiConnections.get(this.className);
         try {
             if (!socket)

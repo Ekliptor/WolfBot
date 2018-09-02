@@ -1,6 +1,7 @@
 // node --use_strict --max-old-space-size=2096 app.js
 // parameters: --bundle, --debug (debug, otherwise use config value), -pPORT
 // -t: run a specific (test) script
+// --exchange: the exchange name for importing trades (with -t=import)
 
 // --config: the name of the config file under /config/ to run a specific trading strategy
 // --trader (optional): the name of the trader to use. defaults to "RealTimeTrader", alterantives: Backtester|TradeNotifier
@@ -30,6 +31,9 @@
 // --config: the name of the crawler config file under /config/social/ to define which sites to crawl
 // --social: use the social crawler
 // -c: social crawler class name - only run this class (useful for debugging). "Price" to crawl price data
+
+// Updater config
+// --update: only update to latest version. exit after update (or if we are already running the latest version)
 
 require('source-map-support').install();
 import * as utils from '@ekliptor/apputils';
@@ -233,7 +237,7 @@ if (nconf.get('protocol') === 'https://') {
 if (updateHandler !== null) {
     updateHandler.runUpdater(() => { // will restart the app or fire this callback
         if (argv.update) {
-            process.exit(1);
+            process.exit(0);
             return;
         }
         Controller.start(mainServer)
