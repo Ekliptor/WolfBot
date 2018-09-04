@@ -4,7 +4,7 @@ This is the source of the Crypto currency trading bot running on: https://wolfbo
 It is written in TypeScript for NodeJS + MongoDB.
 
 ## Features
-* **Trading**: buying + selling, portfolio managament (sync balances with exchanges)
+* **Trading**: buying + selling, portfolio management (sync balances with exchanges)
 * **Margin Trading**: leveraged trading including short selling and futures trading
 * **Arbitrage**: profit from price differences between 2 exchanges (done "on the books" with balances on both exchanges, no withdrawals from exchanges required)
 * **Lending**: lend your coins on the lending market of supported crypto exchanges for the highest possible interest rates
