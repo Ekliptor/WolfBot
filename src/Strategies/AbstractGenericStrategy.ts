@@ -172,6 +172,8 @@ export abstract class AbstractGenericStrategy extends EventEmitter {
      * @returns {Candle.Candle[]} the array of candles. empty array if the strategy doesn't have enough data yet
      */
     public getCandles(candleSize: number, candleCount: number = -1) {
+        if (candleCount === -1)
+            candleCount = Number.MAX_VALUE;
         // TODO candle cache to speed up backtesting. we can invalidate the cache every candleSize ticks
         let longCandles: Candle.Candle[] = [];
         let batcher = this.getCandleBatcher(candleSize);
@@ -248,6 +250,10 @@ export abstract class AbstractGenericStrategy extends EventEmitter {
         return candles;
     }
 
+    public getCandles1Min() {
+        return this.candles1min;
+    }
+
     protected computeAverageCandleVolume(candles: Candle.Candle[]) {
         if (!candles || candles.length === 0)
             return 0.0;
@@ -287,18 +293,35 @@ export abstract class AbstractGenericStrategy extends EventEmitter {
         this.candle = this.getCandleAt(0);
         if (this.candle)
             this.candleTrend = this.candle.trend;
-        if (state.lastNotification) // TODO remove
-            this.lastNotification = state.lastNotification;
+        this.lastNotification = state.lastNotification;
         // TODO return true/false depending on if required information was available (important in subclasses with custom serialized data)
         this.updateIndicatorCandles();
     }
 
+    /**
+     * Check if we can restore this strategy's state from the state of another strategy.
+     * @param state
+     * @param fromOtherStrategyState
+     */
     public canUnserialize(state: any, fromOtherStrategyState = false) {
         if (this.runningCandleSize !== state.runningCandleSize) {
             logger.warn("Skipped restoring %s data because candle size changed from %s min to %s min", this.className, state.runningCandleSize, this.runningCandleSize)
             return false;
         }
         return true;
+    }
+
+    /**
+     * Create a strategy state for this strategy from 1min candles.
+     * You can overwrite this function and create the state from the parent class to add more data.
+     * @param candles1min
+     */
+    public createStateFromMinuteCandles(candles1min: Candle.Candle[]) {
+        let state = this.serialize(); // get the (empty) state, then replace candles
+        state.candles1min = Candle.Candle.copy(candles1min);
+        this.candles1min = state.candles1min;
+        state.candleHistory = this.getCandles(this.runningCandleSize); // create from 1min candles
+        return state;
     }
 
     /**

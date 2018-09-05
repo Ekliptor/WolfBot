@@ -18,6 +18,7 @@ import {TechnicalAnalysis} from "./Mixins/TechnicalAnalysis";
 import * as helper from "../utils/helper";
 import {isWindows} from "@ekliptor/apputils";
 import {GenericStrategyState} from "./AbstractGenericStrategy";
+import {CandleBatcher} from "../Trade/Candles/CandleBatcher";
 
 export interface TechnicalStrategyAction extends StrategyAction {
     // properties are optional because not all strategies will have all indicators (and some might inherit TechnicalStrategy for other functions)
@@ -133,6 +134,17 @@ export abstract class TechnicalStrategy extends AbstractStrategy implements Tech
             })
         }
         calcCandle(0);
+    }
+
+    /**
+     * Create a strategy state for this strategy from 1min candles.
+     * You can overwrite this function and create the state from the parent class to add more data.
+     * @param candles1min
+     */
+    public createStateFromMinuteCandles(candles1min: Candle.Candle[]) {
+        let state = super.createStateFromMinuteCandles(candles1min);
+        state.candles = state.candleHistory;
+        return state;
     }
 
     /**

@@ -71,7 +71,7 @@
           "order": "closeLong",
           "setback": 5.0,
           "setbackLong": 5.5,
-          "time": 7200,
+          "time": 1800,
           "setbackProfit": 2.7,
           "triggerProfit": 4.3,
           "timeProfit": 120,
@@ -98,6 +98,18 @@
           "candleSize": 1,
           "pair": "USD_BTG",
           "enableLog": true
+        },
+        "TimeStop": {
+          "minCandles": 48,
+          "trailingStopPerc": 1.5,
+          "closePosition": "always",
+          "time": 30,
+          "keepTrendOpen": false,
+          "low": 25,
+          "high": 75,
+          "candleSize": 30,
+          "pair": "USD_BTG",
+          "enableLog": false
         },
         "IntervalExtremes": {
           "tradeDirection": "watch",
@@ -205,7 +217,7 @@
           "order": "closeLong",
           "setback": 5.0,
           "setbackLong": 5.5,
-          "time": 7200,
+          "time": 1800,
           "setbackProfit": 2.7,
           "triggerProfit": 4.3,
           "timeProfit": 120,
@@ -232,6 +244,18 @@
           "candleSize": 1,
           "pair": "USD_SAN",
           "enableLog": true
+        },
+        "TimeStop": {
+          "minCandles": 48,
+          "trailingStopPerc": 1.5,
+          "closePosition": "always",
+          "time": 30,
+          "keepTrendOpen": false,
+          "low": 25,
+          "high": 75,
+          "candleSize": 30,
+          "pair": "USD_SAN",
+          "enableLog": false
         },
         "IntervalExtremes": {
           "tradeDirection": "watch",
@@ -354,7 +378,7 @@
           "order": "closeLong",
           "setback": 5.0,
           "setbackLong": 5.5,
-          "time": 7200,
+          "time": 1800,
           "setbackProfit": 2.7,
           "triggerProfit": 4.3,
           "timeProfit": 120,
@@ -381,6 +405,18 @@
           "candleSize": 1,
           "pair": "USD_EDO",
           "enableLog": true
+        },
+        "TimeStop": {
+          "minCandles": 48,
+          "trailingStopPerc": 1.5,
+          "closePosition": "always",
+          "time": 30,
+          "keepTrendOpen": false,
+          "low": 25,
+          "high": 75,
+          "candleSize": 30,
+          "pair": "USD_EDO",
+          "enableLog": false
         },
         "VolumeSpikeDetector": {
           "spikeFactor": 3,
@@ -478,7 +514,7 @@
           "order": "closeLong",
           "setback": 5.0,
           "setbackLong": 5.5,
-          "time": 7200,
+          "time": 1800,
           "setbackProfit": 2.7,
           "triggerProfit": 4.3,
           "timeProfit": 120,
@@ -505,6 +541,18 @@
           "candleSize": 1,
           "pair": "USD_ETC",
           "enableLog": true
+        },
+        "TimeStop": {
+          "minCandles": 48,
+          "trailingStopPerc": 1.5,
+          "closePosition": "always",
+          "time": 30,
+          "keepTrendOpen": false,
+          "low": 25,
+          "high": 75,
+          "candleSize": 30,
+          "pair": "USD_ETC",
+          "enableLog": false
         },
         "IntervalExtremes": {
           "tradeDirection": "watch",
@@ -614,7 +662,7 @@
           "order": "closeLong",
           "setback": 5.0,
           "setbackLong": 5.5,
-          "time": 7200,
+          "time": 1800,
           "setbackProfit": 2.7,
           "triggerProfit": 4.3,
           "timeProfit": 120,
@@ -641,6 +689,18 @@
           "candleSize": 1,
           "pair": "USD_ETP",
           "enableLog": true
+        },
+        "TimeStop": {
+          "minCandles": 48,
+          "trailingStopPerc": 1.5,
+          "closePosition": "always",
+          "time": 30,
+          "keepTrendOpen": false,
+          "low": 25,
+          "high": 75,
+          "candleSize": 30,
+          "pair": "USD_ETP",
+          "enableLog": false
         },
         "IntervalExtremes": {
           "tradeDirection": "watch",
@@ -750,7 +810,7 @@
           "order": "closeLong",
           "setback": 5.0,
           "setbackLong": 5.5,
-          "time": 7200,
+          "time": 1800,
           "setbackProfit": 2.7,
           "triggerProfit": 4.3,
           "timeProfit": 120,
@@ -777,6 +837,18 @@
           "candleSize": 1,
           "pair": "BTC_ETH",
           "enableLog": true
+        },
+        "TimeStop": {
+          "minCandles": 48,
+          "trailingStopPerc": 1.5,
+          "closePosition": "always",
+          "time": 30,
+          "keepTrendOpen": false,
+          "low": 25,
+          "high": 75,
+          "candleSize": 30,
+          "pair": "BTC_ETH",
+          "enableLog": false
         },
         "IntervalExtremes": {
           "tradeDirection": "watch",
@@ -818,7 +890,7 @@
     {
       "exchanges": ["Bitfinex"],
       "marginTrading": true,
-      "tradeTotalBtc": 0.01,
+      "tradeTotalBtc": 0.0,
       "notifyTrades": true,
       "strategies": {
         "PlanRunner": {
@@ -886,7 +958,7 @@
           "order": "closeLong",
           "setback": 5.0,
           "setbackLong": 5.5,
-          "time": 7200,
+          "time": 1800,
           "setbackProfit": 2.7,
           "triggerProfit": 4.3,
           "timeProfit": 120,
@@ -913,6 +985,18 @@
           "candleSize": 1,
           "pair": "BTC_BCH",
           "enableLog": true
+        },
+        "TimeStop": {
+          "minCandles": 48,
+          "trailingStopPerc": 1.5,
+          "closePosition": "always",
+          "time": 30,
+          "keepTrendOpen": false,
+          "low": 25,
+          "high": 75,
+          "candleSize": 30,
+          "pair": "BTC_BCH",
+          "enableLog": false
         },
         "IntervalExtremes": {
           "tradeDirection": "watch",
@@ -1022,7 +1106,7 @@
           "order": "closeLong",
           "setback": 5.0,
           "setbackLong": 5.5,
-          "time": 7200,
+          "time": 1800,
           "setbackProfit": 2.7,
           "triggerProfit": 4.3,
           "timeProfit": 120,
@@ -1049,6 +1133,18 @@
           "candleSize": 1,
           "pair": "BTC_LTC",
           "enableLog": true
+        },
+        "TimeStop": {
+          "minCandles": 48,
+          "trailingStopPerc": 1.5,
+          "closePosition": "always",
+          "time": 30,
+          "keepTrendOpen": false,
+          "low": 25,
+          "high": 75,
+          "candleSize": 30,
+          "pair": "BTC_LTC",
+          "enableLog": false
         },
         "IntervalExtremes": {
           "tradeDirection": "watch",
@@ -1141,7 +1237,7 @@
           "order": "closeLong",
           "setback": 5.0,
           "setbackLong": 5.5,
-          "time": 7200,
+          "time": 1800,
           "setbackProfit": 2.7,
           "triggerProfit": 4.3,
           "timeProfit": 120,
@@ -1168,6 +1264,18 @@
           "candleSize": 1,
           "pair": "BTC_ETC",
           "enableLog": true
+        },
+        "TimeStop": {
+          "minCandles": 48,
+          "trailingStopPerc": 1.5,
+          "closePosition": "always",
+          "time": 30,
+          "keepTrendOpen": false,
+          "low": 25,
+          "high": 75,
+          "candleSize": 30,
+          "pair": "BTC_ETC",
+          "enableLog": false
         }
       }
     },
@@ -1213,7 +1321,7 @@
           "order": "closeLong",
           "setback": 5.0,
           "setbackLong": 5.5,
-          "time": 7200,
+          "time": 1800,
           "setbackProfit": 2.7,
           "triggerProfit": 4.3,
           "timeProfit": 120,
@@ -1240,6 +1348,18 @@
           "candleSize": 1,
           "pair": "BTC_NEO",
           "enableLog": true
+        },
+        "TimeStop": {
+          "minCandles": 48,
+          "trailingStopPerc": 1.5,
+          "closePosition": "always",
+          "time": 30,
+          "keepTrendOpen": false,
+          "low": 25,
+          "high": 75,
+          "candleSize": 30,
+          "pair": "BTC_NEO",
+          "enableLog": false
         }
       }
     },
@@ -1293,7 +1413,7 @@
           "order": "closeLong",
           "setback": 5.0,
           "setbackLong": 5.5,
-          "time": 7200,
+          "time": 1800,
           "setbackProfit": 2.7,
           "triggerProfit": 4.3,
           "timeProfit": 120,
@@ -1320,6 +1440,18 @@
           "candleSize": 1,
           "pair": "BTC_IOTA",
           "enableLog": true
+        },
+        "TimeStop": {
+          "minCandles": 48,
+          "trailingStopPerc": 1.5,
+          "closePosition": "always",
+          "time": 30,
+          "keepTrendOpen": false,
+          "low": 25,
+          "high": 75,
+          "candleSize": 30,
+          "pair": "BTC_IOTA",
+          "enableLog": false
         }
       }
     },
@@ -1365,7 +1497,7 @@
           "order": "closeLong",
           "setback": 5.0,
           "setbackLong": 5.5,
-          "time": 7200,
+          "time": 1800,
           "setbackProfit": 2.7,
           "triggerProfit": 4.3,
           "timeProfit": 120,
@@ -1392,6 +1524,18 @@
           "candleSize": 1,
           "pair": "BTC_EOS",
           "enableLog": true
+        },
+        "TimeStop": {
+          "minCandles": 48,
+          "trailingStopPerc": 1.5,
+          "closePosition": "always",
+          "time": 30,
+          "keepTrendOpen": false,
+          "low": 25,
+          "high": 75,
+          "candleSize": 30,
+          "pair": "BTC_EOS",
+          "enableLog": false
         }
       }
     },
@@ -1445,7 +1589,7 @@
           "order": "closeLong",
           "setback": 5.0,
           "setbackLong": 5.5,
-          "time": 7200,
+          "time": 1800,
           "setbackProfit": 2.7,
           "triggerProfit": 4.3,
           "timeProfit": 120,
@@ -1472,6 +1616,18 @@
           "candleSize": 1,
           "pair": "BTC_XRP",
           "enableLog": true
+        },
+        "TimeStop": {
+          "minCandles": 48,
+          "trailingStopPerc": 1.5,
+          "closePosition": "always",
+          "time": 30,
+          "keepTrendOpen": false,
+          "low": 25,
+          "high": 75,
+          "candleSize": 30,
+          "pair": "BTC_XRP",
+          "enableLog": false
         }
       }
     },
@@ -1525,7 +1681,7 @@
           "order": "closeLong",
           "setback": 5.0,
           "setbackLong": 5.5,
-          "time": 7200,
+          "time": 1800,
           "setbackProfit": 2.7,
           "triggerProfit": 4.3,
           "timeProfit": 120,
@@ -1552,6 +1708,18 @@
           "candleSize": 1,
           "pair": "BTC_XMR",
           "enableLog": true
+        },
+        "TimeStop": {
+          "minCandles": 48,
+          "trailingStopPerc": 1.5,
+          "closePosition": "always",
+          "time": 30,
+          "keepTrendOpen": false,
+          "low": 25,
+          "high": 75,
+          "candleSize": 30,
+          "pair": "BTC_XMR",
+          "enableLog": false
         }
       }
     },
@@ -1605,7 +1773,7 @@
           "order": "closeLong",
           "setback": 5.0,
           "setbackLong": 5.5,
-          "time": 7200,
+          "time": 1800,
           "setbackProfit": 2.7,
           "triggerProfit": 4.3,
           "timeProfit": 120,
@@ -1632,6 +1800,18 @@
           "candleSize": 1,
           "pair": "BTC_ZEC",
           "enableLog": true
+        },
+        "TimeStop": {
+          "minCandles": 48,
+          "trailingStopPerc": 1.5,
+          "closePosition": "always",
+          "time": 30,
+          "keepTrendOpen": false,
+          "low": 25,
+          "high": 75,
+          "candleSize": 30,
+          "pair": "BTC_ZEC",
+          "enableLog": false
         }
       }
     }

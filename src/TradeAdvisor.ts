@@ -332,14 +332,18 @@ export default class TradeAdvisor extends AbstractAdvisor {
                     fallback.add(restoreData[strategyName]);
                     if (!strategy.getSaveState())
                         return;
-                    if (!strategy.canUnserialize(restoreData[strategyName]))
+                    if (!strategy.canUnserialize(restoreData[strategyName])) {
+                        missingStrategyStates.push(strategy); // candle size changed. create new state
                         return;
+                    }
                     strategy.unserialize(restoreData[strategyName])
                     logger.info("Restored strategy state of %s %s from %s", pair, strategyName, path.basename(filePath))
                     restored = true;
                 });
                 let restoreBacktestStates = new Set<AbstractStrategy>(missingStrategyStates);
                 if (nconf.get("serverConfig:restoreStateFromOthers")) {
+                    // first try to restore the state from another strategy with the same candle size
+                    // TODO improve by ensuring it's the strategy with the same candle size and longest history
                     missingStrategyStates.forEach((strategy) => {
                         let strategyName = strategy.getClassName();
                         let state = fallback.get(strategy.getAction().candleSize);
@@ -357,6 +361,25 @@ export default class TradeAdvisor extends AbstractAdvisor {
                             logger.warn("Unable to restore %s %s from another strategy state", pair, strategyName, err);
                         }
                     });
+
+                    // else try to rebuild the required candle size from 1min candles
+                    let maxCandleHistoryStrategy = this.getMaxCandleHistoryStrategy(confStrategies);
+                    if (restoreBacktestStates.size !== 0 && maxCandleHistoryStrategy !== null) {
+                        for (let strategy of restoreBacktestStates)
+                        {
+                            let strategyName = strategy.getClassName();
+                            let state = strategy.createStateFromMinuteCandles(maxCandleHistoryStrategy.getCandles1Min());
+                            try {
+                                strategy.unserialize(state);
+                                logger.info("Restored strategy state of %s %s using state created from 1min candles from %s in %s", pair, strategyName, maxCandleHistoryStrategy.getClassName(), path.basename(filePath))
+                                restored = true;
+                                restoreBacktestStates.delete(strategy);
+                            }
+                            catch (err) {
+                                logger.warn("Unable to restore %s %s using state created from 1min candles state", pair, strategyName, err);
+                            }
+                        }
+                    }
                 }
                 if (confStrategies.length !== 0 && restoreBacktestStates.size !== 0) {
                     // if there is at least 1 strategy left to be restored for that pair we start a backtest for it (with all strategies)

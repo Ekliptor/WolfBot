@@ -81,7 +81,7 @@
           "order": "closeLong",
           "setback": 5.0,
           "setbackLong": 5.5,
-          "time": 7200,
+          "time": 1800,
           "setbackProfit": 2.7,
           "triggerProfit": 4.3,
           "timeProfit": 120,
@@ -111,7 +111,7 @@
         },
         "TimeStop": {
           "minCandles": 48,
-          "trailingStopPerc": 0.5,
+          "trailingStopPerc": 1.5,
           "closePosition": "always",
           "time": 30,
           "keepTrendOpen": false,
@@ -238,7 +238,7 @@
           "order": "closeLong",
           "setback": 5.0,
           "setbackLong": 5.5,
-          "time": 7200,
+          "time": 1800,
           "setbackProfit": 2.7,
           "triggerProfit": 4.3,
           "timeProfit": 120,
@@ -265,6 +265,18 @@
           "candleSize": 1,
           "pair": "USD_LTC",
           "enableLog": true
+        },
+        "TimeStop": {
+          "minCandles": 48,
+          "trailingStopPerc": 1.5,
+          "closePosition": "always",
+          "time": 30,
+          "keepTrendOpen": false,
+          "low": 25,
+          "high": 75,
+          "candleSize": 30,
+          "pair": "USD_LTC",
+          "enableLog": false
         },
         "IntervalExtremes": {
           "tradeDirection": "watch",
@@ -383,7 +395,7 @@
           "order": "closeLong",
           "setback": 5.0,
           "setbackLong": 5.5,
-          "time": 7200,
+          "time": 1800,
           "setbackProfit": 2.7,
           "triggerProfit": 4.3,
           "timeProfit": 120,
@@ -413,7 +425,7 @@
         },
         "TimeStop": {
           "minCandles": 48,
-          "trailingStopPerc": 0.5,
+          "trailingStopPerc": 1.5,
           "closePosition": "always",
           "time": 30,
           "keepTrendOpen": false,
@@ -531,7 +543,7 @@
           "order": "closeLong",
           "setback": 5.0,
           "setbackLong": 5.5,
-          "time": 7200,
+          "time": 1800,
           "setbackProfit": 2.7,
           "triggerProfit": 4.3,
           "timeProfit": 120,
@@ -558,6 +570,18 @@
           "candleSize": 1,
           "pair": "USD_XMR",
           "enableLog": true
+        },
+        "TimeStop": {
+          "minCandles": 48,
+          "trailingStopPerc": 1.5,
+          "closePosition": "always",
+          "time": 30,
+          "keepTrendOpen": false,
+          "low": 25,
+          "high": 75,
+          "candleSize": 30,
+          "pair": "USD_XMR",
+          "enableLog": false
         },
         "IntervalExtremes": {
           "tradeDirection": "watch",
@@ -665,7 +689,7 @@
           "order": "closeLong",
           "setback": 5.0,
           "setbackLong": 5.5,
-          "time": 7200,
+          "time": 1800,
           "setbackProfit": 2.7,
           "triggerProfit": 4.3,
           "timeProfit": 120,
@@ -692,6 +716,18 @@
           "candleSize": 1,
           "pair": "USD_DASH",
           "enableLog": true
+        },
+        "TimeStop": {
+          "minCandles": 48,
+          "trailingStopPerc": 1.5,
+          "closePosition": "always",
+          "time": 30,
+          "keepTrendOpen": false,
+          "low": 25,
+          "high": 75,
+          "candleSize": 30,
+          "pair": "USD_DASH",
+          "enableLog": false
         },
         "IntervalExtremes": {
           "tradeDirection": "watch",
@@ -791,7 +827,7 @@
           "order": "closeLong",
           "setback": 5.0,
           "setbackLong": 5.5,
-          "time": 7200,
+          "time": 1800,
           "setbackProfit": 2.7,
           "triggerProfit": 4.3,
           "timeProfit": 120,
@@ -818,6 +854,18 @@
           "candleSize": 1,
           "pair": "USD_IOTA",
           "enableLog": true
+        },
+        "TimeStop": {
+          "minCandles": 48,
+          "trailingStopPerc": 1.5,
+          "closePosition": "always",
+          "time": 30,
+          "keepTrendOpen": false,
+          "low": 25,
+          "high": 75,
+          "candleSize": 30,
+          "pair": "USD_IOTA",
+          "enableLog": false
         },
         "IntervalExtremes": {
           "tradeDirection": "watch",
@@ -929,7 +977,7 @@
           "order": "closeLong",
           "setback": 5.0,
           "setbackLong": 5.5,
-          "time": 7200,
+          "time": 1800,
           "setbackProfit": 2.7,
           "triggerProfit": 4.3,
           "timeProfit": 120,
@@ -956,6 +1004,18 @@
           "candleSize": 1,
           "pair": "USD_ZEC",
           "enableLog": true
+        },
+        "TimeStop": {
+          "minCandles": 48,
+          "trailingStopPerc": 1.5,
+          "closePosition": "always",
+          "time": 30,
+          "keepTrendOpen": false,
+          "low": 25,
+          "high": 75,
+          "candleSize": 30,
+          "pair": "USD_ZEC",
+          "enableLog": false
         },
         "IntervalExtremes": {
           "tradeDirection": "watch",
@@ -1055,7 +1115,7 @@
           "order": "closeLong",
           "setback": 5.0,
           "setbackLong": 5.5,
-          "time": 7200,
+          "time": 1800,
           "setbackProfit": 2.7,
           "triggerProfit": 4.3,
           "timeProfit": 120,
@@ -1082,6 +1142,18 @@
           "candleSize": 1,
           "pair": "USD_BCH",
           "enableLog": true
+        },
+        "TimeStop": {
+          "minCandles": 48,
+          "trailingStopPerc": 1.5,
+          "closePosition": "always",
+          "time": 30,
+          "keepTrendOpen": false,
+          "low": 25,
+          "high": 75,
+          "candleSize": 30,
+          "pair": "USD_BCH",
+          "enableLog": false
         },
         "IntervalExtremes": {
           "tradeDirection": "watch",
@@ -1191,7 +1263,7 @@
           "order": "closeLong",
           "setback": 5.0,
           "setbackLong": 5.5,
-          "time": 7200,
+          "time": 1800,
           "setbackProfit": 2.7,
           "triggerProfit": 4.3,
           "timeProfit": 120,
@@ -1218,6 +1290,18 @@
           "candleSize": 1,
           "pair": "USD_OMG",
           "enableLog": true
+        },
+        "TimeStop": {
+          "minCandles": 48,
+          "trailingStopPerc": 1.5,
+          "closePosition": "always",
+          "time": 30,
+          "keepTrendOpen": false,
+          "low": 25,
+          "high": 75,
+          "candleSize": 30,
+          "pair": "USD_OMG",
+          "enableLog": false
         },
         "IntervalExtremes": {
           "tradeDirection": "watch",
@@ -1325,7 +1409,7 @@
           "order": "closeLong",
           "setback": 5.0,
           "setbackLong": 5.5,
-          "time": 7200,
+          "time": 1800,
           "setbackProfit": 2.7,
           "triggerProfit": 4.3,
           "timeProfit": 120,
@@ -1352,6 +1436,18 @@
           "candleSize": 1,
           "pair": "USD_NEO",
           "enableLog": true
+        },
+        "TimeStop": {
+          "minCandles": 48,
+          "trailingStopPerc": 1.5,
+          "closePosition": "always",
+          "time": 30,
+          "keepTrendOpen": false,
+          "low": 25,
+          "high": 75,
+          "candleSize": 30,
+          "pair": "USD_NEO",
+          "enableLog": false
         },
         "IntervalExtremes": {
           "tradeDirection": "watch",
@@ -1461,7 +1557,7 @@
           "order": "closeLong",
           "setback": 5.0,
           "setbackLong": 5.5,
-          "time": 7200,
+          "time": 1800,
           "setbackProfit": 2.7,
           "triggerProfit": 4.3,
           "timeProfit": 120,
@@ -1488,6 +1584,18 @@
           "candleSize": 1,
           "pair": "USD_EOS",
           "enableLog": true
+        },
+        "TimeStop": {
+          "minCandles": 48,
+          "trailingStopPerc": 1.5,
+          "closePosition": "always",
+          "time": 30,
+          "keepTrendOpen": false,
+          "low": 25,
+          "high": 75,
+          "candleSize": 30,
+          "pair": "USD_EOS",
+          "enableLog": false
         },
         "IntervalExtremes": {
           "tradeDirection": "watch",
@@ -1597,7 +1705,7 @@
           "order": "closeLong",
           "setback": 5.0,
           "setbackLong": 5.5,
-          "time": 7200,
+          "time": 1800,
           "setbackProfit": 2.7,
           "triggerProfit": 4.3,
           "timeProfit": 120,
@@ -1624,6 +1732,18 @@
           "candleSize": 1,
           "pair": "USD_XRP",
           "enableLog": true
+        },
+        "TimeStop": {
+          "minCandles": 48,
+          "trailingStopPerc": 1.5,
+          "closePosition": "always",
+          "time": 30,
+          "keepTrendOpen": false,
+          "low": 25,
+          "high": 75,
+          "candleSize": 30,
+          "pair": "USD_XRP",
+          "enableLog": false
         },
         "IntervalExtremes": {
           "tradeDirection": "watch",

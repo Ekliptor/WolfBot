@@ -257,10 +257,11 @@ export abstract class AbstractAdvisor extends AbstractSubController {
     // ###################### PRIVATE FUNCTIONS #######################
 
     protected restoreState() {
+        /*
         if (nconf.get("debug") && (os.platform() === 'darwin' || os.platform() === 'win32')) {
             logger.verbose("Skipped restoring config state in debug mode")
             return
-        }
+        }*/
         const filePath = fs.existsSync(this.getSaveStateFile()) ? this.getSaveStateFile() : this.getSaveStateBackupFile();
         fs.readFile(filePath, {encoding: "utf8"}, (err, data) => {
             if (err) {
@@ -322,6 +323,18 @@ export abstract class AbstractAdvisor extends AbstractSubController {
         let warmupMinutes = strategies.filter(s => s.getAction().candleSize != 0).map(s => s.getMinWarumCandles() * s.getAction().candleSize);
         warmupMinutes.push(1);
         return Math.max(...warmupMinutes);
+    }
+
+    protected getMaxCandleHistoryStrategy(strategies: AbstractGenericStrategy[]) {
+        let maxStrategy: AbstractGenericStrategy = null;
+        for (let i = 0; i < strategies.length; i++)
+        {
+            if (maxStrategy === null)
+                maxStrategy = strategies[i];
+            else if (strategies[i].getCandles1Min().length > maxStrategy.getCandles1Min().length)
+                maxStrategy = strategies[i];
+        }
+        return maxStrategy;
     }
 
     protected async startBacktest(): Promise<void> {
