@@ -1,0 +1,80 @@
+{
+  "data": [
+    {
+      "exchanges": "Bitfinex",
+      "marginTrading": true,
+      "tradeTotalBtc": 200.0,
+      "warmUpMin": 0,
+      "strategies": {
+        "VolumeSpikeDetector": {
+          "spikeFactor": 3,
+          "minVolBtc": 1.2,
+          "tradeDirection": "both",
+          "candleSize": 10,
+          "pair": "USD_LTC",
+          "enableLog": false
+        },
+        "PriceSpikeDetector": {
+          "spikePercent": 2.1,
+          "spikeHistoryPercent": 7.0,
+          "historyCandleCount": 3,
+          "tradeDirection": "both",
+          "candleSize": 5,
+          "pair": "USD_LTC",
+          "enableLog": false
+        },
+        "StopLossTurn": {
+          "order": "closeLong",
+          "setback": 2.0,
+          "setbackLong": 2.5,
+          "time": 300,
+          "setbackProfit": 2.7,
+          "triggerProfit": 4.3,
+          "timeProfit": 10,
+          "notifyBeforeStopSec": 0,
+          "reduceTimeByVolatility": false,
+          "low": 52,
+          "high": 56,
+          "candleSize": 5,
+          "pair": "USD_LTC",
+          "enableLog": false
+        },
+        "TakeProfit": {
+          "order": "closeShort",
+          "profit": 1.9,
+          "time": 120,
+          "candleSize": 1,
+          "pair": "USD_LTC",
+          "enableLog": true
+        },
+        "IntervalExtremes": {
+          "tradeDirection": "watch",
+          "mode": "bounce",
+          "tradeInterval": "halfDay",
+          "notifyPriceInterval": "3days",
+          "low": 25,
+          "high": 75,
+          "candleSize": 60,
+          "pair": "USD_LTC",
+          "tradeStrategy": "RSIScalpOrderer",
+          "enableLog": true
+        },
+        "OrderPartitioner": {
+          "tradeCount": 20,
+          "percentChange": 0.35,
+          "whalePercentage": 5,
+          "fishPercentage": 1.1,
+          "pair": "USD_LTC",
+          "candleSize": 60,
+          "enableLog": false
+        },
+        "VolumeSpikeDetectorLong": {
+          "spikeFactor": 2.5,
+          "candleSize": 720,
+          "pair": "USD_LTC",
+          "enableLog": false
+        }
+      }
+    }
+  ]
+}

@@ -792,6 +792,7 @@
       "whalePercentage": "optional, default 5.0% - % volume level for the high volume orders that shall be considered 'whales'",
       "fishPercentage": "optional, default 3.0% - % volume level for the low volume orders that shall be considered 'small fish'",
       "maxTradesDisplay": "optional, default 30 - How many single trades to display at most per bucket.",
+      "tradeDirection": "optional, default watch - The direction in which this strategy shall open positions. 'notify' means you will only receive notifications to do a trade. 'watch' only computes the spike values for manual inspection. Values: up|down|both|notify|watch",
       "CrossMAType": "optional, default EMA - The moving average type to use for the 'requireMAMatch' option. Values: EMA|SMA|DEMA",
       "short": "Number of candles for the short EMA line.",
       "long": "Number of candles for the long EMA line.",

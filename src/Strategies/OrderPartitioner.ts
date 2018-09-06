@@ -6,6 +6,7 @@ import {Currency, Trade, Candle, Order} from "@ekliptor/bit-models";
 import * as helper from "../utils/helper";
 import * as Heap from "qheap";
 import {TechnicalStrategy, TechnicalStrategyAction} from "./TechnicalStrategy";
+import {TradeDirection} from "../Trade/AbstractTrader";
 
 interface OrderPartitionerAction extends TechnicalStrategyAction {
     tradeCount: number; // The number of trades sorted by amount we want to display.
@@ -15,6 +16,8 @@ interface OrderPartitionerAction extends TechnicalStrategyAction {
     whalePercentage: number; // 5% // % volume level for the high volume orders that shall be considered 'whales'
     fishPercentage: number; // 3% // % volume level for the low volume orders that shall be considered 'small fish'
     maxTradesDisplay: number; // 30 // How many single trades to display at most per bucket.
+
+    tradeDirection: TradeDirection | "notify" | "watch"; // optional. default "watch"
 
     // TODO count buy/sell trades over specified intervals
 
@@ -91,6 +94,8 @@ export default class OrderPartitioner extends TechnicalStrategy {
             this.action.fishPercentage = 3.0;
         if (!this.action.maxTradesDisplay)
             this.action.maxTradesDisplay = 30;
+        if (!this.action.tradeDirection)
+            this.action.tradeDirection = "watch";
         if (!this.action.CrossMAType)
             this.action.CrossMAType = "EMA";
         if (!this.action.short)
@@ -206,7 +211,8 @@ export default class OrderPartitioner extends TechnicalStrategy {
         this.currentTickTrades = [];
         this.raiseLowerDiffPercents = []; // restart will empty array and fill it up until next candle tick
         this.plotChart();
-        this.tradeByVolume();
+        if (this.action.tradeDirection !== "watch")
+            this.tradeByVolume();
     }
 
     protected computeVolumeStats() {
@@ -376,15 +382,33 @@ export default class OrderPartitioner extends TechnicalStrategy {
             return; // only trade once
         const volumeBuySell = this.getBuySellPercentage(this.volumeBuyCount, this.volumeSellCount); // or use "buySell" to include all trades
         if (volumeBuySell > this.action.volumeBuySellLongThreshold && this.isEmaTrendUp()) {
-            this.log("UP volume trend detected, ratio", volumeBuySell)
-            this.emitBuy(this.defaultWeight, "volumeBuySell value: " + volumeBuySell);
+            this.openLong("volumeBuySell value: " + volumeBuySell);
         }
         else if (volumeBuySell < this.action.volumeBuySellShortThreshold && this.isEmaTrendDown()) {
-            this.log("DOWN volume trend detected, ratio", volumeBuySell)
-            this.emitSell(this.defaultWeight, "volumeBuySell value: " + volumeBuySell);
+            this.openShort("volumeBuySell value: " + volumeBuySell);
         }
         else
             this.log("No volume trend detected")
+    }
+
+    protected openLong(reason: string) {
+        if (this.action.tradeDirection === "down")
+            return this.log("Skipped opening LONG position because trade direction is set to DOWN only. reason: " + reason);
+        this.log(reason);
+        if (this.action.tradeDirection === "notify")
+            this.sendNotification("BUY signal", reason)
+        else
+            this.emitBuy(this.defaultWeight, reason);
+    }
+
+    protected openShort(reason: string) {
+        if (this.action.tradeDirection === "up")
+            return this.log("Skipped opening SHORT position because trade direction is set to UP only. reason: " + reason);
+        this.log(reason);
+        if (this.action.tradeDirection === "notify")
+            this.sendNotification("SELL signal", reason)
+        else
+            this.emitSell(this.defaultWeight, reason);
     }
 
     protected isEmaTrendUp() {

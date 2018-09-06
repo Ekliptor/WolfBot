@@ -343,7 +343,7 @@ export default class TradeAdvisor extends AbstractAdvisor {
                 let restoreBacktestStates = new Set<AbstractStrategy>(missingStrategyStates);
                 if (nconf.get("serverConfig:restoreStateFromOthers")) {
                     // first try to restore the state from another strategy with the same candle size
-                    // TODO improve by ensuring it's the strategy with the same candle size and longest history
+                    // TODO improve by ensuring it's the strategy with the same candle size AND longest history
                     missingStrategyStates.forEach((strategy) => {
                         let strategyName = strategy.getClassName();
                         let state = fallback.get(strategy.getAction().candleSize);

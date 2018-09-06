@@ -257,11 +257,10 @@ export abstract class AbstractAdvisor extends AbstractSubController {
     // ###################### PRIVATE FUNCTIONS #######################
 
     protected restoreState() {
-        /*
         if (nconf.get("debug") && (os.platform() === 'darwin' || os.platform() === 'win32')) {
             logger.verbose("Skipped restoring config state in debug mode")
             return
-        }*/
+        }
         const filePath = fs.existsSync(this.getSaveStateFile()) ? this.getSaveStateFile() : this.getSaveStateBackupFile();
         fs.readFile(filePath, {encoding: "utf8"}, (err, data) => {
             if (err) {
