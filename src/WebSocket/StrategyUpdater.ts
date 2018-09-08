@@ -57,7 +57,6 @@ export class StrategyUpdater extends AppPublisher {
     constructor(serverSocket: ServerSocket, advisor: AbstractAdvisor) {
         super(serverSocket, advisor)
         this.loadConfigs();
-        this.publishStrategyUpdates();
     }
 
     public onSubscription(clientSocket: WebSocket, initialRequest: http.IncomingMessage): void {
@@ -215,6 +214,8 @@ export class StrategyUpdater extends AppPublisher {
             this.maxConfigNr = this.advisor.getConfigs().length;
             if (this.maxConfigNr === 0)
                 setTimeout(load.bind(this), 1000); // config files are read async from disk
+            else
+                this.publishStrategyUpdates();
         }
         setTimeout(load.bind(this), 1000);
     }

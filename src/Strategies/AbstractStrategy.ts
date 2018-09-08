@@ -514,6 +514,18 @@ export abstract class AbstractStrategy extends AbstractGenericStrategy {
         return null; // TODO add required plugins (telegram,...)
     }
 
+    public isValidOrder(order: StrategyOrder) {
+        switch (order) {
+            case "buy":
+            case "sell":
+            case "closeLong":
+            case "closeShort":
+                return true;
+            default:
+                return false;
+        }
+    }
+
     /**
      * Returns the first active main strategy. Also see StrategyGroup.getActiveMainStrategies()
      * @param {AbstractStrategy[]} strategies
