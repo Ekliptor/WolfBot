@@ -1206,5 +1206,6 @@
   "errorCopyingConf": "Error copying config file",
   "errorConfExists": "There is already a configuration with that name.",
   "copyConfPlace": "Enter a name for the new configuration...",
-  "botApiKey": "Bot API key"
+  "botApiKey": "Bot API key",
+  "tickIndicator": "TICK Indicator"
 }

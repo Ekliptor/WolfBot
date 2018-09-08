@@ -51,6 +51,7 @@ export class PriceWatcher extends AbstractSubController {
         */
         this.coinMarketCap.listCurrencies().then((list) => {
             let infos = []
+            let btcUsdRate = 0.0;
             //json.data.forEach((coinPriceData) => {
             //for (let prop in json.data)
             for (let coinPriceData of list.data)
@@ -75,6 +76,10 @@ export class PriceWatcher extends AbstractSubController {
                 info.priceUSD = coinPriceData.quote.USD.price;
                 //info.priceBTC = coinPriceData.quote.BTC.price; // TODO upgrade plan to allow multiple conversions
                 info.priceBTC = 0.0;
+                if (btcUsdRate !== 0.0)
+                    info.priceBTC = info.priceUSD / btcUsdRate;
+                else if (info.currency !== Currency.Currency.BTC)
+                    logger.error("BTC rate not available for conversion for currency %s", Currency[info.currency]);
                 info.volume24hUSD = coinPriceData.quote.USD.volume_24h;
                 info.marketCapUSD = coinPriceData.quote.USD.market_cap;
                 info.availableSupply = coinPriceData.circulating_supply;
@@ -84,6 +89,8 @@ export class PriceWatcher extends AbstractSubController {
                 info.percentChange7d = coinPriceData.quote.USD.percent_change_7d;
                 info.lastUpdated = new Date(coinPriceData.last_updated) // from ISO string
                 infos.push(info)
+                if (btcUsdRate === 0.0 && info.currency === Currency.Currency.BTC)
+                    btcUsdRate = info.priceUSD; // the list is sorted by market cap, so BTC should be first (for now)
             }
             CoinMarketInfo.insert(db.get(), infos).then(() => {
                 logger.verbose("Added %s price infos to database", infos.length)

@@ -3384,26 +3384,31 @@ class CoinMarket extends ChartController_1.ChartController {
         this.chartLibsLoaded = true; // currently always included globally
         this.maxAge = null;
         this.chartLegendDays = 0;
+        this.chartLegendTickHours = 0;
         this.serverDate = null;
         this.crawlTickerHours = 0;
         this.chartLegend = [];
+        this.chartLegendHourly = [];
         this.nextData = null;
     }
     onData(data) {
         if (data.maxAge) {
             this.maxAge = new Date(data.maxAge); // if we use JSON (instead of EJSON)
             this.chartLegendDays = data.days;
+            this.chartLegendTickHours = data.tickHours;
             this.serverDate = new Date(data.serverDate);
             this.crawlTickerHours = data.crawlTickerHours;
             this.createChartLegend();
+            this.createHourlyChartLegend(data.maxTickDate);
             return;
         }
         if (data.full) {
             this.$().empty(); // shouldn't be needed (if we do incremental updates, which we don't currently on this view)
-            let html = AppF.translate(pageData.html.coinMarketStats.coinRates, {});
+            let html = AppF.translate(pageData.html.coinMarketStats.coinRates, {}) + AppF.translate(pageData.html.coinMarketStats.tickIndicator, {});
             this.$().append(html);
             this.nextData = data.full;
             this.addChartHtml("coinRateComparison");
+            this.addChartHtml("tickIndicator");
             if (!this.chartLibsLoaded) {
                 AppF.loadResource(this.getChartLibs(), this.displayChartData.bind(this), null, true);
             }
@@ -3432,6 +3437,7 @@ class CoinMarket extends ChartController_1.ChartController {
     }
     displayChartData() {
         this.chartLibsLoaded = true;
+        // coin rate comparison
         let coinPlotData = [];
         for (let currencyStr in this.nextData.coinStats) {
             coinPlotData.push({
@@ -3441,6 +3447,19 @@ class CoinMarket extends ChartController_1.ChartController {
         }
         let coinOpts = new ChartController_1.PlotChartOptions(this.chartLegend);
         this.plotLineChart("#chart-coinRateComparison", coinPlotData, coinOpts);
+        // TICK indicator
+        this.displayTickChartData(this.nextData.tick, ["usd", "btc"]);
+    }
+    displayTickChartData(values, tickBaseCurrencies) {
+        let coinOpts = new ChartController_1.PlotChartOptions(this.chartLegendHourly);
+        let coinPlotData = [];
+        tickBaseCurrencies.forEach((tickCurrency) => {
+            coinPlotData.push({
+                label: "TICK-" + tickCurrency.toUpperCase(),
+                dataPoints: values[tickCurrency]
+            });
+        });
+        this.plotLineChart("#chart-tickIndicator", coinPlotData, coinOpts);
     }
     showVolumeSpikes() {
         let html = AppF.translate(pageData.html.coinMarketStats.volumeSpikes, {
@@ -3473,9 +3492,19 @@ class CoinMarket extends ChartController_1.ChartController {
         for (let i = 0; i < this.chartLegendDays * 24; i++) // we have hourly ticks on our x axis
          {
             legend.push(currentDate.toLocaleDateString(appData.locale, { timeZone: "UTC" }) + " " + currentDate.getUTCHours() + ":00");
-            currentDate.setTime(currentDate.getTime() + 1 * 3600000);
+            currentDate.setTime(currentDate.getTime() + 1 * 3600000); // hourly values, legend step is > 1
         }
         this.chartLegend = legend;
+    }
+    createHourlyChartLegend(maxTickDate) {
+        let legend = [];
+        let currentDate = new Date(maxTickDate); // copy it
+        for (let i = 0; i < this.chartLegendTickHours; i++) // we have hourly ticks on our x axis
+         {
+            legend.push(currentDate.toLocaleDateString(appData.locale, { timeZone: "UTC" }) + " " + currentDate.getUTCHours() + ":00");
+            currentDate.setTime(currentDate.getTime() + 1 * 3600000);
+        }
+        this.chartLegendHourly = legend;
     }
 }
 exports.CoinMarket = CoinMarket;
