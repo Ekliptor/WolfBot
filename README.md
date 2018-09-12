@@ -32,7 +32,7 @@ The full strategy documentation: https://wolfbot.org/strategy-docs/
 NodeJS >= 10
 MongoDB >= 3.4
 TypeScript >= 2.8
-yarn >= 1.5 (npm should work too)
+yarn >= 1.9.4 (npm should work too, but not officially supported if you run into errors)
 Webpack >= 4 (only for UI modifications)
 ```
 
