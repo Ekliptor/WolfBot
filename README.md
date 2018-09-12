@@ -53,7 +53,7 @@ After running TypeScript (automatically in your IDE or run the `tsc` command in 
 ```
 build/app.js
 ```
-Use the `build` directory as the working directory and run:
+`tsc` will show you some errors (due to shared code with missing types between server and client side, I will refactor this later). Just ignore these errors and make sure `noEmitOnError` is not set (the default) and that you have a `build/` dir in the project root as well as for all packages under `node_modules/@ekliptor` which contain a `tsconfig.json` file. You Use the `build` directory as the working directory and run:
 ```
 node app.js --debug --config=Noop --trader=RealTimeTrader --noUpdate --noBrowser
 ```
