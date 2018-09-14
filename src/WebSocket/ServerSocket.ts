@@ -216,13 +216,15 @@ export class ServerSocket extends WebSocket.Server {
         this.on("connection", (ws: ClientSocketOnServer, request) => {
             let params = utils.url.getUrlParameters(request.url)
             let keys = nconf.get('apiKeys')
-            if (!params["apiKey"] || keys[params["apiKey"]] !== true) {
-                logger.warn("Refusing WebSocket connection without authentication on %s from %s", request.url, request.socket.remoteAddress)
-                const errorMsg: WebSocketError = nconf.get("serverConfig:premium") === true? "UnauthorizedPremium" : "Unauthorized";
-                this.sendErrorAndClose(ws, errorMsg);
-                // TODO create none/read/write permissions per ServerSocketPublisher? this way wey can always process the message by calling handleData()
-                // but requires more developer work to check for permissions in onData()
-                return;
+            if (utils.objects.isEmpty(keys) === false) { // otherwise no API keys configured (public access for everybody)
+                if (!params["apiKey"] || keys[params["apiKey"]] !== true) {
+                    logger.warn("Refusing WebSocket connection without authentication on %s from %s", request.url, request.socket.remoteAddress)
+                    const errorMsg: WebSocketError = nconf.get("serverConfig:premium") === true? "UnauthorizedPremium" : "Unauthorized";
+                    this.sendErrorAndClose(ws, errorMsg);
+                    // TODO create none/read/write permissions per ServerSocketPublisher? this way wey can always process the message by calling handleData()
+                    // but requires more developer work to check for permissions in onData()
+                    return;
+                }
             }
             if (ws.id === undefined)
                 ws.id = getUniqueID(); // TODO instantiate subclass?
