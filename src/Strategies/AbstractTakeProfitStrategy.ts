@@ -81,7 +81,12 @@ export abstract class AbstractTakeProfitStrategy extends /*AbstractStrategy*/Tec
         }
         super.onSyncPortfolio(coins, position, exchangeLabel)
         this.closedPositions = resetClosedPositionsValue;
-        if (this.strategyPosition !== previousPos) {
+        const isValidOrder = this.isValidOrder(this.action.order);
+        if (isValidOrder === false) {
+            logger.error("Invalid order action '%s' found in %s - resetting it", this.action.order, this.className)
+            this.action.order = "closeLong"; // always ensure our order has a valid value for the stop to trigger. value changed in resetValues
+        }
+        if (this.strategyPosition !== previousPos || isValidOrder === false) {
             this.lastTrade = this.strategyPosition === "long" ? "buy" : "sell";
             this.resetValues();
         }
