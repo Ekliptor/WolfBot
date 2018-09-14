@@ -200,9 +200,9 @@ let handleRequest = (request, response) => {
         logger.error(error)
     }
 }
-let startPath = "";
+let startPath = "/index.html";
 if (helper.getFirstApiKey())
-    startPath = "/index.html?apiKey=" + helper.getFirstApiKey();
+    startPath = "?apiKey=" + helper.getFirstApiKey();
 let server = http.createServer(handleRequest)
 server.setTimeout(nconf.get("httpTimeoutSec") * 1000, null)
 //httpShutdown(server)
