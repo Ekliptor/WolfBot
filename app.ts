@@ -2,6 +2,7 @@
 // parameters: --bundle, --debug (debug, otherwise use config value), -pPORT
 // -t: run a specific (test) script
 // --exchange: the exchange name for importing trades (with -t=import)
+// --days: the history in number of last days to import (with -t=import)
 
 // --config: the name of the config file under /config/ to run a specific trading strategy
 // --trader (optional): the name of the trader to use. defaults to "RealTimeTrader", alterantives: Backtester|TradeNotifier

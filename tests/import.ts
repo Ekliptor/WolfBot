@@ -102,7 +102,13 @@ let importMultipleCurrencyTrades = (exchangeName: MultipleCurrencyImportExchange
 
         let start = utils.date.parseAsGmt0(nconf.get("serverConfig:backtest:from"))
         let end = utils.date.parseAsGmt0(nconf.get("serverConfig:backtest:to"))
-        logger.info("Starting manual import of %s %s trades", ex.getClassName(), pair.toString());
+        if (argv.days) {
+            end = new Date();
+            start = utils.date.dateAdd(end, "day", -1*parseInt(argv.days));
+        }
+        let startStr = utils.getUnixTimeStr(true, start, true);
+        let endStr = utils.getUnixTimeStr(true, end, true);
+        logger.info("Starting manual import of %s %s trades from %s to %s", ex.getClassName(), pair.toString(), startStr, endStr);
         ex.importHistory(pair, start, end).then(() => {
             logger.info("Imported history")
             importNextPair(++i);
@@ -154,7 +160,10 @@ let getOpenOrders = () => {
 Controller.loadServerConfig(() => {
     utils.file.touch(AbstractExchange.cookieFileName).then(() => {
         //importTrades()
+
+        // node --use_strict --max-old-space-size=2096 app.js --exchange=Poloniex --days=2
         importMultipleCurrencyTrades(argv.exchange ? argv.exchange : "Poloniex");
+
         //replay()
         //getOrderBook();
         //getOpenOrders();

@@ -36,12 +36,14 @@ export class LoginController extends AbstractSubController {
     protected nodeConfig: NodeConfigFile = null;
     protected subscription: BotSubscription = null;
     protected tokenGenerated = false;
+    protected static firstStart = false;
 
     constructor() {
         super()
         this.loadConfig().catch((err) => {
             logger.error("Error loading node config on startup", err)
         })
+        this.generateApiKeyOnFirstStart();
     }
 
     public static getInstance() {
@@ -231,5 +233,20 @@ export class LoginController extends AbstractSubController {
         let secret = nconf.get("serverConfig:userTokenSeed") + utils.appDir + nconf.get("serverConfig:username");
         let hash = crypto.createHash('sha512').update(secret, 'utf8').digest('hex');
         return utils.toBase64(hash, 'hex'); // use the URL safe version of base64
+    }
+
+    protected generateApiKeyOnFirstStart() {
+        LoginController.firstStart = this.isFirstStart();
+        if (LoginController.firstStart === true) {
+            nconf.set("serverConfig:firstStart", new Date());
+            this.generateApiKey(); // make sure every bot has a different default API key
+        }
+    }
+
+    protected isFirstStart() {
+        const firstStart = nconf.get("serverConfig:firstStart");
+        if (firstStart)
+            return false;
+        return true;
     }
 }
