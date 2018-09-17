@@ -62,6 +62,8 @@ export class HistoryRouter extends EventEmitter2 {
     public fireCurrentState() {
         //let urlParams = AppF.getUrlParameters(this.window.document.location.href, true);
         let path = this.window.document.location.pathname.split("/")[1]; // 0 = empty string, 1 = the first part is the name of the view
+        if (path === "index.html")
+            path = "";
         for (let name in pageData.path)
         {
             if (pageData.path[name] === "/" + path) {

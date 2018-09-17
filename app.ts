@@ -52,9 +52,13 @@ if (argv.p) {
     nconf.set('tlsPort', argv.p + 1)
 }
 else if (argv.t) { // allow a main and test instance run together
-    nconf.set('port', nconf.get('port') + 2)
-    nconf.set('tlsPort', nconf.get('tlsPort') + 2)
+    nconf.set('port', (nconf.get('port') ? nconf.get('port') : 4000) + 2)
+    nconf.set('tlsPort', (nconf.get('tlsPort') ? nconf.get('tlsPort') : 4000) + 4)
 }
+if (!nconf.get('port'))
+    nconf.set('port', nconf.get('portDef'))
+if (!nconf.get('tlsPort'))
+    nconf.set('tlsPort', nconf.get('tlsPortDef'))
 if (!argv.trader)
     nconf.set('trader', 'RealTimeTrader')
 if (argv.paper)
@@ -113,7 +117,7 @@ let checkAuth = (apiKey, res) => {
 
 dispatcher.beforeFilter(/\//, (req, res, chain) => { //any url
     //console.log("Before filter %s", req.url);
-    if (req.url.match(/\.(ts|js\.map)(\?.*)?$/i) !== null) { // prevent access to typescript files
+    if (!nconf.get("debug") && req.url.match(/\.(ts|js\.map)(\?.*)?$/i) !== null) { // prevent access to typescript files
         res.writeHead(404, {'Content-Type': 'text/plain; charset=UTF-8'})
         res.end('Not found: ' + req.url)
         return;
@@ -198,7 +202,7 @@ let handleRequest = (request, response) => {
 }
 let startPath = "/index.html";
 if (helper.getFirstApiKey())
-    startPath = "?apiKey=" + helper.getFirstApiKey();
+    startPath += "?apiKey=" + helper.getFirstApiKey();
 let server = http.createServer(handleRequest)
 server.setTimeout(nconf.get("httpTimeoutSec") * 1000, null)
 //httpShutdown(server)

@@ -14,6 +14,7 @@ export abstract class TableController extends AbstractController {
 
     protected getTableOpts() {
         return { // fails to render pagination if called too early
+            "pageLength": 50, // default otherwise is to select the first from lengthMenu
             "lengthMenu": [[50, 100, 250, -1], [50, 100, 250, i18next.t("all")]],
             //"searching": false, // removes the input box too
             "language": {
@@ -122,7 +123,7 @@ export abstract class TableController extends AbstractController {
         // https://datatables.net/extensions/buttons/examples/initialisation/export.html
         /*
         if ($(tableSel + '.export').length !== 0) {
-            tableOptions.dom = 'Bfrtip';
+            tableOptions["dom"] = 'Blfrtip'; // order of control elements
             tableOptions.buttons = [
                 'copy', 'csv', 'excel', 'pdf', 'print'
             ];

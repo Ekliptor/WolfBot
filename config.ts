@@ -9,6 +9,8 @@ config.config = {
     "protocol": "https://",
     "port": 8331,
     "tlsPort": 8332,
+    "portDef": 8331,
+    "tlsPortDef": 8332,
     "httpsOnly": true,              // redirect http to https (if protocol config is https)
     "serverDataDir": "./src/server/data/",
     "logfile": "logfile.log",

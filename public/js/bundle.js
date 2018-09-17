@@ -2544,6 +2544,8 @@ class HistoryRouter extends eventemitter2_1.EventEmitter2 {
     fireCurrentState() {
         //let urlParams = AppF.getUrlParameters(this.window.document.location.href, true);
         let path = this.window.document.location.pathname.split("/")[1]; // 0 = empty string, 1 = the first part is the name of the view
+        if (path === "index.html")
+            path = "";
         for (let name in pageData.path) {
             if (pageData.path[name] === "/" + path) {
                 let data = { page: name };
@@ -5444,6 +5446,7 @@ class TableController extends AbstractController_1.AbstractController {
     // ###################### PRIVATE FUNCTIONS #######################
     getTableOpts() {
         return {
+            "pageLength": 50,
             "lengthMenu": [[50, 100, 250, -1], [50, 100, 250, i18next.t("all")]],
             //"searching": false, // removes the input box too
             "language": {
@@ -5547,7 +5550,7 @@ class TableController extends AbstractController_1.AbstractController {
         // https://datatables.net/extensions/buttons/examples/initialisation/export.html
         /*
         if ($(tableSel + '.export').length !== 0) {
-            tableOptions.dom = 'Bfrtip';
+            tableOptions["dom"] = 'Blfrtip'; // order of control elements
             tableOptions.buttons = [
                 'copy', 'csv', 'excel', 'pdf', 'print'
             ];
