@@ -40,6 +40,13 @@ const currencyImportMap = new Map<MultipleCurrencyImportExchange, Currency.Curre
     ]]
 ]);
 
+let scheduleExit = (delayMs = 500, code = 0) => {
+    // updates are already run in app.ts on startup. no need to check again. just delay to ensure async log gets written
+    setTimeout(() => {
+        process.exit(code);
+    }, delayMs);
+}
+
 let importTrades = () => {
     //let ex = new Poloniex(nconf.get("serverConfig:apiKey:exchange:Poloniex"))
     //let ex = new OKEX(nconf.get("serverConfig:apiKey:exchange:OKEX")[0])
@@ -59,8 +66,10 @@ let importTrades = () => {
         logger.info("Starting manual import of %s %s trades", ex.getClassName(), pair.toString());
         ex.importHistory(pair, start, end).then(() => {
             logger.info("Imported history")
+            scheduleExit();
         }).catch((err) => {
             logger.error("Error importing history", err)
+            scheduleExit();
         })
     }, nconf.get("serverConfig:exchangeImportDelayMs"))
 }
@@ -76,12 +85,12 @@ let importMultipleCurrencyTrades = (exchangeName: MultipleCurrencyImportExchange
             break;
         default:
             logger.error("Importing multiple currency pairs from %s is not supported", exchangeName);
-            return;
+            return scheduleExit();
     }
     const exchangePairs = currencyImportMap.get(exchangeName);
     if (exchangePairs === undefined || exchangePairs.length === 0) {
         logger.error("No currency pairs to import found for %s", exchangeName)
-        return;
+        return scheduleExit();
     }
 
     let subscribe = (pair: Currency.CurrencyPair) => {
@@ -94,7 +103,7 @@ let importMultipleCurrencyTrades = (exchangeName: MultipleCurrencyImportExchange
     let importNextPair = async (i: number) => {
         if (i >= exchangePairs.length) {
             logger.info("Successfully imported %s pairs from %s", exchangePairs.length, exchangeName);
-            return;
+            return scheduleExit();
         }
         const pair = exchangePairs[i];
         subscribe(pair);
@@ -161,7 +170,7 @@ Controller.loadServerConfig(() => {
     utils.file.touch(AbstractExchange.cookieFileName).then(() => {
         //importTrades()
 
-        // node --use_strict --max-old-space-size=2096 app.js --exchange=Poloniex --days=2
+        // node --use_strict --max-old-space-size=2096 app.js --config=Noop --exchange=Poloniex --days=2 -p=3849
         importMultipleCurrencyTrades(argv.exchange ? argv.exchange : "Poloniex");
 
         //replay()

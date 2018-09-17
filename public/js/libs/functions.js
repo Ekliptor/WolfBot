@@ -159,7 +159,7 @@ AppFunc.Functions.prototype = {
         var date = new Date();
         date = new Date(date.getTime()+1000*60*60*24* (expireDays ? expireDays : pageData.cookieLifeDays));
         //document.cookie = name + "=" + value + "; expires=" + date.toGMTString() + "; path=" + pageData.cookiePath + "; domain=." + location.host;
-        document.cookie = name + "=" + value + "; expires=" + date.toGMTString() + "; path=" + pageData.cookiePath;
+        document.cookie = name + "=" + value + "; expires=" + date.toUTCString() + "; path=" + pageData.cookiePath;
     },
 
     removeCookie: function(name) {

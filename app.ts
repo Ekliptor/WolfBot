@@ -66,16 +66,11 @@ if (process.env.IS_CHILD) {
 }
 nconf.set("uiDev", argv.uiDev === true);
 
-if (argv.train || argv.predict)
-    nconf.set("ai", true);
-else if (argv.lending)
-    nconf.set("lending", true);
-else if (argv.arbitrage)
-    nconf.set("arbitrage", true);
-else if (argv.social) {
-    nconf.set("social", true);
-    //nconf.set("httpsOnly", false); // disable for telegram POST API // TODO create a certificate with a valid domain name for chrome
-}
+nconf.set("ai", argv.train === true || argv.predict === true);
+nconf.set("lending", argv.lending === true);
+nconf.set("arbitrage", argv.arbitrage === true);
+nconf.set("social", argv.social === true);
+//nconf.set("httpsOnly", false); // disable for telegram POST API // TODO create a certificate with a valid domain name for chrome for social JS
 
 import * as http from "http";
 import * as https from "https";

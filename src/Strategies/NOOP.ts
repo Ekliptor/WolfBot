@@ -23,6 +23,10 @@ export default class NOOP extends TechnicalStrategy {
         });
     }
 
+    public getMinWarumCandles() {
+        return 0; // ensure we don't start any trade imports with this strategy
+    }
+
     // ################################################################
     // ###################### PRIVATE FUNCTIONS #######################
 

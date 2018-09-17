@@ -383,7 +383,8 @@ export class Controller extends AbstractController { // TODO implement graceful 
     protected handleDatabaseConnectionError(err) {
         if (!err || typeof err !== "object")
             return false;
-        if (err.message && err.message.indexOf('MongoError: connection') !== -1 && err.message.indexOf('timed out') !== -1) {
+        if (err.message && err.message.indexOf('MongoError: ') !== -1 && (
+            err.message.indexOf('timed out') !== -1 || err.message.indexOf('slaveOk=false') !== -1)) {
             // MongoError: connection 5 to localhost:27017 timed out
             this.log('Database connection error', err, err.stack)
             // we lost our database connection. our app might be in an undefined state.
