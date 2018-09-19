@@ -219,7 +219,7 @@ export abstract class AbstractAdvisor extends AbstractSubController {
                 files.forEach((file) => {
                     let fullSrcPath = path.join(configDir, file);
                     let fullDestPath = path.join(backupDir, file);
-                    fileOps.push(utils.file.copyFile(fullSrcPath, fullDestPath, false));
+                    fileOps.push(utils.file.copyFile(fullSrcPath, fullDestPath, false)); // adds new config files without overwriting existing ones
                 });
                 try {
                     logger.verbose("Creating backup of %s config files", fileOps.length)

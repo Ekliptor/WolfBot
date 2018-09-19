@@ -70,6 +70,11 @@ export abstract class AbstractWebPlugin extends EventEmitter {
     public start(): Promise<boolean> {
         if (process.env.IS_CHILD || this.forkChild === false) {
             //logger.info("start crawling %s", this.className)
+            if (process.env.IS_CHILD) { // ensure we always exit the child when parent exits. Reddit crawler has problems with that since 2018-09-16
+                process.on("disconnect", () => {
+                    process.exit(0);
+                });
+            }
             return this.startCrawling();
         }
         return new Promise<boolean>((resolve, reject) => {

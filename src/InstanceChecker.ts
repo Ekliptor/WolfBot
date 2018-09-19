@@ -30,7 +30,7 @@ export default class InstanceChecker extends AbstractSubController {
     constructor() {
         super()
         //this.lastCheck = new Date(); // set checked on start because all bots might just be starting (system startup)
-        this.notifier = AbstractNotification.getInstance();
+        this.notifier = AbstractNotification.getInstance(); // TODO always use pushover
     }
 
     public process() {

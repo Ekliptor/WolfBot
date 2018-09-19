@@ -37,6 +37,7 @@ export class TradeBook {
         let pairStrategies = strategies.get(configCurrencyPair);
         botTrade.setTradingData(this.tradeAdvisor.getConfigName(), pairStrategies.map(s => s.getClassName()), trades, info.reason);
         botTrade.setTradingAmount(order.rate, order.amount);
+        // TODO get the trades worth in a user-defined tax currency (such as JPY...)
         if (info.exchange)
             botTrade.fees = info.exchange.getFee();
         if (nconf.get("arbitrage"))
