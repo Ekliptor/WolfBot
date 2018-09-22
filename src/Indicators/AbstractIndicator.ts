@@ -295,6 +295,7 @@ import "./KAMA";
 import "./MACD";
 import "./MayerMultiple";
 import "./MFI";
+import "./NVTSignal";
 import "./OBV";
 import "./RSI";
 import "./SAR";

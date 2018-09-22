@@ -30,7 +30,7 @@ export default class InstanceChecker extends AbstractSubController {
     constructor() {
         super()
         //this.lastCheck = new Date(); // set checked on start because all bots might just be starting (system startup)
-        this.notifier = AbstractNotification.getInstance(); // TODO always use pushover
+        this.notifier = AbstractNotification.getInstance(true);
     }
 
     public process() {
@@ -252,7 +252,7 @@ export default class InstanceChecker extends AbstractSubController {
         let headline = botName + " " + title;
         let notification = new Notification(headline, message, false);
         // TODO setting to always force a specific notification method (Pushover for admin notifications)
-        this.notifier.send(notification, true).then(() => {
+        this.notifier.send(notification).then(() => {
         }).catch((err) => {
             logger.error("Error sending %s notification", this.className, err)
         });

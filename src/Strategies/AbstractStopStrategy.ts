@@ -120,6 +120,11 @@ export abstract class AbstractStopStrategy extends /*AbstractStrategy*/Technical
         let state = super.serialize();
         state.highestPrice = this.highestPrice;
         state.lowestPrice = this.lowestPrice;
+        state.profitTriggerReached = this.profitTriggerReached;
+        //state.stopCountStart = this.stopCountStart; // don't save it for now. reset stop count
+        state.lastCloseOrder = this.lastCloseOrder;
+        state.closeExecuted = this.closeExecuted;
+        state.stopNotificationSent = this.stopNotificationSent;
         return state;
     }
 
@@ -129,6 +134,16 @@ export abstract class AbstractStopStrategy extends /*AbstractStrategy*/Technical
             this.highestPrice = state.highestPrice;
         if (state.lowestPrice)
             this.lowestPrice = state.lowestPrice;
+        if (state.profitTriggerReached !== undefined)
+            this.profitTriggerReached = this.profitTriggerReached;
+        if (state.stopCountStart !== undefined)
+            this.stopCountStart = state.stopCountStart;
+        if (state.lastCloseOrder !== undefined)
+            this.lastCloseOrder = state.lastCloseOrder;
+        if (state.closeExecuted !== undefined)
+            this.closeExecuted = state.closeExecuted;
+        if (state.stopNotificationSent !== undefined)
+            this.stopNotificationSent = state.stopNotificationSent;
     }
 
     public getStopCountStart() {

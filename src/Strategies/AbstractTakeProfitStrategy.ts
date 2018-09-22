@@ -112,6 +112,8 @@ export abstract class AbstractTakeProfitStrategy extends /*AbstractStrategy*/Tec
         state.highestPrice = this.highestPrice;
         state.lowestPrice = this.lowestPrice;
         state.stopCountStart = this.stopCountStart; // counter starts/resets differently than in stop strategy. store it
+        state.lastCloseOrder = this.lastCloseOrder;
+        state.closeExecuted = this.closeExecuted;
         return state;
     }
 
@@ -123,6 +125,10 @@ export abstract class AbstractTakeProfitStrategy extends /*AbstractStrategy*/Tec
             this.lowestPrice = state.lowestPrice;
         if (state.stopCountStart)
             this.stopCountStart = state.stopCountStart;
+        if (state.lastCloseOrder)
+            this.lastCloseOrder = state.lastCloseOrder;
+        if (state.closeExecuted)
+            this.closeExecuted = state.closeExecuted;
     }
 
     public getStopCountStart() {

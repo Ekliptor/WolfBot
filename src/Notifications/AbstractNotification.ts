@@ -12,16 +12,36 @@ export interface NotificationOpts {
 
 export abstract class AbstractNotification {
     protected static instance: AbstractNotification = null;
+    protected static adminInstance: AbstractNotification = null;
 
     protected options: NotificationOpts;
     protected className: string;
+    protected isAdminInstance = false;
 
     constructor(options: NotificationOpts) {
         this.options = options;
         this.className = this.constructor.name;
     }
 
-    public static getInstance() {
+    public static getInstance(adminInstance = false) {
+        if (adminInstance === true) {
+            if (AbstractNotification.adminInstance === null) {
+                let notificationClass = nconf.get('serverConfig:adminNotificationMethod');
+                let notificationOpts: any = {};
+                if (notificationClass)
+                    notificationOpts = nconf.get("serverConfig:apiKey:notify:" + notificationClass);
+                else
+                    notificationClass = "NoNotificationService";
+                const modulePath = path.join(__dirname, notificationClass)
+                AbstractNotification.adminInstance = AbstractNotification.loadModule(modulePath, notificationOpts);
+                if (!AbstractNotification.adminInstance && notificationClass !== "NoNotificationService") {
+                    logger.error("Loading admin notification class %s failed. Loading fallback", notificationClass)
+                    AbstractNotification.adminInstance = AbstractNotification.loadModule(modulePath, notificationOpts);
+                }
+            }
+            AbstractNotification.adminInstance.isAdminInstance = true;
+            return AbstractNotification.adminInstance;
+        }
         if (AbstractNotification.instance === null) {
             let notificationClass = nconf.get('serverConfig:notificationMethod');
             let notificationOpts: any = {};
@@ -39,11 +59,14 @@ export abstract class AbstractNotification {
         return AbstractNotification.instance;
     }
 
-    public send(notification: Notification, forceAdmin = false): Promise<void> {
+    public send(notification: Notification/*, forceAdmin = false*/): Promise<void> {
         // TODO add a limit "max messages per time per notification-type" in here instead of classes outside
         notification.title = this.getBotDirName() + " " + notification.title;
-        if (forceAdmin === true)
+        let forceAdmin = false;
+        if (this === AbstractNotification.adminInstance && AbstractNotification.adminInstance.isAdminInstance === true) {
             notification.text += utils.sprintf("\nHost: %s", os.hostname());
+            forceAdmin = true;
+        }
         return this.sendNotification(notification, forceAdmin);
     }
 

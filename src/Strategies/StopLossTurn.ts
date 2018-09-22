@@ -8,7 +8,7 @@ import {TradeInfo} from "../Trade/AbstractTrader";
 import * as helper from "../utils/helper";
 
 interface StopLossTurnAction extends AbstractStopStrategyAction {
-    stop: number; // optional. A fixed stop price when to sell (< for long position) or buy (> for short position). If present takes precedence over 'setback'.
+    stop: number; // optional. A fixed stop price when to sell (< for long position) or buy (> for short position). If present takes precedence over 'setback'. Only 'setbackProfit' has a higher priority (if set).
     setback: number; // 1.3% // in % // The trailing stop percentage the price has to move against an open position for the stop to be triggered.
     // TODO dynamic stop depending on % difference of x candle high/low. or optimize it with our empirical test suite?
     setbackLong: number; // 2.5% // optional a higher setback for long positions. default = 0 = setback for both. setbackProfit takes precedence
@@ -276,20 +276,20 @@ export default class StopLossTurn extends AbstractStopStrategy {
     }
 
     protected getStopSell() {
+        if (this.useProfitStop()) // if a profit trigger is set, is has higher prio than the fixed stop
+            return this.highestPrice - this.highestPrice / 100 * this.action.setbackProfit;
         if (this.action.stop)
             return this.action.stop;
-        if (this.useProfitStop())
-            return this.highestPrice - this.highestPrice / 100 * this.action.setbackProfit;
         if (this.action.setbackLong)
             return this.highestPrice - this.highestPrice / 100 * this.action.setbackLong;
         return this.highestPrice - this.highestPrice / 100 * this.action.setback;
     }
 
     protected getStopBuy() {
-        if (this.action.stop)
-            return this.action.stop;
         if (this.useProfitStop())
             return this.lowestPrice + this.lowestPrice / 100 * this.action.setbackProfit;
+        if (this.action.stop)
+            return this.action.stop;
         return this.lowestPrice + this.lowestPrice / 100 * this.action.setback;
     }
 
