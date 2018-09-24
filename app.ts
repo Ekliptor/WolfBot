@@ -168,8 +168,10 @@ dispatcher.onPost('/login/', (req, res) => {
 })
 
 dispatcher.onPost('/tradebook/', (req, res) => {
-    //if (checkPostAuth(req.formFields, res) === false) // allowed without API key
-    //return
+    if (checkPostAuth(req.formFields, res) === false) {
+        if (!req.params || checkAuth(req.params.apiKey, res) === false)
+            return
+    }
     Controller.getTradebook(req, res)
 })
 

@@ -29,6 +29,7 @@ export class Strategies extends AbstractController {
     }
 
     public onData(data: any) {
+        // TODO ensure data is parsed with plain JSON or EJSON. add a flag or query
         if (data.meta && data.meta.importLabel)
             setTimeout(this.showImportState.bind(this, data.meta), 100);
         if (data.full) {

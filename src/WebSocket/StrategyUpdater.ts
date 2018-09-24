@@ -3,7 +3,7 @@ const logger = utils.logger
     , nconf = utils.nconf;
 import * as WebSocket from "ws";
 import * as http from "http";
-import {ServerSocketPublisher, ServerSocket} from "./ServerSocket";
+import {ServerSocketPublisher, ServerSocket, ClientSocketOnServer} from "./ServerSocket";
 import {AppPublisher} from "./AppPublisher";
 import {WebSocketOpcode} from "./opcodes";
 import TradeAdvisor, {StrategyMap} from "../TradeAdvisor";
@@ -56,17 +56,19 @@ export class StrategyUpdater extends AppPublisher {
 
     constructor(serverSocket: ServerSocket, advisor: AbstractAdvisor) {
         super(serverSocket, advisor)
-        this.loadConfigs();
+        this.waitForConfigLoaded().then(() => {
+            this.publishStrategyUpdates();
+        });
     }
 
-    public onSubscription(clientSocket: WebSocket, initialRequest: http.IncomingMessage): void {
+    public onSubscription(clientSocket: ClientSocketOnServer, initialRequest: http.IncomingMessage): void {
         this.sendFullData(clientSocket)
     }
 
     // ################################################################
     // ###################### PRIVATE FUNCTIONS #######################
 
-    protected sendFullData(clientSocket: WebSocket) {
+    protected sendFullData(clientSocket: ClientSocketOnServer) {
         if (this.advisor instanceof TradeAdvisor) {
             let update: StrategyUpdate[] = []
             let configs: TradeConfig[] = this.advisor.getConfigs();
@@ -145,7 +147,7 @@ export class StrategyUpdater extends AppPublisher {
         }
     }
 
-    protected onData(data: any, clientSocket: WebSocket, initialRequest: http.IncomingMessage): void {
+    protected onData(data: any, clientSocket: ClientSocketOnServer, initialRequest: http.IncomingMessage): void {
         if (typeof data.tabNr === "number" && data.tabNr >= 1 && data.tabNr <= this.maxConfigNr) {
             this.activeConfigCurrencyNr = Math.floor(data.tabNr); // shouldn't be needed
             this.sendFullData(clientSocket);
@@ -207,17 +209,6 @@ export class StrategyUpdater extends AppPublisher {
             this.publish(update);
             this.lastUpdateMap.set(strategy.getClassName(), new Date());
         })
-    }
-
-    protected loadConfigs() {
-        let load = () => {
-            this.maxConfigNr = this.advisor.getConfigs().length;
-            if (this.maxConfigNr === 0)
-                setTimeout(load.bind(this), 1000); // config files are read async from disk
-            else
-                this.publishStrategyUpdates();
-        }
-        setTimeout(load.bind(this), 1000);
     }
 
     protected getWarmupStateLabel(state: BacktestWarmupState): string {

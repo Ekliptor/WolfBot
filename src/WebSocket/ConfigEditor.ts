@@ -3,7 +3,7 @@ const logger = utils.logger
     , nconf = utils.nconf;
 import * as WebSocket from "ws";
 import * as http from "http";
-import {ServerSocketPublisher, ServerSocket, ServerSocketSendOptions} from "./ServerSocket";
+import {ServerSocketPublisher, ServerSocket, ServerSocketSendOptions, ClientSocketOnServer} from "./ServerSocket";
 import {AppPublisher} from "./AppPublisher";
 import {WebSocketOpcode} from "./opcodes";
 import TradeAdvisor from "../TradeAdvisor";
@@ -164,11 +164,11 @@ export class ConfigEditor extends AppPublisher {
         })
     }
 
-    public onSubscription(clientSocket: WebSocket, initialRequest: http.IncomingMessage): void {
+    public onSubscription(clientSocket: ClientSocketOnServer, initialRequest: http.IncomingMessage): void {
         this.sendInitialData(clientSocket)
     }
 
-    protected sendInitialData(clientSocket: WebSocket) {
+    protected sendInitialData(clientSocket: ClientSocketOnServer) {
         //let configs = this.advisor.getConfigs();
         let configFiles;
         ConfigEditor.listConfigFiles().then((files) => {
@@ -203,7 +203,7 @@ export class ConfigEditor extends AppPublisher {
         })
     }
 
-    protected onData(data: ConfigReq, clientSocket: WebSocket, initialRequest: http.IncomingMessage): void {
+    protected onData(data: ConfigReq, clientSocket: ClientSocketOnServer, initialRequest: http.IncomingMessage): void {
         if (typeof data.configChange === "string") {
             this.readConfigFile(data.configChange).then((configFileData) => {
                 this.selectedConfig = this.getPlainConfigName(data.configChange);
@@ -1021,7 +1021,7 @@ export class ConfigEditor extends AppPublisher {
         return filename.substr(1).replace(/\.json$/, "");
     }
 
-    protected send(ws: WebSocket, data: ConfigRes, options?: ServerSocketSendOptions) {
+    protected send(ws: ClientSocketOnServer, data: ConfigRes, options?: ServerSocketSendOptions) {
         return super.send(ws, data, options);
     }
 }

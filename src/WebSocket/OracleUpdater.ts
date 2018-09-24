@@ -3,7 +3,7 @@ const logger = utils.logger
     , nconf = utils.nconf;
 import * as WebSocket from "ws";
 import * as http from "http";
-import {ServerSocketPublisher, ServerSocket} from "./ServerSocket";
+import {ServerSocketPublisher, ServerSocket, ClientSocketOnServer} from "./ServerSocket";
 import {AppPublisher} from "./AppPublisher";
 import {WebSocketOpcode} from "./opcodes";
 import TradeAdvisor from "../TradeAdvisor";
@@ -22,7 +22,7 @@ export class OracleUpdater extends /*AppPublisher*/ServerSocketPublisher {
         this.publishPredictions();
     }
 
-    public onSubscription(clientSocket: WebSocket, initialRequest: http.IncomingMessage): void {
+    public onSubscription(clientSocket: ClientSocketOnServer, initialRequest: http.IncomingMessage): void {
         this.send(clientSocket, this.getOracleData());
     }
 

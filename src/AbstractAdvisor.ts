@@ -239,6 +239,8 @@ export abstract class AbstractAdvisor extends AbstractSubController {
 
     public process() {
         return new Promise<void>((resolve, reject) => {
+            if (this.skipLoadingConfig() === true)
+                return resolve();
             if (this.loadedConfig === false) {
                 //return setTimeout(this.process.bind(this), 100); // creates a new stack. first promise doesn't get resolved
                 let checkConfigLoaded = () => {
@@ -314,6 +316,14 @@ export abstract class AbstractAdvisor extends AbstractSubController {
         if (!nconf.get("serverConfig:restoreStateFromBacktest"))
             return;
         logger.warn("Restoring strategy states from backtest is only supported in trading mode");
+    }
+
+    protected skipLoadingConfig() {
+        if (nconf.get("ai"))
+            return true; // BudFox manages the markets for AI. we just need few variables from here for status & logging
+        else if (nconf.get("lending") || nconf.get("social"))
+            return true; // we have our own lending/social controller
+        return false;
     }
 
     protected waitForRestart() {

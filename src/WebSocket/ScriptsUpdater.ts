@@ -4,7 +4,7 @@ const logger = utils.logger
 import * as WebSocket from "ws";
 import * as http from "http";
 import * as path from "path";
-import {ServerSocketPublisher, ServerSocket, ServerSocketSendOptions} from "./ServerSocket";
+import {ServerSocketPublisher, ServerSocket, ServerSocketSendOptions, ClientSocketOnServer} from "./ServerSocket";
 import {AppPublisher} from "./AppPublisher";
 import {WebSocketOpcode} from "./opcodes";
 import TradeAdvisor from "../TradeAdvisor";
@@ -25,18 +25,18 @@ export class ScriptsUpdater extends AppPublisher {
         super(serverSocket, advisor)
     }
 
-    public onSubscription(clientSocket: WebSocket, initialRequest: http.IncomingMessage): void {
+    public onSubscription(clientSocket: ClientSocketOnServer, initialRequest: http.IncomingMessage): void {
 
     }
 
     // ################################################################
     // ###################### PRIVATE FUNCTIONS #######################
 
-    protected onData(data: ScriptsReq, clientSocket: WebSocket, initialRequest: http.IncomingMessage): void {
+    protected onData(data: ScriptsReq, clientSocket: ClientSocketOnServer, initialRequest: http.IncomingMessage): void {
 
     }
 
-    protected send(ws: WebSocket, data: ScriptsRes, options?: ServerSocketSendOptions) {
+    protected send(ws: ClientSocketOnServer, data: ScriptsRes, options?: ServerSocketSendOptions) {
         return super.send(ws, data, options);
     }
 }

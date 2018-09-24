@@ -4,7 +4,7 @@ const logger = utils.logger
 import * as WebSocket from "ws";
 import * as http from "http";
 import * as path from "path";
-import {ServerSocketPublisher, ServerSocket, ServerSocketSendOptions} from "./ServerSocket";
+import {ServerSocketPublisher, ServerSocket, ServerSocketSendOptions, ClientSocketOnServer} from "./ServerSocket";
 import {AppPublisher} from "./AppPublisher";
 import {WebSocketOpcode} from "./opcodes";
 import {AbstractTrader} from "../Trade/AbstractTrader";
@@ -84,14 +84,14 @@ export class TradingViewData extends AppPublisher {
         super(serverSocket, advisor)
     }
 
-    public onSubscription(clientSocket: WebSocket, initialRequest: http.IncomingMessage): void {
+    public onSubscription(clientSocket: ClientSocketOnServer, initialRequest: http.IncomingMessage): void {
         // anything to do?
     }
 
     // ################################################################
     // ###################### PRIVATE FUNCTIONS #######################
 
-    protected onData(data: TradingViewDataReq, clientSocket: WebSocket, initialRequest: http.IncomingMessage): void {
+    protected onData(data: TradingViewDataReq, clientSocket: ClientSocketOnServer, initialRequest: http.IncomingMessage): void {
         //console.log("TV DATA", data);
         if (typeof data.initPair === "string")
             this.initChart(data, clientSocket);
@@ -107,14 +107,14 @@ export class TradingViewData extends AppPublisher {
             this.send(clientSocket, {timeSec: Math.floor(Date.now()/1000)});
     }
 
-    protected initChart(data: TradingViewDataReq, clientSocket: WebSocket) {
+    protected initChart(data: TradingViewDataReq, clientSocket: ClientSocketOnServer) {
         let strategies = this.getStrategies(data.configNr, data.initPair);
         let strategy = AbstractGenericStrategy.getStrategyByName(strategies, data.strategy);
         if (strategy)
             this.send(clientSocket, {resolution: strategy.getAction().candleSize});
     }
 
-    protected resolveSymbol(data: TradingViewDataReq, clientSocket: WebSocket) {
+    protected resolveSymbol(data: TradingViewDataReq, clientSocket: ClientSocketOnServer) {
         let strategies = this.getStrategies(data.configNr, data.resolve);
         let strategy = AbstractGenericStrategy.getStrategyByName(strategies, data.strategy);
         if (!strategy)
@@ -150,7 +150,7 @@ export class TradingViewData extends AppPublisher {
         this.send(clientSocket, {symbol: symbol});
     }
 
-    protected sendBars(data: TradingViewDataReq, clientSocket: WebSocket) {
+    protected sendBars(data: TradingViewDataReq, clientSocket: ClientSocketOnServer) {
         const barReq = data.bars;
         if (this.advisor instanceof TradeAdvisor || this.advisor instanceof LendingAdvisor) {
             /*
@@ -180,7 +180,7 @@ export class TradingViewData extends AppPublisher {
         }
     }
 
-    protected startRealtimeUpdates(data: TradingViewDataReq, clientSocket: WebSocket) {
+    protected startRealtimeUpdates(data: TradingViewDataReq, clientSocket: ClientSocketOnServer) {
         const realtimeReq = data.realtime;
         if (this.advisor instanceof TradeAdvisor || this.advisor instanceof LendingAdvisor) {
             let exchangeLabel: Currency.Exchange = undefined;
@@ -211,7 +211,7 @@ export class TradingViewData extends AppPublisher {
         }
     }
 
-    protected stopRealtimeUpdates(data: TradingViewDataReq, clientSocket: WebSocket) {
+    protected stopRealtimeUpdates(data: TradingViewDataReq, clientSocket: ClientSocketOnServer) {
         const key = data.unsubscribeID + (clientSocket as any).id;
         let update = this.realtimeUpdates.get(key);
         if (update) {
@@ -221,7 +221,7 @@ export class TradingViewData extends AppPublisher {
         }
     }
 
-    protected send(ws: WebSocket, data: TradingViewDataRes, options?: ServerSocketSendOptions) {
+    protected send(ws: ClientSocketOnServer, data: TradingViewDataRes, options?: ServerSocketSendOptions) {
         return super.send(ws, data, options);
     }
 

@@ -135,7 +135,7 @@ export class TradeBook {
             userToken: token
         }
         if (typeof req.endDate === "number")
-            filter.time = {$lt: new Date(req.endDate)}
+            filter.time = {$lt: new Date(req.endDate * 1000)}
         const lending = req.mode === "lending";
         if (lending)
             filter.market = BotTrade.LogTradeMarket.LENDING;

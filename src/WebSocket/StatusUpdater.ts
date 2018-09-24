@@ -4,7 +4,7 @@ const logger = utils.logger
 import * as WebSocket from "ws";
 import * as http from "http";
 import * as path from "path";
-import {ServerSocketPublisher, ServerSocket} from "./ServerSocket";
+import {ServerSocketPublisher, ServerSocket, ClientSocketOnServer} from "./ServerSocket";
 import {AppPublisher} from "./AppPublisher";
 import {WebSocketOpcode} from "./opcodes";
 import TradeAdvisor from "../TradeAdvisor";
@@ -47,7 +47,7 @@ export class StatusUpdater extends AppPublisher {
         */
     }
 
-    public onSubscription(clientSocket: WebSocket, initialRequest: http.IncomingMessage): void {
+    public onSubscription(clientSocket: ClientSocketOnServer, initialRequest: http.IncomingMessage): void {
         let portfolioTrader: PortfolioTrader = null;
         let traders = this.advisor.getTraders();
         for (let i = 0; i < traders.length; i++)
@@ -85,7 +85,7 @@ export class StatusUpdater extends AppPublisher {
     // ################################################################
     // ###################### PRIVATE FUNCTIONS #######################
 
-    protected onData(data: any, clientSocket: WebSocket, initialRequest: http.IncomingMessage): void {
+    protected onData(data: any, clientSocket: ClientSocketOnServer, initialRequest: http.IncomingMessage): void {
         if (data.restoreState) {
             let unpackState = utils.text.isPossibleJson(data.restoreState) ? Promise.resolve(data.restoreState) : utils.text.unpackGzip(data.restoreState)
             unpackState.then((unpackedStr) => {

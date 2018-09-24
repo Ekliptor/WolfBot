@@ -22,6 +22,7 @@ import {CoinMarketUpdater} from "./WebSocket/CoinMarketUpdater";
 import {TradingViewData} from "./WebSocket/TradingViewData";
 import {TradeHistoryUpdater} from "./WebSocket/TradeHistoryUpdater";
 import {BacktestingUpdater} from "./WebSocket/BacktestingUpdater";
+import {TradesUpdater} from "./WebSocket/TradesUpdater";
 
 /**
  * This controller runs independently and broadcasts data to all connected clients.
@@ -41,6 +42,7 @@ export default class WebSocketController /*extends AbstractSubController*/ {
     protected coinMarketUpdater: CoinMarketUpdater; // uses social controller too
     protected oracleUpdater: OracleUpdater;
     protected tradeHistory: TradeHistoryUpdater;
+    protected tradesUpdater: TradesUpdater;
     protected configEditor: ConfigEditor;
     protected scriptsUpdater: ScriptsUpdater;
     protected backtestingUpdater: BacktestingUpdater;
@@ -85,6 +87,8 @@ export default class WebSocketController /*extends AbstractSubController*/ {
         this.serverSocket.subscribe(this.backtestingUpdater);
         this.tradeHistory = new TradeHistoryUpdater(this.serverSocket, this.getAdvisor());
         this.serverSocket.subscribe(this.tradeHistory);
+        this.tradesUpdater = new TradesUpdater(this.serverSocket, this.getAdvisor());
+        this.serverSocket.subscribe(this.tradesUpdater);
         this.logPublisher = new LogPublisher(this.serverSocket, this.getAdvisor());
         this.serverSocket.subscribe(this.logPublisher);
         this.loginUpdater = new LoginUpdater(this.serverSocket, this.getAdvisor());

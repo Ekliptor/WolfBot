@@ -4,7 +4,7 @@ const logger = utils.logger
 import * as WebSocket from "ws";
 import * as http from "http";
 import * as path from "path";
-import {ServerSocketPublisher, ServerSocket} from "./ServerSocket";
+import {ServerSocketPublisher, ServerSocket, ClientSocketOnServer} from "./ServerSocket";
 import {AppPublisher} from "./AppPublisher";
 import {WebSocketOpcode} from "./opcodes";
 import TradeAdvisor from "../TradeAdvisor";
@@ -34,7 +34,7 @@ export class TradeHistoryUpdater extends AppPublisher {
         super(serverSocket, advisor)
     }
 
-    public onSubscription(clientSocket: WebSocket, initialRequest: http.IncomingMessage): void {
+    public onSubscription(clientSocket: ClientSocketOnServer, initialRequest: http.IncomingMessage): void {
         let update: BotTradeRes = {
             init: {
                 configName: this.advisor.getConfigName(),
@@ -48,12 +48,12 @@ export class TradeHistoryUpdater extends AppPublisher {
     // ################################################################
     // ###################### PRIVATE FUNCTIONS #######################
 
-    protected onData(data: BotTradeReq, clientSocket: WebSocket, initialRequest: http.IncomingMessage): void {
+    protected onData(data: BotTradeReq, clientSocket: ClientSocketOnServer, initialRequest: http.IncomingMessage): void {
         if (data.getTrades)
             return this.respondWithTrades(data.getTrades, clientSocket);
     }
 
-    protected respondWithTrades(req: GetTradeHistoryReq, clientSocket: WebSocket) {
+    protected respondWithTrades(req: GetTradeHistoryReq, clientSocket: ClientSocketOnServer) {
         this.advisor.getTradeBook().getMyTrades(req).then((trades) => {
             let update: BotTradeRes = {
             }

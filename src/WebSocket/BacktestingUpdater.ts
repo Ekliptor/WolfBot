@@ -3,7 +3,7 @@ const logger = utils.logger
     , nconf = utils.nconf;
 import * as WebSocket from "ws";
 import * as http from "http";
-import {ServerSocketPublisher, ServerSocket} from "./ServerSocket";
+import {ServerSocketPublisher, ServerSocket, ClientSocketOnServer} from "./ServerSocket";
 import {AppPublisher} from "./AppPublisher";
 import {WebSocketOpcode} from "./opcodes";
 import TradeAdvisor from "../TradeAdvisor";
@@ -76,7 +76,7 @@ export class BacktestingUpdater extends AppPublisher {
         this.selectedConfig = this.advisor.getConfigName();
     }
 
-    public onSubscription(clientSocket: WebSocket, initialRequest: http.IncomingMessage): void {
+    public onSubscription(clientSocket: ClientSocketOnServer, initialRequest: http.IncomingMessage): void {
         //this.backtestingSockets.set((clientSocket as any).id, clientSocket)
         ConfigEditor.listConfigFiles("trading").then((configFiles) => {
             let update: BacktestRes = {
@@ -97,7 +97,7 @@ export class BacktestingUpdater extends AppPublisher {
     }
 
     /*
-    public onClose(clientSocket: WebSocket): void {
+    public onClose(clientSocket: ClientSocketOnServer): void {
         this.backtestingSockets.delete((clientSocket as any).id)
     }
     */
@@ -105,12 +105,12 @@ export class BacktestingUpdater extends AppPublisher {
     // ################################################################
     // ###################### PRIVATE FUNCTIONS #######################
 
-    protected onData(data: BacktestReq, clientSocket: WebSocket, initialRequest: http.IncomingMessage): void {
+    protected onData(data: BacktestReq, clientSocket: ClientSocketOnServer, initialRequest: http.IncomingMessage): void {
         if (data.start)
             this.startBacktest(data, clientSocket);
     }
 
-    protected async startBacktest(data: BacktestReq, clientSocket: WebSocket) {
+    protected async startBacktest(data: BacktestReq, clientSocket: ClientSocketOnServer) {
         let update: BacktestRes = {};
         if (nconf.get("serverConfig:premium") === true && nconf.get("serverConfig:loggedIn") === false) {
             logger.error("You need a valid subscription to start backtesting");

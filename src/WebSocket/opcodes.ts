@@ -21,7 +21,8 @@ export const enum WebSocketOpcode {
     BACKTESTING = 20,
     SCRIPTS = 21,
     HOME = 22,
-    LOGIN = 23
+    LOGIN = 23,
+    TRADES = 24
 }
 
 export type WebSocketError = "Unauthorized" | "UnauthorizedPremium";

@@ -4,7 +4,7 @@ const logger = utils.logger
 import * as WebSocket from "ws";
 import * as http from "http";
 import * as path from "path";
-import {ServerSocketPublisher, ServerSocket} from "./ServerSocket";
+import {ServerSocketPublisher, ServerSocket, ClientSocketOnServer} from "./ServerSocket";
 import {AppPublisher} from "./AppPublisher";
 import {WebSocketOpcode} from "./opcodes";
 import {AbstractTrader} from "../Trade/AbstractTrader";
@@ -37,7 +37,7 @@ export class LogPublisher extends AppPublisher {
         this.startLogStream();
     }
 
-    public onSubscription(clientSocket: WebSocket, initialRequest: http.IncomingMessage): void {
+    public onSubscription(clientSocket: ClientSocketOnServer, initialRequest: http.IncomingMessage): void {
         this.publish({a: this.recentLogLines.get("a")}) // moved to onData() to allow manual subscription
         this.publish({t: this.recentLogLines.get("t")})
 
@@ -59,7 +59,7 @@ export class LogPublisher extends AppPublisher {
         this.publish(state)
     }
 
-    protected onData(data: any, clientSocket: WebSocket, initialRequest: http.IncomingMessage): void {
+    protected onData(data: any, clientSocket: ClientSocketOnServer, initialRequest: http.IncomingMessage): void {
         // nothing?
     }
 

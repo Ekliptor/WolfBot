@@ -5,7 +5,7 @@ import {Currency, Trade, Candle, Order, Funding, SocialPost, TrollShout} from "@
 import * as WebSocket from "ws";
 import * as http from "http";
 import * as db from "../database";
-import {ServerSocketPublisher, ServerSocket} from "./ServerSocket";
+import {ServerSocketPublisher, ServerSocket, ClientSocketOnServer} from "./ServerSocket";
 import {AppPublisher} from "./AppPublisher";
 import {WebSocketOpcode} from "./opcodes";
 import {SocialController} from "../Social/SocialController";
@@ -21,7 +21,7 @@ export class SocialUpdater extends AppPublisher {
         this.publishSocialUpdates();
     }
 
-    public onSubscription(clientSocket: WebSocket, initialRequest: http.IncomingMessage): void {
+    public onSubscription(clientSocket: ClientSocketOnServer, initialRequest: http.IncomingMessage): void {
         this.send(clientSocket, {
             maxAge: this.getMaxAge(),
             days: nconf.get("serverConfig:postDisplayAgeDays"),

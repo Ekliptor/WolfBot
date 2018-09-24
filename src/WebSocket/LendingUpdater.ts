@@ -4,7 +4,7 @@ const logger = utils.logger
 import {Currency, Trade, Candle, Order, Funding} from "@ekliptor/bit-models";
 import * as WebSocket from "ws";
 import * as http from "http";
-import {ServerSocketPublisher, ServerSocket} from "./ServerSocket";
+import {ServerSocketPublisher, ServerSocket, ClientSocketOnServer} from "./ServerSocket";
 import {AppPublisher} from "./AppPublisher";
 import {WebSocketOpcode} from "./opcodes";
 import {LendingAdvisor} from "../Lending/LendingAdvisor";
@@ -55,7 +55,7 @@ export class LendingUpdater extends AppPublisher {
         this.publishLendingUpdates();
     }
 
-    public onSubscription(clientSocket: WebSocket, initialRequest: http.IncomingMessage): void {
+    public onSubscription(clientSocket: ClientSocketOnServer, initialRequest: http.IncomingMessage): void {
         let configs = this.lendingAdvisor.getConfigs();
         //let strategies = this.lendingAdvisor.getLendingStrategies();
         let traders = this.lendingAdvisor.getTraders();

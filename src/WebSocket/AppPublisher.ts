@@ -3,7 +3,7 @@ const logger = utils.logger
     , nconf = utils.nconf;
 import * as WebSocket from "ws";
 import * as http from "http";
-import {ServerSocketPublisher, ServerSocket} from "./ServerSocket";
+import {ServerSocketPublisher, ServerSocket, ClientSocketOnServer} from "./ServerSocket";
 import {WebSocketOpcode} from "./opcodes";
 import {TradeConfig} from "../Trade/TradeConfig";
 import {AbstractAdvisor} from "../AbstractAdvisor";
@@ -20,7 +20,20 @@ export abstract class AppPublisher extends ServerSocketPublisher {
     // ################################################################
     // ###################### PRIVATE FUNCTIONS #######################
 
-    protected sendErrorMessage(clientSocket: WebSocket, errorCode: string) {
+    protected waitForConfigLoaded() {
+        return new Promise<void>((resolve, reject) => {
+            let load = () => {
+                const maxConfigNr = this.advisor.getConfigs().length;
+                if (maxConfigNr === 0)
+                    setTimeout(load.bind(this), 1000); // config files are read async from disk
+                else
+                    resolve();
+            }
+            setTimeout(load.bind(this), 1000);
+        })
+    }
+
+    protected sendErrorMessage(clientSocket: ClientSocketOnServer, errorCode: string) {
         this.send(clientSocket, {
             error: true,
             errorCode: errorCode

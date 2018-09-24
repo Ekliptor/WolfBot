@@ -194,10 +194,8 @@ export default class TradeAdvisor extends AbstractAdvisor {
         //this.exchanges = exchanges;
         this.exchangeController = exchangeController;
         this.exchanges = this.exchangeController.getExchanges();
-        if (nconf.get("ai"))
-            return; // BudFox manages the markets for AI. we just need few variables from here for status & logging
-        else if (nconf.get("lending") || nconf.get("social"))
-            return; // we have our own lending/social controller
+        if (this.skipLoadingConfig() === true)
+            return;
 
         if (!this.strategyFile) {
             logger.error("Please specify a config/strategy file with the command line option --config=")
