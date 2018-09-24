@@ -30,6 +30,8 @@ import {LendingExchangeMap} from "./Exchanges/AbstractLendingExchange";
 import {RawTelegramMessage} from "./Social/Crawler/Telegram";
 import {orverrides} from "../configLocal";
 import {post} from "../node_modules/@ekliptor/apputils/build/cloudscraper";
+import {WebErrorCode} from "./Web/errorCodes";
+import {JsonResponse} from "./Web/JsonResponse";
 
 
 export class Controller extends AbstractController { // TODO implement graceful shutdown api command (stop & delete tasks)
@@ -475,6 +477,19 @@ export class Controller extends AbstractController { // TODO implement graceful 
         }
         res.writeHead(200, {'Content-Type': 'application/json; charset=UTF-8'})
         res.end(JSON.stringify(loginRes))
+    }
+
+    public async getTradebook(req: http.IncomingMessage, res: http.ServerResponse) {
+        let tradeBook = this.tradeAdvisor ? this.tradeAdvisor.getTradeBook() : null;
+        if (tradeBook === null)
+            tradeBook = this.lendingAdvisor ? this.lendingAdvisor.getTradeBook() : null;
+        let output = new JsonResponse();
+        if (tradeBook !== null)
+            output.data.push(await tradeBook.getHistory(utils.dispatcher.getAnyQueryData(req), output));
+        else
+            output.setError(WebErrorCode.TRADEBOOK_NOT_AVAILABLE, "TradeBook not available");
+        res.writeHead(200, {'Content-Type': 'application/json; charset=UTF-8'})
+        res.end(JSON.stringify(output))
     }
 }
 

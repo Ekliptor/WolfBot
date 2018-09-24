@@ -157,6 +157,10 @@ export abstract class AbstractAdvisor extends AbstractSubController {
         return this.candleCurrencies;
     }
 
+    public getTradeBook() {
+        return this.tradeBook;
+    }
+
     public serializeAllStrategyData() {
         let state = {}
         for (let strat of this.strategies)

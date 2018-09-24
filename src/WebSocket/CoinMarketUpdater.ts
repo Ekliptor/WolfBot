@@ -88,6 +88,7 @@ export class CoinMarketUpdater extends AppPublisher {
             let coinPriceMap = new CoinPriceMap();
             let coinDataMap: CoinMarketInfo.CoinMarketInfoMap;
             const priceComparisonCoins: Currency.Currency[] = nconf.get("serverConfig:priceComparisonCoins");
+            const now = Date.now();
             CoinMarketInfo.getLatestData(db.get(), this.getMaxAge()).then((cM) => {
                 coinDataMap = cM;
                 //resolve({coinStats: coinDataMap.toObject()})
@@ -103,7 +104,7 @@ export class CoinMarketUpdater extends AppPublisher {
                     if (coinInfoArr.length !== 0) {
                         let latest = coinInfoArr[coinInfoArr.length-1];
                         let latestDate = utils.date.dateFromUtc(latest.year, latest.month, latest.day, latest.hour);
-                        if (this.maxTickDate.getTime() < latestDate.getTime())
+                        if (this.maxTickDate.getTime() < latestDate.getTime() && latestDate.getTime() <= now)
                             this.maxTickDate = latestDate;
                     }
                     while (prices.length < dataPointCount)
@@ -166,16 +167,16 @@ export class CoinMarketUpdater extends AppPublisher {
                 if (last === undefined) {
                     upTicks[i-1]++;
                     logger.warn("Unable to get last price for TICK indicator of %s. Assuming up", currencyStr)
+                    lastPrice.set(currencyStr, prices[i]);
                     continue;
                 }
                 if (last <= prices[i]) {
                     upTicks[i-1]++;
-                    lastPrice.set(currencyStr, prices[i]);
                 }
                 else { // lastPrice > price
                     downTicks[i-1]++;
-                    lastPrice.set(currencyStr, prices[i]);
                 }
+                lastPrice.set(currencyStr, prices[i]);
             }
         }
         //console.log("UP", upTicks, upTicks.length, "DOWN", downTicks, downTicks.length)

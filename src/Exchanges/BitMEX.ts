@@ -189,6 +189,7 @@ export default class BitMEX extends AbstractContractExchange {
             apiKeySecret: this.apiKey.secret,
             maxTableLen: 10000  // the maximum number of table elements to keep in memory (FIFO queue)
         });
+        // TODO support for time-spread arbitrage, i.e. multiple contracts of the same currency pair
 
         /*
         this.futureContractType.set("LTC", nconf.get("serverConfig:futureContractType")); // TODO ?

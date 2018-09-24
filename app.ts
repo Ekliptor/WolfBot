@@ -167,6 +167,12 @@ dispatcher.onPost('/login/', (req, res) => {
     Controller.login(req, res)
 })
 
+dispatcher.onPost('/tradebook/', (req, res) => {
+    //if (checkPostAuth(req.formFields, res) === false) // allowed without API key
+    //return
+    Controller.getTradebook(req, res)
+})
+
 dispatcher.setStaticDirname(path.join(utils.appDir, "public"))
 dispatcher.setStatic(".") // the whole directory under url path /public // must be added after get requests if we use "." == / root URL
 

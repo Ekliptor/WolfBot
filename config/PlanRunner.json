@@ -1736,7 +1736,7 @@
         "TimeStop": {
           "minCandles": 48,
           "trailingStopPerc": 1.5,
-          "closePosition": "profit",
+          "closePosition": "always",
           "time": 30,
           "keepTrendOpen": false,
           "low": 25,

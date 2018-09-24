@@ -3503,8 +3503,8 @@ class CoinMarket extends ChartController_1.ChartController {
         let currentDate = new Date(maxTickDate); // copy it
         for (let i = 0; i < this.chartLegendTickHours; i++) // we have hourly ticks on our x axis
          {
-            legend.push(currentDate.toLocaleDateString(appData.locale, { timeZone: "UTC" }) + " " + currentDate.getUTCHours() + ":00");
-            currentDate.setTime(currentDate.getTime() + 1 * 3600000);
+            legend.unshift(currentDate.toLocaleDateString(appData.locale, { timeZone: "UTC" }) + " " + currentDate.getUTCHours() + ":00");
+            currentDate.setTime(currentDate.getTime() - 1 * 3600000); // go back 1h from the latest data
         }
         this.chartLegendHourly = legend;
     }

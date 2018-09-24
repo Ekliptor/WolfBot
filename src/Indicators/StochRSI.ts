@@ -27,8 +27,8 @@ export default class StochRSI extends AbstractIndicator {
             rsiParams.optInFastD_Period = this.params.optInFastD_Period;
             rsiParams.optInFastD_MAType = this.params.optInFastD_MAType;
             this.taLib.calculate(rsiParams).then((result) => {
-                this.outFastK = TaLib.getLatestResultPoint(result, "outFastK"); // the value by price points
-                this.outFastD = TaLib.getLatestResultPoint(result, "outFastD"); // the value smoothened by MA
+                this.outFastK = Math.abs(TaLib.getLatestResultPoint(result, "outFastK")); // the value by price points
+                this.outFastD = Math.abs(TaLib.getLatestResultPoint(result, "outFastD")); // the value smoothened by MA // seen -0 before
                 this.value = this.outFastD; // for easier access
                 resolve()
             }).catch((err) => {

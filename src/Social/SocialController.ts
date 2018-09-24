@@ -192,7 +192,6 @@ export class SocialController extends AbstractAdvisor {
                     let currencyData = ticker.data[currency];
                     currencyMap.set(currency, currencyData);
                 }
-                console.log(currencyMap)
                 resolve(currencyMap)
             }).catch((err) => {
                 logger.error("Error fetching price data for social currency data", err)

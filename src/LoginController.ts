@@ -5,6 +5,7 @@ const logger = utils.logger
 import * as path from "path";
 import {Currency, Trade, Candle, Order, Funding, serverConfig} from "@ekliptor/bit-models";
 import * as crypto from "crypto";
+import * as helper from "./utils/helper";
 
 
 export interface NodeConfigFile {
@@ -40,10 +41,11 @@ export class LoginController extends AbstractSubController {
 
     constructor() {
         super()
-        this.loadConfig().catch((err) => {
+        this.loadConfig().then(() => {
+            this.generateApiKeyOnFirstStart();
+        }).catch((err) => {
             logger.error("Error loading node config on startup", err)
         })
-        this.generateApiKeyOnFirstStart();
     }
 
     public static getInstance() {
@@ -105,10 +107,6 @@ export class LoginController extends AbstractSubController {
                 password: nconf.get("serverConfig:password")
             }
             serverConfig.saveConfigLocal();
-            let options = {
-                cloudscraper: true,
-                urlencoded: true // must be true with cloudscraper
-            }
             logger.verbose("Checking cloud login validity of account");
             utils.postData(nconf.get("serverConfig:checkLoginUrl"), data, (body, response) => {
                 if (body === false) {
@@ -141,7 +139,7 @@ export class LoginController extends AbstractSubController {
                 }
                 this.setLoggedIn();
                 resolve()
-            }, options)
+            }, this.getPostOptions())
         })
     }
 
@@ -227,8 +225,34 @@ export class LoginController extends AbstractSubController {
         nconf.remove("apiKeys"); // can't delete config from .ts file. config from .json is overwritten. always remove because we don't allow multiple keys
         nconf.set("apiKeys", keys);
         serverConfig.saveConfigLocal();
+        if (nconf.get("serverConfig:premium") === true)
+            this.updateApiKey();
     }
 
+    protected updateApiKey() {
+        let data = {
+            apiKey: nconf.get("serverConfig:checkLoginApiKey"),
+            username: nconf.get("serverConfig:username"),
+            password: nconf.get("serverConfig:password"),
+            botID: this.nodeConfig.id,
+            botApiKey: helper.getFirstApiKey()
+        }
+        logger.verbose("Submitting new bot API key");
+        utils.postData(nconf.get("serverConfig:updateApiKeyUrl"), data, (body, response) => {
+            if (body === false)
+                return logger.error("Error contacting cloud bot API to update key", response);
+            let json = utils.parseJson(body);
+            if (json === null)
+                return logger.error("Invalid response from cloud bot API", body);
+            if (json.error === true)
+                return logger.info("Error updating API key via cloud API", json);
+            logger.verbose("Updated cloud API key")
+        }, this.getPostOptions())
+    }
+
+    /**
+     * Generate a token that is unique for this bot instance and user.
+     */
     protected getUserToken() {
         let secret = nconf.get("serverConfig:userTokenSeed") + utils.appDir + nconf.get("serverConfig:username");
         let hash = crypto.createHash('sha512').update(secret, 'utf8').digest('hex');
@@ -250,5 +274,12 @@ export class LoginController extends AbstractSubController {
         if (firstStart)
             return false;
         return true;
+    }
+
+    protected getPostOptions() {
+        return {
+            cloudscraper: true,
+            urlencoded: true // must be true with cloudscraper
+        }
     }
 }
