@@ -7,16 +7,17 @@ const WebSocket = require('ws');
 
 class WolfbotWebsocketAPI {
     constructor() {
-        this.ws = new WebSocket('wss://MacBook-Pro.local:8332/?apiKey=KKASdh32j4hAHSD3wf23&format=json', {
-            rejectUnauthorized: false
+        // WOLFBOT_API_KEY is the api key of your WolfBot instance
+        this.ws = new WebSocket('wss://hostname:port/?apiKey=WOLFBOT_API_KEY&format=json', {
+            //rejectUnauthorized: false // use this on your local machine with a self-signed for WolfBot certificate ONLY
         });
 
-        // add event listeners
+        // add WebSocket event listeners
         this.ws.on('open', () => {
             // subscribe to desired data feeds
             this.send(12, {action: "sub"}); // strategy live data
             this.send(24, {action: "sub"}); // trades
-            //this.send(12, {tabNr: 3}); // subscribes to conifg number 3 (instead of 1, default)
+            //this.send(12, {tabNr: 3}); // subscribes to conifg number 3 (instead of 1, default) for strategy data
         });
 
         this.ws.on('close', (code, reason) => {

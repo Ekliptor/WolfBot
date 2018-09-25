@@ -285,6 +285,7 @@ import "./ADX";
 import "./Aroon";
 import "./AverageVolume";
 import "./BollingerBands";
+import "./BVOL";
 import "./CCI";
 import "./DEMA";
 import "./EhlerTrendline";

@@ -14,6 +14,8 @@ export class TradesUpdater extends AppPublisher {
     constructor(serverSocket: ServerSocket, advisor: AbstractAdvisor) {
         super(serverSocket, advisor)
         this.waitForConfigLoaded().then(() => {
+            return utils.promiseDelay(3000)
+        }).then(() => {
             this.publishLiveTrades();
         })
     }
@@ -33,12 +35,14 @@ export class TradesUpdater extends AppPublisher {
         // there is 1 trader instance per config-currency pair. Sub-instances (such as TradeNotifier)
         // are not returned here
         let traders = this.advisor.getTraders(); // TODO only for real time traders?
+        // [ 'buy', 'sell', 'close', 'syncPortfolio' ]
         // lending [ 'place', 'takenAll' ]
         traders.forEach((trader) => {
             let eventNames = trader.eventNames();
             eventNames.forEach((event) => {
                 trader.on(event, (...args) => {
-                    this.publish(args);
+                    let payload = args.unshift(event);
+                    this.publish(payload);
                 });
             });
         })
