@@ -65,7 +65,7 @@ models
 config-bak
 bfg.jar
 build
-docs
+/docs
 packages
 temp
 trades

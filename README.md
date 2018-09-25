@@ -84,3 +84,13 @@ The UI uses a single persistent WebSocket connection. UI related code is in the 
 ├─── views <- all HTML templates
 ```
 
+
+## REST and WebSocket JSON APIs
+If you want to connect WolfBot to your trading terminal, please take a look at the [API docs](https://github.com/Ekliptor/WolfBot/blob/master/tests/docs/WolfBot%20API.pdf).
+
+This let's you:
+* create new cloud bot instances and earn commission for every referral (not applicable to open source version)
+* import the trades book with all trades WolfBot made via REST API call
+* subscribe to live trades via WebSocket to display them in your trading terminal
+* subscribe to live strategy data and indicator values via WebSocket
+
