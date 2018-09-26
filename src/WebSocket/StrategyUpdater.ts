@@ -57,6 +57,7 @@ export class StrategyUpdater extends AppPublisher {
     constructor(serverSocket: ServerSocket, advisor: AbstractAdvisor) {
         super(serverSocket, advisor)
         this.waitForConfigLoaded().then(() => {
+            this.maxConfigNr = this.advisor.getConfigs().length;
             this.publishStrategyUpdates();
         });
     }
