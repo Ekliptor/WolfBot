@@ -6,6 +6,7 @@ import {AbstractStopStrategy, AbstractStopStrategyAction} from "./AbstractStopSt
 import {Currency, Trade, Order, Candle} from "@ekliptor/bit-models";
 import {TradeInfo} from "../Trade/AbstractTrader";
 import * as helper from "../utils/helper";
+import {MarginPosition} from "../structs/MarginPosition";
 
 
 type ClosePositionState = "always" | "profit" | "loss";
@@ -81,6 +82,13 @@ export default class TimeStop extends AbstractStopStrategy {
     public onTrade(action: TradeAction, order: Order.Order, trades: Trade.Trade[], info: TradeInfo) {
         super.onTrade(action, order, trades, info);
         if (action === "close") {
+            this.trailingStopPrice = -1;
+        }
+    }
+
+    public onSyncPortfolio(coins: number, position: MarginPosition, exchangeLabel: Currency.Exchange) {
+        super.onSyncPortfolio(coins, position, exchangeLabel)
+        if (this.strategyPosition === "none") {
             this.trailingStopPrice = -1;
         }
     }

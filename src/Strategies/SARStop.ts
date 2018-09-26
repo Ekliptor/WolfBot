@@ -6,6 +6,7 @@ import {AbstractStopStrategy, AbstractStopStrategyAction} from "./AbstractStopSt
 import {Currency, Trade, Order, Candle} from "@ekliptor/bit-models";
 import {TradeInfo} from "../Trade/AbstractTrader";
 import * as helper from "../utils/helper";
+import {MarginPosition} from "../structs/MarginPosition";
 
 interface SARStopAction extends AbstractStopStrategyAction {
     initialStop: boolean; // optional, default false // Use the candle high/low of the current candle when opening a position as an initial stop.
@@ -79,6 +80,14 @@ export default class SARStop extends AbstractStopStrategy {
         if (action !== "close" && this.initialStop === -1 && this.candle)
             this.initialStop = action === "buy" ? this.candle.low : this.candle.high;
         if (action === "close") {
+            this.initialStop = -1;
+            this.trailingStopPrice = -1;
+        }
+    }
+
+    public onSyncPortfolio(coins: number, position: MarginPosition, exchangeLabel: Currency.Exchange) {
+        super.onSyncPortfolio(coins, position, exchangeLabel)
+        if (this.strategyPosition === "none") {
             this.initialStop = -1;
             this.trailingStopPrice = -1;
         }
