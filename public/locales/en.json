@@ -705,6 +705,17 @@
       "spikeClose": "optional, default 0 (disabled) - Close a position if the price (current vs last candle) moves x% into the opposite direction. Simply put: If there is a price spike against our position.",
       "historyCandle": "optional, default 36 - How many candles to look back to compare if price really is a spike. Set 0 to disable it."
     },
+    "IndicatorDivergence": {
+      "desc": "Strategy that trades on bullish and bearish divergence.<br>A bullish divergence is when the price makes a lower low (LL) while the chosen indicator makes a higher low (HL). A bullish divergence is the moment to open a long position.<br>A bearish divergence is when the price makes a higher high (HH) while the chosen indicator makes a lower high (LH). A bearish divergence is the moment to open a short position.<br>This strategy only opens positions. You need a stop-loss and/or take profit strategy.",
+      "divergenceIndicator": "optional, default RSI. The indicator to use to check for bullish/bearish divergence on new price highs/lows. values: RSI|CCI|MFI",
+      "low": "not used, just set internally for indicator to work",
+      "high": "not used, just set internally for indicator to work",
+      "interval": "optional, default 14 - The number of candles the divergence indicator shall keep in history.",
+      "divergenceHistory": "optional, default 16 - The number of candles we go back to compare price vs indicator highs/lows.",
+      "percentIndicatorTolerance": "optional, default 0.5% - The percentage the new indicator value can be lower/higher as the previous high/low to still be considered an indicator divergence. You can use negative values to require the indicator to have a bigger difference to the previous value.",
+      "maxGoLongPrice": "optional, default 0 = any price - The maximum price to open a long position.",
+      "minGoShortPrice": "optional, default 0 = any price - The minimum price to open a short position."
+    },
     "IntervalExtremes": {
       "desc": "A strategy that remembers the 24h, 3 day, etc.. high/low price points and opens a position once that price is reached. Additionally it keeps track of RSI and market buy vs market sell orders (called sentiment here) and can notify you at desired values. (Could also be achieved with Aroon strategy.) If tradeDirection is set accordingly, it will then trade either breakouts or reversals (depending on the 'mode' setting). It also counts bullish/bearish candlestick patterns and can notify you about them.",
       "tradeDirection": "optional, default both - In which direction shall this strategy trade. 'watch' means it only computes (indicator) values. Values: both|up|down|watch",

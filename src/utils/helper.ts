@@ -10,7 +10,7 @@ export function sendMessageToParent(message: any) {
             if (checkedParent === false) {
                 checkedParent = true;
                 let type = message.type ? message.type : "unknown";
-                logger.warn("NodeJS is not running as a child process. Skipped sending '%s' message to parent.", type)
+                logger.verbose("NodeJS is not running as a child process. Skipped sending '%s' message to parent.", type)
             }
             return setTimeout(resolve.bind(this), 0);
         }

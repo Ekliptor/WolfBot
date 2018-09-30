@@ -10,20 +10,22 @@ import * as _ from "lodash";
 type DivergenceIndicatorName = "RSI" | "CCI" | "MFI"; // OBV is unbound, bad for trading config
 
 interface IndicatorDivergenceAction extends TechnicalStrategyAction {
-    divergenceIndicator: DivergenceIndicatorName;
-    low: number; // needed for what?
+    divergenceIndicator: DivergenceIndicatorName; // default RSI. The indicator to use to check for bullish/bearish divergence on new price highs/lows.
+    low: number; // not used, just set internally for indicator to work
     high: number;
-    interval: number; // default 14. Use 0 for unlimited (since bot is collecting candles).
-    percentIndicatorTolerance: number; // optional, default 0.5%
+    interval: number; // default 14. The number of candles the divergence indicator shall keep in history.
+    divergenceHistory: number; // default 16. The number of candles we go back to compare price vs indicator highs/lows.
+    percentIndicatorTolerance: number; // optional, default 0.5%. The percentage the new indicator value can be lower/higher as the previous high/low to still be considered an indicator divergence.
+    // You can use negative values to require the indicator to have a bigger difference to the previous value.
 
-    maxGoLongPrice: number;
-    minGoShortPrice: number;
+    maxGoLongPrice: number; // optional, default 0 = any price // The maximum price to open a long position
+    minGoShortPrice: number; // optional, default 0 = any price // The minimum price to open a short position.
 }
 
-class PriceExtreme {
+class PricePoint {
     public rate: number;
     public indicatorValue: number;
-    public candleTicks: number = 0; // countip up starting at 0 = current candle tick
+    //public candleTicks: number = 0; // counting up starting at 0 = current candle tick
 
     constructor(rate: number, indicatorValue: number) {
         this.rate = rate;
@@ -32,17 +34,18 @@ class PriceExtreme {
 }
 
 /**
- * Strategy that emits buy/sell based on the OBV indicator.
- * We look if OBV makes new highs/lows on price highs/lows. Then we assume the trend to continue (breakout).
- * Otherwise we open a position in the opposite direction.
+ * Strategy that trades on bullish and bearish divergence.
+ * A bullish divergence is when the price makes a lower low (LL) while the chosen indicator makes a higher low (HL).
+ * A bullish divergence is the moment to open a long position.
+ * A bearish divergence is when the price makes a higher high (HH) while the chosen indicator makes a lower high (LH).
+ * A bearish divergence is the moment to open a short position.
  * This strategy only opens positions. You need a stop-loss and/or take profit strategy.
  */
 export default class IndicatorDivergence extends TechnicalStrategy {
     public action: IndicatorDivergenceAction;
     protected lastIndicatorValue: number = -1; // identical ro OBV because it's updated on every candle tick
     protected secondLastIndicatorValue: number = -1;
-    protected highs: PriceExtreme[] = [];
-    protected lows: PriceExtreme[] = [];
+    protected prices: PricePoint[] = [];
 
     constructor(options) {
         super(options)
@@ -54,14 +57,16 @@ export default class IndicatorDivergence extends TechnicalStrategy {
             this.action.high = 50;
         if (typeof this.action.interval !== "number")
             this.action.low = 14;
+        if (typeof this.action.divergenceHistory !== "number")
+            this.action.divergenceHistory = 16;
         if (typeof this.action.percentIndicatorTolerance !== "number")
             this.action.percentIndicatorTolerance = 0.5;
         if (typeof this.action.maxGoLongPrice !== "number")
             this.action.maxGoLongPrice = 0.0;
         if (typeof this.action.minGoShortPrice !== "number")
             this.action.minGoShortPrice = 0.0;
-        this.addIndicator(this.action.divergenceIndicator, "divInd", this.action);
 
+        this.addIndicator("divInd", this.action.divergenceIndicator, this.action);
         this.addInfo("secondLastIndicatorValue", "secondLastIndicatorValue");
         this.addInfoFunction("indicatorValue", () => {
             return this.indicators.get("divInd").getValue();
@@ -73,8 +78,7 @@ export default class IndicatorDivergence extends TechnicalStrategy {
         let state = super.serialize();
         state.lastIndicatorValue = this.lastIndicatorValue;
         state.secondLastIndicatorValue = this.secondLastIndicatorValue;
-        state.highs = this.highs;
-        state.lows = this.lows;
+        state.prices = this.prices;
         return state;
     }
 
@@ -82,8 +86,7 @@ export default class IndicatorDivergence extends TechnicalStrategy {
         super.unserialize(state);
         this.lastIndicatorValue = state.lastIndicatorValue;
         this.secondLastIndicatorValue = state.secondLastIndicatorValue;
-        this.highs = state.highs;
-        this.lows = state.lows;
+        this.prices = state.prices;
     }
 
     // ################################################################
@@ -94,42 +97,60 @@ export default class IndicatorDivergence extends TechnicalStrategy {
         const value = indicator.getValue();
         const valueFormatted = Math.round(value * 100) / 100.0;
         this.secondLastIndicatorValue = this.lastIndicatorValue;
+
+        const prices = this.prices.map(p => p.rate);
+        const indicatorValues = this.prices.map(p => p.indicatorValue);
+        const prevMaxRate = _.max(prices);
+        const prevMaxIndicator = _.max(indicatorValues);
+        const prevMinRate = _.min(prices);
+        const prevMinIndicator = _.min(indicatorValues);
         this.addToHistory(value, this.candle.close);
-        if (this.strategyPosition !== "none" || this.obvHistory.length < this.action.interval || this.priceHistory.length < this.action.interval) {
+        if (this.strategyPosition !== "none" || this.prices.length < this.action.divergenceHistory) {
             this.lastIndicatorValue = value;
             return;
         }
 
-        const maxOBV = _.max(this.obvHistory);
-        const maxPrice = _.max(this.priceHistory);
-        const minPrice = _.min(this.priceHistory);
-
-        if (maxOBV === value) {
-            this.log("Volume high detected, value", valueFormatted)
-            if (maxPrice === this.candle.close)
-                this.emitBuy(this.defaultWeight, utils.sprintf("OBV value max %s at price high, assuming UP breakout", valueFormatted));
-            else if (minPrice === this.candle.close)
-                this.emitSell(this.defaultWeight, utils.sprintf("OBV value max %s at price low, assuming DOWN breakout", valueFormatted));
-            else if (this.action.openReversal === true) {
-                this.log("Price failed to make a new high or low on OBV max")
-                if (this.candle.trend === "up")
-                    this.emitSell(this.defaultWeight, utils.sprintf("OBV value max %s on up candle without price high, assuming DOWN reversal", valueFormatted));
-                else if (this.candle.trend === "down")
-                    this.emitBuy(this.defaultWeight, utils.sprintf("OBV value max %s on down candle without price low, assuming UP reversal", valueFormatted));
-                else
-                    this.log("No candle trend on OBV max")
+        if (this.candle.close < prevMinRate) {
+            // check for bullish divergence: price makes a LL, indicator a HL
+            if (this.isWithinIndicatorTolerance(value, prevMinIndicator, true) === true) {
+                this.log(utils.sprintf("Bullish divergence: price LL %s < %s, indicator HL %s > %s", this.candle.close, prevMinRate, valueFormatted, prevMinIndicator));
+                if (this.action.maxGoLongPrice == 0.0 || this.action.maxGoLongPrice < this.candle.close) {
+                    this.emitBuy(this.defaultWeight, utils.sprintf("Bullish divergence at indicator HL %s > %s", valueFormatted, prevMinIndicator));
+                }
             }
+            else
+                this.log(utils.sprintf("No bullish divergence on price LL %s", this.candle.close));
+        }
+        else if (this.candle.close > prevMaxRate) {
+            // check for bearish divergence: price makes a HH, indicator a LH
+            if (this.isWithinIndicatorTolerance(value, prevMaxIndicator, false) === true) {
+                this.log(utils.sprintf("Bearish divergence: price HH %s > %s, indicator LH %s < %s", this.candle.close, prevMaxRate, valueFormatted, prevMaxIndicator));
+                if (this.action.minGoShortPrice == 0.0 || this.action.minGoShortPrice > this.candle.close) {
+                    this.emitSell(this.defaultWeight, utils.sprintf("Bearish divergence at indicator LH %s < %s", valueFormatted, prevMaxIndicator));
+                }
+            }
+            else
+                this.log(utils.sprintf("No bearish divergence on price HH %s", this.candle.close));
         }
 
         this.lastIndicatorValue = value;
     }
 
-    protected addToHistory(obv: number, price: number) {
-        this.obvHistory.push(obv);
-        this.priceHistory.push(price);
-        if (this.obvHistory.length > this.action.interval)
-            this.obvHistory.shift();
-        if (this.priceHistory.length > this.action.interval)
-            this.priceHistory.shift();
+    protected addToHistory(indicatorValue: number, price: number) {
+        let point = new PricePoint(price, indicatorValue);
+        this.prices.push(point);
+        if (this.prices.length > this.action.divergenceHistory)
+            this.prices.shift();
+    }
+
+    protected isWithinIndicatorTolerance(currentVal: number, compareVal: number, bigger: boolean) {
+        if (bigger === true) {
+            const toleranceVal = currentVal + (this.action.percentIndicatorTolerance != 0.0 ? currentVal / 100.0 * this.action.percentIndicatorTolerance : 0.0);
+            return toleranceVal > compareVal;
+        }
+        else { // smaller
+            const toleranceVal = currentVal - (this.action.percentIndicatorTolerance != 0.0 ? currentVal / 100.0 * this.action.percentIndicatorTolerance : 0.0);
+            return toleranceVal < compareVal;
+        }
     }
 }
