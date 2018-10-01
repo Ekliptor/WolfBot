@@ -94,3 +94,8 @@ This let's you:
 * subscribe to live trades via WebSocket to display them in your trading terminal
 * subscribe to live strategy data and indicator values via WebSocket
 
+
+## Contact
+Follow me on [Twitter](https://twitter.com/ekliptor) and [Memo](https://memo.cash/profile/1JFKA1CabVyX98qPRAUQBL9NhoTnXZr5Zm).
+
+No donations, I actually make money trading;)

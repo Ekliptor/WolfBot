@@ -84,6 +84,14 @@ export class STCIndicatorParams implements IndicatorParams {
     factor: number = 0.5;
     enableLog: boolean;
 }
+export class VolumeProfileParams implements IntervalIndicatorParams {
+    enableLog: boolean;
+    interval: number = 48; // the number of candles to compute the volume profile from
+    volumeRows: number = 24;
+    valueAreaPercent: number = 70;
+    constructor() {
+    }
+}
 
 export type TrendDirection = Candle.TrendDirection; // moved, keep it as alias
 

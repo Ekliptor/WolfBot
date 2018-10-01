@@ -50,7 +50,7 @@ export default class IndicatorDivergence extends TechnicalStrategy {
 
     constructor(options) {
         super(options)
-        if (typeof this.action.interval !== "string")
+        if (typeof this.action.divergenceIndicator !== "string")
             this.action.divergenceIndicator = "RSI";
         if (typeof this.action.low !== "number")
             this.action.low = 50;
