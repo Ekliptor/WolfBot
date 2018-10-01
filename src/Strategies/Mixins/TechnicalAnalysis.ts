@@ -18,6 +18,7 @@ import {Sentiment as Sentimentndicator} from "../../Indicators/Sentiment";
 import {AbstractCryptotraderIndicator} from "../../Indicators/AbstractCryptotraderIndicator";
 import {AbstractGenericStrategy} from "../AbstractGenericStrategy";
 import {TechnicalLendingStrategyAction} from "../../Lending/Strategies/TechnicalLendingStrategy";
+import AverageVolume from "../../Indicators/AverageVolume";
 
 
 export abstract class TechnicalAnalysis extends AbstractGenericStrategy {
@@ -72,7 +73,7 @@ export abstract class TechnicalAnalysis extends AbstractGenericStrategy {
      */
     public addIndicator(name: string, type: string, params: TechnicalStrategyAction | TechnicalLendingStrategyAction) {
         const modulePath = path.join(__dirname, "..", "..", "Indicators", type);
-        let indicatorInstance = this.loadModule(modulePath, params)
+        let indicatorInstance = this.loadModule<AbstractIndicator>(modulePath, params)
         if (!indicatorInstance) {
             logger.error("Indicator of type %s doesn't exist", type)
             return
@@ -151,6 +152,14 @@ export abstract class TechnicalAnalysis extends AbstractGenericStrategy {
     public getCryptotraderIndicator(name: string): AbstractCryptotraderIndicator {
         let indicator = this.getIndicator(name);
         if (indicator instanceof AbstractCryptotraderIndicator)
+            return indicator;
+        logger.error("Indicator with name %s has the wrong instance type in %s", name, this.className)
+        return null;
+    }
+
+    public getVolume(name: string): AverageVolume {
+        let indicator = this.getIndicator(name);
+        if (indicator instanceof AverageVolume)
             return indicator;
         logger.error("Indicator with name %s has the wrong instance type in %s", name, this.className)
         return null;

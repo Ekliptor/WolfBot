@@ -17,6 +17,7 @@ interface IndicatorDivergenceAction extends TechnicalStrategyAction {
     divergenceHistory: number; // default 16. The number of candles we go back to compare price vs indicator highs/lows.
     percentIndicatorTolerance: number; // optional, default 0.5%. The percentage the new indicator value can be lower/higher as the previous high/low to still be considered an indicator divergence.
     // You can use negative values to require the indicator to have a bigger difference to the previous value.
+    minVolumeSpike: number; // default 1.1. The min volume compared to the average volume of 'interval' candles to open a position at a divergence.
 
     maxGoLongPrice: number; // optional, default 0 = any price // The maximum price to open a long position
     minGoShortPrice: number; // optional, default 0 = any price // The minimum price to open a short position.
@@ -61,15 +62,26 @@ export default class IndicatorDivergence extends TechnicalStrategy {
             this.action.divergenceHistory = 16;
         if (typeof this.action.percentIndicatorTolerance !== "number")
             this.action.percentIndicatorTolerance = 0.5;
+        if (typeof this.action.minVolumeSpike !== "number")
+            this.action.minVolumeSpike = 1.1;
         if (typeof this.action.maxGoLongPrice !== "number")
             this.action.maxGoLongPrice = 0.0;
         if (typeof this.action.minGoShortPrice !== "number")
             this.action.minGoShortPrice = 0.0;
 
         this.addIndicator("divInd", this.action.divergenceIndicator, this.action);
+        this.addIndicator("AverageVolume", "AverageVolume", this.action);
+
+        const volumeIndicator = this.getVolume("AverageVolume");
         this.addInfo("secondLastIndicatorValue", "secondLastIndicatorValue");
         this.addInfoFunction("indicatorValue", () => {
             return this.indicators.get("divInd").getValue();
+        });
+        this.addInfoFunction("AverageVolume", () => {
+            return volumeIndicator.getValue();
+        });
+        this.addInfoFunction("VolumeFactor", () => {
+            return volumeIndicator.getVolumeFactor();
         });
         this.saveState = true;
     }
@@ -114,7 +126,9 @@ export default class IndicatorDivergence extends TechnicalStrategy {
             // check for bullish divergence: price makes a LL, indicator a HL
             if (this.isWithinIndicatorTolerance(value, prevMinIndicator, true) === true) {
                 this.log(utils.sprintf("Bullish divergence: price LL %s < %s, indicator HL %s > %s", this.candle.close, prevMinRate, valueFormatted, prevMinIndicator));
-                if (this.action.maxGoLongPrice == 0.0 || this.action.maxGoLongPrice < this.candle.close) {
+                if (this.isSufficientVolume() === false)
+                    this.log("Insufficient volume to go long on bullish divergence " + this.getVolumeStr());
+                else if (this.action.maxGoLongPrice == 0.0 || this.action.maxGoLongPrice < this.candle.close) {
                     this.emitBuy(this.defaultWeight, utils.sprintf("Bullish divergence at indicator HL %s > %s", valueFormatted, prevMinIndicator));
                 }
             }
@@ -125,7 +139,9 @@ export default class IndicatorDivergence extends TechnicalStrategy {
             // check for bearish divergence: price makes a HH, indicator a LH
             if (this.isWithinIndicatorTolerance(value, prevMaxIndicator, false) === true) {
                 this.log(utils.sprintf("Bearish divergence: price HH %s > %s, indicator LH %s < %s", this.candle.close, prevMaxRate, valueFormatted, prevMaxIndicator));
-                if (this.action.minGoShortPrice == 0.0 || this.action.minGoShortPrice > this.candle.close) {
+                if (this.isSufficientVolume() === false)
+                    this.log("Insufficient volume to go short on bearish divergence " + this.getVolumeStr());
+                else if (this.action.minGoShortPrice == 0.0 || this.action.minGoShortPrice > this.candle.close) {
                     this.emitSell(this.defaultWeight, utils.sprintf("Bearish divergence at indicator LH %s < %s", valueFormatted, prevMaxIndicator));
                 }
             }
@@ -152,5 +168,17 @@ export default class IndicatorDivergence extends TechnicalStrategy {
             const toleranceVal = currentVal - (this.action.percentIndicatorTolerance != 0.0 ? currentVal / 100.0 * this.action.percentIndicatorTolerance : 0.0);
             return toleranceVal < compareVal;
         }
+    }
+
+    protected isSufficientVolume() {
+        if (this.action.minVolumeSpike == 0.0)
+            return true; // disabled
+        let indicator = this.getVolume("AverageVolume")
+        return indicator.getVolumeFactor() >= this.action.minVolumeSpike;
+    }
+
+    protected getVolumeStr() {
+        let indicator = this.getVolume("AverageVolume");
+        return utils.sprintf("%s %s, spike %sx", indicator.getValue().toFixed(8), this.action.pair.getBase(), indicator.getVolumeFactor().toFixed(8));
     }
 }

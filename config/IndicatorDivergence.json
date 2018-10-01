@@ -11,6 +11,7 @@
           "interval": 14,
           "divergenceHistory": 32,
           "percentIndicatorTolerance": -1.5,
+          "minVolumeSpike": 1.2,
           "pair": "BTC_ETH",
           "candleSize": 60,
           "tradeStrategy": "RSIScalpOrderer",

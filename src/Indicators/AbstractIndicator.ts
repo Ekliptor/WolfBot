@@ -207,11 +207,14 @@ export abstract class AbstractIndicator extends DataPlotCollector {
      * @returns {{}}
      */
     public serialize(): any {
-        let state = {}
+        let state: any = {}
+        state.value = this.value;
         return state;
     }
 
     public unserialize(state: any) {
+        if (state.value !== undefined)
+            this.value = state.value;
     }
 
     // ################################################################

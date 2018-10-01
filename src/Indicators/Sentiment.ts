@@ -96,6 +96,14 @@ export default class Sentiment extends AbstractIndicator {
         return longAmount / (longAmount + shortAmount) * 100.0;
     }
 
+    public getAllValues() {
+        return {
+            longAmount: this.getLongAmount(),
+            shortAmount: this.getShortAmount(),
+            longShortPerc: this.getLongShortPercentage()
+        }
+    }
+
     public isReady() {
         return this.candleCount >= this.params.interval;
     }
