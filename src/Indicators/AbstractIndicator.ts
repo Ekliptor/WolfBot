@@ -87,8 +87,9 @@ export class STCIndicatorParams implements IndicatorParams {
 export class VolumeProfileParams implements IntervalIndicatorParams {
     enableLog: boolean;
     interval: number = 48; // the number of candles to compute the volume profile from
-    volumeRows: number = 24;
+    volumeRows: number = 24; // the number of equally-sized price zones
     valueAreaPercent: number = 70;
+    useSingleTrades: boolean = true; // use single trades to compute volume profile (if available) or candle close prices
     constructor() {
     }
 }
@@ -185,6 +186,7 @@ export abstract class AbstractIndicator extends DataPlotCollector {
     /**
      * Get all current indicator values as an object.
      * Overwrite this in your subclas if required.
+     * This function MUST return numeric values only, no nested objects (because we use them to train our neural network).
      * @returns {object}
      */
     public getAllValues(): AllIndicators {

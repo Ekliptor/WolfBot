@@ -15,6 +15,8 @@ import {AbstractCryptotraderIndicator} from "../../Indicators/AbstractCryptotrad
 import {TaLib, TaLibParams, TaLibResult} from "../../Indicators/TaLib";
 import {TechnicalAnalysis} from "../../Strategies/Mixins/TechnicalAnalysis";
 import {AbstractLendingStrategy, LendingStrategyAction} from "./AbstractLendingStrategy";
+import AverageVolume from "../../Indicators/AverageVolume";
+import VolumeProfile from "../../Indicators/VolumeProfile";
 
 export interface TechnicalLendingStrategyAction extends LendingStrategyAction {
     // TODO remove and only use TechnicalStrategAction? so far identical
@@ -129,6 +131,8 @@ export abstract class TechnicalLendingStrategy extends AbstractLendingStrategy i
     public getRSI: (name: string) => RSIIndicator;
     public getSentiment: (name: string) => SentimentIndicator;
     public getCryptotraderIndicator: (name: string) => AbstractCryptotraderIndicator;
+    public getVolume: (name: string) => AverageVolume;
+    public getVolumeProfile: (name: string) => VolumeProfile;
     public allIndicatorsReady: () => boolean;
     public getXMinuteMA: (minutes: number, period: number, depth: number) => Promise<number>;
     public computeCustomIndicator: (name: string, computeResult: Promise<number>) => Promise<number>;

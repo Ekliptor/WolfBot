@@ -3,12 +3,12 @@ const logger = utils.logger
     , nconf = utils.nconf;
 import * as _ from "lodash";
 import {Currency, Trade, Order, Candle} from "@ekliptor/bit-models";
-import {CandleStream} from "./CandleStream";
+import {CandleStream, TradeBase} from "./CandleStream";
 
 /**
  * Creates candles of x minutes from 1 minute candles of CandleMaker.
  */
-export class CandleBatcher<T extends Trade.SimpleTrade> extends CandleStream<T> {
+export class CandleBatcher<T extends TradeBase> extends CandleStream<T> {
     protected interval: number; // candle size in minutes
     protected minuteCandles: Candle.Candle[] = [];
     protected lastCandle: Candle.Candle = null;
@@ -56,6 +56,8 @@ export class CandleBatcher<T extends Trade.SimpleTrade> extends CandleStream<T> 
                 candle.low = _.min([candle.low, m.low]);
                 candle.close = m.close;
                 candle.volume += m.volume;
+                candle.upVolume += m.upVolume;
+                candle.downVolume += m.downVolume;
                 candle.vwp += m.vwp * m.volume;
                 candle.trades += m.trades;
                 if (candle.tradeData/* !== undefined*/)

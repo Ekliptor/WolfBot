@@ -58,7 +58,7 @@ export abstract class AbstractGenericStrategy extends EventEmitter {
     protected lastAvgMarketPrice: number = -1;
     protected candle: Candle.Candle = null; // most recent candle. short for this.candleHistory[0]
     protected candleTrend: TrendDirection = "none";
-    protected candleHistory: Candle.Candle[] = [];
+    protected candleHistory: Candle.Candle[] = []; // history of candles, starting with the most recent candle at pos 0
     protected candles1min: Candle.Candle[] = [];
     protected currentCandle: Candle.Candle = null;
 

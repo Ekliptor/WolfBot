@@ -211,6 +211,8 @@ export abstract class AbstractAdvisor extends AbstractSubController {
     public static backupOriginalConfig() {
         return new Promise<void>((resolve, reject) => {
             // simple way: backup every config file once (don't overwrite). this includes user config files
+            if (nconf.get("trader") === "Backtester" || process.env.IS_CHILD)
+                return resolve(); // no need to always back it up in backtesting mode
             const configDir = TradeConfig.getConfigRootDir();
             const backupDir = TradeConfig.getConfigBackupRootDir();
             utils.file.listDir(configDir, async (err, files) => {

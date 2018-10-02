@@ -1075,6 +1075,14 @@
     "TriggerOrder": {
       "desc": "Strategy that receives a order from another strategy (such as StopLoss or TakeProfit) and executes it once the threshold triggers. This strategy works with a small candle size (1min) while the strategy giving the order can have a larger candle size. This strategy doesn't have its own config, but instead uses some parameters from the pending order to be executed by it."
     },
+    "VolumeProfiler": {
+      "desc": "Strategy that waits for price to hit a high volume spot on the volume profile. Depending on 'tradeMode' it will then either:<br>- breakout: Wait until the price is at the end of this volume profile bar and then open a position with the current trend. This works well for opening positions for longer timeframes (multiple days to weeks).<br>- resistance: Immediately forward an order against the trend. You should have a 'tradeStrategy' such as 'RSIScalpOrderer' set on a smaller candleSize to delay the order execution until the trend slows down.<br>- both: Trade on breakout and resistance depending on where the current price is within the corresponding volume profile bar.<br>This strategy only opens positions. You need a stop-loss and/or take profit strategy.",
+      "interval": "optional, default 48. The number of candles to compute the volume profile and average volume from.",
+      "volumeRows": "optional default 24. The number of equally-sized price zones the price range is divided into.",
+      "valueAreaPercent": "optional, default 70%. The percentage of the total volume that shall make up the value area, meaning the price range where x% of the trades happen.",
+      "minVolumeSpike": "optional, default 1.1. The min volume compared to the average volume of the last 'interval' candles to open a position at a divergence.",
+      "tradeMode": "optional, default resistance. If we reach the volume profile bar with the highest volume, shall we wait for a bounce (trade the resistance) or trade a breakout? Values: breakout|resistance|both"
+    },
     "VolumeSpikeDetector": {
       "desc": "Detect if there is a spike in the trade volume of a coin. This usually means a sharp spike/drop is happening (especially for smaller Altcoins). This strategy works great at detecting fast pumps in a coin. It should be used with a small candle size such as 3-15min and a 'spikeFactor' according to your coin's volume profile changes. You should look at the chart and set the 'spikeFactor' value high enough so that this strategy only triggers about once a week for your coin. Take a look at VolumeSpikeDetectorLong for volume spikes in longer candle intervals (>= 12h) to detect if attention in a coin is rising.",
       "spikeFactor": "The minimum spike to open a position. Defined as x times higher than the average volume.",

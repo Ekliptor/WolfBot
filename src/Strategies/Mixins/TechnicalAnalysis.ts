@@ -19,6 +19,7 @@ import {AbstractCryptotraderIndicator} from "../../Indicators/AbstractCryptotrad
 import {AbstractGenericStrategy} from "../AbstractGenericStrategy";
 import {TechnicalLendingStrategyAction} from "../../Lending/Strategies/TechnicalLendingStrategy";
 import AverageVolume from "../../Indicators/AverageVolume";
+import VolumeProfile from "../../Indicators/VolumeProfile";
 
 
 export abstract class TechnicalAnalysis extends AbstractGenericStrategy {
@@ -160,6 +161,14 @@ export abstract class TechnicalAnalysis extends AbstractGenericStrategy {
     public getVolume(name: string): AverageVolume {
         let indicator = this.getIndicator(name);
         if (indicator instanceof AverageVolume)
+            return indicator;
+        logger.error("Indicator with name %s has the wrong instance type in %s", name, this.className)
+        return null;
+    }
+
+    public getVolumeProfile(name: string): VolumeProfile {
+        let indicator = this.getIndicator(name);
+        if (indicator instanceof VolumeProfile)
             return indicator;
         logger.error("Indicator with name %s has the wrong instance type in %s", name, this.className)
         return null;

@@ -4,7 +4,11 @@ const logger = utils.logger
 import * as EventEmitter from 'events';
 import {Currency, Trade, Order, Candle} from "@ekliptor/bit-models";
 
-export abstract class CandleStream<T extends Trade.SimpleTrade> extends EventEmitter {
+export interface TradeBase extends Trade.SimpleTrade {
+
+}
+
+export abstract class CandleStream<T extends TradeBase> extends EventEmitter {
     protected currencyPair: Currency.CurrencyPair;
     protected exchange: Currency.Exchange;
 

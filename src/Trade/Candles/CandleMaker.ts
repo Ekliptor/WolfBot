@@ -3,7 +3,7 @@ const logger = utils.logger
     , nconf = utils.nconf;
 import * as _ from "lodash";
 import {Currency, Trade, Order, Candle} from "@ekliptor/bit-models";
-import {CandleStream} from "./CandleStream";
+import {CandleStream, TradeBase} from "./CandleStream";
 import * as crypto from "crypto";
 import * as path from "path";
 import * as fs from "fs";
@@ -12,7 +12,7 @@ import * as fs from "fs";
  * Class to create 1 minute candles from trades of TradeStream
  * http://stockcharts.com/school/doku.php?id=chart_school:chart_analysis:introduction_to_candlesticks
  */
-export class CandleMaker<T extends Trade.SimpleTrade> extends CandleStream<T> {
+export class CandleMaker<T extends TradeBase> extends CandleStream<T> {
     public static readonly TEMP_DATA_DIR = "candles";
     // TODO cleanup candle files older than x days on startup
 
@@ -152,6 +152,7 @@ export class CandleMaker<T extends Trade.SimpleTrade> extends CandleStream<T> {
     protected calculateCandle(trades: T[]) {
         const first = _.first<T>(trades);
         const last = _.last<T>(trades);
+        const isTradesFeed = first instanceof Trade.Trade;
         //const f = parseFloat;
 
         const candle = new Candle.Candle(this.currencyPair);
@@ -164,15 +165,22 @@ export class CandleMaker<T extends Trade.SimpleTrade> extends CandleStream<T> {
         //candle.trades = _.size(trades);
         candle.trades = trades.length;
 
-        _.each(trades, (trade) => {
+        _.each<T>(trades, (trade: T) => {
             candle.high = _.max([candle.high, trade.rate]);
             candle.low = _.min([candle.low, trade.rate]);
             candle.volume += trade.amount;
+            if (trade instanceof Trade.Trade) { // only these trades are from live feed or history. we don't have separate up/down volume otherwise
+                //const unknownTrade = trade as unknown; // only way to cast to Trade is through unknown
+                if (trade.type == Trade.TradeType.BUY)
+                    candle.upVolume += trade.amount;
+                else // SELL
+                    candle.downVolume += trade.amount;
+            }
             candle.vwp += trade.rate * trade.amount;
         });
 
         candle.vwp /= candle.volume;
-        if (first instanceof Trade.Trade) { // faster check, skip loop otherwise
+        if (isTradesFeed) { // faster check, skip loop otherwise
             let realTrades: Trade.Trade[] = [];
             trades.forEach((tr) => {
                 if (tr instanceof Trade.Trade)
@@ -181,6 +189,10 @@ export class CandleMaker<T extends Trade.SimpleTrade> extends CandleStream<T> {
             //candle.tradeData = trades as Trade.Trade;
             //if (realTrades.length !== 0) // set it to empty array
                 candle.tradeData = realTrades;
+            const totalUpDownVolume = candle.upVolume + candle.downVolume;
+            const volumeDiff = Math.abs(candle.volume - totalUpDownVolume);
+            if (volumeDiff > 1.0) // there is fractional diff // TODO remove this check later
+                logger.error("Volume up/down mismatch on candle. actual %s, computed %s, diff %s", candle.volume.toFixed(8), totalUpDownVolume.toFixed(8), volumeDiff.toFixed(8));
         }
         CandleStream.computeCandleTrend(candle);
         candle.init();

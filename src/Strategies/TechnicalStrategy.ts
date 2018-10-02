@@ -20,6 +20,7 @@ import {isWindows} from "@ekliptor/apputils";
 import {GenericStrategyState} from "./AbstractGenericStrategy";
 import {CandleBatcher} from "../Trade/Candles/CandleBatcher";
 import AverageVolume from "../Indicators/AverageVolume";
+import VolumeProfile from "../Indicators/VolumeProfile";
 
 export interface TechnicalStrategyAction extends StrategyAction {
     // properties are optional because not all strategies will have all indicators (and some might inherit TechnicalStrategy for other functions)
@@ -188,6 +189,7 @@ export abstract class TechnicalStrategy extends AbstractStrategy implements Tech
     public getSentiment: (name: string) => SentimentIndicator;
     public getCryptotraderIndicator: (name: string) => AbstractCryptotraderIndicator;
     public getVolume: (name: string) => AverageVolume;
+    public getVolumeProfile: (name: string) => VolumeProfile;
     public allIndicatorsReady: () => boolean;
     public getXMinuteMA: (minutes: number, period: number, depth: number) => Promise<number>;
     public computeCustomIndicator: (name: string, computeResult: Promise<number>) => Promise<number>;
