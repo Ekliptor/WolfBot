@@ -1081,7 +1081,8 @@
       "volumeRows": "optional default 24. The number of equally-sized price zones the price range is divided into.",
       "valueAreaPercent": "optional, default 70%. The percentage of the total volume that shall make up the value area, meaning the price range where x% of the trades happen.",
       "minVolumeSpike": "optional, default 1.1. The min volume compared to the average volume of the last 'interval' candles to open a position at a divergence.",
-      "tradeMode": "optional, default resistance. If we reach the volume profile bar with the highest volume, shall we wait for a bounce (trade the resistance) or trade a breakout? Values: breakout|resistance|both"
+      "tradeMode": "optional, default resistance. If we reach the volume profile bar with the highest volume, shall we wait for a bounce (trade the resistance) or trade a breakout? Values: breakout|resistance|both",
+      "minVolumeSpikeBreakout": "optional, default 2.1. If 'tradeMode' is set to 'both' the volume of the current candle has to be x times higher than the average volume to be considered a breakout. Otherwise trade resistance (open a position in the opposite direction)."
     },
     "VolumeSpikeDetector": {
       "desc": "Detect if there is a spike in the trade volume of a coin. This usually means a sharp spike/drop is happening (especially for smaller Altcoins). This strategy works great at detecting fast pumps in a coin. It should be used with a small candle size such as 3-15min and a 'spikeFactor' according to your coin's volume profile changes. You should look at the chart and set the 'spikeFactor' value high enough so that this strategy only triggers about once a week for your coin. Take a look at VolumeSpikeDetectorLong for volume spikes in longer candle intervals (>= 12h) to detect if attention in a coin is rising.",

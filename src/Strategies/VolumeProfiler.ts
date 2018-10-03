@@ -17,6 +17,8 @@ interface VolumeProfilerAction extends TechnicalStrategyAction {
     valueAreaPercent: number; // default 70%. The percentage of the total volume that shall make up the value area, meaning the price range where x% of the trades happen.
     minVolumeSpike: number; // default 1.1. The min volume compared to the average volume of the last 'interval' candles to open a position at a divergence.
     tradeMode: VolumeTradeMode; // default resistance. If we reach the volume profile bar with the highest volume, shall we wait for a bounce (trade the resistance) or trade a breakout? Values: breakout|resistance|both
+    minVolumeSpikeBreakout: number; // default 2.1. If 'tradeMode' is set to 'both' the volume of the current candle has to be x times higher than the average volume to be considered a breakout.
+    // Otherwise trade resistance (open a position in the opposite direction).
 }
 
 /**
@@ -47,6 +49,8 @@ export default class VolumeProfiler extends TechnicalStrategy {
             this.action.minVolumeSpike = 1.8;
         if (typeof this.action.tradeMode !== "string")
             this.action.tradeMode = "resistance";
+        if (typeof this.action.minVolumeSpikeBreakout !== "number")
+            this.action.minVolumeSpikeBreakout = 2.1;
 
         this.addIndicator("VolumeProfile", "VolumeProfile", this.action);
         this.addIndicator("AverageVolume", "AverageVolume", this.action);
@@ -104,7 +108,7 @@ export default class VolumeProfiler extends TechnicalStrategy {
 
     protected checkIndicators() {
         const volumeProfile = this.getVolumeProfile("VolumeProfile");
-        //const averageVolume = this.getVolume("AverageVolume");
+        const averageVolume = this.getVolume("AverageVolume");
         let profileBars = volumeProfile.getVolumeProfile();
 
         if (this.strategyPosition !== "none" || this.candleHistory.length < 2) // candleHistory must be at least 'interval' if this function is called
@@ -120,7 +124,8 @@ export default class VolumeProfiler extends TechnicalStrategy {
             else if (this.action.tradeMode === "resistance")
                 this.tradeAgainstTrend(highestVolumeBar);
             else if (this.action.tradeMode === "both") {
-                if (highestVolumeBar.getMeanPrice() < this.candle.close) // TODO can we improve this?
+                //if (highestVolumeBar.getMeanPrice() < this.candle.close)
+                if (averageVolume.getVolumeFactor() < this.action.minVolumeSpikeBreakout)
                     this.tradeAgainstTrend(highestVolumeBar); // assume bounce upwards
                 else
                     this.tradeWithTrend(highestVolumeBar);
@@ -135,7 +140,8 @@ export default class VolumeProfiler extends TechnicalStrategy {
             else if (this.action.tradeMode === "resistance")
                 this.tradeAgainstTrend(highestVolumeBar);
             else if (this.action.tradeMode === "both") {
-                if (highestVolumeBar.getMeanPrice() > this.candle.close)
+                //if (highestVolumeBar.getMeanPrice() > this.candle.close)
+                if (averageVolume.getVolumeFactor() < this.action.minVolumeSpikeBreakout)
                     this.tradeAgainstTrend(highestVolumeBar); // assume bounce downwards
                 else
                     this.tradeWithTrend(highestVolumeBar);
@@ -144,7 +150,7 @@ export default class VolumeProfiler extends TechnicalStrategy {
         else
             this.log(utils.sprintf("Skipping trade because price %s is not within the highest volume bar %s", this.candle.close.toFixed(8), highestVolumeBar.toString()));
 
-        // TODO any use for valueArea?
+        // TODO any use for valueArea? another strategy could only trade outside of value area and assume price will come back into that area
 
         /*
         if (profileBars[0].isPriceWithinRange(this.candle.close) === true) {

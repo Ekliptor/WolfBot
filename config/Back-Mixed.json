@@ -12,7 +12,7 @@
           "volumeRows": 24,
           "valueAreaPercent": 70.0,
           "minVolumeSpike": 1.2,
-          "tradeMode": "breakout",
+          "tradeMode": "both",
           "pair": "BTC_ETH",
           "candleSize": 60,
           "tradeStrategy": "RSIScalpOrderer",

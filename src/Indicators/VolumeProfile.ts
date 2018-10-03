@@ -42,7 +42,9 @@ export class VolumeProfileBar {
         return (this.priceZoneHigh + this.priceZoneLow) / 2.0;
     }
     public toString() {
-        return utils.sprintf("ID %s, low %s, high %s, vol %s (up %s, down %s)", this.id, this.priceZoneLow, this.priceZoneHigh, this.volume, this.upVolume, this.downVolume);
+        return utils.sprintf("ID %s, low %s, high %s, vol %s (up %s, down %s)", this.id,
+            this.priceZoneLow.toFixed(8), this.priceZoneHigh.toFixed(8), this.volume.toFixed(8),
+            this.upVolume.toFixed(8), this.downVolume.toFixed(8));
     }
 }
 export class ValueArea {
