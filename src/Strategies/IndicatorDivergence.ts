@@ -84,6 +84,7 @@ export default class IndicatorDivergence extends TechnicalStrategy {
             return volumeIndicator.getVolumeFactor();
         });
         this.saveState = true;
+        this.mainStrategy = true;
     }
 
     public serialize() {

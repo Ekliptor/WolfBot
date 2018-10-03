@@ -19,6 +19,16 @@ export class VolumeProfileBar {
         this.priceZoneLow = priceZoneLow;
         this.priceZoneHigh = priceZoneHigh;
     }
+    public static unserializeBars(bars: any[]) {
+        let barObjects: VolumeProfileBar[] = [];
+        for (let i = 0; i < bars.length; i++)
+        {
+            let curBar = new VolumeProfileBar(bars[i].id, bars[i].priceZoneLow, bars[i].priceZoneHigh);
+            curBar = Object.assign(curBar, bars[i]);
+            barObjects.push(curBar);
+        }
+        return barObjects;
+    }
     public isPriceWithinRange(price: number) {
         return this.priceZoneLow >= price && this.priceZoneHigh < price;
     }
@@ -175,10 +185,10 @@ export default class VolumeProfile extends AbstractIndicator {
 
     public unserialize(state: any) {
         super.unserialize(state);
-        this.candleHistory = state.candleHistory;
-        this.volumeProfileBars = state.volumeProfileBars;
-        this.volumeProfileBarsByPrice = state.volumeProfileBarsByPrice;
-        this.valueArea = state.valueArea;
+        this.candleHistory = Candle.Candle.copy(state.candleHistory);
+        this.volumeProfileBars = VolumeProfileBar.unserializeBars(state.volumeProfileBars);
+        this.volumeProfileBarsByPrice = VolumeProfileBar.unserializeBars(state.volumeProfileBarsByPrice);
+        this.valueArea = Object.assign(new ValueArea(), state.valueArea);
     }
 
     // ################################################################

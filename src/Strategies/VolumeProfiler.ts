@@ -76,7 +76,7 @@ export default class VolumeProfiler extends TechnicalStrategy {
         this.addInfoFunction("totalVolume", () => {
             return volumeProfile.getTotalVolume();
         });
-        this.addInfoFunction("totalVolume", () => {
+        this.addInfoFunction("maxVolumeProfileBar", () => {
             const profile = volumeProfile.getVolumeProfile();
             return profile.length !== 0 ? profile[0].toString() : ""; // display the bar with the highest volume
         });
@@ -87,6 +87,7 @@ export default class VolumeProfiler extends TechnicalStrategy {
             return averageVolume.getVolumeFactor();
         });
         this.saveState = true;
+        this.mainStrategy = true;
     }
 
     public serialize() {
@@ -103,7 +104,7 @@ export default class VolumeProfiler extends TechnicalStrategy {
 
     protected checkIndicators() {
         const volumeProfile = this.getVolumeProfile("VolumeProfile");
-        const averageVolume = this.getVolume("AverageVolume");
+        //const averageVolume = this.getVolume("AverageVolume");
         let profileBars = volumeProfile.getVolumeProfile();
 
         if (this.strategyPosition !== "none" || this.candleHistory.length < 2) // candleHistory must be at least 'interval' if this function is called
@@ -182,12 +183,12 @@ export default class VolumeProfiler extends TechnicalStrategy {
     protected isSufficientVolume() {
         if (this.action.minVolumeSpike == 0.0)
             return true; // disabled
-        let indicator = this.getVolume("AverageVolume")
-        return indicator.getVolumeFactor() >= this.action.minVolumeSpike;
+        let averageVolume = this.getVolume("AverageVolume")
+        return averageVolume.getVolumeFactor() >= this.action.minVolumeSpike;
     }
 
     protected getVolumeStr() {
-        let indicator = this.getVolume("AverageVolume");
-        return utils.sprintf("%s %s, spike %sx", indicator.getValue().toFixed(8), this.action.pair.getBase(), indicator.getVolumeFactor().toFixed(8));
+        let averageVolume = this.getVolume("AverageVolume");
+        return utils.sprintf("%s %s, spike %sx", averageVolume.getValue().toFixed(8), this.action.pair.getBase(), averageVolume.getVolumeFactor().toFixed(8));
     }
 }

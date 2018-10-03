@@ -3,7 +3,7 @@
     {
       "exchanges": ["Bitfinex"],
       "marginTrading": true,
-      "tradeTotalBtc": 200.0,
+      "tradeTotalBtc": 140.0,
       "notifyTrades": true,
       "strategies": {
         "PlanRunner": {
@@ -50,6 +50,18 @@
           "pair": "USD_BTC",
           "tradeStrategy": "RSIScalpOrderer",
           "fallback": false,
+          "enableLog": true
+        },
+        "VolumeProfiler": {
+          "divergenceIndicator": "RSI",
+          "interval": 48,
+          "volumeRows": 24,
+          "valueAreaPercent": 70.0,
+          "minVolumeSpike": 1.2,
+          "tradeMode": "breakout",
+          "pair": "USD_BTC",
+          "candleSize": 60,
+          "tradeStrategy": "RSIScalpOrderer",
           "enableLog": true
         },
         "OrderPartitioner": {
@@ -161,7 +173,7 @@
     {
       "exchanges": ["Bitfinex"],
       "marginTrading": true,
-      "tradeTotalBtc": 200.0,
+      "tradeTotalBtc": 140.0,
       "notifyTrades": true,
       "strategies": {
         "PlanRunner": {
@@ -206,6 +218,18 @@
           "tradeDirection": "watch",
           "candleSize": 240,
           "pair": "USD_LTC",
+          "tradeStrategy": "RSIScalpOrderer",
+          "enableLog": true
+        },
+        "VolumeProfiler": {
+          "divergenceIndicator": "RSI",
+          "interval": 48,
+          "volumeRows": 24,
+          "valueAreaPercent": 70.0,
+          "minVolumeSpike": 1.2,
+          "tradeMode": "breakout",
+          "pair": "USD_LTC",
+          "candleSize": 60,
           "tradeStrategy": "RSIScalpOrderer",
           "enableLog": true
         },
@@ -318,7 +342,7 @@
     {
       "exchanges": ["Bitfinex"],
       "marginTrading": true,
-      "tradeTotalBtc": 150.0,
+      "tradeTotalBtc": 140.0,
       "notifyTrades": true,
       "strategies": {
         "PlanRunner": {
@@ -363,6 +387,18 @@
           "tradeDirection": "watch",
           "candleSize": 240,
           "pair": "USD_ETH",
+          "tradeStrategy": "RSIScalpOrderer",
+          "enableLog": true
+        },
+        "VolumeProfiler": {
+          "divergenceIndicator": "RSI",
+          "interval": 48,
+          "volumeRows": 24,
+          "valueAreaPercent": 70.0,
+          "minVolumeSpike": 1.2,
+          "tradeMode": "breakout",
+          "pair": "USD_ETH",
+          "candleSize": 60,
           "tradeStrategy": "RSIScalpOrderer",
           "enableLog": true
         },
