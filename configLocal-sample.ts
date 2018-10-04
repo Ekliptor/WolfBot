@@ -21,7 +21,7 @@ const DEFAULT_EXCHANGE_PROXY = [] // an array of proxy strings. chosen randomly
 class ServerConfig {
     // place any config from bit-models/serverConfig.ts in here to overwrite it with app-specific values
 
-    public notificationMethod = "" // name of the notification class ("Pushover")
+    public notificationMethod = "NoNotificationService" // name of the notification class ("Pushover")
 
     // place all keys here. we don't run user specific configurations to keep the design simpler. each user has his own bot instance
     public apiKey = {
