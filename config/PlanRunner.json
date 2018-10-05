@@ -12,7 +12,7 @@
               "action": "buy",
               "comp": "<",
               "position": "none",
-              "rate": 6790.9,
+              "rate": 6090.9,
               "reason": "middle high",
               "indicators": ["RSI"]
             },
@@ -58,7 +58,7 @@
           "volumeRows": 24,
           "valueAreaPercent": 70.0,
           "minVolumeSpike": 1.2,
-          "tradeMode": "breakout",
+          "tradeMode": "both",
           "pair": "USD_BTC",
           "candleSize": 60,
           "tradeStrategy": "RSIScalpOrderer",

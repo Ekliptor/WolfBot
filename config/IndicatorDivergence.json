@@ -1,7 +1,7 @@
 {
   "data": [
     {
-      "exchanges": "Poloniex",
+      "exchanges": "Bitfinex",
       "marginTrading": true,
       "tradeTotalBtc": 0.7,
       "warmUpMin": 0,
@@ -12,7 +12,9 @@
           "divergenceHistory": 32,
           "percentIndicatorTolerance": -1.5,
           "minVolumeSpike": 1.2,
-          "pair": "BTC_ETH",
+          "maxGoLongPrice": 0.0,
+          "minGoShortPrice": 0.0,
+          "pair": "USD_BTC",
           "candleSize": 60,
           "tradeStrategy": "RSIScalpOrderer",
           "enableLog": true
@@ -22,7 +24,7 @@
           "high": 70,
           "expiry": 20,
           "candleSize": 5,
-          "pair": "BTC_ETH",
+          "pair": "USD_BTC",
           "enableLog": false
         },
         "StopLossTurn": {
@@ -34,7 +36,7 @@
           "low": 52,
           "high": 56,
           "candleSize": 5,
-          "pair": "BTC_ETH",
+          "pair": "USD_BTC",
           "enableLog": false
         },
         "TimeStop": {
@@ -46,7 +48,7 @@
           "low": 25,
           "high": 75,
           "candleSize": 30,
-          "pair": "BTC_ETH",
+          "pair": "USD_BTC",
           "enableLog": false
         },
         "TakeProfit": {
@@ -54,7 +56,7 @@
           "profit": 1.8,
           "time": 300,
           "candleSize": 5,
-          "pair": "BTC_ETH",
+          "pair": "USD_BTC",
           "enableLog": false
         }
       }

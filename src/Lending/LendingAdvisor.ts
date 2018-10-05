@@ -522,6 +522,11 @@ export class LendingAdvisor extends AbstractAdvisor {
             // connect exchanges -> strategies
             const configExchanges = this.pipeMarketStreams(config);
             connectedExchanges = connectedExchanges.concat(configExchanges);
+            if (this.exchanges.has(configExchanges[0]) === false) {
+                logger.error("Your config is set to use the exchange %s, but you don't have an API key set. Please add an API key and restart the app.", configExchanges[0]);
+                this.waitForRestart()
+                return;
+            }
             config.markets.forEach((currency) => {
                 config.exchanges.forEach((exchangeName) => {
                     let pairs = currencies.get(exchangeName)

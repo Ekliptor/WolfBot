@@ -464,6 +464,11 @@ export default class TradeAdvisor extends AbstractAdvisor {
             // connect exchanges -> strategies
             const configExchanges = this.pipeMarketStreams(config);
             connectedExchanges = connectedExchanges.concat(configExchanges);
+            if (this.exchanges.has(configExchanges[0]) === false) {
+                logger.error("Your config is set to use the exchange %s, but you don't have an API key set. Please add an API key and restart the app.", configExchanges[0]);
+                this.waitForRestart()
+                return;
+            }
             let currentExchangeLabel = configExchanges.length > 1 ? Currency.Exchange.ALL : this.exchanges.get(configExchanges[0]).getExchangeLabel();
             config.markets.forEach((pair) => {
                 config.exchanges.forEach((exchangeName) => {
