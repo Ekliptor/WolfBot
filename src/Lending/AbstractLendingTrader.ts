@@ -158,7 +158,7 @@ export abstract class AbstractLendingTrader extends AbstractGenericTrader {
     protected static coinStatusMap = new CoinStatusMap();
     protected static totalEquityMap = new TotalEquityMap();
     protected static submittedOffers = new OfferMap(); // to cancel offers that don't fill in time
-    protected static updatePortfolioTimerID: number = -1;
+    protected static updatePortfolioTimerID: NodeJS.Timer = null;
     protected static lastPortfolioUpdate: Date = new Date(0);
     //protected static lastMarginPositionUpdateMs: number = -1; // no need to sync portfolio with strategies
 

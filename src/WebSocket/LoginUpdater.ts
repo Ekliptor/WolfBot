@@ -82,7 +82,18 @@ export class LoginUpdater extends AppPublisher {
         }
         catch (err) {
             logger.error("Error checking new login data", err)
-            return null;
+            //return null;
+            let res: LoginUpdateRes = {
+                loginRes: {
+                    loginValid: false,
+                    subscriptionValid: false,
+                    apiKey: Object.keys(nconf.get("apiKeys"))[0]
+                }
+            }
+            res.error = true;
+            res.errorCode = "internalError";
+            this.send(clientSocket, res) // usually called via http from main controller instead
+            return res;
         }
     }
 

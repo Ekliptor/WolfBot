@@ -93,6 +93,12 @@ export class VolumeProfileParams implements IntervalIndicatorParams {
     constructor() {
     }
 }
+export type PivotPointsType = "standard" | "fibonacci" | "demark";
+export class PivotPointsParams implements IntervalIndicatorParams {
+    type: PivotPointsType = "standard";
+    interval: number = 15; // the number of candles to use for high/low calculation
+    enableLog: boolean;
+}
 
 export type TrendDirection = Candle.TrendDirection; // moved, keep it as alias
 
@@ -311,10 +317,13 @@ import "./MayerMultiple";
 import "./MFI";
 import "./NVTSignal";
 import "./OBV";
+import "./OrderbookHeatmap";
+import "./PivotPoints";
 import "./RSI";
 import "./SAR";
 import "./Sentiment";
 import "./SMA";
+import "./SocialSentiment";
 import "./STC";
 import "./Stochastic";
 import "./StochRSI";

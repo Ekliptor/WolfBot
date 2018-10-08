@@ -6,9 +6,9 @@
       "tradeTotalBtc": 200.0,
       "warmUpMin": 0,
       "strategies": {
-        "VolumeProfiler": {
+        "PivotSniper": {
           "divergenceIndicator": "RSI",
-          "interval": 48,
+          "interval": 15,
           "volumeRows": 24,
           "valueAreaPercent": 70.0,
           "minVolumeSpike": 1.2,

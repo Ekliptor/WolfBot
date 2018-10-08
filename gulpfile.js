@@ -1,5 +1,5 @@
-var gulp = require('gulp');
-var typedoc = require("gulp-typedoc");
+const gulp = require('gulp');
+const typedoc = require("gulp-typedoc");
 
 /*
 gulp.task('default', function() {

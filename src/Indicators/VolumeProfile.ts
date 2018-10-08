@@ -92,6 +92,7 @@ export default class VolumeProfile extends AbstractIndicator {
 
     constructor(params: VolumeProfileParams) {
         super(params)
+        this.params = Object.assign(new VolumeProfileParams(), this.params);
     }
 
     public addCandle(candle: Candle.Candle) {
