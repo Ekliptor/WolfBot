@@ -104,6 +104,7 @@ export interface ConfigReq extends ConfigData {
 
 export class ConfigEditor extends AppPublisher {
     public readonly opcode = WebSocketOpcode.CONFIG;
+    // TODO add "list all currencies" button
 
     protected selectedTradingMode: BotTrade.TradingMode;
     protected selectedConfig: string;
@@ -360,7 +361,9 @@ export class ConfigEditor extends AppPublisher {
         }
     }
 
-    public restart() {
+    public restart(forceDefaults = false) {
+        if (forceDefaults === true)
+            this.selectedTradingMode = "trading";
         this.saveState().then(() => {
             let processArgs = Object.assign([], process.execArgv)
             for (let i=0; i < processArgs.length; i++) {

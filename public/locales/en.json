@@ -831,6 +831,19 @@
       "takeProfitTicks": "optional, default 0 (disabled). Close a position early if the MACD histogram decreases for x candles.",
       "closeLossEarly": "optional, default true - Close positions at a loss after takeProfitTicks too."
     },
+    "PivotSniper": {
+      "desc": "Strategy that checks support and resistance of Pivot Points. We wait for support or resistance to get hit and open a position in the opposite direction, assuming the market will bounce back.<br>This strategy works very well for daytrading with candle sizes from 30min to 4h.<br>This strategy will open and close existing positions, but you can still combine it with a stop-loss and/or take profit strategy.",
+      "type": "optional, default 'standard' - The Pivot Points calculation method you want to use. Values: standard|fibonacci|demark",
+      "interval": "optional, default 15 - The number of candles to use for the high/low calculation as the previous period to compute the Pivot Points values from. Also sets the number of candles to compute the confirmation indicator value from.",
+      "supportLevel": "optional, default 2 - The support level at which you want to open a long position. Standard Pivot Points have 2 levels, Fibonacci 3 and Demark only 1. Values: 1|2|3",
+      "resistanceLevel": "optional, default 2 - The resistance level at which you want to open a short position. Standard Pivot Points have 2 levels, Fibonacci 3 and Demark only 1. Values: 1|2|3",
+      "minVolumeSpike": "optional, default 1.1 - The min volume compared to the average volume of 'interval' candles to open a position at a support or resistance.",
+      "confirmationIndicator": "optional, default empty = none - The indicator to use to wait for confirmation to open a position.",
+      "low": "optional, default 50 - Only go short if the confirmation indicator is below this value.",
+      "high": "optional, default 50 - Only go long if the confirmation indicator is above this value.",
+      "maxGoLongPrice": "optional, default 0 = any price - The maximum price to open a long position.",
+      "minGoShortPrice": "optional, default 0 = any price - The minimum price to open a short position."
+    },
     "PriceRangeTrader": {
       "desc": "Detect if a price always jumps between a high a low and buy/sell accordingly. Works well in sideways markets (that usually have low volume). It is meant for fast trades, possibly many trades per hour if there are changes >= 'minChangePercent'. This strategy can be a faster alternative to using BollingerBands in a sideways market and sell at the upper band and buy at the lower band.",
       "minChangePercent": "The min percentage between the low and high price point to open a position.",

@@ -82,6 +82,7 @@ export class ValueArea {
 
 /**
  * Indicator computing the volume profile of the 'interval' time range.
+ * // TODO add ACME features: http://www.ranchodinero.com/a7/acme-volume-profile-pack/
  */
 export default class VolumeProfile extends AbstractIndicator {
     protected params: VolumeProfileParams;

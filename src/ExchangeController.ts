@@ -17,12 +17,15 @@ import {AbstractLendingExchange} from "./Exchanges/AbstractLendingExchange";
 import {ArbitrageConfig} from "./Arbitrage/ArbitrageConfig";
 
 export default class ExchangeController extends AbstractSubController {
+    protected static readonly WAIT_CONFIG_ONCE_MS = 3000
+
     // cache instances to keep WebSocket connections (and other state)
     protected configFilename: string;
     protected exchanges = new ExchangeMap(); // (exchange name, instance)
     protected configs: TradeConfig[] = [];
     protected connectedExchanges: string[] = []; // the exchanges we are interested in according to our config
     protected exchangesIdle = false;
+    protected configReady = false;
 
     constructor(configFilename: string) {
         super()
@@ -42,6 +45,14 @@ export default class ExchangeController extends AbstractSubController {
     public process() {
         return new Promise<void>((resolve, reject) => {
             utils.file.touch(AbstractExchange.cookieFileName).then(() => {
+                return utils.promiseDelay(this.configReady === true ? 0 : ExchangeController.WAIT_CONFIG_ONCE_MS); // wait once
+            }).then(() => {
+                /* // we have to continue without loading any exchanges, so that ConfigEditor gets initialized for a possible restart
+                if (this.configReady === false) {
+                    logger.error("Config is not ready in %s. Bot trading mode or config most likely wrong (not existing?). Please fix this and restart the bot.", this.className)
+                    return Promise.reject();
+                }
+                */
                 return Process.getActiveCount(db.get())
             }).then((activeProcessCount) => {
                 this.loadExchanges(activeProcessCount)
@@ -106,7 +117,7 @@ export default class ExchangeController extends AbstractSubController {
     // ###################### PRIVATE FUNCTIONS #######################
 
     protected loadExchanges(activeProcessCount: number) {
-        if (this.exchangesIdle === true)
+        if (this.exchangesIdle === true || this.configReady === false)
             return; // we need to restart our bot for TradeAvisor class to connect to exchanges + events // TODO improve
         if (nconf.get("social"))
             return;
@@ -215,8 +226,26 @@ export default class ExchangeController extends AbstractSubController {
     }
 
     protected loadConfig() {
-        const filePath = path.join(ConfigEditor.getConfigDir(), this.configFilename)
-        let data = fs.readFileSync(filePath, {encoding: "utf8"});
+        let filePath = path.join(ConfigEditor.getConfigDir(), this.configFilename)
+        let data = "";
+        try {
+            data = fs.readFileSync(filePath, {encoding: "utf8"});
+        }
+        catch (err) {
+            if (err && err.code === "ENOENT") {
+                logger.warn("Unable to load config file %s in %s - most likely wrong trading mode after restart. Retrying defaults", filePath, this.className)
+                if (TradeConfig.isTradingMode() === false) {
+                    setTimeout(async () => { // WebsocketController is loaded after exchanges
+                        let controller = await import("./Controller");
+                        controller.controller.restart(true);
+                    }, ExchangeController.WAIT_CONFIG_ONCE_MS + 600);
+                    return;
+                }
+            }
+            logger.error("Unable to load config %s in %s. Most likely invalid trading mode and config file. Please fix this and restart the bot.", filePath, this.className)
+            // TODO improve this. also try specific modes? how can we recover if everything fails? restore backup?
+            return;
+        }
         if (!data) {
             logger.error("Can not load config file under: %s", filePath)
             return
@@ -254,5 +283,6 @@ export default class ExchangeController extends AbstractSubController {
         TradeConfig.resetCounter();
         LendingConfig.resetCounter();
         this.connectedExchanges = utils.uniqueArrayValues(connectedExchanges); // shouldn't change anything
+        this.configReady = true;
     }
 }

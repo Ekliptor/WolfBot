@@ -158,4 +158,8 @@ export class TradeConfig extends AbstractConfig {
     public static getConfigBackupRootDir() {
         return path.join(utils.appDir, "config-bak")
     }
+
+    public static isTradingMode() {
+        return !nconf.get("ai") && !nconf.get("lending") && !nconf.get("arbitrage") && !nconf.get("social");
+    }
 }

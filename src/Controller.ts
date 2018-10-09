@@ -202,8 +202,8 @@ export class Controller extends AbstractController { // TODO implement graceful 
         })
     }
 
-    public restart() {
-        this.websocketController.getConfigEditor().restart();
+    public restart(forceDefaults = false) {
+        this.websocketController.getConfigEditor().restart(forceDefaults);
     }
 
     // ################################################################

@@ -3,7 +3,7 @@
     {
       "exchanges": ["Bitfinex"],
       "marginTrading": true,
-      "tradeTotalBtc": 100.0,
+      "tradeTotalBtc": 0.0,
       "notifyTrades": true,
       "strategies": {
         "PlanRunner": {
@@ -69,7 +69,6 @@
         },
         "StopLossTurn": {
           "order": "closeLong",
-          "stop": 48.0,
           "setback": 5.0,
           "setbackLong": 5.5,
           "time": 1800,

@@ -70,6 +70,7 @@ export class BacktestingUpdater extends AppPublisher {
     //protected backtestingSockets = new Map<string, WebSocket>(); // (socket id, socket) // to resume showing progress
     protected lastBacktestFromMs: number = 0;
     protected lastBacktestToMs: number = 0;
+    // TODO show fully available pairs on top
 
     constructor(serverSocket: ServerSocket, advisor: AbstractAdvisor) {
         super(serverSocket, advisor)

@@ -5,9 +5,10 @@ import {AbstractIndicator, MomentumIndicatorParams, PivotPointsParams} from "./A
 import {TaLib, TaLibParams, TaLibResult} from "./TaLib";
 import {Currency, Trade, Candle} from "@ekliptor/bit-models";
 
+export type PivotLineNr = 1 | 2 | 3;
+
 /**
- * An indicator calculating Standard Pivot Points.
- * // TODO Fibonacci Pivot Points and Demark Pivot Points
+ * An indicator calculating Standard, Fibonacci or Demark Pivot Points.
  * https://stockcharts.com/school/doku.php?id=chart_school:technical_indicators:pivot_points
  */
 export default class PivotPoints extends AbstractIndicator {
@@ -69,6 +70,25 @@ export default class PivotPoints extends AbstractIndicator {
         return this.support3;
     }
 
+    public getResistance(nr: PivotLineNr) {
+        switch (nr) {
+            case 1:         return this.resistance1;
+            case 2:         return this.resistance2;
+            case 3:         return this.resistance3;
+        }
+        //logger.error("Resistance nr %s doesn't exist in %s", nr, this.className);
+        utils.test.assertUnreachableCode(nr);
+    }
+
+    public getSupport(nr: PivotLineNr): number {
+        switch (nr) {
+            case 1:         return this.support1;
+            case 2:         return this.support2;
+            case 3:         return this.support3;
+        }
+        utils.test.assertUnreachableCode(nr);
+    }
+
     public isReady() {
         return this.pivotPoint !== -1 && this.candleHistory.length >= this.params.interval;
     }
@@ -127,14 +147,12 @@ export default class PivotPoints extends AbstractIndicator {
             this.updatePivotPoints(); // calc from oldest candles (previous period)
             while (this.candleHistory.length > this.params.interval) // remove the 1st time period completely
                 this.candleHistory.shift();
-            console.log("cleaned", this.candleHistory.length)
         }
         else if (this.pivotPoint === -1 && this.candleHistory.length === this.params.interval)
             this.updatePivotPoints(); // initial update
     }
 
     protected updatePivotPoints() {
-        console.log("PIVOT update", this.candleHistory.length, this.candleHistory[this.candleHistory.length-1].start)
         this.calcHighLowClose();
         switch (this.params.type)
         {
@@ -169,7 +187,6 @@ export default class PivotPoints extends AbstractIndicator {
             default:
                 utils.test.assertUnreachableCode(this.params.type);
         }
-        console.log(this.getAllValues())
     }
 
     protected calcHighLowClose() {

@@ -19,7 +19,7 @@ interface IndicatorDivergenceAction extends TechnicalStrategyAction {
     // You can use negative values to require the indicator to have a bigger difference to the previous value.
     minVolumeSpike: number; // default 1.1. The min volume compared to the average volume of 'interval' candles to open a position at a divergence.
 
-    maxGoLongPrice: number; // optional, default 0 = any price // The maximum price to open a long position
+    maxGoLongPrice: number; // optional, default 0 = any price // The maximum price to open a long position.
     minGoShortPrice: number; // optional, default 0 = any price // The minimum price to open a short position.
 }
 

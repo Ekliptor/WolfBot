@@ -44,7 +44,7 @@ export class LoginController extends AbstractSubController {
         this.loadConfig().then(() => {
             this.generateApiKeyOnFirstStart();
         }).catch((err) => {
-            logger.error("Error loading node config on startup", err)
+            logger.error("Error loading node config on startup", err) // TODO send notification? premium login will most likely not work
         })
     }
 
@@ -167,7 +167,7 @@ export class LoginController extends AbstractSubController {
             else if (sub.post_type === "shop_order" && this.isCompletedOrder(sub.post_status) === false)
                 continue;
             // check if we have a subscription for this bot instance
-            if (sub.bot_url && typeof sub.bot_url === "object") {
+            if (sub.bot_url != null && typeof sub.bot_url === "object") {
                 if (sub.bot_url.id === this.nodeConfig.id) {
                     this.subscription = new BotSubscription(sub.bot_url.id, sub.bot_url.url, sub.bot_url.expiration);
                     if (sub.bot_url.coupon) {
