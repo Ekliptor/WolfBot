@@ -7,12 +7,12 @@
       "warmUpMin": 0,
       "strategies": {
         "VolumeProfiler": {
-          "divergenceIndicator": "RSI",
           "interval": 48,
           "volumeRows": 24,
           "valueAreaPercent": 70.0,
           "minVolumeSpike": 1.2,
           "tradeMode": "breakout",
+          "minVolumeSpikeBreakout": 2.1,
           "pair": "BTC_ETH",
           "candleSize": 60,
           "tradeStrategy": "RSIScalpOrderer",
