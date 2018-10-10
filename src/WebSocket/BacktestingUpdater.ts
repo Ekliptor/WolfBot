@@ -14,6 +14,8 @@ import * as path from "path";
 import * as fs from "fs";
 import * as childProcess from "child_process";
 import {BotEvaluation} from "../Trade/PortfolioTrader";
+import {currencyImportMap} from "../../configLocal";
+import {Currency} from "@ekliptor/bit-models";
 const fork = childProcess.fork;
 
 const processFiles = [path.join(utils.appDir, 'app.js'),
@@ -27,6 +29,10 @@ export interface BacktestInitData {
     lastToMs: number;
     configFiles: string[];
     selectedConfig: string;
+    currencyImportMap: {
+        //[exchangeName: string]: Currency.CurrencyPair[];
+        [exchangeName: string]: string[]; // currency pairs converted to string
+    }
 }
 export interface BacktestResult {
     file: string;
@@ -70,7 +76,6 @@ export class BacktestingUpdater extends AppPublisher {
     //protected backtestingSockets = new Map<string, WebSocket>(); // (socket id, socket) // to resume showing progress
     protected lastBacktestFromMs: number = 0;
     protected lastBacktestToMs: number = 0;
-    // TODO show fully available pairs on top
 
     constructor(serverSocket: ServerSocket, advisor: AbstractAdvisor) {
         super(serverSocket, advisor)
@@ -87,7 +92,8 @@ export class BacktestingUpdater extends AppPublisher {
                     lastFromMs: this.lastBacktestFromMs,
                     lastToMs: this.lastBacktestToMs,
                     configFiles: configFiles,
-                    selectedConfig: this.selectedConfig
+                    selectedConfig: this.selectedConfig,
+                    currencyImportMap: this.getCurrencyPairImportMap()
                 }
             }
             this.send(clientSocket, update)
@@ -305,5 +311,19 @@ export class BacktestingUpdater extends AppPublisher {
                     break; // child process logs
                 logger.warn('Received unknown backtest child message of type: %s', message.type)
         }
+    }
+
+    protected getCurrencyPairImportMap() {
+        let map = new Map<string, string[]>();
+        for (let cur of currencyImportMap)
+        {
+            const exchange = cur[0];
+            const pairs = cur[1];
+            let strPairs = [];
+            for (let i = 0; i < pairs.length; i++)
+                strPairs.push(pairs[i].toString());
+            map.set(exchange, strPairs);
+        }
+        return map.toObject();
     }
 }

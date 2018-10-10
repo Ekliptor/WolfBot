@@ -1,5 +1,5 @@
 // object extensions from apputils
-import {IncomingMessage} from "http";
+//import {IncomingMessage} from "http"; // if we import anything in a .d.ts file it won't be recognized globally anymore
 
 interface String {
     replaceAll: (search: string, replace: string) => string;

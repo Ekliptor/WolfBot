@@ -9045,6 +9045,9 @@ i.fa {
   margin-right: 10px;
   margin-bottom: 10px; }
 
+.exchangeName {
+  font-weight: bold; }
+
 .startWizard {
   text-align: center;
   width: 60%;

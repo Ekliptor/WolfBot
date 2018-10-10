@@ -1,3 +1,5 @@
+import * as Currency from "@ekliptor/bit-models/build/models/base/Currency";
+
 let config = module.exports
 export = config;
 
@@ -95,8 +97,8 @@ config.config = {
     "data": {
         "maxPredictionOffPercent": 2.0,
         "maxShowHistoryTrades": 9000,
-        "backtestStartAgoDays": 31,
-        "backtestEndAgoDays": 1,
+        "backtestStartAgoDays": 32,
+        "backtestEndAgoDays": 2,
         "minifyResourcesUiDevIntervalMs": 1000
     }
 }

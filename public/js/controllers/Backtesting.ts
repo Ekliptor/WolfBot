@@ -80,7 +80,17 @@ export class Backtesting extends JsonEditor {
             this.setDateTimeValue(from);
             this.setDateTimeValue(to);
             this.addClickHandlers()
-        })
+        });
+
+        let currencyHtml = "";
+        for (let exchange in init.currencyImportMap)
+        {
+            currencyHtml += AppF.translate(pageData.html.backtesting.exchangePairs, {
+                exchange: exchange,
+                currencyPairs: init.currencyImportMap[exchange].join(", ")
+            });
+        }
+        this.$("#importedCurrencyList").html(currencyHtml);
     }
 
     protected showResult(result: BacktestResult) {
@@ -182,6 +192,10 @@ export class Backtesting extends JsonEditor {
                     tradingFee: this.$("#tradingFee").val()
                 }
             })
+        });
+
+        this.$("#showFullImports").click((event) => {
+            this.$("#importedCurrencies").fadeToggle("slow");
         });
     }
 

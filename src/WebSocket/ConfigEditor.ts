@@ -120,6 +120,8 @@ export class ConfigEditor extends AppPublisher {
         this.activeConfig = this.selectedConfig;
         this.selectedTrader = this.getSelectedTrader();
         nconf.set("debugRestart", nconf.get("debug"))
+        nconf.set("serverConfig:lastWorkingConfigName", this.selectedConfig);
+        serverConfig.saveConfigLocal();
 
         // store results on exit (kill signal)
         // strange place for this code. but in here the state gets stored on regular exit
@@ -262,8 +264,20 @@ export class ConfigEditor extends AppPublisher {
                     return;
                 }
             }
-            else
-                data.saveConfig = utils.stringifyBeautiful(data.saveConfig);
+            else {
+                let configObj: any = data.saveConfig;
+                if (configObj.data === undefined || Array.isArray(configObj.data) === false) {
+                    configObj = {
+                        data: configObj
+                    }
+                }
+                for (let i = 0; i < configObj.data.length; i++)
+                {
+                    if (Array.isArray(configObj.data[i].exchanges) === false)
+                        configObj.data[i].exchanges = [configObj.data[i].exchanges]; // JSONView sends a string with the exchange
+                }
+                data.saveConfig = utils.stringifyBeautiful(configObj);
+            }
             this.saveConfigFile(data.configName, data.saveConfig).then(() => {
                 this.updateConfig(data.saveConfig)
                 this.send(clientSocket, {saved: true})
@@ -362,8 +376,11 @@ export class ConfigEditor extends AppPublisher {
     }
 
     public restart(forceDefaults = false) {
-        if (forceDefaults === true)
+        if (forceDefaults === true) {
             this.selectedTradingMode = "trading";
+            // bad idea to just restore to "Noop" because the user might not have API keys or modified/broke that config
+            this.selectedConfig = nconf.get("serverConfig:lastWorkingConfigName");
+        }
         this.saveState().then(() => {
             let processArgs = Object.assign([], process.execArgv)
             for (let i=0; i < processArgs.length; i++) {

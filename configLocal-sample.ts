@@ -1,5 +1,7 @@
 // exported keys in here must be exactly the same as they are written on nconf object (except "root")
 
+import * as Currency from "@ekliptor/bit-models/build/models/base/Currency";
+
 const root = {
     "apiKeys" : { // leeave empty to disable API keys (public access)
         "JFSDFHl340udfnsf23SF234": true // set to false to disable a key

@@ -54,11 +54,21 @@
           <div class="form-group">
             <div class="col-sm-offset-3 col-sm-9">
               <button id="startBacktesting" class="btn btn-success" type="submit" name="startBacktesting">{tr:startBacktesting}</button>
+              <button id="showFullImports" class="btn btn-default" type="button" name="showFullImports">{tr:showFullImportCurrencies}</button>
             </div>
           </div>
           <div id="backtestImport"></div>
           <div id="backtestProgress"></div>
           <div id="backtestResult"></div>
+          <div id="importedCurrencies" style="display: none">
+            <div class="panel panel-default bottom20 backtestPanel">
+              <div class="panel-heading">{tr:importedCurrencies}</div>
+              <div class="panel-body">
+                <div class="bottom20">{tr:importedCurrenciesTxt}</div>
+                <div id="importedCurrencyList"></div>
+              </div>
+            </div>
+          </div>
         </form>
       </div>
     </div>
@@ -85,6 +95,12 @@
   </div>
 </div>
 <!-- /progressAnimated -->
+<!-- exchangePairs -->
+<div class="bottom10">
+  <div class="exchangeName">{exchange}{tr:colon}</div>
+  <div>{currencyPairs}</div>
+</div>
+<!-- /exchangePairs -->
 <!-- result -->
 <div class="panel panel-success bottom20 backtestPanel">
   <div class="panel-heading">{tr:backtestResult}</div>

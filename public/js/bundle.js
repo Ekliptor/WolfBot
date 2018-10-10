@@ -3259,6 +3259,14 @@ class Backtesting extends JsonEditor_1.JsonEditor {
             this.setDateTimeValue(to);
             this.addClickHandlers();
         });
+        let currencyHtml = "";
+        for (let exchange in init.currencyImportMap) {
+            currencyHtml += AppF.translate(pageData.html.backtesting.exchangePairs, {
+                exchange: exchange,
+                currencyPairs: init.currencyImportMap[exchange].join(", ")
+            });
+        }
+        this.$("#importedCurrencyList").html(currencyHtml);
     }
     showResult(result) {
         this.enableBacktesting();
@@ -3354,6 +3362,9 @@ class Backtesting extends JsonEditor_1.JsonEditor {
                     tradingFee: this.$("#tradingFee").val()
                 }
             });
+        });
+        this.$("#showFullImports").click((event) => {
+            this.$("#importedCurrencies").fadeToggle("slow");
         });
     }
     resetHours(date) {
@@ -4654,6 +4665,7 @@ class Strategies extends AbstractController_1.AbstractController {
         this.feed = feed;
     }
     onData(data) {
+        // TODO ensure data is parsed with plain JSON or EJSON. add a flag or query
         if (data.meta && data.meta.importLabel)
             setTimeout(this.showImportState.bind(this, data.meta), 100);
         if (data.full) {
