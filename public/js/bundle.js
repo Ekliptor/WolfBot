@@ -3294,7 +3294,7 @@ class Backtesting extends JsonEditor_1.JsonEditor {
             botVsMarketPercent: result.stats.botVsMarketPercent.toFixed(3)
         });
         this.$("#backtestResult").html(resultHtml);
-        this.$("#showResult").attr("data-href", +result.file);
+        this.$("#showResult").attr("data-href", result.file);
         this.$("#showResult").click((event) => {
             window.open(this.getBacktestResultUrl(event, false), "", "");
         });
@@ -3570,7 +3570,8 @@ class Config extends AbstractController_1.AbstractController {
             this.setupInitialPage(data);
         }
         else if (data.configFileData) {
-            this.editor.setValue(data.configFileData, -1);
+            if (this.editor) // undefined if this is not the current view
+                this.editor.setValue(data.configFileData, -1);
             this.canEdit = true;
         }
     }
@@ -4086,13 +4087,13 @@ class Config extends AbstractController_1.AbstractController {
         return "stratDesc.";
     }
     showRestartMsg() {
-        let msg = AppF.tr('restartRequiredConf');
+        let msg = i18next.t('restartRequiredConf');
         let vars = {
             title: AppF.tr('restartNow'),
             href: "javascript:;",
             id: "restartLnk"
         };
-        msg += " " + AppF.translate(pageData.html.misc.link, vars);
+        msg += " " + AppF.translate(pageData.html.misc.link, vars) + "<br>" + i18next.t('backtestNoRestart');
         Hlp.showMsg(msg, 'warning');
         setTimeout(() => {
             $("#restartLnk").click((event) => {

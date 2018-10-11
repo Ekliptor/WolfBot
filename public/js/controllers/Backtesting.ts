@@ -119,7 +119,7 @@ export class Backtesting extends JsonEditor {
             botVsMarketPercent: result.stats.botVsMarketPercent.toFixed(3)
         });
         this.$("#backtestResult").html(resultHtml);
-        this.$("#showResult").attr("data-href",  + result.file);
+        this.$("#showResult").attr("data-href", result.file);
         this.$("#showResult").click((event) => {
             window.open(this.getBacktestResultUrl(event,false), "", "");
         });

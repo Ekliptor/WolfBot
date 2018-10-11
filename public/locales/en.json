@@ -475,6 +475,7 @@
   "tradingFee": "{{fee}} ({{percent}}%)",
   "backtesting": "Backtesting",
   "restartRequiredConf": "Changing the configuration file or trader will only take affect after a bot restart.",
+  "backtestNoRestart": "If you are just editing this configuration for Backtests (and not live trading under \"Strategies\") you don't have to restart the bot.",
   "restartNow": "Restart now",
   "to": "To",
   "startBacktesting": "Start Backtesting",

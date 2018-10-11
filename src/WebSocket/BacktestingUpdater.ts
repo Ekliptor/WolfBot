@@ -178,6 +178,8 @@ export class BacktestingUpdater extends AppPublisher {
             logger.info("Starting backtest for config %s", childConfig);
             nodeArgs = utils.proc.addChildProcessArgument(nodeArgs, "--config", childConfig)
             let env = Object.assign({}, process.env)
+            if (nodeArgs.indexOf("--child") === -1)
+                nodeArgs.push("--child") // for easy filtering with grep command
             env.IS_CHILD = true
             env.PARENT_PROCESS_ID = process.pid;
             env.START_TIME_MS = data.start.from; // TODO pack data into a message and send it via JSON

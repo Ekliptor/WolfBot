@@ -45,6 +45,11 @@ export default class Backtester extends PortfolioTrader {
     }
 
     public backtest(exchangeController: ExchangeController) {
+        if (process.env.IS_CHILD) { // ensure we always exit the child when parent exits
+            process.on("disconnect", () => {
+                process.exit(0);
+            });
+        }
         const start = process.env.START_TIME_MS ? new Date(parseInt(process.env.START_TIME_MS)) : utils.date.parseAsGmt0(nconf.get("serverConfig:backtest:from"))
         const end = process.env.END_TIME_MS ? new Date(parseInt(process.env.END_TIME_MS)) : utils.date.parseAsGmt0(nconf.get("serverConfig:backtest:to"))
         let exchange = this.exchanges.get(this.config.exchanges[0])

@@ -119,6 +119,7 @@ export class ConfigEditor extends AppPublisher {
         this.selectedConfig = this.advisor.getConfigName();
         this.activeConfig = this.selectedConfig;
         this.selectedTrader = this.getSelectedTrader();
+        //this.advisor.getExchanges(); // TODO add leverage edit config
         nconf.set("debugRestart", nconf.get("debug"))
         nconf.set("serverConfig:lastWorkingConfigName", this.selectedConfig);
         serverConfig.saveConfigLocal();
@@ -259,28 +260,21 @@ export class ConfigEditor extends AppPublisher {
             // TODO broadcast config change to other clients
             // JSONView sends an object, code editor a string
             if (typeof data.saveConfig === "string") {
-                if (utils.parseJson(data.saveConfig) == null) { // validate JSON
+                let configObj = utils.parseJson(data.saveConfig);
+                if (configObj == null) { // validate JSON
                     this.send(clientSocket, {error: true, errorCode: "syntaxErrorConf"})
                     return;
                 }
+                configObj = this.validateConfigArray(configObj);
+                data.saveConfig = utils.stringifyBeautiful(configObj);
             }
             else {
-                let configObj: any = data.saveConfig;
-                if (configObj.data === undefined || Array.isArray(configObj.data) === false) {
-                    configObj = {
-                        data: configObj
-                    }
-                }
-                for (let i = 0; i < configObj.data.length; i++)
-                {
-                    if (Array.isArray(configObj.data[i].exchanges) === false)
-                        configObj.data[i].exchanges = [configObj.data[i].exchanges]; // JSONView sends a string with the exchange
-                }
+                let configObj = this.validateConfigArray(data.saveConfig);
                 data.saveConfig = utils.stringifyBeautiful(configObj);
             }
             this.saveConfigFile(data.configName, data.saveConfig).then(() => {
-                this.updateConfig(data.saveConfig)
-                this.send(clientSocket, {saved: true})
+                let requireRestrt = this.updateConfig(data.saveConfig);
+                this.send(clientSocket, {saved: true, restart: requireRestrt})
             }).catch((err) => {
                 logger.error("Error saving config", err)
                 this.send(clientSocket, {error: true, errorTxt: "Error saving config."})
@@ -570,16 +564,19 @@ export class ConfigEditor extends AppPublisher {
         return utils.stringifyBeautiful(json); // convert the updated data back to string
     }
 
-    protected updateConfig(jsonStr: string) {
+    protected updateConfig(jsonStr: string): boolean {
         let json = utils.parseJson(jsonStr);
         if (!json || !Array.isArray(json.data))
-            return;
+            return false;
         // TODO config updates are wrong if the user puts them in another order
+        let requireRestart = false;
         try {
             if (this.advisor instanceof TradeAdvisor) {
                 let configs: TradeConfig[] = this.advisor.getConfigs();
                 let strategies = this.advisor.getStrategies();
-                for (let i = 0; i < json.data.length; i++) {
+                if (json.data.length !== configs.length)
+                    requireRestart = true; // simple way. just tell the user to restart
+                for (let i = 0; i < json.data.length/* && i < configs.length*/; i++) {
                     let conf = json.data[i]
                     let update = {
                         marginTrading: conf.marginTrading,
@@ -587,7 +584,13 @@ export class ConfigEditor extends AppPublisher {
                         tradeDirection: conf.tradeDirection,
                         warmUpMin: conf.warmUpMin
                     }
-                    configs[i].update(update)
+                    if (configs.length > i)
+                        configs[i].update(update)
+                    else {
+                        configs.push(new TradeConfig(conf, this.advisor.getConfigName())); // the user added a new currency pair to config
+                        //requireRestart = true;
+                        continue;
+                    }
 
                     let pairs = configs[i].listConfigCurrencyPairs();
                     pairs.forEach((pair) => {
@@ -608,7 +611,9 @@ export class ConfigEditor extends AppPublisher {
             else if (this.advisor instanceof LendingAdvisor) {
                 let configs: LendingConfig[] = this.advisor.getConfigs();
                 let strategies = this.advisor.getLendingStrategies();
-                for (let i = 0; i < json.data.length; i++) {
+                if (json.data.length !== configs.length)
+                    requireRestart = true; // simple way. just tell the user to restart
+                for (let i = 0; i < json.data.length && i < configs.length; i++) {
                     let conf = json.data[i]
                     let update = {
                         pollTimeActive: conf.marginTrading,
@@ -698,6 +703,7 @@ export class ConfigEditor extends AppPublisher {
         catch (err) {
             logger.error("Error processing config update", err)
         }
+        return requireRestart;
     }
 
     protected updateStrategyProp(values: any, root: any) {
@@ -1039,6 +1045,21 @@ export class ConfigEditor extends AppPublisher {
 
     protected getPlainConfigName(filename: string) {
         return filename.substr(1).replace(/\.json$/, "");
+    }
+
+    protected validateConfigArray(clientConfig: any) {
+        let configObj: any = clientConfig;
+        if (configObj.data === undefined || Array.isArray(configObj.data) === false) {
+            configObj = {
+                data: configObj
+            }
+        }
+        for (let i = 0; i < configObj.data.length; i++)
+        {
+            if (Array.isArray(configObj.data[i].exchanges) === false)
+                configObj.data[i].exchanges = [configObj.data[i].exchanges]; // JSONView sends a string with the exchange
+        }
+        return configObj;
     }
 
     protected send(ws: ClientSocketOnServer, data: ConfigRes, options?: ServerSocketSendOptions) {
