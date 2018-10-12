@@ -1,5 +1,4 @@
 import {ClientSocketReceiver, ClientSocket} from "../classes/WebSocket/ClientSocket";
-import {AbstractController} from "./base/AbstractController";
 import {WebSocketOpcode} from "../../../src/WebSocket/opcodes";
 import {PageData} from "../types/PageData";
 import {AppData} from "../types/AppData";
@@ -8,20 +7,21 @@ import {AppClass, App} from "../index";
 import {
     ConfigReq,
     ConfigRes,
-    ConfigTab,
+    ConfigTab, DisplayCurrencyMap,
     ExchangeApiConfig,
     ExchangeApiKeyMap, NotificationMethodMap
 } from "../../../src/WebSocket/ConfigEditor";
 import {Strategies} from "./Strategies";
 import * as $ from "jquery";
 import * as i18next from "i18next";
+import {TableController} from "./base/TableController";
 //import {AceAjax} from "ace"; // namespace, not a module
 
 declare var pageData: PageData, appData: AppData;
 declare var AppF: AppFunc, Hlp: HelpersClass;
 declare var JSONEditor: any; // TODO wait for typings
 
-export class Config extends AbstractController {
+export class Config extends TableController {
     public readonly opcode = WebSocketOpcode.CONFIG;
 
     protected selectedTab: ConfigTab = null;
@@ -32,6 +32,7 @@ export class Config extends AbstractController {
     protected createJsonViewTimerID: number = 0;
     protected editor: AceAjax.Editor;
     protected canEdit = false;
+    protected currencyTable: DataTables.Api = null;
 
     constructor(socket: ClientSocket) {
         super(socket)
@@ -62,6 +63,8 @@ export class Config extends AbstractController {
                 this.editor.setValue(data.configFileData, -1);
             this.canEdit = true;
         }
+        else if (data.currencies)
+            this.showCurrencyTable(data.currencies);
     }
 
     public render() {
@@ -437,6 +440,16 @@ export class Config extends AbstractController {
                 this.removeAsyncLoadingIcon();
             }, 0);
         });
+        this.$("#showCurrencies").click((event) => {
+            let vars = {}
+            let currencyDialog = AppF.translate(pageData.html.supportedCurrencies.currencyDialog, vars);
+            $(AppClass.cfg.appSel).append(currencyDialog);
+            $("#closeCurrencyDialog").click((event) => {
+                $("#modal-currency-dialog").remove();
+            });
+            this.send({getCurrencies: true});
+            this.showAsyncLoadingIcon();
+        });
     }
 
     protected setupTradingDevTab(data: ConfigRes) {
@@ -634,6 +647,23 @@ export class Config extends AbstractController {
             this.$("#configs").append(this.getSelectOption(conf, title, "/" + this.currentConfigFile + ".json" === conf))
         });
         (this.$("#configs") as any).multiselect("rebuild");
+    }
+
+    protected showCurrencyTable(currencies: DisplayCurrencyMap) {
+        this.removeAsyncLoadingIcon();
+        let tableOptions = this.getTableOpts();
+        tableOptions["pageLength"] = Number.MAX_VALUE; // show all
+        tableOptions["paging"] = false;
+        tableOptions = this.prepareTable(tableOptions,"#currencyTable", false);
+        this.currencyTable = $("#currencyTable").DataTable(tableOptions);
+        for (let tickerSymbol in currencies)
+        {
+            this.currencyTable.row.add([
+                tickerSymbol,
+                AppF.escapeOutput(currencies[tickerSymbol])
+            ]);
+        }
+        this.currencyTable.draw(false);
     }
 
     protected getPlainConfigName(filename: string) {

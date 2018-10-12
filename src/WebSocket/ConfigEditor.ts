@@ -49,6 +49,9 @@ export interface NotificationKey {
 export interface NotificationMethodMap {
     [notificationMethod: string]: NotificationKey;
 }
+export interface DisplayCurrencyMap {
+    [tickerName: string]: string;
+}
 export interface ConfigData {
     debugMode?: boolean;
     devMode?: boolean;
@@ -78,6 +81,7 @@ export interface ConfigRes extends ConfigData {
     exchanges?: string[];
     exchangeKeys?: ExchangeApiKeyMap;
     notifications?: NotificationMethodMap;
+    currencies?: DisplayCurrencyMap;
 
     changed?: boolean;
     saved?: boolean;
@@ -100,6 +104,7 @@ export interface ConfigReq extends ConfigData {
     setPaused?: boolean;
     setPausedOpening?: boolean;
     restart?: boolean;
+    getCurrencies?: boolean;
 }
 
 export class ConfigEditor extends AppPublisher {
@@ -119,7 +124,6 @@ export class ConfigEditor extends AppPublisher {
         this.selectedConfig = this.advisor.getConfigName();
         this.activeConfig = this.selectedConfig;
         this.selectedTrader = this.getSelectedTrader();
-        //this.advisor.getExchanges(); // TODO add leverage edit config
         nconf.set("debugRestart", nconf.get("debug"))
         nconf.set("serverConfig:lastWorkingConfigName", this.selectedConfig);
         serverConfig.saveConfigLocal();
@@ -361,6 +365,9 @@ export class ConfigEditor extends AppPublisher {
             })
             this.send(clientSocket, {saved: true})
         }
+        else if (typeof data.getCurrencies === "boolean") {
+            this.send(clientSocket, {currencies: this.getDisplayCurrencyMap()})
+        }
 
         else if (typeof data.selectedTab === "string") {
             this.selectedTab = data.selectedTab;
@@ -581,6 +588,7 @@ export class ConfigEditor extends AppPublisher {
                     let update = {
                         marginTrading: conf.marginTrading,
                         tradeTotalBtc: conf.tradeTotalBtc,
+                        maxLeverage: conf.maxLeverage ? parseFloat(conf.maxLeverage) : 1.0,
                         tradeDirection: conf.tradeDirection,
                         warmUpMin: conf.warmUpMin
                     }
@@ -591,6 +599,8 @@ export class ConfigEditor extends AppPublisher {
                         //requireRestart = true;
                         continue;
                     }
+                    if (update.maxLeverage !== 1.0)
+                        this.setMaxLeverage(configs[i], update.maxLeverage);
 
                     let pairs = configs[i].listConfigCurrencyPairs();
                     pairs.forEach((pair) => {
@@ -1060,6 +1070,26 @@ export class ConfigEditor extends AppPublisher {
                 configObj.data[i].exchanges = [configObj.data[i].exchanges]; // JSONView sends a string with the exchange
         }
         return configObj;
+    }
+
+    protected setMaxLeverage(config: TradeConfig, maxLeverage: number) {
+        let exchanges = this.advisor.getExchanges();
+        for (let ex of exchanges)
+        {
+            if (config.exchanges.indexOf(ex[0]) !== -1)
+                ex[1].setMaxLeverage(maxLeverage);
+        }
+    }
+
+    protected getDisplayCurrencyMap(): DisplayCurrencyMap {
+        let map = {}
+        for (let cur of Currency.CurrencyName)
+        {
+            let tickerSymbol = Currency.getCurrencyLabel(cur[0]);
+            let currencyName = cur[1][0]; // get the first of possibly many (similar) names/typings
+            map[tickerSymbol] = currencyName;
+        }
+        return map;
     }
 
     protected send(ws: ClientSocketOnServer, data: ConfigRes, options?: ServerSocketSendOptions) {

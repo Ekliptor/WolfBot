@@ -285,6 +285,13 @@ export class BacktestingUpdater extends AppPublisher {
                 }
                 this.publish(startUpdate)
                 break;
+            case 'profitPartialWarning':
+                let strategyWarning: BacktestRes = {
+                    success: false,
+                    errorCode: "profitPartialWarningMsg"
+                }
+                this.publish(startUpdate)
+                break;
             case 'importTick':
                 let importUpdate: BacktestRes = {
                     importProgress: {

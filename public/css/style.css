@@ -9001,6 +9001,12 @@ i.fa {
 #copyConfigName {
   min-width: 20em; }
 
+.dialogCtrls {
+  min-height: 3em; }
+
+.dialogCloseCtrls {
+  float: right; }
+
 .currencyHead {
   font-size: 24px;
   font-weight: bold; }

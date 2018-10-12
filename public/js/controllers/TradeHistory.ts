@@ -5,12 +5,13 @@ import {AppData} from "../types/AppData";
 import {AppFunc, HelpersClass} from "@ekliptor/browserutils";
 import {SocialConfig} from "../../../src/Social/SocialConfig";
 import {SocialUpdate} from "../../../src/Social/SocialController";
-import {BotTradeReq, BotTradeRes, TradeMetaInfo} from "../../../src/WebSocket/TradeHistoryUpdater";
+import {BotTradeReq, BotTradeRes} from "../../../src/WebSocket/TradeHistoryUpdater";
 import {UIBotLendingTrade, UIBotTrade} from "../../../src/structs/UITrade";
 import {TableController} from "./base/TableController";
 import * as $ from "jquery";
 import * as i18next from "i18next";
 import {App} from "../index";
+import {TradeMetaInfo} from "../../../src/Trade/TradeBook";
 
 declare var pageData: PageData, appData: AppData;
 declare var AppF: AppFunc, Hlp: HelpersClass;
@@ -83,7 +84,7 @@ export class TradeHistory extends TableController {
         else
             numberCols = [3, 4, 5, 6];
         tableOptions["columnDefs"].push({className: "num decimalNumber", "targets": numberCols});
-        tableOptions = this.prepareTable(tableOptions, /*".jsTable"*/"#historyTable", false);
+        tableOptions = this.prepareTable(tableOptions, /*".jsTable"*/"#currencyTable", false);
         let table = this.$("#historyTable").DataTable(tableOptions);
         for (let i = 0; i < trades.length; i++)
         {
@@ -195,7 +196,8 @@ export class TradeHistory extends TableController {
                 getTrades: {
                     mode: mode,
                     currencyStr: currency,
-                    configName: this.getFormValue(values, "configName")
+                    configName: this.getFormValue(values, "configName"),
+                    endDate: 0 // get all
                 }
             })
         });

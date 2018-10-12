@@ -352,6 +352,10 @@ export abstract class AbstractAdvisor extends AbstractSubController {
         return maxStrategy;
     }
 
+    /**
+     * Starts a backtest for the purpose of importing trades history on startup (only if no data has been saved).
+     * See Backtester for actual backtests where we are interested in the results.
+     */
     protected async startBacktest(): Promise<void> {
         if (this.pendingBacktests.length === 0) {
             this.backtestRunning = false;
@@ -520,6 +524,8 @@ export abstract class AbstractAdvisor extends AbstractSubController {
             case 'startImport':
                 logger.info("Start importing trade history of %s", message.exchange)
                 this.backtestWarmupState = BacktestWarmupState.IMPORTING;
+                break;
+            case 'profitPartialWarning':
                 break;
             case 'importTick':
                 //message.data.percent

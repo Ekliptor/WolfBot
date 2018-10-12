@@ -631,6 +631,7 @@ export default class TradeAdvisor extends AbstractAdvisor {
                 continue; // this exchange is not part of our config
 
             connectedExchanges.push(ex[0])
+            ex[1].setMaxLeverage(config.maxLeverage);
             ex[1].getMarketStream().on("trades", (currencyPair: Currency.CurrencyPair, trades: Trade.Trade[]) => {
                 if (!config.hasCurrency(currencyPair))
                     return; // another config is interested in this

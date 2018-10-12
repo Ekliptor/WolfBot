@@ -329,6 +329,12 @@ export abstract class AbstractExchange {
         return this.maxLeverage;
     }
 
+    public setMaxLeverage(leverage: number) {
+        if (this.marginTradingSupport() === false)
+            return;
+        this.maxLeverage = leverage;
+    }
+
     public marginTradingSupport() {
         return this.maxLeverage !== 0; // should be > 1
     }

@@ -134,7 +134,7 @@ export class TradeBook {
         let filter: any = {
             userToken: token
         }
-        if (typeof req.endDate === "number")
+        if (typeof req.endDate === "number" && req.endDate !== 0)
             filter.time = {$lt: new Date(req.endDate * 1000)}
         const lending = req.mode === "lending";
         if (lending)

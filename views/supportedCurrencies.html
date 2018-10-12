@@ -1,0 +1,30 @@
+<!-- currencyDialog -->
+<div id="modal-currency-dialog">
+  <div id="modal-background"></div>
+  <div id="modal" class="modal">
+    <div class="modal-inner">
+      <h2>{tr:currencyPairs}</h2>
+      <div class="dialogCtrls bottom50">
+        <div class="dialogCloseCtrls">
+          <button id="closeCurrencyDialog" class="btn btn-danger" type="button" name="closeCurrencyDialog">{tr:close}</button>
+        </div>
+      </div>
+      <table id="currencyTable" class="jsTable top50">
+        <thead>
+        <tr>
+          <th class="sortAsc">{tr:tickerName}</th>
+          <th>{tr:currencyName}</th>
+        </tr>
+        </thead>
+        <tfoot>
+        <tr>
+          <th>{tr:tickerName}</th>
+          <th>{tr:currencyName}</th>
+        </tr>
+        </tfoot>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+<!-- /currencyDialog -->

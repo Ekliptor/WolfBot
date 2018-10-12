@@ -11,6 +11,7 @@ export type ConfigCurrencyPair = string;
 export interface ConfigRuntimeUpdate {
     marginTrading: boolean;
     tradeTotalBtc: number;
+    maxLeverage: number;
     tradeDirection: TradeDirection;
     warmUpMin: number;
 }
@@ -21,6 +22,7 @@ export class TradeConfig extends AbstractConfig {
     public readonly markets: Currency.CurrencyPair[] = [];
     public readonly marginTrading = true;
     public readonly tradeTotalBtc = 0.0; // will be leveraged 2.5 if marginTrading is enabled
+    public readonly maxLeverage = 0.0; // in AbstractExchange default is 0.0 too
     public readonly tradeDirection: TradeDirection = "both";
     public readonly warmUpMin: number = 0;
     public readonly notifyTrades: boolean = false;

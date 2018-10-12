@@ -486,6 +486,7 @@
   "backetestError": "Error during backtesting. If this problem persists please contact support with your current logfile.",
   "errorAutoImport": "Automatic import of trades from exchange failed. Maybe the exchange API is down or this exchange doesn't support it.",
   "startAutoImport": "Starting auto import of trades for backtest. This might take a while (30 minutes). This only needs to be done once. All trade data is permanently stored on our servers.",
+  "profitPartialWarningMsg": "Your backtest strategies seem to contain a take profit partial strategy while having margin trading enabled. This is currently not supported by our backtester and might lead to incorrect results. Please disable margin trading or remove the take profit partial strategy. You can of course use it for live trading.",
   "progressTest": "Backtest Progress",
   "importedCurrencies": "List of currencies with completely imported history",
   "importedCurrenciesTxt": "This is a list of automatically imported currencies for backtesting. We recommend using one of the pairs here to skip the waiting time for the initial import. The history gets updated every 24h (so it will not contain the last day).",
@@ -1247,5 +1248,8 @@
   "errorConfExists": "There is already a configuration with that name.",
   "copyConfPlace": "Enter a name for the new configuration...",
   "botApiKey": "Bot API key",
-  "tickIndicator": "TICK Indicator"
+  "tickIndicator": "TICK Indicator",
+  "showCurrencies": "Show supported currencies",
+  "currencyName": "Currency name",
+  "tickerName": "Ticker name"
 }

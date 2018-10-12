@@ -3535,11 +3535,11 @@ exports.CoinMarket = CoinMarket;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-const AbstractController_1 = __webpack_require__(/*! ./base/AbstractController */ "./public/js/controllers/base/AbstractController.ts");
 const index_1 = __webpack_require__(/*! ../index */ "./public/js/index.ts");
 const $ = __webpack_require__(/*! jquery */ "jquery");
 const i18next = __webpack_require__(/*! i18next */ "i18next");
-class Config extends AbstractController_1.AbstractController {
+const TableController_1 = __webpack_require__(/*! ./base/TableController */ "./public/js/controllers/base/TableController.ts");
+class Config extends TableController_1.TableController {
     constructor(socket) {
         super(socket);
         this.opcode = 13 /* CONFIG */;
@@ -3549,6 +3549,7 @@ class Config extends AbstractController_1.AbstractController {
         this.jsonEditor = null;
         this.createJsonViewTimerID = 0;
         this.canEdit = false;
+        this.currencyTable = null;
         this.persistent = true;
     }
     onData(data) {
@@ -3574,6 +3575,8 @@ class Config extends AbstractController_1.AbstractController {
                 this.editor.setValue(data.configFileData, -1);
             this.canEdit = true;
         }
+        else if (data.currencies)
+            this.showCurrencyTable(data.currencies);
     }
     render() {
         return new Promise((resolve, reject) => {
@@ -3932,6 +3935,16 @@ class Config extends AbstractController_1.AbstractController {
                 this.removeAsyncLoadingIcon();
             }, 0);
         });
+        this.$("#showCurrencies").click((event) => {
+            let vars = {};
+            let currencyDialog = AppF.translate(pageData.html.supportedCurrencies.currencyDialog, vars);
+            $(index_1.AppClass.cfg.appSel).append(currencyDialog);
+            $("#closeCurrencyDialog").click((event) => {
+                $("#modal-currency-dialog").remove();
+            });
+            this.send({ getCurrencies: true });
+            this.showAsyncLoadingIcon();
+        });
     }
     setupTradingDevTab(data) {
         let html = AppF.translate(pageData.html.config.editor);
@@ -4112,6 +4125,21 @@ class Config extends AbstractController_1.AbstractController {
             this.$("#configs").append(this.getSelectOption(conf, title, "/" + this.currentConfigFile + ".json" === conf));
         });
         this.$("#configs").multiselect("rebuild");
+    }
+    showCurrencyTable(currencies) {
+        this.removeAsyncLoadingIcon();
+        let tableOptions = this.getTableOpts();
+        tableOptions["pageLength"] = Number.MAX_VALUE; // show all
+        tableOptions["paging"] = false;
+        tableOptions = this.prepareTable(tableOptions, "#currencyTable", false);
+        this.currencyTable = $("#currencyTable").DataTable(tableOptions);
+        for (let tickerSymbol in currencies) {
+            this.currencyTable.row.add([
+                tickerSymbol,
+                AppF.escapeOutput(currencies[tickerSymbol])
+            ]);
+        }
+        this.currencyTable.draw(false);
     }
     getPlainConfigName(filename) {
         return filename.substr(1).replace(/\.json$/, "");
@@ -5017,7 +5045,7 @@ class TradeHistory extends TableController_1.TableController {
         else
             numberCols = [3, 4, 5, 6];
         tableOptions["columnDefs"].push({ className: "num decimalNumber", "targets": numberCols });
-        tableOptions = this.prepareTable(tableOptions, /*".jsTable"*/ "#historyTable", false);
+        tableOptions = this.prepareTable(tableOptions, /*".jsTable"*/ "#currencyTable", false);
         let table = this.$("#historyTable").DataTable(tableOptions);
         for (let i = 0; i < trades.length; i++) {
             if (lending === true) {
@@ -5125,7 +5153,8 @@ class TradeHistory extends TableController_1.TableController {
                 getTrades: {
                     mode: mode,
                     currencyStr: currency,
-                    configName: this.getFormValue(values, "configName")
+                    configName: this.getFormValue(values, "configName"),
+                    endDate: 0 // get all
                 }
             });
         });

@@ -140,9 +140,15 @@ export default class Backtester extends PortfolioTrader {
             exchange.setBalances(currencyList);
             exchange.setMarginPositions(marginPositions);
             // TODO update balances in exchange class. currently not used
+            if (this.config.marginTrading === true && this.containsTakeProfitPartialStrategies() === true) {
+                helper.sendMessageToParent({
+                    type: 'profitPartialWarning'
+                });
+            }
 
             let tradeResult: BotEvaluation;
             this.marketTime = new Date(start); // ensure it's not null if we only import very few trades
+
             exchange.replay(this.config.markets[0], start, end).then(() => {
                 this.simulateCloseAllMarginPositions(this.currentCoinRate);
                 return this.tradeAdvisor.backtestDone();
@@ -1001,6 +1007,18 @@ export default class Backtester extends PortfolioTrader {
                 // should we emit close() to write it into the trade log?
             }
         }
+    }
+
+    protected containsTakeProfitPartialStrategies() {
+        let strategies = this.tradeAdvisor.getStrategies();
+        for (let strat of strategies)
+        {
+            if (strat[1] instanceof AbstractTakeProfitStrategy) {
+                if (strat[0].toLocaleLowerCase().indexOf("partial") !== -1)
+                    return true; // TODO improve this, actually checking the strategy config
+            }
+        }
+        return false;
     }
 
     protected emitBuy(order: Order.Order, trades: Trade.Trade[], info?: TradeInfo) {
