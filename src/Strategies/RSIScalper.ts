@@ -88,7 +88,7 @@ export default class RSIScalper extends TechnicalStrategy {
 
     public serialize() {
         let state = super.serialize();
-        state.pendingOrder = this.pendingOrder;
+        //state.pendingOrder = this.pendingOrder;
         state.waitingBounceBack = this.waitingBounceBack;
         state.scalpingDone = this.scalpingDone;
         return state;
@@ -96,7 +96,7 @@ export default class RSIScalper extends TechnicalStrategy {
 
     public unserialize(state: any) {
         super.unserialize(state);
-        this.pendingOrder = state.pendingOrder;
+        //this.pendingOrder = state.pendingOrder; // done in parent with re-creating the actual object
         this.waitingBounceBack = state.waitingBounceBack;
         this.scalpingDone = state.scalpingDone;
     }

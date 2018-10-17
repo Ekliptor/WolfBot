@@ -104,7 +104,7 @@ export class Strategies extends AbstractController {
             this.$("#strategy-" + configNr + " ." + value.name).replaceWith(strategyHtml);
             this.addStrategyProperties(configNr, value);
         })
-        if (data.position) {
+        if (data.position) { // TODO sometimes not updating until we reopen the tab. move this up?
             this.$("#position-" + configNr).text(data.position); // replace only the inner data
             this.$("#amount-" + configNr).text(data.positionAmount.toFixed(8));
             this.$("#pl-" + configNr).text(data.pl.toFixed(8));
