@@ -1,6 +1,6 @@
 // exported keys in here must be exactly the same as they are written on nconf object (except "root")
 
-import * as Currency from "@ekliptor/bit-models/build/models/base/Currency";
+import {Currency} from "@ekliptor/bit-models";
 
 const root = {
     "apiKeys" : { // leeave empty to disable API keys (public access)
@@ -102,3 +102,8 @@ class ServerConfig {
 
 const serverConfig = new ServerConfig();
 export {root, serverConfig}
+
+
+export type MultipleCurrencyImportExchange = "Poloniex" | "Bitfinex";
+export const currencyImportMap = new Map<MultipleCurrencyImportExchange, Currency.CurrencyPair[]>([
+]);
