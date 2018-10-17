@@ -387,7 +387,8 @@ export class Controller extends AbstractController { // TODO implement graceful 
             return false;
         let message = (err.message || "") + " " + (err.name || ""); // err.stack is too long
         if (message && message.indexOf('MongoError') !== -1 && (
-            message.indexOf('timed out') !== -1 || message.indexOf('slaveOk=false') !== -1 || message.indexOf('Topology was destroyed') !== -1)) {
+            message.indexOf('timed out') !== -1 || message.indexOf('slaveOk=false') !== -1 || message.indexOf('Topology was destroyed') !== -1 ||
+            message.indexOf('ECONNRESET') !== -1)) {
             // MongoError: connection 5 to localhost:27017 timed out
             this.log('Database connection error', err, err.stack)
             // we lost our database connection. our app might be in an undefined state.

@@ -243,7 +243,7 @@ export abstract class PortfolioTrader extends AbstractTrader {
     protected static marginPositions = new MarginPositionMap();
     protected static marginCollateral = new MarginCollateralMap();
     protected static submittedOrders = new OrderMap(); // to cancel orders that don't fill in time
-    protected static updatePortfolioTimerID: number = -1;
+    protected static updatePortfolioTimerID: NodeJS.Timer = null;
     protected static lastMarginPositionUpdateMs = new MarginPositionUpdateMap();
     protected static baseCurrencyBalance = 1.0; // BTC or USD usually. currently only used for backtesting // TODO follow balance in real mode
     protected static coinCurrencyBalance = 0.0;

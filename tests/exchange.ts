@@ -7,6 +7,7 @@ import Poloniex from "../src/Exchanges/Poloniex";
 import Pushover from "../src/Notifications/Pushover";
 import Notification from "../src/Notifications/Notification";
 import {Currency} from "@ekliptor/bit-models";
+import Bitfinex from "../src/Exchanges/Bitfinex";
 
 let checkMargin = () => {
     let polo = new Poloniex(nconf.get("serverConfig:apiKey:exchange:Poloniex"))
@@ -37,6 +38,20 @@ let checkMargin = () => {
     }, 120 * 1000)
 }
 
+let checkPortfolio = async () => {
+    let ex = new Bitfinex(nconf.get("serverConfig:apiKey:exchange:Bitfinex")[0])
+    let pair = new Currency.CurrencyPair(Currency.Currency.USD, Currency.Currency.BTC)
+    ex.subscribeToMarkets([pair])
+
+    await utils.promiseDelay(1000); // wait for ws connection
+    //ex.getMarginAccountSummary().then((account) => {
+    ex.getAllMarginPositions().then((account) => {
+        console.log(account)
+    }).catch((err) => {
+        logger.error("Error getting margin account", err);
+    })
+}
+
 Controller.loadServerConfig(() => {
-    checkMargin()
+    checkPortfolio();
 })

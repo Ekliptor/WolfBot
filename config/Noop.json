@@ -4,7 +4,7 @@
             "exchanges": [
                 "Bitfinex"
             ],
-            "marginTrading": false,
+            "marginTrading": true,
             "tradeTotalBtc": 0,
             "warmUpMin": 0,
             "strategies": {

@@ -869,7 +869,7 @@ export default class Bitfinex extends AbstractLendingExchange implements Externa
                 if (!Array.isArray(book))
                     book = [book];
                 book.forEach((bk) => {
-                    let tradeObj = this.fromRawFundingTrade(bk, localCurrency)
+                    let tradeObj = this.fromRawFundingTrade(bk, localCurrency, false) as Funding.FundingOrder;
                     this.marketStream.writeFundingOrderbook(localCurrency, tradeObj, this.localSeqNr);
                 })
             })

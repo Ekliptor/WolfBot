@@ -330,7 +330,7 @@ export abstract class AbstractExchange {
     }
 
     public setMaxLeverage(leverage: number) {
-        if (this.marginTradingSupport() === false)
+        if (this.marginTradingSupport() === false || typeof leverage !== "number" || leverage < 1.0) // ensure we don't set undefined if value is not in config
             return;
         this.maxLeverage = leverage;
     }

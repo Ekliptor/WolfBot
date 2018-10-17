@@ -34,7 +34,7 @@ export default class RealTimeTrader extends PortfolioTrader {
             // TODO this means balance will not be shown on startup until 2nd sync. ok?
             PortfolioTrader.lastMarginPositionUpdateMs.set(exchange, Date.now() - nconf.get("serverConfig:updateMarginPositionsSec")*1000 + nconf.get("serverConfig:delayFirstEmitSyncSec")*1000);
         })
-        setTimeout(this.updatePortfolio.bind(this), 0) // wait until exchanges are attached to this class
+        PortfolioTrader.updatePortfolioTimerID = setTimeout(this.updatePortfolio.bind(this), 4000) // wait until exchanges are attached to this class and exchanges are ready
 
         /*
         setTimeout(() => {
@@ -431,10 +431,10 @@ export default class RealTimeTrader extends PortfolioTrader {
         return new Promise<void>((resolve, reject) => {
             if (!this.exchanges || AbstractTrader.globalExchanges.size === 0)
                 return resolve(); // temporary instance
-            if (PortfolioTrader.updatePortfolioTimerID === 0)
+            if (PortfolioTrader.updatePortfolioTimerID === null)
                 return; // another instance is currently updating
             clearTimeout(PortfolioTrader.updatePortfolioTimerID)
-            PortfolioTrader.updatePortfolioTimerID = 0;
+            PortfolioTrader.updatePortfolioTimerID = null;
             let scheduleNextUpdate = () => {
                 clearTimeout(PortfolioTrader.updatePortfolioTimerID)
                 PortfolioTrader.updatePortfolioTimerID = setTimeout(this.updatePortfolio.bind(this), nconf.get("serverConfig:updatePortfolioSec")*1000)
