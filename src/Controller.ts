@@ -156,7 +156,7 @@ export class Controller extends AbstractController { // TODO implement graceful 
                 let json = utils.parseJson(data)
                 let version = json.version ? json.version : utils.getRandomString(10) // force reload on every app restart (or stat a file and read the timestamp?)
                 nconf.set('version', version);
-
+                // TODO add version of included files as query string in index.html to reload cache
                 let minifyOptions = {
                     copyFiles: [
                         path.join(utils.appDir, 'node_modules', 'i18next', 'i18next.min.js'),

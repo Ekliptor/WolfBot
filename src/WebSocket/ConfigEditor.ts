@@ -213,6 +213,7 @@ export class ConfigEditor extends AppPublisher {
             });
         }).catch((err) => {
             logger.error("Error loading config view data", err)
+            this.restart(true); // user will likely not be able to change config
         })
     }
 
