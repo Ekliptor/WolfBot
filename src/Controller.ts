@@ -272,23 +272,23 @@ export class Controller extends AbstractController { // TODO implement graceful 
 
             if (nconf.get("ai") === true) {
                 if (this.brain === null)
-                    this.brain = new Brain(argv.config, this.exchangeConntroller.getExchanges());
+                    this.brain = new Brain(this.exchangeConntroller.getConfigFilename(), this.exchangeConntroller.getExchanges());
                 if (argv.train)
                     tasks.push(this.brain.train());
                 scheduleAgain = !argv.train; // brain instance for training should only be used once
             }
             else if (nconf.get("lending") === true) {
                 if (this.lendingAdvisor === null)
-                    this.lendingAdvisor = new LendingAdvisor(argv.config, this.exchangeConntroller);
+                    this.lendingAdvisor = new LendingAdvisor(this.exchangeConntroller.getConfigFilename(), this.exchangeConntroller);
                 tasks.push(this.lendingAdvisor.process())
             }
             else if (nconf.get("social") === true) {
                 if (!this.socialController)
-                    this.socialController = new SocialController(argv.config, this.exchangeConntroller);
+                    this.socialController = new SocialController(this.exchangeConntroller.getConfigFilename(), this.exchangeConntroller);
                 tasks.push(this.socialController.process())
             }
             if (!this.tradeAdvisor) { // tradeAdvisor is always needed for websocket UI
-                this.tradeAdvisor = new TradeAdvisor(argv.config, this.exchangeConntroller)
+                this.tradeAdvisor = new TradeAdvisor(this.exchangeConntroller.getConfigFilename(), this.exchangeConntroller)
                 this.websocketController = new WebSocketController(this.serverSocket, this.tradeAdvisor, this.lendingAdvisor, this.socialController, this.brain);
             }
             if (nconf.get("ai") !== true && nconf.get("lending") !== true) {
@@ -430,7 +430,7 @@ export class Controller extends AbstractController { // TODO implement graceful 
     }
 
     public async getStatus(req: http.IncomingMessage) {
-        const postData = utils.getJsonPostData((req as any).formFields);
+        const postData = req != null ? utils.getJsonPostData((req as any).formFields) : null;
         let status = {
             ready: false,
             strategyInfos: this.tradeAdvisor ? this.tradeAdvisor.getStrategyInfos() : (this.lendingAdvisor ? this.lendingAdvisor.getStrategyInfos() : null),
@@ -444,7 +444,9 @@ export class Controller extends AbstractController { // TODO implement graceful 
             if (postData.prices === true)
                 status.prices = (await this.socialController.getPriceData(status.social)).toObject();
         }
-        if (process.uptime() > 8.0 && this.isRunning === true && (status.strategyInfos !== null || status.social !== null)) // add more checks if we use different features later
+        // TODO isRunning ooesn't get set to true sometimes. why?
+        if (process.uptime() > 12.0 && /*this.isRunning === true && */(
+            status.strategyInfos !== null || status.social !== null || status.prices !== null)) // add more checks if we use different features later
             status.ready = true;
         return {data: status}
     }

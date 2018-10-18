@@ -124,8 +124,13 @@ export class ConfigEditor extends AppPublisher {
         this.selectedConfig = this.advisor.getConfigName();
         this.activeConfig = this.selectedConfig;
         this.selectedTrader = this.getSelectedTrader();
-        nconf.set("debugRestart", nconf.get("debug"))
-        nconf.set("serverConfig:lastWorkingConfigName", this.selectedConfig);
+        nconf.set("debugRestart", nconf.get("debug"));
+        if (this.selectedTradingMode === "trading") {
+            setTimeout(() => {
+                if (typeof this.selectedConfig === "string" && this.selectedConfig.length !== 0)
+                    nconf.set("serverConfig:lastWorkingConfigName", this.selectedConfig);
+            }, 5000);
+        }
         serverConfig.saveConfigLocal();
 
         // store results on exit (kill signal)
@@ -214,7 +219,9 @@ export class ConfigEditor extends AppPublisher {
     protected onData(data: ConfigReq, clientSocket: ClientSocketOnServer, initialRequest: http.IncomingMessage): void {
         if (typeof data.configChange === "string") {
             this.readConfigFile(data.configChange).then((configFileData) => {
-                this.selectedConfig = this.getPlainConfigName(data.configChange);
+                let configName = this.getPlainConfigName(data.configChange);
+                if (configName)
+                    this.selectedConfig = configName;
                 this.send(clientSocket, {
                     configFileData: configFileData
                 });
@@ -378,9 +385,20 @@ export class ConfigEditor extends AppPublisher {
 
     public restart(forceDefaults = false) {
         if (forceDefaults === true) {
-            this.selectedTradingMode = "trading";
-            // bad idea to just restore to "Noop" because the user might not have API keys or modified/broke that config
-            this.selectedConfig = nconf.get("serverConfig:lastWorkingConfigName");
+            let resetAll = false;
+            if (this.selectedTradingMode !== "trading") {
+                // try the 1st config file of that mode if we aren't already using it
+                let configFile = this.getFirstFileForMode(this.selectedTradingMode);
+                if (this.selectedConfig !== configFile)
+                    this.selectedConfig = configFile;
+                else
+                    resetAll = true;
+            }
+            if (resetAll === true) {
+                this.selectedTradingMode = "trading";
+                // bad idea to just restore to "Noop" because the user might not have API keys or modified/broke that config
+                this.selectedConfig = nconf.get("serverConfig:lastWorkingConfigName");
+            }
         }
         this.saveState().then(() => {
             let processArgs = Object.assign([], process.execArgv)
@@ -1094,5 +1112,18 @@ export class ConfigEditor extends AppPublisher {
 
     protected send(ws: ClientSocketOnServer, data: ConfigRes, options?: ServerSocketSendOptions) {
         return super.send(ws, data, options);
+    }
+
+    protected getFirstFileForMode(mode: BotTrade.TradingMode) {
+        const dirPath = TradeConfig.getConfigDirForMode(mode);
+        try {
+            let files = fs.readdirSync(dirPath);
+            if (files.length > 0)
+                return files[0].replace(/\.json$/, "");
+        }
+        catch (err) {
+            logger.error("Error getting 1st config file for mode %s in %s", mode, dirPath);
+        }
+        return "";
     }
 }

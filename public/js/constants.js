@@ -95,6 +95,7 @@ var pageData = {
             "scrollContainer": "<div class=\"scrollContainer\" style=\"max-height: {height}px;\">\n  {text}\n</div>\n",
             "asyncWait": "<i class=\"asyncWait fa fa-spinner fa-pulse fa-4x fa-fw bottom10\"></i>\n",
             "disablePage": "<div>\n  <div id=\"modal-background\"></div>\n  <div id=\"modal\" class=\"modal\">\n    <div class=\"modal-inner\">\n      <h2>{title}</h2>\n      <p>{text}</p>\n    </div>\n  </div>\n</div>\n",
+            "restartDialog": "<div>\n  <div id=\"modal-background\"></div>\n  <div id=\"modal\" class=\"modal\">\n    <div class=\"modal-inner\">\n      <h2>{title}</h2>\n      <p>{text}</p>\n      <p>{tr:notReloading}</p>\n      <button id=\"reloadPage\" class=\"btn btn-primary\" type=\"button\" name=\"reloadPage\">{tr:reload}</button>\n    </div>\n  </div>\n</div>\n",
             "error": "<h1>{error}</h1>\n<h1>{msg}</h1>\n<pre>{stack}</pre>\n",
             "controllerWrap": "<div id=\"{controllerName}\">{html}</div>\n",
             "time": "<span class=\"dateTime\" data-time=\"{timestamp}\">{time}</span>\n",

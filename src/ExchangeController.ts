@@ -86,6 +86,10 @@ export default class ExchangeController extends AbstractSubController {
         return this.exchangesIdle;
     }
 
+    public getConfigFilename() {
+        return this.configFilename.replace(/\.json$/, "");
+    }
+
     /**
      * Loads a single new exchange instance. Useful for social crawler and other non-trading bots.
      * @param {string} exchangeName

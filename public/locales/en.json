@@ -353,6 +353,8 @@
   "restartConfirm": "Do you really want to restart the app?",
   "restarting": "Restarting",
   "restartingTxt": "The app is restarting. This page will automatically reload once the restart is done.",
+  "notReloading": "Is the page not reloading after 1 minute? Then just press the reload button below or in your browser.",
+  "reload": "Reload",
   "pauseTrading": "Pause trading",
   "resumeTrading": "Resume Trading",
   "pauseOpeningPositions": "Pause opening new positions",

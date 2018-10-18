@@ -3592,9 +3592,12 @@ class Config extends TableController_1.TableController {
                 title: AppF.tr('restarting'),
                 text: AppF.tr('restartingTxt')
             };
-            let disconnected = AppF.translate(pageData.html.misc.disablePage, vars);
+            let disconnected = AppF.translate(pageData.html.misc.restartDialog, vars);
             $(index_1.AppClass.cfg.appSel).append(disconnected);
             this.send({ restart: true });
+            $("#reloadPage").click((event) => {
+                window.location.reload(true);
+            });
             let checkRestartDone = (responseCount) => {
                 setTimeout(() => {
                     let data = new FormData(); // multipart POST data
@@ -4767,7 +4770,7 @@ class Strategies extends AbstractController_1.AbstractController {
             this.$("#strategy-" + configNr + " ." + value.name).replaceWith(strategyHtml);
             this.addStrategyProperties(configNr, value);
         });
-        if (data.position) {
+        if (data.position) { // TODO sometimes not updating until we reopen the tab. move this up?
             this.$("#position-" + configNr).text(data.position); // replace only the inner data
             this.$("#amount-" + configNr).text(data.positionAmount.toFixed(8));
             this.$("#pl-" + configNr).text(data.pl.toFixed(8));

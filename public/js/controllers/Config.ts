@@ -82,9 +82,12 @@ export class Config extends TableController {
                 title: AppF.tr('restarting'),
                 text: AppF.tr('restartingTxt')
             }
-            let disconnected = AppF.translate(pageData.html.misc.disablePage, vars);
+            let disconnected = AppF.translate(pageData.html.misc.restartDialog, vars);
             $(AppClass.cfg.appSel).append(disconnected);
-            this.send({restart: true})
+            this.send({restart: true});
+            $("#reloadPage").click((event) => {
+                window.location.reload(true);
+            });
             let checkRestartDone = (responseCount) => {
                 setTimeout(() => {
                     let data = new FormData(); // multipart POST data
