@@ -566,9 +566,9 @@ export abstract class AbstractAdvisor extends AbstractSubController {
         })
     }
 
-    protected checkRestoreConfig() {
+    protected checkRestoreConfig(forceOnlyRestoreFileNames: string[] = []) {
         return new Promise<void>((resolve, reject) => {
-            if (!nconf.get("serverConfig:user:restoreCfg"))
+            if (!nconf.get("serverConfig:user:restoreCfg") && forceOnlyRestoreFileNames.length === 0)
                 return resolve();
             const configDir = TradeConfig.getConfigRootDir();
             const backupDir = TradeConfig.getConfigBackupRootDir();
@@ -583,6 +583,8 @@ export abstract class AbstractAdvisor extends AbstractSubController {
                 }
                 let fileOps = [];
                 files.forEach((file) => {
+                    if (forceOnlyRestoreFileNames.length !== 0 && forceOnlyRestoreFileNames.indexOf(file) === -1)
+                        return;
                     let fullSrcPath = path.join(backupDir, file); // opposite as when backing up
                     let fullDestPath = path.join(configDir, file);
                     fileOps.push(utils.file.copyFile(fullSrcPath, fullDestPath, true));
@@ -598,6 +600,22 @@ export abstract class AbstractAdvisor extends AbstractSubController {
                 }
                 resolve();
             });
+        })
+    }
+
+    protected ensureDefaultFallbackConfig() {
+        return new Promise<void>(async (resolve, reject) => {
+            const configDir = TradeConfig.getConfigDirForMode("trading");
+            const backupDir = TradeConfig.getConfigBackupRootDir();
+            if (fs.existsSync(backupDir) === false)
+                return resolve(); // shouldn't happen since we backup first
+            const fileName = nconf.get("serverConfig:fallbackTradingConfig") + ".json";
+            const fallbackConfigFile = path.join(configDir, fileName);
+            if (fs.existsSync(fallbackConfigFile) === false) {
+                await this.checkRestoreConfig([fileName]);
+                if (fs.existsSync(fallbackConfigFile) === false)
+                    logger.error("Unable to find default fallback config file %s", fallbackConfigFile)
+            }
         })
     }
 }

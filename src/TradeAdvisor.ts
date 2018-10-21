@@ -214,6 +214,7 @@ export default class TradeAdvisor extends AbstractAdvisor {
             if (this.errorState)
                 return;
             AbstractAdvisor.backupOriginalConfig();
+            this.ensureDefaultFallbackConfig();
             this.loadTrader();
             this.connectTrader();
             this.connectCandles();
@@ -423,8 +424,15 @@ export default class TradeAdvisor extends AbstractAdvisor {
     protected loadConfig() {
         //const filePath = path.join(utils.appDir, "config", this.strategyFile)
 
-        const filePath = path.join(TradeConfig.getConfigDir(), this.strategyFile)
-        let data = fs.readFileSync(filePath, {encoding: "utf8"});
+        const filePath = path.join(TradeConfig.getConfigDir(), this.strategyFile);
+        let data = "";
+        try {
+            data = fs.readFileSync(filePath, {encoding: "utf8"});
+        }
+        catch (err) {
+            logger.error("Error reading config file under: %s", filePath, err)
+            return this.waitForRestart()
+        }
         if (!data) {
             logger.error("Can not load config file under: %s", filePath)
             return this.waitForRestart()

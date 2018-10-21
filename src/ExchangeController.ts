@@ -237,8 +237,16 @@ export default class ExchangeController extends AbstractSubController {
         }
         catch (err) {
             if (err && err.code === "ENOENT") {
+                /**
+                 * 2018-10-20 21:07:26 - warn: Unable to load config file /home/bitbrain2/nodejs/BitBrain2/Sensor1/config/Bitfinex.json in ExchangeController - most likely wrong trading mode after restart. Retrying defaults
+                 2018-10-20 21:07:26 - error: Unable to load config /home/bitbrain2/nodejs/BitBrain2/Sensor1/config/Bitfinex.json in ExchangeController. Most likely invalid trading mode and config file. Please fix this and restart the bot.
+                 2018-10-20 21:07:29 - warn: Unhandled Rejection
+                 2018-10-20 21:07:29 - warn:  {"message":"ENOENT: no such file or directory, open '/home/bitbrain2/nodejs/BitBrain2/Sensor1/config/Bitfinex.json'","stack":"Error: ENOENT: no such file or directory, open '/home/bitbrain2/nodejs/BitBrain2/Sensor1/config/Bitfinex.json'\n    at Object.openSync (fs.js:434:3)\n    at Object.readFileSync (fs.js:339:35)\n
+                  at TradeAdvisor.loadConfig (/home/bitbrain2/nodejs/BitBrain2/src/TradeAdvisor.ts:427:23)\n
+                  at TradeAdvisor.checkRestoreConfig.then (/home/bitbrain2/nodejs/BitBrain2/src/TradeAdvisor.ts:213:18)","errno":-2,"syscall":"open","code":"ENOENT","path":"/home/bitbrain2/nodejs/BitBrain2/Sensor1/config/Bitfinex.json"}
+                 */
                 logger.warn("Unable to load config file %s in %s - most likely wrong trading mode after restart. Retrying defaults", filePath, this.className)
-                if (TradeConfig.isTradingMode() === false) {
+                if (TradeConfig.isTradingMode() === false || this.getConfigFilename() !== "Noop") { // TODO always ensure this file exists
                     setTimeout(async () => { // WebsocketController is loaded after exchanges
                         let controller = await import("./Controller");
                         controller.controller.restart(true);

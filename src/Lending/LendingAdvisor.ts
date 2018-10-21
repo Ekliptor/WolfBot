@@ -97,6 +97,7 @@ export class LendingAdvisor extends AbstractAdvisor {
             if (this.errorState)
                 return;
             AbstractAdvisor.backupOriginalConfig();
+            this.ensureDefaultFallbackConfig();
             this.loadTrader();
             this.connectTrader();
             this.connectCandles();
@@ -488,10 +489,17 @@ export class LendingAdvisor extends AbstractAdvisor {
     }
 
     protected loadConfig() {
-        const filePath = path.join(utils.appDir, "config", "lending", this.configFilename)
-        let data = fs.readFileSync(filePath, {encoding: "utf8"});
+        const filePath = path.join(utils.appDir, "config", "lending", this.configFilename);
+        let data = "";
+        try {
+            data = fs.readFileSync(filePath, {encoding: "utf8"});
+        }
+        catch (err) {
+            logger.error("Error reading lending config file under: %s", filePath, err)
+            return this.waitForRestart()
+        }
         if (!data) {
-            logger.error("Can not load config file under: %s", filePath)
+            logger.error("Can not load lending config file under: %s", filePath)
             return this.waitForRestart()
         }
         let json = utils.parseJson(data);

@@ -125,12 +125,6 @@ export class ConfigEditor extends AppPublisher {
         this.activeConfig = this.selectedConfig;
         this.selectedTrader = this.getSelectedTrader();
         nconf.set("debugRestart", nconf.get("debug"));
-        if (this.selectedTradingMode === "trading") {
-            setTimeout(() => {
-                if (typeof this.selectedConfig === "string" && this.selectedConfig.length !== 0)
-                    nconf.set("serverConfig:lastWorkingConfigName", this.selectedConfig);
-            }, 5000);
-        }
         serverConfig.saveConfigLocal();
 
         // store results on exit (kill signal)
@@ -211,6 +205,7 @@ export class ConfigEditor extends AppPublisher {
                 exchangeKeys: this.getExchangeKeys(),
                 notifications: this.getNotificationMethods()
             });
+            this.setLastWorkingConfig();
         }).catch((err) => {
             logger.error("Error loading config view data", err)
             this.restart(true); // user will likely not be able to change config
@@ -395,11 +390,15 @@ export class ConfigEditor extends AppPublisher {
                 else
                     resetAll = true;
             }
+            if (this.lastRestartWasPreviously() === true)
+                resetAll = true;
             if (resetAll === true) {
                 this.selectedTradingMode = "trading";
                 // bad idea to just restore to "Noop" because the user might not have API keys or modified/broke that config
                 this.selectedConfig = nconf.get("serverConfig:lastWorkingConfigName");
+                //this.selectedConfig = nconf.get("serverConfig:fallbackTradingConfig");
             }
+            nconf.set("serverConfig:lastRestartTime", new Date()); // only count forced (auto) restarts
         }
         this.saveState().then(() => {
             let processArgs = Object.assign([], process.execArgv)
@@ -434,6 +433,11 @@ export class ConfigEditor extends AppPublisher {
 
     // ################################################################
     // ###################### PRIVATE FUNCTIONS #######################
+
+    protected lastRestartWasPreviously() {
+        let lastRestart = new Date(nconf.get("serverConfig:lastRestartTime") || 0);
+        return lastRestart.getTime() + nconf.get("serverConfig:restartPreviouslyIntervalMin")*utils.constants.MINUTE_IN_SECONDS*1000 >= Date.now();
+    }
 
     protected readConfigFile(name: string, updateStrategyValues: boolean = true) {
         return new Promise<string>((resolve, reject) => {
@@ -1126,5 +1130,15 @@ export class ConfigEditor extends AppPublisher {
             logger.error("Error getting 1st config file for mode %s in %s", mode, dirPath);
         }
         return "";
+    }
+
+    protected setLastWorkingConfig() {
+        if (this.selectedTradingMode === "trading") {
+            setTimeout(() => {
+                if (typeof this.selectedConfig === "string" && this.selectedConfig.length !== 0)
+                    nconf.set("serverConfig:lastWorkingConfigName", this.selectedConfig);
+            }, 5000);
+            serverConfig.saveConfigLocal();
+        }
     }
 }
