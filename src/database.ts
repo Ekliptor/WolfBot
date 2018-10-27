@@ -1,28 +1,50 @@
-const MongoClient = require('mongodb').MongoClient;
+import * as MongoClient from "mongodb";
 // dependencies for elastic and redis are hard coded here, but you can use this module without connecting to those servers
-import elasticsearch = require('elasticsearch');
-import redis = require('redis');
-import crypto = require('crypto');
+import * as elasticsearch from "elasticsearch";
+import * as redis from "redis";
+import * as crypto from "crypto";
+
 
 const SEARCH_LOG_VERBOSE = false
 const ELASTIC_API_VER = '5.0'
 const REDIS_DEFAULT_TTL_MIN: number = 5 // set to 0 to disable TTL and only use LRU to free memory if redis memory limit is reached
 
-let db = module.exports;
-export = db;
-
-let state = {
-    db: null,
-    searchClient: null,
-    redisClient: null,
-    cacheEnabled: true
+export class DatbaseState {
+    public db: MongoClient.Db = null;
+    public searchClient: elasticsearch.Client = null;
+    public redisClient: redis.RedisClient = null;
+    public cacheEnabled: boolean = true;
 }
 
-let redisPrefix = ''
+let state = new DatbaseState(); // our global DB state object holding all connections
 
-db.connectAll = function(options, logger, done) {
+let redisPrefix = "";
+
+export interface DatabaseOptions {
+    url: string; // mongo url
+    searchHosts?: string[]; // elasticsearch hosts
+    redis?: RedisOptions; // redis daemon url and config
+}
+export interface DoneCallback {
+    (err?: any): void;
+}
+export interface DatabaseLogger {
+    debug?(...args: any[]): void;
+    warn(...args: any[]): void;
+    error(...args: any[]): void;
+    info(...args: any[]): void;
+    log(...args: any[]): void;
+}
+export interface RedisOptions {
+    url: string;
+    connectTotalMin?: number;
+    maxReconnectAttempts?: number;
+    cachePrefix?: string;
+}
+
+export function connectAll(options: DatabaseOptions, logger: DatabaseLogger, done: DoneCallback) {
     if (done === undefined) {
-        done = logger
+        done = logger as unknown as DoneCallback;
         logger = null
     }
     let connectDone = (resolve, reject, err) => {
@@ -33,17 +55,17 @@ db.connectAll = function(options, logger, done) {
     let connectOps = []
     if (options.url) {
         connectOps.push(new Promise((resolve, reject) => {
-            db.connect(options.url, connectDone.bind(this, resolve, reject))
+            connect(options.url, connectDone.bind(this, resolve, reject))
         }))
     }
     if (options.searchHosts) {
         connectOps.push(new Promise((resolve, reject) => {
-            db.connectSearch(options.searchHosts, logger, connectDone.bind(this, resolve, reject))
+            connectSearch(options.searchHosts, logger, connectDone.bind(this, resolve, reject))
         }))
     }
     if (options.redis) {
         connectOps.push(new Promise((resolve, reject) => {
-            db.connectRedis(options.redis, connectDone.bind(this, resolve, reject))
+            connectRedis(options.redis, connectDone.bind(this, resolve, reject))
         }))
     }
     Promise.all(connectOps).then(() => {
@@ -53,7 +75,7 @@ db.connectAll = function(options, logger, done) {
     })
 }
 
-db.connect = function(url, done) {
+export function connect(url: string, done: DoneCallback) {
     if (state.db !== null)
         return done();
     MongoClient.connect(url, (err, db) => {
@@ -64,9 +86,9 @@ db.connect = function(url, done) {
     })
 }
 
-db.connectSearch = function(hosts, logger, done) {
+export function connectSearch(hosts: string[], logger: DatabaseLogger, done: DoneCallback) {
     if (done === undefined) {
-        done = logger
+        done = logger as unknown as DoneCallback;
         logger = null
     }
     if (state.searchClient !== null)
@@ -105,7 +127,7 @@ db.connectSearch = function(hosts, logger, done) {
     setTimeout(done, 50); // TODO there is no connected callback?
 }
 
-db.connectRedis = function(redisOptions, done) {
+export function connectRedis(redisOptions: RedisOptions, done: DoneCallback) {
     if (!redisOptions.url)
         return done('Can not connect to redis without an URl')
     if (!redisOptions.connectTotalMin)
@@ -143,27 +165,27 @@ db.connectRedis = function(redisOptions, done) {
     })
 }
 
-db.setCacheEnabled = function(enabled) {
+export function setCacheEnabled(enabled: boolean) {
     state.cacheEnabled = enabled;
 }
 
-db.get = function() {
+export function get() {
     return state.db;
 }
 
-db.getSearch = function() {
+export function getSearch() {
     return state.searchClient;
 }
 
-db.getRedis = function() {
+export function getRedis() {
     return state.redisClient;
 }
 
-db.getState = function() {
+export function getState() {
     return state
 }
 
-db.close = function(done) {
+export function close(done: DoneCallback) {
     if (state.searchClient !== null) {
         state.searchClient.close(); // no callback available
         state.searchClient = null;
@@ -183,14 +205,14 @@ db.close = function(done) {
 
 
 // Redis cache functions
-let getStringKey = (keyObj) => {
+let getStringKey = (keyObj: any) => {
     if (typeof keyObj === 'string')
         return redisPrefix + keyObj
     let key = JSON.stringify(keyObj)
     return redisPrefix + crypto.createHash('md5').update(key, 'utf8').digest('base64')
 }
 
-let skipCache = (callback = null) => {
+let skipCache = (callback: DoneCallback = null) => {
     if (state.cacheEnabled == false) {
         setTimeout(() => {
             callback && callback(null);
@@ -200,7 +222,7 @@ let skipCache = (callback = null) => {
     return false;
 }
 
-db.addToCache = function(key, value, expirationMin = 0, callback = null) {
+export function addToCache(key: any, value: any, expirationMin: number = 0, callback: DoneCallback = null) {
     if (skipCache(callback))
         return;
     let args = [getStringKey(key)] // SET key value [EX seconds] [PX milliseconds] [NX|XX]
@@ -209,21 +231,21 @@ db.addToCache = function(key, value, expirationMin = 0, callback = null) {
         args.push('EX', expirationMin*60 + "")
     else if (REDIS_DEFAULT_TTL_MIN !== 0)
         args.push('EX', REDIS_DEFAULT_TTL_MIN*60 + "")
-    db.getRedis().set(args, (err) => {
+    getRedis().set(args, (err) => {
         callback && callback(err)
     })
 }
 
-db.getFromCache = function(key, callback) {
+export function getFromCache(key: any, callback?: DoneCallback) {
     let getFromRedis = (callback) => {
-        db.getRedis().get(getStringKey(key), (err, data) => {
+        getRedis().get(getStringKey(key), (err, data) => {
             if (err || !data)
                 return callback(null)
             callback(JSON.parse(data))
         })
     }
     if (callback === undefined) {
-        return new Promise((resolve, reject) => {
+        return new Promise<any>((resolve, reject) => {
             if (skipCache())
                 return resolve(null);
             getFromRedis((data) => {
@@ -236,10 +258,10 @@ db.getFromCache = function(key, callback) {
     getFromRedis(callback)
 }
 
-db.deleteFromCache = function(key, callback) {
+export function deleteFromCache(key: any, callback: DoneCallback) {
     if (skipCache(callback))
         return;
-    db.getRedis().del(getStringKey(key), (err) => {
+    getRedis().del(getStringKey(key), (err) => {
         callback && callback(err)
     })
 }
