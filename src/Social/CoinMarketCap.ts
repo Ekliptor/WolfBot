@@ -5,6 +5,8 @@ import {Candle, Currency, Order, Ticker, SocialAction, CoinMarketInfo} from "@ek
 import * as helper from "../utils/helper";
 import * as db from "../database";
 import * as querystring from "querystring";
+import {AbstractNotification} from "../Notifications/AbstractNotification";
+import Notification from "../Notifications/Notification";
 
 
 export interface CoinMarketCapApiStatus {
@@ -92,9 +94,12 @@ export class CoinMarketCapListOptions { // https://pro.coinmarketcap.com/api/v1#
 
 export class CoinMarketCap {
     protected options: CoinMarketCapOptions;
+    protected notifier: AbstractNotification;
+    protected lastNotification: Date = null;
 
     constructor(options: CoinMarketCapOptions) {
         this.options = options;
+        this.notifier = AbstractNotification.getInstance(true);
     }
 
     public listCurrencies(options: CoinMarketCapListOptions = new CoinMarketCapListOptions()) {
@@ -104,8 +109,10 @@ export class CoinMarketCap {
                 if (body === false)
                     return reject({txt: "Error crawling CoinMarketCap ticker", options: options, err: response})
                 let json = utils.parseJson(body);
-                if (this.isInvalidResponse(json) === true)
+                if (this.isInvalidResponse(json) === true) {
+                    this.notifyError(url, json);
                     return reject({txt: "Received invalid ticker data JSON from CoinMarketCap", options: options, body: body})
+                }
                 resolve(json);
             }, this.getHttpOptions())
         })
@@ -213,8 +220,10 @@ export class CoinMarketCap {
                 if (body === false)
                     return reject({txt: "Error crawling CoinMarketCap ticker", currencyID: currencyID, err: response})
                 let json = utils.parseJson(body);
-                if (this.isInvalidResponse(json) === true)
+                if (this.isInvalidResponse(json) === true) {
+                    this.notifyError(url, json);
                     return reject({txt: "Received invalid ticker data JSON from CoinMarketCap", currencyID: currencyID, body: body})
+                }
                 resolve(json);
             }, this.getHttpOptions())
         })
@@ -235,5 +244,30 @@ export class CoinMarketCap {
                 "X-CMC_PRO_API_KEY": this.options.apiKey
             }
         }
+    }
+
+    protected notifyError(urlStr: string, json: any) {
+        let headline = "CoinMarketCap API error";
+        logger.error(headline);
+        logger.error(urlStr);
+        logger.error(json);
+        if (!nconf.get("serverConfig:notifyCoinMarketApiErrors"))
+            return;
+        const pauseMs = nconf.get('serverConfig:notificationPauseMin') * utils.constants.MINUTE_IN_SECONDS * 1000;
+        if (this.lastNotification && this.lastNotification.getTime() + pauseMs > Date.now()) // lastNotification per bot? we only monitor 1 instance per bot
+            return;
+
+        let cmcStatus: CoinMarketCapApiStatus = null;
+        if (json.status && json.status.timestamp)
+            cmcStatus = json.status;
+        let message = utils.sprintf("URL: %s\nRes: %s", urlStr, JSON.stringify(json));
+        if (cmcStatus !== null)
+            message = JSON.stringify(cmcStatus); // URL can be too long
+        let notification = new Notification(headline, message, false);
+        this.notifier.send(notification).then(() => {
+        }).catch((err) => {
+            logger.error("Error sending %s notification", "CoinMarketCap", err)
+        });
+        this.lastNotification = new Date();
     }
 }

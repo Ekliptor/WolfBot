@@ -258,7 +258,7 @@ export function getFromCache(key: any, callback?: DoneCallback) {
     getFromRedis(callback)
 }
 
-export function deleteFromCache(key: any, callback: DoneCallback) {
+export function deleteFromCache(key: any, callback?: DoneCallback) {
     if (skipCache(callback))
         return;
     getRedis().del(getStringKey(key), (err) => {
