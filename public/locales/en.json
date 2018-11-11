@@ -840,6 +840,14 @@
       "takeProfitTicks": "optional, default 0 (disabled). Close a position early if the MACD histogram decreases for x candles.",
       "closeLossEarly": "optional, default true - Close positions at a loss after takeProfitTicks too."
     },
+    "PingPong": {
+      "desc": "Strategy that sells on the upper Bollinger Band and buys on the lower band. Our assumption is that the price will always jump between the upper and lower band (as in a sideways market). This strategy only trades within the value area of the volume profile, which is when price is within the range where 70% of trades take place using default settings. Additionally the current candle volume must be 'minVolumeSpike' above average (SMA) of the latest 'interval' candles.<br>This strategy only opens positions. You need a stop-loss and/or take profit strategy.",
+      "interval": "optional, default 48. The number of candles to compute the volume profile and average volume from.",
+      "volumeRows": "optional default 24. The number of equally-sized price zones the price range is divided into.",
+      "valueAreaPercent": "optional, default 70%. The percentage of the total volume that shall make up the value area, meaning the price range where x% of the trades happen.",
+      "minVolumeSpike": "optional, default 1.1. The min volume compared to the average volume of the last 'interval' candles to open a position.",
+      "percentBThreshold": "optional, default 0.001 - A number indicating how close to %b the price has to be to consider it 'reached'."
+    },
     "PivotSniper": {
       "desc": "Strategy that checks support and resistance of Pivot Points. We wait for support or resistance to get hit and open a position in the opposite direction, assuming the market will bounce back.<br>This strategy works very well for daytrading with candle sizes from 30min to 4h.<br>This strategy will open and close existing positions, but you can still combine it with a stop-loss and/or take profit strategy.",
       "type": "optional, default 'standard' - The Pivot Points calculation method you want to use. Values: standard|fibonacci|demark",

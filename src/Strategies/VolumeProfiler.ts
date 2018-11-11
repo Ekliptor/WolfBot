@@ -46,7 +46,7 @@ export default class VolumeProfiler extends TechnicalStrategy {
         if (typeof this.action.valueAreaPercent !== "number")
             this.action.valueAreaPercent = 70.0;
         if (typeof this.action.minVolumeSpike !== "number")
-            this.action.minVolumeSpike = 1.8;
+            this.action.minVolumeSpike = 1.1;
         if (typeof this.action.tradeMode !== "string")
             this.action.tradeMode = "resistance";
         if (typeof this.action.minVolumeSpikeBreakout !== "number")
@@ -118,7 +118,7 @@ export default class VolumeProfiler extends TechnicalStrategy {
         if (highestVolumeBar.isBelowPrice(this.candle.close) === true && highestVolumeBar.isBelowPrice(this.candleHistory[1].close) === false) {
             // we just got below the price of the highest volume bar
             if (this.isSufficientVolume() === false)
-                this.log("Insufficient volume to trade below highest volume price on volume profile +" + this.getVolumeStr());
+                this.log("Insufficient volume to trade below highest volume price on volume profile " + this.getVolumeStr());
             else if (this.action.tradeMode === "breakout")
                 this.tradeWithTrend(highestVolumeBar);
             else if (this.action.tradeMode === "resistance")
@@ -134,7 +134,7 @@ export default class VolumeProfiler extends TechnicalStrategy {
         else if (highestVolumeBar.isAbovePrice(this.candle.close) === true && highestVolumeBar.isAbovePrice(this.candleHistory[1].close) === false) {
             // we just got above the price of the highest volume bar
             if (this.isSufficientVolume() === false)
-                this.log("Insufficient volume to trade above highest volume price on volume profile +" + this.getVolumeStr());
+                this.log("Insufficient volume to trade above highest volume price on volume profile " + this.getVolumeStr());
             else if (this.action.tradeMode === "breakout")
                 this.tradeWithTrend(highestVolumeBar);
             else if (this.action.tradeMode === "resistance")

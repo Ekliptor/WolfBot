@@ -30,7 +30,7 @@ export class VolumeProfileBar {
         return barObjects;
     }
     public isPriceWithinRange(price: number) {
-        return this.priceZoneLow >= price && this.priceZoneHigh < price;
+        return this.priceZoneLow <= price && this.priceZoneHigh > price;
     }
     public isBelowPrice(price: number) {
         return this.priceZoneHigh < price; // or use low?
@@ -56,6 +56,9 @@ export class ValueArea {
     public valueAreaHigh: number = 0.0; // the highest price within the valueArea
     public valueAreaLow: number = Number.MAX_VALUE;
     constructor() {
+    }
+    public isPriceWithinArea(price: number) {
+        return this.valueAreaLow <= price && this.valueAreaHigh > price;
     }
     public updateAreaHighLow(bar: VolumeProfileBar) {
         if (this.valueAreaHigh < bar.priceZoneHigh)
