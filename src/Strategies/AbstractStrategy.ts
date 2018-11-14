@@ -27,6 +27,7 @@ export class ScheduledTrade {
     reason: string;
     fromClass: string; // the emitting strategy
     exchange: Currency.Exchange; // the exchange to trade on
+    created: Date;
 
     // cached values from the emitting strategy
     getOrderAmount: (tradeTotalBtc: number, leverage: number) => number;
@@ -42,6 +43,7 @@ export class ScheduledTrade {
         this.reason = reason;
         this.fromClass = fromClass;
         this.exchange = exchange;
+        this.created = new Date(); // only fallback value, better manually set marketTime
     }
 
     public bindEmittingStrategyFunctions(strategy: AbstractStrategy) {

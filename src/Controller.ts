@@ -445,7 +445,7 @@ export class Controller extends AbstractController { // TODO implement graceful 
                 status.prices = (await this.socialController.getPriceData(status.social)).toObject();
         }
         // TODO isRunning ooesn't get set to true sometimes. why?
-        if (process.uptime() > 12.0 && /*this.isRunning === true && */(
+        if (process.uptime() > 16.0 && /*this.isRunning === true && */(
             status.strategyInfos !== null || status.social !== null || status.prices !== null)) // add more checks if we use different features later
             status.ready = true;
         return {data: status}

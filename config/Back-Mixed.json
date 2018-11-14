@@ -6,12 +6,14 @@
       "tradeTotalBtc": 200.0,
       "warmUpMin": 0,
       "strategies": {
-        "PingPong": {
+        "BollingerBouncer": {
           "interval": 48,
           "volumeRows": 24,
-          "valueAreaPercent": 70.0,
-          "minVolumeSpike": 1.1,
-          "percentBThreshold": 0.01,
+          "valueAreaPercent": 85.0,
+          "waitEntrySec": 900,
+          "clearTradeTicks": 8,
+          "minVolumeSpike": 0.5,
+          "percentBThreshold": 0.04,
           "trailingStopPerc": 0.05,
           "N": 20,
           "K": 2,

@@ -830,16 +830,20 @@
           "high": 55,
           "enableLog": false
         },
-        "DirectionFollower": {
-          "interval": 14,
-          "adxTrend": 20,
-          "adxMaxTrend": 32,
-          "initialStop": true,
-          "accelerationFactor": 0.06,
-          "accelerationMax": 0.2,
-          "tradeDirection": "watch",
-          "candleSize": 240,
+        "BollingerBouncer": {
+          "interval": 48,
+          "volumeRows": 24,
+          "valueAreaPercent": 85.0,
+          "waitEntrySec": 900,
+          "clearTradeTicks": 8,
+          "minVolumeSpike": 0.5,
+          "percentBThreshold": 0.04,
+          "trailingStopPerc": 0.05,
+          "N": 20,
+          "K": 2,
+          "MAType": 0,
           "pair": "USD_IOTA",
+          "candleSize": 60,
           "tradeStrategy": "RSIScalpOrderer",
           "enableLog": true
         },
@@ -980,12 +984,14 @@
           "high": 55,
           "enableLog": false
         },
-        "PingPong": {
+        "BollingerBouncer": {
           "interval": 48,
           "volumeRows": 24,
-          "valueAreaPercent": 70.0,
-          "minVolumeSpike": 1.1,
-          "percentBThreshold": 0.01,
+          "valueAreaPercent": 85.0,
+          "waitEntrySec": 900,
+          "clearTradeTicks": 8,
+          "minVolumeSpike": 0.5,
+          "percentBThreshold": 0.04,
           "trailingStopPerc": 0.05,
           "N": 20,
           "K": 2,
@@ -1562,12 +1568,14 @@
           "high": 55,
           "enableLog": false
         },
-        "PingPong": {
+        "BollingerBouncer": {
           "interval": 48,
           "volumeRows": 24,
-          "valueAreaPercent": 70.0,
-          "minVolumeSpike": 1.1,
-          "percentBThreshold": 0.01,
+          "valueAreaPercent": 85.0,
+          "waitEntrySec": 900,
+          "clearTradeTicks": 8,
+          "minVolumeSpike": 0.5,
+          "percentBThreshold": 0.04,
           "trailingStopPerc": 0.05,
           "N": 20,
           "K": 2,

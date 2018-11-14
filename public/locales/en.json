@@ -614,6 +614,17 @@
       "breakout": "optional, default 0 - The number of candles the price has to stay at the upper/lower band to assume a breakout.",
       "percentBThreshold": "optional, default 0.01 - A number indicating how close to %b the price has to be to consider it 'reached'."
     },
+    "BollingerBouncer": {
+      "desc": "Strategy that sells on the upper Bollinger Band and buys on the lower band. Our assumption is that the price will always jump between the upper and lower band (as in a sideways market). This strategy only trades within the value area of the volume profile, which is when price is within the range where 70% of trades take place using default settings. Additionally the current candle volume must be 'minVolumeSpike' above average (SMA) of the latest 'interval' candles. This strategy waits with the market entry until 'waitEntrySec' has passed and keeps track of the last buy/sell prices to ensure it doesn't trade a a loss in prolonged sideways markets.<br>See PingPing strategy for a simpler version which doesn't keep track of the last buy/sell prices.",
+      "interval": "optional, default 48. The number of candles to compute the volume profile and average volume from.",
+      "volumeRows": "optional default 24. The number of equally-sized price zones the price range is divided into.",
+      "valueAreaPercent": "optional, default 70%. The percentage of the total volume that shall make up the value area, meaning the price range where x% of the trades happen.",
+      "waitEntrySec": "optional, default 300. How many seconds price has to stay at or outside the Bollinger Bands before opening a trade.",
+      "clearTradeTicks": "optional, default 8. After how many candles a previous buy/sell trade shall be removed, allowing to trade at a possibly worse price again.",
+      "minVolumeSpike": "optional, default 1.1. The min volume compared to the average volume of the last 'interval' candles to open a position.",
+      "percentBThreshold": "optional, default 0.01 - A number indicating how close to %b the price has to be to consider it 'reached'.",
+      "trailingStopPerc": "optional, default 0.05% ( 0 = disabled) - The trailing stop percentage that will be placed after the opposite Bollinger Band has been reached."
+    },
     "BollingerBreakouts": {
       "desc": "Strategy that emits buy/sell based on the Bollinger Bands indicator. Our assumption is that the price will always jump between the upper and lower band (as in a sideways market). Consequently, at the upper we sell and at the lower band we buy. If the price stays at the upper/lower band for 'breakout' candles, we assume this breakout will continue. Additionally we use the Aroon indicator to assume a breakout if up/down is at 100. In that case we wait (don't trade based on Bollinger) and trade based on Aroon if it stays at 100 for 'breakout' candles.",
       "breakout": "optional, default 0 - The number of candles the price has to stay at the upper/lower band to assume a breakout.",
@@ -841,7 +852,7 @@
       "closeLossEarly": "optional, default true - Close positions at a loss after takeProfitTicks too."
     },
     "PingPong": {
-      "desc": "Strategy that sells on the upper Bollinger Band and buys on the lower band. Our assumption is that the price will always jump between the upper and lower band (as in a sideways market). This strategy only trades within the value area of the volume profile, which is when price is within the range where 70% of trades take place using default settings. Additionally the current candle volume must be 'minVolumeSpike' above average (SMA) of the latest 'interval' candles.<br>This strategy only opens positions. You need a stop-loss and/or take profit strategy.",
+      "desc": "Strategy that sells on the upper Bollinger Band and buys on the lower band. Our assumption is that the price will always jump between the upper and lower band (as in a sideways market). This strategy only trades within the value area of the volume profile, which is when price is within the range where 70% of trades take place using default settings. Additionally the current candle volume must be 'minVolumeSpike' above average (SMA) of the latest 'interval' candles.",
       "interval": "optional, default 48. The number of candles to compute the volume profile and average volume from.",
       "volumeRows": "optional default 24. The number of equally-sized price zones the price range is divided into.",
       "valueAreaPercent": "optional, default 70%. The percentage of the total volume that shall make up the value area, meaning the price range where x% of the trades happen.",

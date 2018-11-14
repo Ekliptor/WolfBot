@@ -720,7 +720,7 @@ export default class Backtester extends PortfolioTrader {
             orderID = orderID.toString();
         if (amountBtc < 0)
             amountBtc *= -1; // only store positive values to make refunds easier
-        this.pendingOrders.set(orderID, amountBtc);
+        this.pendingOrders.set(orderID, amountBtc); // we currently don't delete entries here, but order numbers are unique
     }
 
     protected refundOrder(submittedOrder: Order.Order, exchange: AbstractExchange) {

@@ -1,7 +1,7 @@
 import * as utils from "@ekliptor/apputils";
 const logger = utils.logger
     , nconf = utils.nconf;
-import {AbstractStrategy, StrategyAction, TradeAction} from "./AbstractStrategy";
+import {AbstractStrategy, ScheduledTrade, StrategyAction, TradeAction} from "./AbstractStrategy";
 import {TechnicalStrategy, TechnicalStrategyAction} from "./TechnicalStrategy";
 import {AbstractIndicator, TrendDirection} from "../Indicators/AbstractIndicator";
 import {Currency, Trade, Candle} from "@ekliptor/bit-models";
@@ -10,11 +10,13 @@ import * as Order from "@ekliptor/bit-models/build/models/Order";
 import {TradeInfo} from "../Trade/AbstractTrader";
 import {MarginPosition} from "../structs/MarginPosition";
 
-interface PingPongAction extends TechnicalStrategyAction {
+interface BollingerBouncerAction extends TechnicalStrategyAction {
     // optional, Volume profile params
     interval: number; // default 48. The number of candles to compute the volume profile and average volume from.
     volumeRows: number; // default 24. The number of equally-sized price zones the price range is divided into.
     valueAreaPercent: number; // default 70%. The percentage of the total volume that shall make up the value area, meaning the price range where x% of the trades happen.
+    waitEntrySec: number; // default 300. How many seconds price has to stay at or outside the Bollinger Bands before opening a trade.
+    clearTradeTicks: number; // default 8. After how many candles a previous buy/sell trade shall be removed, allowing to trade at a possibly worse price again.
 
     minVolumeSpike: number; // default 1.1. The min volume compared to the average volume of the last 'interval' candles to open a position.
     percentBThreshold: number; // 0.01, optional, A number indicating how close to %b the price has to be to consider it "reached".
@@ -26,16 +28,34 @@ interface PingPongAction extends TechnicalStrategyAction {
     MAType: number; // The moving average type of BollingerBands. 0 = SMA
 }
 
+class LastTradePoint {
+    public rate: number = -1;
+    public pastCandles: number = 0; // how many candles ago this trade was, starting with 0 = current candle
+    constructor(rate: number) {
+        this.rate = rate;
+    }
+    public toString() {
+        return utils.sprintf("rate %s, past candle count %s", this.rate.toFixed(8), this.pastCandles);
+    }
+}
+
 /**
  * Strategy that sells on the upper Bollinger Band and buys on the lower band.
  * Our assumption is that the price will always jump between the upper and lower band (as in a sideways market).
  * This strategy only trades within the value area of the volume profile, which is when price is within the range where 70% of
  * trades take place using default settings. Additionally the current candle volume must be 'minVolumeSpike' above average (SMA) of
  * the latest 'interval' candles.
+ * This strategy waits with the market entry until 'waitEntrySec' has passed and keeps track of the last buy/sell prices
+ * to ensure it doesn't trade a a loss in prolonged sideways markets.
+ * See PingPing strategy for a simpler version which doesn't keep track of the last buy/sell prices.
+ * ideas from https://medium.com/bitfinex/ping-pong-a-new-hf-algorithmic-order-dcc844950a25
  */
-export default class PingPong extends TechnicalStrategy {
-    public action: PingPongAction;
+export default class BollingerBouncer extends TechnicalStrategy {
+    public action: BollingerBouncerAction;
     protected trailingStopPrice: number = -1;
+    protected lastBuy: LastTradePoint = null;
+    protected lastSell: LastTradePoint = null;
+    //protected pendingOpenPositionTrade: ScheduledTrade = null; // use pendingOrder
 
     constructor(options) {
         super(options)
@@ -45,6 +65,10 @@ export default class PingPong extends TechnicalStrategy {
             this.action.volumeRows = 24;
         if (typeof this.action.valueAreaPercent !== "number")
             this.action.valueAreaPercent = 70.0;
+        if (typeof this.action.waitEntrySec !== "number")
+            this.action.waitEntrySec = 300;
+        if (typeof this.action.clearTradeTicks !== "number")
+            this.action.clearTradeTicks = 8;
         if (typeof this.action.minVolumeSpike !== "number")
             this.action.minVolumeSpike = 1.1;
         if (!this.action.percentBThreshold)
@@ -115,6 +139,12 @@ export default class PingPong extends TechnicalStrategy {
         this.addInfoFunction("stop", () => {
             return this.getStopPrice();
         });
+        this.addInfoFunction("lastBuy", () => {
+            return this.lastBuy === null ? "" : this.lastBuy.toString();
+        });
+        this.addInfoFunction("lastSell", () => {
+            return this.lastSell === null ? "" : this.lastSell.toString();
+        });
 
         this.saveState = true;
         this.mainStrategy = true;
@@ -137,12 +167,18 @@ export default class PingPong extends TechnicalStrategy {
     public serialize() {
         let state = super.serialize();
         state.trailingStopPrice = this.trailingStopPrice;
+        state.lastBuy = this.lastBuy;
+        state.lastSell = this.lastSell;
         return state;
     }
 
     public unserialize(state: any) {
         super.unserialize(state);
         this.trailingStopPrice = state.trailingStopPrice;
+        if (state.lastBuy)
+            this.lastBuy = Object.assign(new LastTradePoint(state.lastBuy.rate), state.lastBuy);
+        if (state.lastSell)
+            this.lastSell = Object.assign(new LastTradePoint(state.lastSell.rate), state.lastSell);
     }
 
     // ################################################################
@@ -153,7 +189,9 @@ export default class PingPong extends TechnicalStrategy {
             //if (this.done)
                 //return resolve();
 
-            if (this.strategyPosition !== "none") {
+            if (this.pendingOrder !== null)
+                this.checkDelayedMarketEntry();
+            else if (this.strategyPosition !== "none") {
                 if (this.trailingStopPrice !== -1)
                     this.updateStop();
                 if (this.action.order === "sell" || this.action.order === "closeLong")
@@ -174,6 +212,7 @@ export default class PingPong extends TechnicalStrategy {
         const value = bollinger.getPercentB(this.candle.close);
         const volumeProfile = this.getVolumeProfile("VolumeProfile");
         //const averageVolume = this.getVolume("AverageVolume");
+        this.incrementLastTradeHistory();
 
         if (value === Number.POSITIVE_INFINITY || value === Number.NEGATIVE_INFINITY) {
             this.log("fast moving market (consider increasing candleSize), no trend detected, percent b value", value)
@@ -194,14 +233,51 @@ export default class PingPong extends TechnicalStrategy {
             this.log("Insufficient volume (relative to avg) to trade " + this.getVolumeStr());
         else if (value >= 1 - this.action.percentBThreshold) {
             this.log("reached upper band, DOWN trend imminent, value", value)
-            this.emitSell(this.defaultWeight, "percent b value: " + value);
+            //this.emitSell(this.defaultWeight, "percent b value: " + value);
+            this.pendingOrder = new ScheduledTrade("sell", this.defaultWeight, "percent b value: " + value, this.className);
+            this.pendingOrder.created = this.marketTime;
         }
         else if (value <= this.action.percentBThreshold) {
             this.log("reached lower band, UP trend imminent, value", value)
-            this.emitBuy(this.defaultWeight, "percent b value: " + value);
+            this.pendingOrder = new ScheduledTrade("buy", this.defaultWeight, "percent b value: " + value, this.className);
+            this.pendingOrder.created = this.marketTime;
         }
         else {
             this.log("no trend detected, percent b value", value.toFixed(8))
+        }
+    }
+
+    protected checkDelayedMarketEntry() {
+        if (this.pendingOrder.created.getTime() + this.action.waitEntrySec*1000 > this.marketTime.getTime())
+            return;
+        const bollinger = this.getBollinger("BollingerBands");
+        const value = bollinger.getPercentB(this.avgMarketPrice);
+        // here we don't trade if the price is too far outside of Bollinger Bands
+        if (this.pendingOrder.action === "buy" && value <= this.action.percentBThreshold && value >= 0 - this.action.percentBThreshold)
+            this.executeTrade(this.pendingOrder);
+        else if (this.pendingOrder.action === "sell" && value >= 1 - this.action.percentBThreshold && value <= 1 + this.action.percentBThreshold)
+            this.executeTrade(this.pendingOrder);
+        else {
+            this.log(utils.sprintf("Price %s is not close enough to Bollinger Bands anymore, percentB %s - cancelling scheduled order",
+                this.avgMarketPrice.toFixed(8), value.toFixed(8)));
+        }
+        this.pendingOrder = null;
+    }
+
+    protected incrementLastTradeHistory() {
+        if (this.lastBuy !== null) {
+            this.lastBuy.pastCandles++;
+            if (this.lastBuy.pastCandles >= this.action.clearTradeTicks) {
+                this.log(utils.sprintf("Last buy at %s expired after %s candle ticks", this.lastBuy.rate.toFixed(8), this.lastBuy.pastCandles));
+                this.lastBuy = null;
+            }
+        }
+        if (this.lastSell !== null) {
+            this.lastSell.pastCandles++;
+            if (this.lastSell.pastCandles >= this.action.clearTradeTicks) {
+                this.log(utils.sprintf("Last sell at %s expired after %s candle ticks", this.lastSell.rate.toFixed(8), this.lastSell.pastCandles));
+                this.lastSell = null;
+            }
         }
     }
 
