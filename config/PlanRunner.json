@@ -12,7 +12,7 @@
               "action": "buy",
               "comp": "<",
               "position": "none",
-              "rate": 6090.9,
+              "rate": 5000.9,
               "reason": "middle high",
               "indicators": ["RSI"]
             },
@@ -20,7 +20,7 @@
               "action": "sell",
               "comp": ">",
               "position": "none",
-              "rate": 7740.9,
+              "rate": 6810.9,
               "reason": "middle high",
               "indicators": ["RSI"]
             }
@@ -74,7 +74,7 @@
           "enableLog": false
         },
         "RSIScalper": {
-          "percentage": 50,
+          "percentage": 20,
           "low": 25,
           "high": 75,
           "candleSize": 10,
@@ -182,7 +182,7 @@
               "action": "buy",
               "comp": "<",
               "position": "none",
-              "rate": 84.1,
+              "rate": 28.1,
               "reason": "middle high",
               "indicators": ["RSI"]
             },
@@ -190,7 +190,7 @@
               "action": "sell",
               "comp": ">",
               "position": "none",
-                "rate": 98.6,
+                "rate": 49.6,
               "reason": "middle high",
               "indicators": ["RSI"]
             }
@@ -243,7 +243,7 @@
           "enableLog": false
         },
         "RSIScalper": {
-          "percentage": 50,
+          "percentage": 20,
           "low": 25,
           "high": 75,
           "candleSize": 10,
@@ -342,7 +342,7 @@
     {
       "exchanges": ["Bitfinex"],
       "marginTrading": true,
-      "tradeTotalBtc": 140.0,
+      "tradeTotalBtc": 0.0,
       "notifyTrades": true,
       "strategies": {
         "PlanRunner": {
@@ -351,7 +351,7 @@
               "action": "buy",
               "comp": "<",
               "position": "none",
-              "rate": 450.9,
+              "rate": 155.9,
               "reason": "middle high",
               "indicators": ["RSI"]
             },
@@ -359,7 +359,7 @@
               "action": "sell",
               "comp": ">",
               "position": "none",
-              "rate": 598.9,
+              "rate": 229.9,
               "reason": "middle high",
               "indicators": ["RSI"]
             }
@@ -412,7 +412,7 @@
           "enableLog": false
         },
         "RSIScalper": {
-          "percentage": 50,
+          "percentage": 20,
           "low": 25,
           "high": 75,
           "candleSize": 10,
@@ -520,7 +520,7 @@
               "action": "buy",
               "comp": "<",
               "position": "none",
-              "rate": 115.9,
+              "rate": 85.9,
               "reason": "middle high",
               "indicators": ["RSI"]
             },
@@ -528,7 +528,7 @@
               "action": "sell",
               "comp": ">",
               "position": "none",
-              "rate": 158.19,
+              "rate": 129.19,
               "reason": "middle high",
               "indicators": ["RSI"]
             }
@@ -560,7 +560,7 @@
           "enableLog": true
         },
         "RSIScalper": {
-          "percentage": 50,
+          "percentage": 20,
           "low": 25,
           "high": 75,
           "candleSize": 10,
@@ -666,7 +666,7 @@
               "action": "buy",
               "comp": "<",
               "position": "none",
-              "rate": 240.9,
+              "rate": 138.9,
               "reason": "middle high",
               "indicators": ["RSI"]
             },
@@ -674,7 +674,7 @@
               "action": "sell",
               "comp": ">",
               "position": "none",
-              "rate": 305.1,
+              "rate": 221.1,
               "reason": "middle high",
               "indicators": ["RSI"]
             }
@@ -706,7 +706,7 @@
           "enableLog": true
         },
         "RSIScalper": {
-          "percentage": 50,
+          "percentage": 20,
           "low": 25,
           "high": 75,
           "candleSize": 10,
@@ -812,7 +812,7 @@
               "action": "buy",
               "comp": "<",
               "position": "none",
-              "rate": 1.03,
+              "rate": 0.28989,
               "reason": "middle high",
               "indicators": ["RSI"]
             }
@@ -848,7 +848,7 @@
           "enableLog": true
         },
         "RSIScalper": {
-          "percentage": 50,
+          "percentage": 20,
           "low": 25,
           "high": 75,
           "candleSize": 10,
@@ -956,7 +956,7 @@
               "action": "buy",
               "comp": "<",
               "position": "none",
-              "rate": 190.9,
+              "rate": 81.9,
               "reason": "middle high",
               "indicators": ["RSI"]
             },
@@ -964,7 +964,7 @@
               "action": "sell",
               "comp": ">",
               "position": "none",
-              "rate": 227.9,
+              "rate": 146.9,
               "reason": "middle high",
               "indicators": [
                 "RSI"
@@ -1002,7 +1002,7 @@
           "enableLog": true
         },
         "RSIScalper": {
-          "percentage": 50,
+          "percentage": 20,
           "low": 25,
           "high": 75,
           "candleSize": 10,
@@ -1099,7 +1099,7 @@
     {
       "exchanges": ["Bitfinex"],
       "marginTrading": true,
-      "tradeTotalBtc": 150.0,
+      "tradeTotalBtc": 0.0,
       "notifyTrades": true,
       "strategies": {
         "PlanRunner": {
@@ -1108,7 +1108,7 @@
               "action": "buy",
               "comp": "<",
               "position": "none",
-              "rate": 797.9,
+              "rate": 410.9,
               "reason": "middle high",
               "indicators": ["RSI"]
             }
@@ -1140,7 +1140,7 @@
           "enableLog": true
         },
         "RSIScalper": {
-          "percentage": 50,
+          "percentage": 20,
           "low": 25,
           "high": 75,
           "candleSize": 10,
@@ -1248,7 +1248,7 @@
               "action": "buy",
               "comp": "<",
               "position": "none",
-              "rate": 7.21,
+              "rate": 2.021,
               "reason": "middle high",
               "indicators": ["RSI"]
             },
@@ -1256,7 +1256,7 @@
               "action": "sell",
               "comp": ">",
               "position": "none",
-              "rate": 8.9,
+              "rate": 3.79,
               "reason": "middle high",
               "indicators": ["RSI"]
             }
@@ -1288,7 +1288,7 @@
           "enableLog": true
         },
         "RSIScalper": {
-          "percentage": 50,
+          "percentage": 20,
           "low": 25,
           "high": 75,
           "candleSize": 10,
@@ -1394,7 +1394,7 @@
               "action": "buy",
               "comp": "<",
               "position": "none",
-              "rate": 33.99,
+              "rate": 11.799,
               "reason": "middle high",
               "indicators": ["RSI"]
             },
@@ -1402,7 +1402,7 @@
               "action": "sell",
               "comp": ">",
               "position": "none",
-              "rate": 52.4,
+              "rate": 21.4,
               "reason": "middle high",
               "indicators": ["RSI"]
             }
@@ -1434,7 +1434,7 @@
           "enableLog": true
         },
         "RSIScalper": {
-          "percentage": 50,
+          "percentage": 20,
           "low": 25,
           "high": 75,
           "candleSize": 10,
@@ -1542,7 +1542,7 @@
               "action": "buy",
               "comp": "<",
               "position": "none",
-              "rate": 7.99,
+              "rate": 3.3899,
               "reason": "middle high",
               "indicators": ["RSI"]
             },
@@ -1550,7 +1550,7 @@
               "action": "sell",
               "comp": ">",
               "position": "none",
-              "rate": 10.2,
+              "rate": 6.02,
               "reason": "middle high",
               "indicators": ["RSI"]
             }
@@ -1586,7 +1586,7 @@
           "enableLog": true
         },
         "RSIScalper": {
-          "percentage": 50,
+          "percentage": 20,
           "low": 25,
           "high": 75,
           "candleSize": 10,
@@ -1694,7 +1694,7 @@
               "action": "buy",
               "comp": "<",
               "position": "none",
-              "rate": 0.481,
+              "rate": 0.27,
               "reason": "middle high",
               "indicators": ["RSI"]
             },
@@ -1702,7 +1702,7 @@
               "action": "sell",
               "comp": ">",
               "position": "none",
-              "rate": 0.538,
+              "rate": 0.558,
               "reason": "middle high",
               "indicators": ["RSI"]
             }
@@ -1734,7 +1734,7 @@
           "enableLog": true
         },
         "RSIScalper": {
-          "percentage": 50,
+          "percentage": 20,
           "low": 25,
           "high": 75,
           "candleSize": 10,
@@ -1842,7 +1842,7 @@
               "action": "buy",
               "comp": "<",
               "position": "none",
-              "rate": 0.601,
+              "rate": 0.40,
               "reason": "middle high",
               "indicators": ["RSI"]
             },
@@ -1850,7 +1850,7 @@
               "action": "sell",
               "comp": ">",
               "position": "none",
-              "rate": 1.18,
+              "rate": 0.93,
               "reason": "middle high",
               "indicators": ["RSI"]
             }
@@ -1882,7 +1882,7 @@
           "enableLog": true
         },
         "RSIScalper": {
-          "percentage": 50,
+          "percentage": 20,
           "low": 25,
           "high": 75,
           "candleSize": 10,

@@ -256,14 +256,18 @@ export default class BollingerBouncer extends TechnicalStrategy {
         if (this.pendingOrder.action === "buy" && value <= this.action.percentBThreshold && value >= 0 - this.action.percentBThreshold) {
             if (this.lastBuy && this.lastBuy.rate < this.avgMarketPrice)
                 this.log(utils.sprintf("Skipping BUY because last last buy price was lower: %s < %s", this.lastBuy.rate.toFixed(8), this.avgMarketPrice.toFixed(8)));
-            else
+            else {
+                this.log(utils.sprintf("percentB value at buy time %s", value.toFixed(8)));
                 this.executeTrade(this.pendingOrder);
+            }
         }
         else if (this.pendingOrder.action === "sell" && value >= 1 - this.action.percentBThreshold && value <= 1 + this.action.percentBThreshold) {
             if (this.lastSell && this.lastSell.rate > this.avgMarketPrice)
                 this.log(utils.sprintf("Skipping SELL because last last sell price was higher: %s > %s", this.lastSell.rate.toFixed(8), this.avgMarketPrice.toFixed(8)));
-            else
+            else {
+                this.log(utils.sprintf("percentB value at sell time %s", value.toFixed(8)));
                 this.executeTrade(this.pendingOrder);
+            }
         }
         else {
             this.log(utils.sprintf("Price %s is not close enough to Bollinger Bands anymore, percentB %s - cancelling scheduled order",

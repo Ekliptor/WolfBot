@@ -49,6 +49,8 @@ export class BitfinexCurrencies implements Currency.ExchangeCurrencies, Currency
             return "mna";
         else if (localCurrencyName === "SPANK")
             return "spk";
+        if (localCurrencyName === "BCH")
+            return "bab";
         return localCurrencyName.toLowerCase();
     }
     public getLocalName(exchangeCurrencyName: string): string {
@@ -63,6 +65,8 @@ export class BitfinexCurrencies implements Currency.ExchangeCurrencies, Currency
             return "MANA";
         else if (exNameLower === "spk")
             return "SPANK";
+        else if (exNameLower === "bab")
+            return "BCH";
         return exNameLower.toUpperCase();
     }
 

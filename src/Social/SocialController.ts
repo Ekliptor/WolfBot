@@ -319,8 +319,12 @@ export class SocialController extends AbstractAdvisor {
                         continue;
                     // extrapolate today's posts to 24h to notice a trend sooner
                     let todayPostsExtrapolated = Math.floor(todayPosts / nowH * 24);
-                    if (todayPostsExtrapolated >= yesterdayPosts * nconf.get('serverConfig:postTodayIncreaseFactor'))
-                        this.sendSocialSpikeNotification(networkStr, currencyStr, yesterdayPosts, todayPosts, todayPostsExtrapolated);
+                    if (todayPostsExtrapolated >= yesterdayPosts * nconf.get('serverConfig:postTodayIncreaseFactor')) {
+                        if (nowH < nconf.get("serverConfig:startExtrapolateMessageH"))
+                            logger.info("Early social post spike: %s - %s, posts yesterday %s, today %s, extrapolated %s", networkStr, currencyStr, yesterdayPosts, todayPosts, todayPostsExtrapolated)
+                        else
+                            this.sendSocialSpikeNotification(networkStr, currencyStr, yesterdayPosts, todayPosts, todayPostsExtrapolated);
+                    }
                 }
             }
         }).catch((err) => {
