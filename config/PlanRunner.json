@@ -12,7 +12,7 @@
               "action": "buy",
               "comp": "<",
               "position": "none",
-              "rate": 5000.9,
+              "rate": 4000.9,
               "reason": "middle high",
               "indicators": ["RSI"]
             },
@@ -53,7 +53,6 @@
           "enableLog": true
         },
         "VolumeProfiler": {
-          "divergenceIndicator": "RSI",
           "interval": 48,
           "volumeRows": 24,
           "valueAreaPercent": 70.0,
@@ -85,7 +84,7 @@
           "low": 34,
           "high": 70,
           "expiry": 20,
-          "candleSize": 5,
+          "candleSize": 3,
           "pair": "USD_BTC",
           "enableLog": true
         },
@@ -222,7 +221,6 @@
           "enableLog": true
         },
         "VolumeProfiler": {
-          "divergenceIndicator": "RSI",
           "interval": 48,
           "volumeRows": 24,
           "valueAreaPercent": 70.0,
@@ -254,7 +252,7 @@
           "low": 34,
           "high": 70,
           "expiry": 20,
-          "candleSize": 5,
+          "candleSize": 3,
           "pair": "USD_LTC",
           "enableLog": true
         },
@@ -391,7 +389,6 @@
           "enableLog": true
         },
         "VolumeProfiler": {
-          "divergenceIndicator": "RSI",
           "interval": 48,
           "volumeRows": 24,
           "valueAreaPercent": 70.0,
@@ -423,7 +420,7 @@
           "low": 34,
           "high": 70,
           "expiry": 20,
-          "candleSize": 5,
+          "candleSize": 3,
           "pair": "USD_ETH",
           "enableLog": true
         },
@@ -520,7 +517,7 @@
               "action": "buy",
               "comp": "<",
               "position": "none",
-              "rate": 85.9,
+              "rate": 68.79,
               "reason": "middle high",
               "indicators": ["RSI"]
             },
@@ -571,7 +568,7 @@
           "low": 34,
           "high": 70,
           "expiry": 20,
-          "candleSize": 5,
+          "candleSize": 3,
           "pair": "USD_XMR",
           "enableLog": true
         },
@@ -657,7 +654,7 @@
     {
       "exchanges": ["Bitfinex"],
       "marginTrading": true,
-      "tradeTotalBtc": 120.0,
+      "tradeTotalBtc": 104.2,
       "notifyTrades": true,
       "strategies": {
         "PlanRunner": {
@@ -666,7 +663,7 @@
               "action": "buy",
               "comp": "<",
               "position": "none",
-              "rate": 138.9,
+              "rate": 85.9,
               "reason": "middle high",
               "indicators": ["RSI"]
             },
@@ -717,7 +714,7 @@
           "low": 34,
           "high": 70,
           "expiry": 20,
-          "candleSize": 5,
+          "candleSize": 3,
           "pair": "USD_DASH",
           "enableLog": true
         },
@@ -812,7 +809,7 @@
               "action": "buy",
               "comp": "<",
               "position": "none",
-              "rate": 0.28989,
+              "rate": 0.3082,
               "reason": "middle high",
               "indicators": ["RSI"]
             }
@@ -859,7 +856,7 @@
           "low": 34,
           "high": 70,
           "expiry": 20,
-          "candleSize": 5,
+          "candleSize": 3,
           "pair": "USD_IOTA",
           "enableLog": true
         },
@@ -956,7 +953,7 @@
               "action": "buy",
               "comp": "<",
               "position": "none",
-              "rate": 81.9,
+              "rate": 78.9,
               "reason": "middle high",
               "indicators": ["RSI"]
             },
@@ -1013,7 +1010,7 @@
           "low": 34,
           "high": 70,
           "expiry": 20,
-          "candleSize": 5,
+          "candleSize": 3,
           "pair": "USD_ZEC",
           "enableLog": true
         },
@@ -1151,7 +1148,7 @@
           "low": 34,
           "high": 70,
           "expiry": 20,
-          "candleSize": 5,
+          "candleSize": 3,
           "pair": "USD_BCH",
           "enableLog": true
         },
@@ -1248,7 +1245,7 @@
               "action": "buy",
               "comp": "<",
               "position": "none",
-              "rate": 2.021,
+              "rate": 1.88,
               "reason": "middle high",
               "indicators": ["RSI"]
             },
@@ -1274,16 +1271,20 @@
           "high": 55,
           "enableLog": false
         },
-        "DirectionFollower": {
-          "interval": 14,
-          "adxTrend": 20,
-          "adxMaxTrend": 32,
-          "initialStop": true,
-          "accelerationFactor": 0.06,
-          "accelerationMax": 0.2,
-          "tradeDirection": "watch",
-          "candleSize": 240,
+        "BollingerBouncer": {
+          "interval": 48,
+          "volumeRows": 24,
+          "valueAreaPercent": 85.0,
+          "waitEntrySec": 900,
+          "clearTradeTicks": 8,
+          "minVolumeSpike": 0.5,
+          "percentBThreshold": 0.04,
+          "trailingStopPerc": 0.05,
+          "N": 20,
+          "K": 2,
+          "MAType": 0,
           "pair": "USD_OMG",
+          "candleSize": 60,
           "tradeStrategy": "RSIScalpOrderer",
           "enableLog": true
         },
@@ -1299,7 +1300,7 @@
           "low": 34,
           "high": 70,
           "expiry": 20,
-          "candleSize": 5,
+          "candleSize": 3,
           "pair": "USD_OMG",
           "enableLog": true
         },
@@ -1394,7 +1395,7 @@
               "action": "buy",
               "comp": "<",
               "position": "none",
-              "rate": 11.799,
+              "rate": 8.579,
               "reason": "middle high",
               "indicators": ["RSI"]
             },
@@ -1445,7 +1446,7 @@
           "low": 34,
           "high": 70,
           "expiry": 20,
-          "candleSize": 5,
+          "candleSize": 3,
           "pair": "USD_NEO",
           "enableLog": true
         },
@@ -1597,7 +1598,7 @@
           "low": 34,
           "high": 70,
           "expiry": 20,
-          "candleSize": 5,
+          "candleSize": 3,
           "pair": "USD_EOS",
           "enableLog": true
         },
@@ -1745,7 +1746,7 @@
           "low": 34,
           "high": 70,
           "expiry": 20,
-          "candleSize": 5,
+          "candleSize": 3,
           "pair": "USD_XRP",
           "enableLog": true
         },
@@ -1842,7 +1843,7 @@
               "action": "buy",
               "comp": "<",
               "position": "none",
-              "rate": 0.40,
+              "rate": 0.38,
               "reason": "middle high",
               "indicators": ["RSI"]
             },
@@ -1893,7 +1894,7 @@
           "low": 34,
           "high": 70,
           "expiry": 20,
-          "candleSize": 5,
+          "candleSize": 3,
           "pair": "USD_ZRX",
           "enableLog": true
         },

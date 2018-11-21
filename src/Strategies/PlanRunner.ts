@@ -51,6 +51,7 @@ export default class PlanRunner extends /*AbstractTurnStrategy*/TechnicalStrateg
     protected executedOrders: string[] = [];
     protected executingOrder: PlanRunnerOrder = null;
     protected nextResetExecutedOrders: Date = null;
+    protected lastLoggedPriceRangeExpired = new Date(0);
 
     constructor(options) {
         super(options)
@@ -275,8 +276,11 @@ export default class PlanRunner extends /*AbstractTurnStrategy*/TechnicalStrateg
         let percentDiff = Math.abs(helper.getDiffPercent(rate, order.rate));
         if (percentDiff <= order.expirationPercent)
             return true;
-        this.logOnce(utils.sprintf("Skipping %s@%s order because rate is outside of the expiration range. %s%%, rate %s", order.action.toUpperCase(), order.rate,
-            percentDiff.toFixed(2), rate));
+        if (this.lastLoggedPriceRangeExpired.getTime() + nconf.get('serverConfig:logTimeoutMin')*utils.constants.MINUTE_IN_SECONDS*1000 < Date.now()) {
+            this.logOnce(utils.sprintf("Skipping %s@%s order because rate is outside of the expiration range. %s%%, rate %s", order.action.toUpperCase(), order.rate,
+                percentDiff.toFixed(2), rate));
+            this.lastLoggedPriceRangeExpired = new Date(); // logOnce() alone uses the hast of the message, which changes to quickly because of price changes
+        }
         return false;
     }
 

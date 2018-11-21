@@ -29,7 +29,7 @@ export class HttpProxy {
             followRedirect: true,
             forever: true,
             localAddress: nconf.get('debug') === true || !nconf.get('localAddress') ? null : nconf.get('localAddress'),
-            proxy: nconf.get('proxy'),
+            //proxy: nconf.get('proxy'), // don't use proxy to query our own service
             cloudscraper: false, // solve CloudFlare challenge pages
             url: undefined
         };
@@ -51,7 +51,7 @@ export class HttpProxy {
                 res.writeHead(status, headers)
             })
             .on('error', (err) => {
-                logger.error("Proxy request error", err)
+                logger.error("Proxy request error on %s", urlStr, err)
                 res.sendStatus(500)
                 res.end()
             });

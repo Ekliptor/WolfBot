@@ -63,7 +63,7 @@
           "low": 34,
           "high": 70,
           "expiry": 20,
-          "candleSize": 5,
+          "candleSize": 3,
           "pair": "USD_BTG",
           "enableLog": true
         },
@@ -184,16 +184,14 @@
           "high": 55,
           "enableLog": false
         },
-        "DirectionFollower": {
-          "interval": 14,
-          "adxTrend": 20,
-          "adxMaxTrend": 32,
-          "initialStop": true,
-          "accelerationFactor": 0.06,
-          "accelerationMax": 0.2,
-          "tradeDirection": "watch",
-          "candleSize": 240,
+        "VolumeProfiler": {
+          "interval": 48,
+          "volumeRows": 24,
+          "valueAreaPercent": 70.0,
+          "minVolumeSpike": 1.2,
+          "tradeMode": "breakout",
           "pair": "USD_SAN",
+          "candleSize": 60,
           "tradeStrategy": "RSIScalpOrderer",
           "enableLog": true
         },
@@ -209,7 +207,7 @@
           "low": 34,
           "high": 70,
           "expiry": 20,
-          "candleSize": 5,
+          "candleSize": 3,
           "pair": "USD_SAN",
           "enableLog": true
         },
@@ -370,7 +368,7 @@
           "low": 34,
           "high": 70,
           "expiry": 20,
-          "candleSize": 5,
+          "candleSize": 3,
           "pair": "USD_EDO",
           "enableLog": true
         },
@@ -455,7 +453,7 @@
               "action": "buy",
               "comp": "<",
               "position": "none",
-              "rate": 5.13,
+              "rate": 5.53,
               "reason": "middle high",
               "indicators": ["RSI"]
             },
@@ -506,7 +504,7 @@
           "low": 34,
           "high": 70,
           "expiry": 20,
-          "candleSize": 5,
+          "candleSize": 3,
           "pair": "USD_ETC",
           "enableLog": true
         },
@@ -654,7 +652,7 @@
           "low": 34,
           "high": 70,
           "expiry": 20,
-          "candleSize": 5,
+          "candleSize": 3,
           "pair": "USD_ETP",
           "enableLog": true
         },
@@ -806,7 +804,7 @@
           "low": 34,
           "high": 70,
           "expiry": 20,
-          "candleSize": 5,
+          "candleSize": 3,
           "pair": "BTC_ETH",
           "enableLog": true
         },
@@ -954,7 +952,7 @@
           "low": 34,
           "high": 70,
           "expiry": 20,
-          "candleSize": 5,
+          "candleSize": 3,
           "pair": "BTC_BCH",
           "enableLog": true
         },
@@ -1106,7 +1104,7 @@
           "low": 34,
           "high": 70,
           "expiry": 20,
-          "candleSize": 5,
+          "candleSize": 3,
           "pair": "BTC_LTC",
           "enableLog": true
         },
@@ -1225,6 +1223,17 @@
           "tradeStrategy": "RSIScalpOrderer",
           "enableLog": true
         },
+        "VolumeProfiler": {
+          "interval": 48,
+          "volumeRows": 24,
+          "valueAreaPercent": 70.0,
+          "minVolumeSpike": 1.2,
+          "tradeMode": "breakout",
+          "pair": "BTC_ETC",
+          "candleSize": 60,
+          "tradeStrategy": "RSIScalpOrderer",
+          "enableLog": true
+        },
         "RSI": {
           "pair": "BTC_ETC",
           "candleSize": 15,
@@ -1237,7 +1246,7 @@
           "low": 34,
           "high": 70,
           "expiry": 20,
-          "candleSize": 5,
+          "candleSize": 3,
           "pair": "BTC_ETC",
           "enableLog": true
         },
@@ -1299,7 +1308,7 @@
               "action": "buy",
               "comp": "<",
               "position": "none",
-              "rate": 0.0018,
+              "rate": 0.0014,
               "reason": "middle high",
               "indicators": ["RSI"]
             }
@@ -1321,7 +1330,7 @@
           "low": 34,
           "high": 70,
           "expiry": 20,
-          "candleSize": 5,
+          "candleSize": 3,
           "pair": "BTC_NEO",
           "enableLog": true
         },
@@ -1413,7 +1422,7 @@
           "low": 34,
           "high": 70,
           "expiry": 20,
-          "candleSize": 5,
+          "candleSize": 3,
           "pair": "BTC_IOTA",
           "enableLog": true
         },
@@ -1485,6 +1494,23 @@
           "tradeStrategy": "RSIScalpOrderer",
           "enableLog": true
         },
+        "BollingerBouncer": {
+          "interval": 48,
+          "volumeRows": 24,
+          "valueAreaPercent": 85.0,
+          "waitEntrySec": 900,
+          "clearTradeTicks": 8,
+          "minVolumeSpike": 0.5,
+          "percentBThreshold": 0.04,
+          "trailingStopPerc": 0.05,
+          "N": 20,
+          "K": 2,
+          "MAType": 0,
+          "pair": "BTC_EOS",
+          "candleSize": 60,
+          "tradeStrategy": "RSIScalpOrderer",
+          "enableLog": true
+        },
         "RSI": {
           "pair": "BTC_EOS",
           "candleSize": 15,
@@ -1497,7 +1523,7 @@
           "low": 34,
           "high": 70,
           "expiry": 20,
-          "candleSize": 5,
+          "candleSize": 3,
           "pair": "BTC_EOS",
           "enableLog": true
         },
@@ -1589,7 +1615,7 @@
           "low": 34,
           "high": 70,
           "expiry": 20,
-          "candleSize": 5,
+          "candleSize": 3,
           "pair": "BTC_XRP",
           "enableLog": true
         },
@@ -1681,7 +1707,7 @@
           "low": 34,
           "high": 70,
           "expiry": 20,
-          "candleSize": 5,
+          "candleSize": 3,
           "pair": "BTC_XMR",
           "enableLog": true
         },
@@ -1773,7 +1799,7 @@
           "low": 34,
           "high": 70,
           "expiry": 20,
-          "candleSize": 5,
+          "candleSize": 3,
           "pair": "BTC_ZEC",
           "enableLog": true
         },

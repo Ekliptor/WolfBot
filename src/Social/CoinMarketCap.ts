@@ -172,6 +172,7 @@ export class CoinMarketCap {
             case "BYTM":        return "BTM";
             case "PAC":         return "$PAC"; // $PAC and PAC not working on API
             case "YYW":         return "YOYOW";
+            case "BSV":         return "BCHSV";
         }
         return label;
     }
@@ -182,10 +183,11 @@ export class CoinMarketCap {
             case "NEO":     return Currency.Currency.NEO;
             case "VEN":     return Currency.Currency.VET;
             case "MIOTA":   return Currency.Currency.IOTA;
-            case "QTUM":   return Currency.Currency.QTM;
-            case "BTM":   return Currency.Currency.BYTM;
-            case "$PAC":   return Currency.Currency.PAC;
+            case "QTUM":    return Currency.Currency.QTM;
+            case "BTM":     return Currency.Currency.BYTM;
+            case "$PAC":    return Currency.Currency.PAC;
             case "YOYOW":   return Currency.Currency.YYW;
+            case "BCHSV":   return Currency.Currency.BSV;
             default:
                 let currency = Currency.Currency[currencyStr];
                 if (currency)
