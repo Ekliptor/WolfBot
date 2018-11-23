@@ -165,7 +165,12 @@ export class ServerSocket extends WebSocket.Server {
         return new Promise<boolean>((resolve, reject) => {
             ws.send(data, options, (err) => {
                 if (err) {
-                    logger.error("Error send WebSocket data", err);
+                    if ((err.message || "").indexOf("CLOSED") !== -1) {
+                        //delete err.stack; // don't print the stack of regular close messages to avoid spamming the log
+                        logger.verbose("Error sending WebSocket data", err.message);
+                    }
+                    else
+                        logger.error("Error sending WebSocket data", err);
                     return resolve(false);
                 }
                 resolve(true);

@@ -10,6 +10,8 @@ import * as Order from "@ekliptor/bit-models/build/models/Order";
 import {TradeInfo} from "../Trade/AbstractTrader";
 import {MarginPosition} from "../structs/MarginPosition";
 
+type BollingerStopBand = "middle" | "opposite";
+
 interface BollingerBouncerAction extends TechnicalStrategyAction {
     // optional, Volume profile params
     interval: number; // default 48. The number of candles to compute the volume profile and average volume from.
@@ -17,6 +19,7 @@ interface BollingerBouncerAction extends TechnicalStrategyAction {
     valueAreaPercent: number; // default 70%. The percentage of the total volume that shall make up the value area, meaning the price range where x% of the trades happen.
     waitEntrySec: number; // default 300. How many seconds price has to stay at or outside the Bollinger Bands before opening a trade.
     clearTradeTicks: number; // default 8. After how many candles a previous buy/sell trade shall be removed, allowing to trade at a possibly worse price again.
+    stopBand: BollingerStopBand; // default middle. At which Bollinger Band this strategy starts placing a trailing stop.
 
     minVolumeSpike: number; // default 1.1. The min volume compared to the average volume of the last 'interval' candles to open a position.
     percentBThreshold: number; // 0.01, optional, A number indicating how close to %b the price has to be to consider it "reached".
@@ -69,6 +72,8 @@ export default class BollingerBouncer extends TechnicalStrategy {
             this.action.waitEntrySec = 300;
         if (typeof this.action.clearTradeTicks !== "number")
             this.action.clearTradeTicks = 8;
+        if (!this.action.stopBand)
+            this.action.stopBand = "middle";
         if (typeof this.action.minVolumeSpike !== "number")
             this.action.minVolumeSpike = 1.1;
         if (!this.action.percentBThreshold)
@@ -220,17 +225,18 @@ export default class BollingerBouncer extends TechnicalStrategy {
         else if (this.strategyPosition !== "none") { // update the trailing stop to close
             if (this.trailingStopPrice !== -1) // opposite band has already been reached on previous candle tick
                 this.updateStop();
-            else if (this.strategyPosition === "long" && value >= 1 - this.action.percentBThreshold) // upper band reached 1st time
-                this.updateStop();
-            else if (this.strategyPosition === "short" && value <= this.action.percentBThreshold) // lower band reached 1st time
-                this.updateStop();
+            else if (this.strategyPosition === "long" && ((this.action.stopBand === "opposite" && value >= 1 - this.action.percentBThreshold) || (this.action.stopBand === "middle" && value >= 0.5 - this.action.percentBThreshold)))
+                this.updateStop(); // upper band reached 1st time
+            else if (this.strategyPosition === "short" && ((this.action.stopBand === "opposite" && value <= this.action.percentBThreshold) || (this.action.stopBand === "middle" && value <= 0.5 + this.action.percentBThreshold)))
+                this.updateStop(); // lower band reached 1st time
         }
         else if (volumeProfile.getValueArea().isPriceWithinArea(this.candle.close) === false) {
-            this.log(utils.sprintf("Skipped opening position because price %s is not within value area, low %s, high %s", this.candle.close.toFixed(8),
-                volumeProfile.getValueArea().valueAreaLow.toFixed(8), volumeProfile.getValueArea().valueAreaHigh.toFixed(8)))
+            // TODO option to trade outside of the value area when the direction is back into it?
+            this.log(utils.sprintf("Skipped opening position because price %s is not within value area, low %s, high %s, percentB %s", this.candle.close.toFixed(8),
+                volumeProfile.getValueArea().valueAreaLow.toFixed(8), volumeProfile.getValueArea().valueAreaHigh.toFixed(8), value.toFixed(8)))
         }
         else if (this.isSufficientVolume() === false)
-            this.log("Insufficient volume (relative to avg) to trade " + this.getVolumeStr());
+            this.log("Insufficient volume (relative to avg) to trade " + this.getVolumeStr() + ", percentB " + value.toFixed(8));
         else if (value >= 1 - this.action.percentBThreshold) {
             this.log("reached upper band, DOWN trend imminent, value", value)
             //this.emitSell(this.defaultWeight, "percent b value: " + value);

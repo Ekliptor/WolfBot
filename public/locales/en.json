@@ -621,6 +621,7 @@
       "valueAreaPercent": "optional, default 70%. The percentage of the total volume that shall make up the value area, meaning the price range where x% of the trades happen.",
       "waitEntrySec": "optional, default 300. How many seconds price has to stay at or outside the Bollinger Bands before opening a trade.",
       "clearTradeTicks": "optional, default 8. After how many candles a previous buy/sell trade shall be removed, allowing to trade at a possibly worse price again.",
+      "stopBand": "optional, default middle. At which Bollinger Band this strategy starts placing a trailing stop.",
       "minVolumeSpike": "optional, default 1.1. The min volume compared to the average volume of the last 'interval' candles to open a position.",
       "percentBThreshold": "optional, default 0.01 - A number indicating how close to %b the price has to be to consider it 'reached'.",
       "trailingStopPerc": "optional, default 0.05% ( 0 = disabled) - The trailing stop percentage that will be placed after the opposite Bollinger Band has been reached."

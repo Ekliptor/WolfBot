@@ -453,7 +453,7 @@
               "action": "buy",
               "comp": "<",
               "position": "none",
-              "rate": 5.53,
+              "rate": 5.59,
               "reason": "middle high",
               "indicators": ["RSI"]
             },
@@ -1049,7 +1049,7 @@
               "action": "buy",
               "comp": "<",
               "position": "none",
-              "rate": 0.00691,
+              "rate": 0.0068191,
               "reason": "middle high",
               "indicators": ["RSI"]
             },
@@ -1201,7 +1201,7 @@
               "action": "buy",
               "comp": "<",
               "position": "none",
-              "rate": 0.0011,
+              "rate": 0.0009911,
               "reason": "middle high",
               "indicators": [
                 "RSI"
@@ -1229,6 +1229,23 @@
           "valueAreaPercent": 70.0,
           "minVolumeSpike": 1.2,
           "tradeMode": "breakout",
+          "pair": "BTC_ETC",
+          "candleSize": 60,
+          "tradeStrategy": "RSIScalpOrderer",
+          "enableLog": true
+        },
+        "BollingerBouncer": {
+          "interval": 48,
+          "volumeRows": 24,
+          "valueAreaPercent": 85.0,
+          "waitEntrySec": 900,
+          "clearTradeTicks": 8,
+          "minVolumeSpike": 0.5,
+          "percentBThreshold": 0.04,
+          "trailingStopPerc": 0.05,
+          "N": 20,
+          "K": 2,
+          "MAType": 0,
           "pair": "BTC_ETC",
           "candleSize": 60,
           "tradeStrategy": "RSIScalpOrderer",

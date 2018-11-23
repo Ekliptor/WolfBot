@@ -517,7 +517,7 @@
               "action": "buy",
               "comp": "<",
               "position": "none",
-              "rate": 68.79,
+              "rate": 55.79,
               "reason": "middle high",
               "indicators": ["RSI"]
             },
@@ -809,7 +809,7 @@
               "action": "buy",
               "comp": "<",
               "position": "none",
-              "rate": 0.3082,
+              "rate": 0.26,
               "reason": "middle high",
               "indicators": ["RSI"]
             }
@@ -1395,7 +1395,7 @@
               "action": "buy",
               "comp": "<",
               "position": "none",
-              "rate": 8.579,
+              "rate": 5.579,
               "reason": "middle high",
               "indicators": ["RSI"]
             },
@@ -1543,7 +1543,7 @@
               "action": "buy",
               "comp": "<",
               "position": "none",
-              "rate": 3.3899,
+              "rate": 0.593899,
               "reason": "middle high",
               "indicators": ["RSI"]
             },

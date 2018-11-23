@@ -12,6 +12,7 @@
           "valueAreaPercent": 85.0,
           "waitEntrySec": 900,
           "clearTradeTicks": 8,
+          "stopBand": "middle",
           "minVolumeSpike": 0.5,
           "percentBThreshold": 0.04,
           "trailingStopPerc": 0.05,

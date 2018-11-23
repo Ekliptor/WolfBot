@@ -167,7 +167,7 @@ export default class VolumeProfiler extends TechnicalStrategy {
 
     protected tradeWithTrend(highestVolumeBar: VolumeProfileBar) {
         // also check for the price x candles back? but that might go against or intention on highly volatile markets
-        const reason = utils.sprintf("Trading with trend on highest volume profile bar with vol %s", highestVolumeBar.volume);
+        const reason = utils.sprintf("Trading with trend on highest volume profile bar with vol %s %s", highestVolumeBar.volume, this.getVolumeStr());
         if (this.candle.trend === "up")
             this.emitBuy(this.defaultWeight, reason);
         else if (this.candle.trend === "down")
@@ -177,7 +177,7 @@ export default class VolumeProfiler extends TechnicalStrategy {
     }
 
     protected tradeAgainstTrend(highestVolumeBar: VolumeProfileBar) {
-        const reason = utils.sprintf("Trading against trend on highest volume profile bar with vol %s", highestVolumeBar.volume);
+        const reason = utils.sprintf("Trading against trend on highest volume profile bar with vol %s %s", highestVolumeBar.volume, this.getVolumeStr());
         if (this.candle.trend === "up")
             this.emitSell(this.defaultWeight, reason);
         else if (this.candle.trend === "down")

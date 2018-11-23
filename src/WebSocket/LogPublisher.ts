@@ -86,7 +86,7 @@ export class LogPublisher extends AppPublisher {
                     //meta.message is identical as toString()
                     if (meta.stack && !nconf.get("serverConfig:premium")) { // disable printing stacktraces for public apps
                         if (typeof meta.stack.toString === "function")
-                            line += "\r\n" + meta.stack.toString(); // will print message again too
+                            line += "\r\n" + meta.stack.toString(); // will print message again too // TODO remove msg from above?
                         else
                             line += "\r\n" + JSON.stringify(meta.stack, null, 4);
                     }
