@@ -213,13 +213,13 @@ export abstract class AbstractStrategy extends AbstractGenericStrategy {
      * @returns {number}
      */
     public getPositionAmount(): number {
-        if (this.position && this.position.isEmpty() === false)
+        if (this.position && this.position.isEmpty() === false && typeof this.position.amount === "number")
             return this.position.amount;
         return this.holdingCoins;
     }
 
     public getProfitLoss(): number {
-        if (this.position && this.position.isEmpty() === false)
+        if (this.position && this.position.isEmpty() === false && typeof this.position.pl === "number")
             return this.position.pl;
         if (this.tradePosition && this.tradePosition.isEmpty() === false)
             return this.tradePosition.getProfitLoss(this.avgMarketPrice);

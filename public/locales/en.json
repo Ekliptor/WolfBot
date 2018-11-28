@@ -571,7 +571,7 @@
   },
   "stratDesc": {
     "all": {
-      "order": "The order to execute. Can be: buy|sell|closeLong|closeShort",
+      "order": "The order to execute. Can be: buy|sell|closeLong|closeShort. The strategy will automatically update the order according to your open position. In other words, closeLong equals closeShort and buy equals sell for stop-loss and take profit strategies.",
       "pair": "Enter the currency pair you want to trade with this strategy. For example: USD_BTC, BTC_ETC,...",
       "candleSize": "The candle size in minutes this strategy will use for technical analysis and other indicators that depend on candles.",
       "tradeStrategy": "The name of the strategy to execute buy/sell orders. Useful to only buy/sell based on 2nd strategy data (for example forwarding the buy order from a strategy with 12h candles to a RSI strategy with 15min candles to execute the trade on RSI oversold...). This strategy must be added to your config too.",

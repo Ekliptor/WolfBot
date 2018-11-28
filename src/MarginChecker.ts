@@ -74,7 +74,7 @@ export default class MarginChecker extends AbstractSubController {
                     this.notifyLowMargin(exchange.getClassName(), margin)
                 return Promise.resolve(margin)
             }).then((margin) => {
-                logger.verbose("Checked %s margin: %s", exchange.getClassName(), margin)
+                logger.verbose("Checked %s margin collateral (for possible margin call): %s", exchange.getClassName(), margin)
                 resolve()
             }).catch((err) => {
                 logger.error("Error checking margin", err)

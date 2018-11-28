@@ -113,6 +113,8 @@ export class BitMEXCurrencies implements Currency.ExchangeCurrencies {
             position.amount = margin.simpleQty;
             position.type = "short";
         }
+        if (typeof position.amount !== "number")
+            position.amount = 0.0; // fix against undefined
 
         position.liquidationPrice = margin.liquidationPrice
 

@@ -12,7 +12,7 @@
               "action": "buy",
               "comp": "<",
               "position": "none",
-              "rate": 4000.9,
+              "rate": 3000.9,
               "reason": "middle high",
               "indicators": ["RSI"]
             },
@@ -52,12 +52,18 @@
           "fallback": false,
           "enableLog": true
         },
-        "VolumeProfiler": {
+        "BollingerBouncer": {
           "interval": 48,
           "volumeRows": 24,
-          "valueAreaPercent": 70.0,
-          "minVolumeSpike": 1.2,
-          "tradeMode": "both",
+          "valueAreaPercent": 85.0,
+          "waitEntrySec": 900,
+          "clearTradeTicks": 8,
+          "minVolumeSpike": 0.5,
+          "percentBThreshold": 0.04,
+          "trailingStopPerc": 0.05,
+          "N": 20,
+          "K": 2,
+          "MAType": 0,
           "pair": "USD_BTC",
           "candleSize": 60,
           "tradeStrategy": "RSIScalpOrderer",
@@ -147,7 +153,7 @@
         "VolumeSpikeDetector": {
           "spikeFactor": 3,
           "minVolBtc": 1.2,
-          "tradeDirection": "both",
+          "tradeDirection": "notify",
           "candleSize": 10,
           "pair": "USD_BTC",
           "enableLog": false
@@ -220,12 +226,18 @@
           "tradeStrategy": "RSIScalpOrderer",
           "enableLog": true
         },
-        "VolumeProfiler": {
+        "BollingerBouncer": {
           "interval": 48,
           "volumeRows": 24,
-          "valueAreaPercent": 70.0,
-          "minVolumeSpike": 1.2,
-          "tradeMode": "breakout",
+          "valueAreaPercent": 85.0,
+          "waitEntrySec": 900,
+          "clearTradeTicks": 8,
+          "minVolumeSpike": 0.5,
+          "percentBThreshold": 0.04,
+          "trailingStopPerc": 0.05,
+          "N": 20,
+          "K": 2,
+          "MAType": 0,
           "pair": "USD_LTC",
           "candleSize": 60,
           "tradeStrategy": "RSIScalpOrderer",
@@ -315,7 +327,7 @@
         "VolumeSpikeDetector": {
           "spikeFactor": 3,
           "minVolBtc": 1.2,
-          "tradeDirection": "both",
+          "tradeDirection": "notify",
           "candleSize": 10,
           "pair": "USD_LTC",
           "enableLog": false
@@ -388,12 +400,18 @@
           "tradeStrategy": "RSIScalpOrderer",
           "enableLog": true
         },
-        "VolumeProfiler": {
+        "BollingerBouncer": {
           "interval": 48,
           "volumeRows": 24,
-          "valueAreaPercent": 70.0,
-          "minVolumeSpike": 1.2,
-          "tradeMode": "breakout",
+          "valueAreaPercent": 85.0,
+          "waitEntrySec": 900,
+          "clearTradeTicks": 8,
+          "minVolumeSpike": 0.5,
+          "percentBThreshold": 0.04,
+          "trailingStopPerc": 0.05,
+          "N": 20,
+          "K": 2,
+          "MAType": 0,
           "pair": "USD_ETH",
           "candleSize": 60,
           "tradeStrategy": "RSIScalpOrderer",
@@ -483,7 +501,7 @@
         "VolumeSpikeDetector": {
           "spikeFactor": 3,
           "minVolBtc": 1.2,
-          "tradeDirection": "both",
+          "tradeDirection": "notify",
           "candleSize": 10,
           "pair": "USD_ETH",
           "enableLog": false
@@ -517,7 +535,7 @@
               "action": "buy",
               "comp": "<",
               "position": "none",
-              "rate": 55.79,
+              "rate": 45.79,
               "reason": "middle high",
               "indicators": ["RSI"]
             },
@@ -631,7 +649,7 @@
         "VolumeSpikeDetector": {
           "spikeFactor": 3,
           "minVolBtc": 1.2,
-          "tradeDirection": "both",
+          "tradeDirection": "notify",
           "candleSize": 10,
           "pair": "USD_XMR",
           "enableLog": false
@@ -777,7 +795,7 @@
         "VolumeSpikeDetector": {
           "spikeFactor": 3,
           "minVolBtc": 1.2,
-          "tradeDirection": "both",
+          "tradeDirection": "notify",
           "candleSize": 10,
           "pair": "USD_DASH",
           "enableLog": false
@@ -919,7 +937,7 @@
         "VolumeSpikeDetector": {
           "spikeFactor": 3,
           "minVolBtc": 1.2,
-          "tradeDirection": "both",
+          "tradeDirection": "notify",
           "candleSize": 10,
           "pair": "USD_IOTA",
           "enableLog": false
@@ -953,7 +971,7 @@
               "action": "buy",
               "comp": "<",
               "position": "none",
-              "rate": 78.9,
+              "rate": 61.9,
               "reason": "middle high",
               "indicators": ["RSI"]
             },
@@ -1073,7 +1091,7 @@
         "VolumeSpikeDetector": {
           "spikeFactor": 3,
           "minVolBtc": 1.2,
-          "tradeDirection": "both",
+          "tradeDirection": "notify",
           "candleSize": 10,
           "pair": "USD_ZEC",
           "enableLog": false
@@ -1211,7 +1229,7 @@
         "VolumeSpikeDetector": {
           "spikeFactor": 3,
           "minVolBtc": 1.2,
-          "tradeDirection": "both",
+          "tradeDirection": "notify",
           "candleSize": 10,
           "pair": "USD_BCH",
           "enableLog": false
@@ -1245,7 +1263,7 @@
               "action": "buy",
               "comp": "<",
               "position": "none",
-              "rate": 1.88,
+              "rate": 1.118,
               "reason": "middle high",
               "indicators": ["RSI"]
             },
@@ -1363,7 +1381,7 @@
         "VolumeSpikeDetector": {
           "spikeFactor": 3,
           "minVolBtc": 1.2,
-          "tradeDirection": "both",
+          "tradeDirection": "notify",
           "candleSize": 10,
           "pair": "USD_OMG",
           "enableLog": false
@@ -1395,7 +1413,7 @@
               "action": "buy",
               "comp": "<",
               "position": "none",
-              "rate": 5.579,
+              "rate": 6.579,
               "reason": "middle high",
               "indicators": ["RSI"]
             },
@@ -1509,7 +1527,7 @@
         "VolumeSpikeDetector": {
           "spikeFactor": 3,
           "minVolBtc": 1.2,
-          "tradeDirection": "both",
+          "tradeDirection": "notify",
           "candleSize": 10,
           "pair": "USD_NEO",
           "enableLog": false
@@ -1809,7 +1827,7 @@
         "VolumeSpikeDetector": {
           "spikeFactor": 3,
           "minVolBtc": 1.2,
-          "tradeDirection": "both",
+          "tradeDirection": "notify",
           "candleSize": 10,
           "pair": "USD_XRP",
           "enableLog": false
@@ -1843,7 +1861,7 @@
               "action": "buy",
               "comp": "<",
               "position": "none",
-              "rate": 0.38,
+              "rate": 0.29,
               "reason": "middle high",
               "indicators": ["RSI"]
             },
@@ -1957,7 +1975,7 @@
         "VolumeSpikeDetector": {
           "spikeFactor": 3,
           "minVolBtc": 1.2,
-          "tradeDirection": "both",
+          "tradeDirection": "notify",
           "candleSize": 10,
           "pair": "USD_ZRX",
           "enableLog": false
