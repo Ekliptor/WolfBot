@@ -664,7 +664,8 @@
       "high": "optional, default 100 - Open a long position after CCI goes above this value.",
       "closeShort": "optional, default 0 - Close a short position after CCI goes above this value.",
       "closeLong": "optional, default 0 - Close a long position after CCI goes below this value.",
-      "interval": "optional, default 20 - The number of candles of the SMA for the CCI average price calculation."
+      "interval": "optional, default 20 - The number of candles of the SMA for the CCI average price calculation.",
+      "mode": "default 'trend' - If set to 'trend' this strategy goes long on 'high' and short on 'low'. If set to 'reversal' it goes short on 'high' and long on 'low'.<br>The reversal mode works better with larger candles (>1h)."
     },
     "CandleRepeater": {
       "desc": "Strategy that assumes the candle of the previous day will repeat itself on the next day (trends tend to continue). Works best with large candle sizes such as 24h (1440 min) or 12h (720 min). This strategy needs StopLoss and/or TakeProfit strategies to close positions. Similar to SimpleAndShort and DayTrendFollower strategy.",
