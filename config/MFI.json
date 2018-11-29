@@ -5,19 +5,16 @@
       "marginTrading": true,
       "tradeTotalBtc": 0.7,
       "warmUpMin": 0,
-      "strategies": {
-        "CCI": {
-          "low": -100,
-          "high": 100,
-          "closeShort": 0,
-          "closeLong": 0,
-          "interval": 20,
-          "mode": "trend",
-          "pair": "BTC_ETH",
-          "candleSize": 60,
-          "tradeStrategy": "RSIScalpOrderer",
-          "enableLog": true
-        },
+      "MFI": {
+        "low": 32,
+        "high": 71,
+        "interval": 14,
+        "trendCandles": 1,
+        "pair": "BTC_ETH",
+        "candleSize": 60,
+        "tradeStrategy": "RSIScalpOrderer",
+        "enableLog": true
+      },
         "RSIScalpOrderer": {
           "low": 34,
           "high": 70,

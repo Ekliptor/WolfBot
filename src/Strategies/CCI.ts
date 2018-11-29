@@ -16,7 +16,7 @@ interface CciAction extends TechnicalStrategyAction  {
     closeLong: number; // default 0 // Close a long position after CCI goes below this value.
     interval: number; // default 20 // The number of candles of the SMA for the CCI average price calculation.
     mode: AbstractMomentumIndicatorMode; // default 'trend' // If set to 'trend' this strategy goes long on 'high' and short on 'low'. If set to 'reversal' it goes short on 'high' and long on 'low'.
-    // The reversal mode works better with larger candles (>1h).
+    // The reversal mode works better with larger candles (>1h). Values: trend|reversal
 }
 
 /**

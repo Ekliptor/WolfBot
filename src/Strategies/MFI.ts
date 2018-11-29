@@ -6,6 +6,7 @@ import {TechnicalStrategy, TechnicalStrategyAction} from "./TechnicalStrategy";
 import {AbstractIndicator} from "../Indicators/AbstractIndicator";
 import {Currency, Trade, Candle, Order} from "@ekliptor/bit-models";
 import {TradeInfo} from "../Trade/AbstractTrader";
+import {AbstractMomentumIndicatorMode} from "./AbstractMomentumIndicatorStrategy";
 
 interface MfiAction extends TechnicalStrategyAction {
     low: number; // Below this value MFI will be considered oversold. The strategy will queue a buy order to be executed after 'trendCandles' going up.
@@ -14,6 +15,7 @@ interface MfiAction extends TechnicalStrategyAction {
 
     trendCandles: number; // default 1. Wait for x candles in the same direction as MFI before opening a position.
     // 0 = immediately, 1 immediately on current candle, 2 = after 1 full tick
+    //mode: AbstractMomentumIndicatorMode; // not used here. we queue an order and trade when the market turns
 }
 
 /**
@@ -28,6 +30,8 @@ export default class MFI extends TechnicalStrategy {
         super(options)
         if (!this.action.trendCandles)
             this.action.trendCandles = 1;
+        //if (!this.action.mode)
+            //this.action.mode = "trend";
 
         this.addIndicator("MFI", "MFI", this.action);
         this.addInfo("trendCandleCount", "trendCandleCount");

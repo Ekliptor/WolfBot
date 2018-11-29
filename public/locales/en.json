@@ -665,7 +665,7 @@
       "closeShort": "optional, default 0 - Close a short position after CCI goes above this value.",
       "closeLong": "optional, default 0 - Close a long position after CCI goes below this value.",
       "interval": "optional, default 20 - The number of candles of the SMA for the CCI average price calculation.",
-      "mode": "default 'trend' - If set to 'trend' this strategy goes long on 'high' and short on 'low'. If set to 'reversal' it goes short on 'high' and long on 'low'.<br>The reversal mode works better with larger candles (>1h)."
+      "mode": "default 'trend' - If set to 'trend' this strategy goes long on 'high' and short on 'low'. If set to 'reversal' it goes short on 'high' and long on 'low'.<br>The reversal mode works better with larger candles (>1h). Values: trend|reversal"
     },
     "CandleRepeater": {
       "desc": "Strategy that assumes the candle of the previous day will repeat itself on the next day (trends tend to continue). Works best with large candle sizes such as 24h (1440 min) or 12h (720 min). This strategy needs StopLoss and/or TakeProfit strategies to close positions. Similar to SimpleAndShort and DayTrendFollower strategy.",
@@ -794,7 +794,8 @@
       "low": "Below this value MFI will be considered oversold. The strategy will queue a buy order to be executed after 'trendCandles' going up.",
       "high": "Above this value MFI will be considered overbought. The strategy will queue a sell order to be executed after 'trendCandles' going down.",
       "interval": "The number of candles to use for MFI computation.",
-      "trendCandles": "optional, default 1. Wait for x candles in the same direction as MFI before opening a position. 0 = immediately, 1 immediately on current candle, 2 = after 1 full tick"
+      "trendCandles": "optional, default 1. Wait for x candles in the same direction as MFI before opening a position. 0 = immediately, 1 immediately on current candle, 2 = after 1 full tick",
+      "mode": "default 'trend' - If set to 'trend' this strategy goes long on 'high' and short on 'low'. If set to 'reversal' it goes short on 'high' and long on 'low'.<br>The reversal mode works better with larger candles (>1h). Values: trend|reversal"
     },
     "OBV": {
       "desc": "Strategy that emits buy/sell based on the OBV indicator. We look if OBV makes new highs/lows on price highs/lows. Then we assume the trend to continue (breakout). Otherwise we open a position in the opposite direction. This strategy only opens positions. You need a stop-loss and/or take profit strategy.",
