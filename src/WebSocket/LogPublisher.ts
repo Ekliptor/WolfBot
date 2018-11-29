@@ -22,6 +22,7 @@ export interface LogUpdate {
         mode: TradingMode;
         devMode: boolean;
         error: boolean;
+        exchangesIdle: boolean;
     }
 }
 
@@ -51,7 +52,8 @@ export class LogPublisher extends AppPublisher {
                 },
                 mode: this.getTradingMode(),
                 devMode: nconf.get("serverConfig:user:devMode") ? true : false,
-                error: this.advisor.isErrorState()
+                error: this.advisor.isErrorState(),
+                exchangesIdle: nconf.get("serverConfig:exchangesIdle") === true
             }
         }
         if (this.advisor instanceof TradeAdvisor && traders.length !== 0)

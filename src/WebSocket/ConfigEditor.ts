@@ -11,7 +11,7 @@ import {TradeConfig, ConfigRuntimeUpdate, ConfigCurrencyPair} from "../Trade/Tra
 import * as path from "path";
 import * as fs from "fs";
 import * as childProcess from "child_process";
-import {AbstractAdvisor} from "../AbstractAdvisor";
+import {AbstractAdvisor, StrategyJson} from "../AbstractAdvisor";
 import {LendingAdvisor} from "../Lending/LendingAdvisor";
 import {LendingConfig} from "../Lending/LendingConfig";
 import {Currency, BotTrade, serverConfig} from "@ekliptor/bit-models";
@@ -304,6 +304,8 @@ export class ConfigEditor extends AppPublisher {
                         return;
                     currentKey[prop] = data.saveKey[exchangeName][prop];
                 });
+                if (nconf.get("serverConfig:apiKey:exchange:" + exchangeName) && (!currentKey || !currentKey.key))
+                    continue; // ensure we never overwrite to empty keys
                 nconf.set("serverConfig:apiKey:exchange:" + exchangeName, [currentKey]);
                 serverConfig.saveConfigLocal();
             }
@@ -449,8 +451,15 @@ export class ConfigEditor extends AppPublisher {
             fs.readFile(configFile, "utf8", (err, data) => {
                 if (err)
                     reject(err)
-                if (updateStrategyValues)
-                    data = this.updateStrategyValues(data);
+                if (updateStrategyValues) {
+                    try {
+                        data = this.updateStrategyValues(data);
+                    }
+                    catch (err) {
+                        logger.error("Error updating %s strategy values", name, err);
+                        this.publish({error: true, errorCode: "confEditError", restart: true});
+                    }
+                }
                 resolve(data)
             })
         })
@@ -460,6 +469,19 @@ export class ConfigEditor extends AppPublisher {
         return new Promise<void>((resolve, reject) => {
             if (name.substr(-5) !== ".json")
                 name += ".json";
+            try {
+                let configObj = utils.parseJson(data);
+                for (let i = 0; i < configObj.data.length; i++)
+                {
+                    configObj.data[i].strategies = this.copyFirstStrategyCurrencyPair(configObj.data[i].strategies);
+                }
+                let dataUpdated = utils.stringifyBeautiful(configObj);
+                if (dataUpdated)
+                    data = dataUpdated;
+            }
+            catch (err) {
+                logger.error("Error copying strategy currency pair of config file %s", name, err);
+            }
             const configFile = path.join(ConfigEditor.getConfigDir(), name)
             if (!utils.file.isSafePath(configFile))
                 return reject({txt: "Can not access path outside of app dir"})
@@ -496,6 +518,31 @@ export class ConfigEditor extends AppPublisher {
         })
     }
 
+    protected copyFirstStrategyCurrencyPair(json: StrategyJson, firstCurrencyPair: string = null) {
+        // lending strategies have their currency pair one level above in config
+        let missingPair = false;
+        for (let name in json)
+        {
+            let conf = json[name];
+            if (firstCurrencyPair === null && (!conf.pair || typeof conf.pair !== "string")) {
+                logger.error("Missing currency pair in %s strategy config", name);
+                missingPair = true;
+                continue;
+            }
+            if (firstCurrencyPair === null) {
+                firstCurrencyPair = conf.pair;
+                continue;
+            }
+            else if (conf.pair !== firstCurrencyPair) {
+                logger.warn("Different currency pairs for strategies found. Updating %s to %s in %s strategy", conf.pair, firstCurrencyPair, name);
+                conf.pair = firstCurrencyPair;
+            }
+        }
+        if (missingPair === true && firstCurrencyPair !== null)
+            return this.copyFirstStrategyCurrencyPair(json, firstCurrencyPair);
+        return json;
+    }
+
     /**
      * Update strategy values to reflect current state, so that we can easier edit & save without changing/resetting values
      * @param {string} jsonStr
@@ -511,7 +558,7 @@ export class ConfigEditor extends AppPublisher {
             for (let i = 0; i < json.data.length; i++) {
                 let conf = json.data[i]
                 if (!configs[i]) { // sometimes undefined when changing configs when removing currencies // TODO why?
-                    logger.error("Unable to get config at pos %s to show current strategy values", i, configs)
+                    logger.error("Unable to get trading config at pos %s to show current strategy values, configs %s", i, JSON.stringify(configs))
                     return jsonStr;
                 }
 
@@ -541,7 +588,7 @@ export class ConfigEditor extends AppPublisher {
             for (let i = 0; i < json.data.length; i++) {
                 let conf = json.data[i]
                 if (!configs[i]) { // sometimes undefined when changing configs when removing currencies // TODO why?
-                    logger.error("Unable to get config at pos %s to show current strategy values", i, configs)
+                    logger.error("Unable to get lending config at pos %s to show current strategy values, configs %s", i, JSON.stringify(configs))
                     return jsonStr;
                 }
 
@@ -573,7 +620,7 @@ export class ConfigEditor extends AppPublisher {
             for (let i = 0; i < json.data.length; i++) {
                 let conf = json.data[i]
                 if (!configs[i]) { // sometimes undefined when changing configs when removing currencies // TODO why?
-                    logger.error("Unable to get config at pos %s to show current strategy values", i, configs)
+                    logger.error("Unable to get social config at pos %s to show current strategy values, configs %s", i, JSON.stringify(configs))
                     return jsonStr;
                 }
 

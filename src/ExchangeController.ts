@@ -140,7 +140,7 @@ export default class ExchangeController extends AbstractSubController {
         }
         let apiKeys = nconf.get("serverConfig:apiKey:exchange");
         if (!apiKeys || apiKeys.length === 0) {
-            this.exchangesIdle = true;
+            this.setExchangesIdle(true);
             logger.warn("No exchange keys found in config. All exchanges are idle");
             return;
         }
@@ -154,7 +154,7 @@ export default class ExchangeController extends AbstractSubController {
             let exchangeKey = apiKeys[ex];
             if (Array.isArray(exchangeKey) === true) { // support for single API key per process (to avoid conflicts in nonce == increasing integer)
                 if (exchangeKey.length === 0) {
-                    this.exchangesIdle = true; // we could add some exchanges, but then we have to modify TradeAdvisor to skip others
+                    this.setExchangesIdle(true); // we could add some exchanges, but then we have to modify TradeAdvisor to skip others
                     logger.warn("No exchange keys found for %s in config. Keeping exchanges idle.", ex);
                     return;
                 }
@@ -164,14 +164,14 @@ export default class ExchangeController extends AbstractSubController {
             }
             else {
                 if (!exchangeKey) {
-                    this.exchangesIdle = true;
+                    this.setExchangesIdle(true);
                     logger.warn("Invalid exchange key found for %s in config. Keeping exchanges idle.", ex);
                     return;
                 }
                 logger.info("Loading exchange %s", ex)
             }
             if (!exchangeKey.key || !exchangeKey.secret) {
-                this.exchangesIdle = true;
+                this.setExchangesIdle(true);
                 logger.warn("Empty exchange key found for %s in config. Keeping exchanges idle.", ex);
                 return;
             }
@@ -183,7 +183,7 @@ export default class ExchangeController extends AbstractSubController {
                     continue;
                 }
                 this.exchanges.set(ex, exchangeInstance);
-                this.exchangesIdle = false;
+                this.setExchangesIdle(false);
             }
         }
     }
@@ -296,5 +296,10 @@ export default class ExchangeController extends AbstractSubController {
         LendingConfig.resetCounter();
         this.connectedExchanges = utils.uniqueArrayValues(connectedExchanges); // shouldn't change anything
         this.configReady = true;
+    }
+
+    protected setExchangesIdle(idle: boolean) {
+        this.exchangesIdle = idle;
+        nconf.set("serverConfig:exchangesIdle", idle);
     }
 }

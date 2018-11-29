@@ -28,6 +28,9 @@ const processFiles = [path.join(utils.appDir, 'app.js'),
 const processFile = fs.existsSync(processFiles[0]) ? processFiles[0] : processFiles[1]
 
 
+export interface StrategyJson {
+    [strategyName: string]: any;
+}
 class DummyGenericStrategyMap extends Map<ConfigCurrencyPair, any[]> { // different in base classes
     constructor() {
         super()

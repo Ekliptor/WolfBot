@@ -56,6 +56,8 @@ export class LogReceiver extends ClientSocketReceiver {
 
             if (data.state.error === true)
                 Hlp.showMsg(AppF.tr('errorState'), 'danger');
+            if (data.state.exchangesIdle)
+                Hlp.showMsg(AppF.tr('enterExConfFirst'), 'warning');
         }
         //this.send({x: "client res"})
     }

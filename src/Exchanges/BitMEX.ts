@@ -732,7 +732,7 @@ export default class BitMEX extends AbstractContractExchange {
                             trades.push(["t", trade.trdMatchID, trade.side == "Buy" ? 1 : 0, trade.price, trade.size, timestamp])
                         }
 
-                        if(trades.length > 0) {
+                        if (trades.length > 0) {
                             this.localSeqNr++;
                             marketEventStream.add(this.localSeqNr, trades);
                         }
