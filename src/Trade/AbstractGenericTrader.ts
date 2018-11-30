@@ -18,7 +18,7 @@ export abstract class AbstractGenericTrader extends EventEmitter {
     protected className: string;
     protected exchanges: ExchangeMap; // (exchange name, instance)
     protected isTrading: ActiveTradesMap = new ActiveTradesMap();
-    protected pausedTrading = nconf.get("serverConfig:pausedTrading");
+    protected pausedTrading = nconf.get("serverConfig:pausedTrading"); // trader instance (thus this value) not loaded if no valid config present
     protected restartPausedTimerID: NodeJS.Timer = null;
     protected tradeNotifier: AbstractGenericTrader = null; // TradeNotifier
 

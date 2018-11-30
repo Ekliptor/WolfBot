@@ -125,6 +125,7 @@ export default class ExchangeController extends AbstractSubController {
             return; // we need to restart our bot for TradeAvisor class to connect to exchanges + events // TODO improve
         if (nconf.get("social"))
             return;
+        this.setExchangesIdle(false); // default is false, reset below
         if (nconf.get('trader') === "Backtester") {
             //let exchanges = nconf.get('defaultExchanges');
             let exchanges = this.connectedExchanges;

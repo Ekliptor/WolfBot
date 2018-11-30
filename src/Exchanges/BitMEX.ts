@@ -189,7 +189,7 @@ export default class BitMEX extends AbstractContractExchange {
             testnet: this.apiKey.testnet === true,
             apiKeyID: this.apiKey.key,
             apiKeySecret: this.apiKey.secret,
-            maxTableLen: 10000  // the maximum number of table elements to keep in memory (FIFO queue)
+            maxTableLen: 20000  // the maximum number of table elements to keep in memory (FIFO queue)
         });
         // TODO support for time-spread arbitrage, i.e. multiple contracts of the same currency pair
 
@@ -250,7 +250,12 @@ export default class BitMEX extends AbstractContractExchange {
                 if (!balance || balance.error)
                     return reject({txt: "Error getting bitmex balance", err: balance});
                 let balances = {}
-                balances["BTC"] = BitMEX.satoshi2BTC(balance[2].walletBalance)
+                if (balance.length > 1 && typeof balance[2].walletBalance === "number") // old API?
+                    balances["BTC"] = BitMEX.satoshi2BTC(balance[2].walletBalance);
+                else if (balance.length > 0)
+                    balances["BTC"] = balance[0].amount || 0.0;
+                else
+                    balances["BTC"] = 0.0;
                 resolve(Currency.fromExchangeList(balances, this.currencies))
             }).catch((err) => {
                 reject(err)
@@ -670,7 +675,7 @@ export default class BitMEX extends AbstractContractExchange {
             })
 
             this.apiClient.on('open', () => {
-                logger.verbose("%s WS Connection opened", this.className)
+                logger.info("%s WS Connection opened", this.className)
             });
 
             this.apiClient.on('initialize', () => {

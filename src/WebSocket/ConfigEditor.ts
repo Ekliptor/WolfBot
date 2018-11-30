@@ -109,7 +109,6 @@ export interface ConfigReq extends ConfigData {
 
 export class ConfigEditor extends AppPublisher {
     public readonly opcode = WebSocketOpcode.CONFIG;
-    // TODO add "list all currencies" button
 
     protected selectedTradingMode: BotTrade.TradingMode;
     protected selectedConfig: string;
@@ -117,6 +116,7 @@ export class ConfigEditor extends AppPublisher {
     protected selectedTrader: string;
     protected savedState = false;
     protected selectedTab: ConfigTab = "tabGeneral";
+    protected configErrorTimer: NodeJS.Timer = null;
 
     constructor(serverSocket: ServerSocket, advisor: AbstractAdvisor) {
         super(serverSocket, advisor)
@@ -288,6 +288,8 @@ export class ConfigEditor extends AppPublisher {
             })
         }
         else if (typeof data.saveKey === "object") {
+            // TODO add delete key button
+            // TODO select exchange in config on 1st api key enter
             for (let exchangeName in data.saveKey)
             {
                 if (Currency.ExchangeName.has(exchangeName) === false) {
@@ -457,7 +459,7 @@ export class ConfigEditor extends AppPublisher {
                     }
                     catch (err) {
                         logger.error("Error updating %s strategy values", name, err);
-                        this.publish({error: true, errorCode: "confEditError", restart: true});
+                        this.sendConfigErrorOnce();
                     }
                 }
                 resolve(data)
@@ -1184,8 +1186,16 @@ export class ConfigEditor extends AppPublisher {
             setTimeout(() => {
                 if (typeof this.selectedConfig === "string" && this.selectedConfig.length !== 0)
                     nconf.set("serverConfig:lastWorkingConfigName", this.selectedConfig);
-            }, 5000);
+            }, 30*1000);
             serverConfig.saveConfigLocal();
         }
+    }
+
+    protected sendConfigErrorOnce() {
+        if (this.configErrorTimer !== null)
+            clearTimeout(this.configErrorTimer);
+        this.configErrorTimer = setTimeout(() => {
+            this.publish({error: true, errorCode: "confEditError", restart: true});
+        }, 1000);
     }
 }

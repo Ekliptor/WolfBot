@@ -26,10 +26,7 @@ import{FileResponder} from "./Web/FileResponder";
 import{HttpProxy} from "./Web/HttpProxy";
 import {TaLib, TaLibParams, TaLibResult} from "./Indicators/TaLib";
 import {Brain} from "./AI/Brain";
-import {LendingExchangeMap} from "./Exchanges/AbstractLendingExchange";
 import {RawTelegramMessage} from "./Social/Crawler/Telegram";
-import {orverrides} from "../configLocal";
-import {post} from "../node_modules/@ekliptor/apputils/build/cloudscraper";
 import {WebErrorCode} from "./Web/errorCodes";
 import {JsonResponse} from "./Web/JsonResponse";
 
@@ -375,7 +372,11 @@ export class Controller extends AbstractController { // TODO implement graceful 
             }
             else {
                 for (let childProp in localConf[prop])
+                {
+                    if (prop === "serverConfig" && childProp === "apiKey" && nconf.get("serverConfig:apiKey") != null)
+                        continue; // don't reset keys
                     nconf.set(prop + ':' + childProp, localConf[prop][childProp]);
+                }
             }
         }
         if (typeof localConf.orverrides === "function")

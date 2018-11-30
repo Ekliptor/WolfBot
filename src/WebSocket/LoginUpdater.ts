@@ -2,6 +2,7 @@ import * as utils from "@ekliptor/apputils";
 const logger = utils.logger
     , nconf = utils.nconf;
 import * as WebSocket from "ws";
+import {serverConfig} from "@ekliptor/bit-models";
 import * as http from "http";
 import {ServerSocketPublisher, ServerSocket, ServerSocketSendOptions, ClientSocketOnServer} from "./ServerSocket";
 import {AppPublisher} from "./AppPublisher";
@@ -77,6 +78,7 @@ export class LoginUpdater extends AppPublisher {
                 res.error = true;
                 res.errorCode = res.loginRes.loginValid === false ? "userNotFound" : "subscriptionNotFound";
             }
+            serverConfig.saveConfigLocal();
             this.send(clientSocket, res) // usually called via http from main controller instead
             return res;
         }
@@ -107,18 +109,21 @@ export class LoginUpdater extends AppPublisher {
         }
         const loginController = LoginController.getInstance();
         const subscription = loginController.getSubscription();
-        if (subscription === null)
+        if (subscription === null || !subscription.expiration) // expiration should always be set
             return;
         if (subscription.expiration.getTime() < Date.now())
             return this.sendExpirationMsg(clientSocket, subscription, "expiredMsg", "danger");
         const expirationSoonMs = nconf.get("serverConfig:notifyBeforeSubscriptionExpirationDays")*utils.constants.DAY_IN_SECONDS*1000;
         const untilExpirationMs = subscription.expiration.getTime() - Date.now();
-        if (untilExpirationMs < expirationSoonMs)
+        if (untilExpirationMs < expirationSoonMs) {
+            logger.warn("Bot subscription will expire on %s", utils.date.toDateTimeStr(subscription.expiration, true));
             return this.sendExpirationMsg(clientSocket, subscription, "expiringSoonMsg", "warning");
-        const timeoutMs = /*nconf.get("serverConfig:notifyBeforeSubscriptionExpirationDays")*utils.constants.DAY_IN_SECONDS*1000*/10000;
+        }
+        /* // caueses overflow with large numbers which will show message immediately
         this.expirationNotificationTimer = setTimeout(() => {
             this.sendExpirationMsg(clientSocket, subscription, "expiringSoonMsg", "warning");
         }, untilExpirationMs - expirationSoonMs);
+        */
     }
 
     protected sendExpirationMsg(clientSocket: ClientSocketOnServer, subscription: BotSubscription, message: string, level: ExpirationMsgLevel) {
