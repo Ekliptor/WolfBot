@@ -316,7 +316,13 @@ export class Config extends TableController {
         // Exchange API Keys
         this.$("#configExchangeForm input[type=text]").change((event) => {
             this.$("#saveKey").fadeIn("slow");
+            if (this.canDeleteApiKey() === true)
+                this.$("#deleteApiKey").fadeIn("slow");
         });
+        setTimeout(() => {
+            if (this.canDeleteApiKey() === true)
+                this.$("#deleteApiKey").fadeIn("slow");
+        }, 0);
         this.showEditExchangeApiKeys(this.$("#exchanges").val());
         this.showNotificationKeyInput(this.$("#notificationMethod").val());
         //this.$("#saveKey").click((event) => { // we want to use the browser to validate the form
@@ -337,6 +343,10 @@ export class Config extends TableController {
             this.send({
                 saveKey: saveReq
             })
+        });
+        this.$("#deleteApiKey").click((event) => {
+            const exchangeName = this.$("#exchanges").val();
+            this.send({removeApiKey: exchangeName})
         });
 
         // Notification method
@@ -671,6 +681,10 @@ export class Config extends TableController {
 
     protected getPlainConfigName(filename: string) {
         return filename.substr(1).replace(/\.json$/, "");
+    }
+
+    protected canDeleteApiKey() {
+        return this.$("#apiKey").val() !== "" || this.$("#apiKey2").val() !== "";
     }
 
     protected send(data: ConfigReq) {

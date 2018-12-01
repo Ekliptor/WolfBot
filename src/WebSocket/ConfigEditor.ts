@@ -94,6 +94,7 @@ export interface ConfigReq extends ConfigData {
     deleteConfig?: string;
     copyConfig?: string;
     saveKey?: ExchangeApiKeyMap;
+    removeApiKey?: string; // exchange name
     saveNotification?: NotificationMethodMap;
     notificationMeta?: {
         title: string;
@@ -285,11 +286,11 @@ export class ConfigEditor extends AppPublisher {
             }).catch((err) => {
                 logger.error("Error saving config", err)
                 this.send(clientSocket, {error: true, errorTxt: "Error saving config."})
-            })
+            });
         }
         else if (typeof data.saveKey === "object") {
-            // TODO add delete key button
-            // TODO select exchange in config on 1st api key enter
+            const wasEmpty = serverConfig.isEmptyApiKeys(nconf.get("serverConfig:apiKey:exchange"));
+            let firstExchange = "";
             for (let exchangeName in data.saveKey)
             {
                 if (Currency.ExchangeName.has(exchangeName) === false) {
@@ -308,10 +309,27 @@ export class ConfigEditor extends AppPublisher {
                 });
                 if (nconf.get("serverConfig:apiKey:exchange:" + exchangeName) && (!currentKey || !currentKey.key))
                     continue; // ensure we never overwrite to empty keys
+                if (firstExchange.length === 0)
+                    firstExchange = exchangeName;
                 nconf.set("serverConfig:apiKey:exchange:" + exchangeName, [currentKey]);
                 serverConfig.saveConfigLocal();
             }
-            this.send(clientSocket, {saved: true, restart: true})
+            if (wasEmpty === true && firstExchange.length !== 0)
+                this.setExchangeInConfig(firstExchange);
+            this.send(clientSocket, {saved: true, restart: true});
+        }
+        else if (typeof data.removeApiKey === "string") {
+            const exchangeName = data.removeApiKey;
+            let currentKey = nconf.get("serverConfig:apiKey:exchange:" + exchangeName)[0];
+            if (currentKey) {
+                for (let prop in currentKey) {
+                    if (typeof currentKey[prop] === "string")
+                        currentKey[prop] = "";
+                }
+                nconf.set("serverConfig:apiKey:exchange:" + exchangeName, [currentKey]);
+                serverConfig.saveConfigLocal();
+            }
+            this.send(clientSocket, {saved: true, restart: true});
         }
         else if (typeof data.saveNotification === "object") {
             const previousNotficiationSetting = JSON.stringify(nconf.get("serverConfig:apiKey:notify"));
@@ -465,6 +483,11 @@ export class ConfigEditor extends AppPublisher {
                 resolve(data)
             })
         })
+    }
+
+    protected async readConfigFileParsed(name: string, updateStrategyValues: boolean = true) {
+        let configStr = await this.readConfigFile(name, updateStrategyValues);
+        return utils.parseJson(configStr);
     }
 
     protected saveConfigFile(name: string, data: string) {
@@ -1197,5 +1220,27 @@ export class ConfigEditor extends AppPublisher {
         this.configErrorTimer = setTimeout(() => {
             this.publish({error: true, errorCode: "confEditError", restart: true});
         }, 1000);
+    }
+
+    protected setExchangeInConfig(exchangeName: string) {
+        return new Promise<void>((resolve, reject) => {
+            this.readConfigFileParsed(this.selectedConfig).then((config) => {
+                logger.info("Setting default exchange in config %s to %s", this.selectedConfig, exchangeName);
+                config.data.forEach((curConfig) => {
+                    if (!curConfig.exchanges) {
+                        logger.warn("No exchanges set in config %s", exchangeName);
+                        return;
+                    }
+                    if (curConfig.exchanges.length === 1)
+                        curConfig.exchanges[0] = exchangeName;
+                });
+                return this.saveConfigFile(this.selectedConfig, utils.stringifyBeautiful(config));
+            }).then(() => {
+                resolve();
+            }).catch((err) => {
+                logger.error("Error saving config while setting 1st exchange", err)
+                resolve();
+            });
+        })
     }
 }

@@ -158,7 +158,7 @@
               "action": "buy",
               "comp": "<",
               "position": "none",
-              "rate": 0.26,
+              "rate": 0.18,
               "reason": "middle high",
               "indicators": ["RSI"]
             },
@@ -738,7 +738,7 @@
               "action": "buy",
               "comp": "<",
               "position": "none",
-              "rate": 0.0279,
+              "rate": 0.0273,
               "reason": "middle high",
               "indicators": ["RSI"]
             },

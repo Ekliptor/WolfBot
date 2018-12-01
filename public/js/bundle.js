@@ -2799,7 +2799,7 @@ class LogReceiver extends ClientSocket_1.ClientSocketReceiver {
             $(".tabScripts").addClass("hidden");
             if (data.state.error === true)
                 Hlp.showMsg(AppF.tr('errorState'), 'danger');
-            if (data.state.exchangesIdle)
+            if (data.state.exchangesIdle === true)
                 Hlp.showMsg(AppF.tr('enterExConfFirst'), 'warning');
         }
         //this.send({x: "client res"})
@@ -3818,7 +3818,13 @@ class Config extends TableController_1.TableController {
         // Exchange API Keys
         this.$("#configExchangeForm input[type=text]").change((event) => {
             this.$("#saveKey").fadeIn("slow");
+            if (this.canDeleteApiKey() === true)
+                this.$("#deleteApiKey").fadeIn("slow");
         });
+        setTimeout(() => {
+            if (this.canDeleteApiKey() === true)
+                this.$("#deleteApiKey").fadeIn("slow");
+        }, 0);
         this.showEditExchangeApiKeys(this.$("#exchanges").val());
         this.showNotificationKeyInput(this.$("#notificationMethod").val());
         //this.$("#saveKey").click((event) => { // we want to use the browser to validate the form
@@ -3839,6 +3845,10 @@ class Config extends TableController_1.TableController {
             this.send({
                 saveKey: saveReq
             });
+        });
+        this.$("#deleteApiKey").click((event) => {
+            const exchangeName = this.$("#exchanges").val();
+            this.send({ removeApiKey: exchangeName });
         });
         // Notification method
         this.$("#notificationsForm input[type=text]").change((event) => {
@@ -4148,6 +4158,9 @@ class Config extends TableController_1.TableController {
     }
     getPlainConfigName(filename) {
         return filename.substr(1).replace(/\.json$/, "");
+    }
+    canDeleteApiKey() {
+        return this.$("#apiKey").val() !== "" || this.$("#apiKey2").val() !== "";
     }
     send(data) {
         super.send(data);
