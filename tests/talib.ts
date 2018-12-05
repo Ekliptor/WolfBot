@@ -55,9 +55,9 @@ let testTaLib = () => {
         low: marketData.low,
         close: marketData.close,
         volume: marketData.volume
-    }, (result) => {
+    }, (err, result) => {
         // check result.error
-        if (!result || result.error)
+        if (err || !result || result.error)
             return console.error(result)
         console.log("Function Results:");
         console.log(result);
@@ -101,7 +101,7 @@ let testSma = () => {
         optInSlowPeriod: 26,
         optInSignalPeriod: 9
         */
-    }, (result) => {
+    }, (err, result) => {
 
         // Show the result array
         console.log("Function Results:");

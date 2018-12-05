@@ -5,7 +5,7 @@
     "typeRoots": ["./node_modules/@types"],
     "rootDir": "./",
     "outDir": "./build",
-    "allowJs": true,
+    "allowJs": false,
     "sourceMap": true,
     "pretty": true,
     "alwaysStrict": true,

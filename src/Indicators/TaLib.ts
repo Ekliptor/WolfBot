@@ -5,6 +5,7 @@ const argv = require('minimist')(process.argv.slice(2));
 //import * as talib from "talib"; // not recognized as a module
 const talib = argv.noTalib === true ? null : require("talib");
 
+
 export class TaLibParams { // some indicator names have different parameters, see talib.explain(indicatorName)
     name: string; // indicator name
     startIdx: number = 0;
@@ -79,9 +80,9 @@ export class TaLib {
         return new Promise<TaLibResult>((resolve, reject) => {
             if (argv.noTalib === true)
                 return reject({txt: "TA-LIB is disabled via command line"});
-            talib.execute(params, (result) => {
-                if (!result || result.error)
-                    return reject({txt: "TA-LIB error", err: result ? result.error : "no result", params: params});
+            talib.execute(params, (err, result) => {
+                if (err || !result || result.error)
+                    return reject({txt: "TA-LIB error", err: result ? result.error : "no result", errNew: err, params: params});
 
                 resolve(result);
             });
@@ -124,7 +125,11 @@ export class TaLib {
                 endIdx: marketData.close.length - 1,
                 inReal: marketData.close,
                 optInTimePeriod: 9
-            }, (result) => {
+            }, (err, result) => {
+                if (err) {
+                    logger.error("Ta-Lib test failed with error:", err)
+                    return resolve(false)
+                }
                 // check result.error
                 if (!result || result.error || !result.result || !result.result.outReal || !Array.isArray(result.result.outReal) || result.result.outReal.length < 1) {
                     logger.error("Ta-Lib test failed. Result", result)

@@ -1479,30 +1479,13 @@
               "action": "buy",
               "comp": "<",
               "position": "none",
-              "rate": 0.000692,
+              "rate": 0.000682,
               "reason": "middle high",
               "indicators": ["RSI"]
             }
           ],
           "pair": "BTC_EOS",
           "candleSize": 1,
-          "tradeStrategy": "RSIScalpOrderer",
-          "enableLog": true
-        },
-        "BollingerBouncer": {
-          "interval": 48,
-          "volumeRows": 24,
-          "valueAreaPercent": 85.0,
-          "waitEntrySec": 900,
-          "clearTradeTicks": 8,
-          "minVolumeSpike": 0.5,
-          "percentBThreshold": 0.04,
-          "trailingStopPerc": 0.05,
-          "N": 20,
-          "K": 2,
-          "MAType": 0,
-          "pair": "BTC_EOS",
-          "candleSize": 60,
           "tradeStrategy": "RSIScalpOrderer",
           "enableLog": true
         },

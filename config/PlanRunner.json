@@ -361,7 +361,7 @@
               "action": "buy",
               "comp": "<",
               "position": "none",
-              "rate": 155.9,
+              "rate": 100.9,
               "reason": "middle high",
               "indicators": ["RSI"]
             },
@@ -681,7 +681,7 @@
               "action": "buy",
               "comp": "<",
               "position": "none",
-              "rate": 85.9,
+              "rate": 76.9,
               "reason": "middle high",
               "indicators": ["RSI"]
             },
@@ -962,7 +962,7 @@
     {
       "exchanges": ["Bitfinex"],
       "marginTrading": true,
-      "tradeTotalBtc": 150.0,
+      "tradeTotalBtc": 120.0,
       "notifyTrades": true,
       "strategies": {
         "PlanRunner": {
@@ -1289,23 +1289,6 @@
           "high": 55,
           "enableLog": false
         },
-        "BollingerBouncer": {
-          "interval": 48,
-          "volumeRows": 24,
-          "valueAreaPercent": 85.0,
-          "waitEntrySec": 900,
-          "clearTradeTicks": 8,
-          "minVolumeSpike": 0.5,
-          "percentBThreshold": 0.04,
-          "trailingStopPerc": 0.05,
-          "N": 20,
-          "K": 2,
-          "MAType": 0,
-          "pair": "USD_OMG",
-          "candleSize": 60,
-          "tradeStrategy": "RSIScalpOrderer",
-          "enableLog": true
-        },
         "RSIScalper": {
           "percentage": 20,
           "low": 25,
@@ -1404,7 +1387,7 @@
     {
       "exchanges": ["Bitfinex"],
       "marginTrading": true,
-      "tradeTotalBtc": 150.0,
+      "tradeTotalBtc": 120.0,
       "notifyTrades": true,
       "strategies": {
         "PlanRunner": {
@@ -1552,7 +1535,7 @@
     {
       "exchanges": ["Bitfinex"],
       "marginTrading": true,
-      "tradeTotalBtc": 150.0,
+      "tradeTotalBtc": 120.0,
       "notifyTrades": true,
       "strategies": {
         "PlanRunner": {
@@ -1586,23 +1569,6 @@
           "low": 54,
           "high": 55,
           "enableLog": false
-        },
-        "BollingerBouncer": {
-          "interval": 48,
-          "volumeRows": 24,
-          "valueAreaPercent": 85.0,
-          "waitEntrySec": 900,
-          "clearTradeTicks": 8,
-          "minVolumeSpike": 0.5,
-          "percentBThreshold": 0.04,
-          "trailingStopPerc": 0.05,
-          "N": 20,
-          "K": 2,
-          "MAType": 0,
-          "pair": "USD_EOS",
-          "candleSize": 60,
-          "tradeStrategy": "RSIScalpOrderer",
-          "enableLog": true
         },
         "RSIScalper": {
           "percentage": 20,
@@ -1852,7 +1818,7 @@
     {
       "exchanges": ["Bitfinex"],
       "marginTrading": true,
-      "tradeTotalBtc": 150.0,
+      "tradeTotalBtc": 120.0,
       "notifyTrades": true,
       "strategies": {
         "PlanRunner": {

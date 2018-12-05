@@ -102,6 +102,8 @@ export class LoginController extends AbstractSubController {
     public checkLogin() {
         return new Promise<void>((resolve, reject) => {
             let data = {
+                botID: this.nodeConfig.id,
+                botApiKey: helper.getFirstApiKey(), // easier to just send the key every time
                 apiKey: nconf.get("serverConfig:checkLoginApiKey"),
                 username: nconf.get("serverConfig:username"),
                 password: nconf.get("serverConfig:password")

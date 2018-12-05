@@ -58,6 +58,7 @@ export abstract class AbstractCrawlerStrategy extends AbstractStrategy {
             options.proxy = this.proxy
         //options.forever = true; // keep connections alive
         // TODO detect >You are being rate limited< and change IP via proxy or other CF errors instead of json
+        // @ts-ignore
         return utils.getPageCode(address, (body, response) => {
             callback(body, response);
         }, this.getHttpOptions(options))
@@ -74,6 +75,7 @@ export abstract class AbstractCrawlerStrategy extends AbstractStrategy {
         if (this.proxy.length !== 0 && !options.proxy)
             options.proxy = this.proxy
         //options.forever = true; // keep connections alive
+        // @ts-ignore
         return utils.postData(address, data, (body, response) => {
             callback(body, response);
         }, this.getHttpOptions(options))

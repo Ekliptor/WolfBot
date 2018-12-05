@@ -33,8 +33,17 @@ export function runUpdater(callback) {
                 path.join(utils.appDir, 'docs'),
                 path.join(utils.appDir, 'temp'),
                 path.join(utils.appDir, 'trades'),
-                path.join(utils.appDir, 'public', 'temp'),
+                path.join(utils.appDir, 'public','temp'),
+                path.join(utils.appDir, 'public', 'js', 'build'),
+                path.join(utils.appDir, 'public', 'js', 'classes'),
+                path.join(utils.appDir, 'public', 'js', 'controllers'),
+                path.join(utils.appDir, 'public', 'js', 'types'),
+                path.join(utils.appDir, 'public', 'js', 'utils'),
+                path.join(utils.appDir, 'public', 'js', 'routes.'),
+                path.join(utils.appDir, 'public', 'js', 'index.'),
+
                 path.join(utils.appDir, 'bfg.jar'),
+
                 TradeConfig.getConfigBackupRootDir()
                 // .json config files don't get bundled because they only exist within the /build dir
             ]
