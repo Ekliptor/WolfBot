@@ -345,8 +345,12 @@ export class Config extends TableController {
             })
         });
         this.$("#deleteApiKey").click((event) => {
-            const exchangeName = this.$("#exchanges").val();
-            this.send({removeApiKey: exchangeName})
+            Hlp.confirm(AppF.tr('deleteApiKeyConfirm'), (answer) => {
+                if (answer !== true)
+                    return;
+                const exchangeName = this.$("#exchanges").val();
+                this.send({removeApiKey: exchangeName});
+            });
         });
 
         // Notification method

@@ -1279,5 +1279,6 @@
   "tickerName": "Ticker name",
   "confEditError": "Error editing your config after a strategy replacement or currency pair change. Please restart your bot to continue.",
   "enterExConfFirst": "Please enter at least 1 exchange API key on the configuration page first before making config changes for live trading. You must also select that exchange in the trading configuration.<br>Afterwards please restart the bot.",
-  "deleteApiKey": "Delete API key"
+  "deleteApiKey": "Delete API key",
+  "deleteApiKeyConfirm": "Do you really want to delete this API key?"
 }
