@@ -69,6 +69,18 @@
           "tradeStrategy": "RSIScalpOrderer",
           "enableLog": true
         },
+        "VolumeProfiler": {
+          "interval": 48,
+          "volumeRows": 24,
+          "valueAreaPercent": 75.0,
+          "minVolumeSpike": 1.2,
+          "tradeMode": "notify",
+          "minVolumeSpikeBreakout": 2.1,
+          "pair": "USD_BTC",
+          "candleSize": 60,
+          "tradeStrategy": "RSIScalpOrderer",
+          "enableLog": false
+        },
         "OrderPartitioner": {
           "tradeCount": 20,
           "percentChange": 0.35,
@@ -242,6 +254,18 @@
           "candleSize": 60,
           "tradeStrategy": "RSIScalpOrderer",
           "enableLog": true
+        },
+        "VolumeProfiler": {
+          "interval": 48,
+          "volumeRows": 24,
+          "valueAreaPercent": 75.0,
+          "minVolumeSpike": 1.2,
+          "tradeMode": "notify",
+          "minVolumeSpikeBreakout": 2.1,
+          "pair": "USD_LTC",
+          "candleSize": 60,
+          "tradeStrategy": "RSIScalpOrderer",
+          "enableLog": false
         },
         "OrderPartitioner": {
           "tradeCount": 20,
@@ -417,6 +441,18 @@
           "tradeStrategy": "RSIScalpOrderer",
           "enableLog": true
         },
+        "VolumeProfiler": {
+          "interval": 48,
+          "volumeRows": 24,
+          "valueAreaPercent": 75.0,
+          "minVolumeSpike": 1.2,
+          "tradeMode": "notify",
+          "minVolumeSpikeBreakout": 2.1,
+          "pair": "USD_ETH",
+          "candleSize": 60,
+          "tradeStrategy": "RSIScalpOrderer",
+          "enableLog": false
+        },
         "OrderPartitioner": {
           "tradeCount": 20,
           "percentChange": 0.35,
@@ -535,7 +571,7 @@
               "action": "buy",
               "comp": "<",
               "position": "none",
-              "rate": 45.79,
+              "rate": 41.79,
               "reason": "middle high",
               "indicators": ["RSI"]
             },

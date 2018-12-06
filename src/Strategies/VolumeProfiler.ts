@@ -9,7 +9,7 @@ import * as _ from "lodash";
 import {VolumeProfileBar} from "../Indicators/VolumeProfile";
 
 
-type VolumeTradeMode = "breakout" | "resistance" | "both";
+type VolumeTradeMode = "breakout" | "resistance" | "both" | "notify" | "watch";
 
 interface VolumeProfilerAction extends TechnicalStrategyAction {
     interval: number; // default 48. The number of candles to compute the volume profile and average volume from.
@@ -119,6 +119,8 @@ export default class VolumeProfiler extends TechnicalStrategy {
             // we just got below the price of the highest volume bar
             if (this.isSufficientVolume() === false)
                 this.log("Insufficient volume to trade below highest volume price on volume profile " + this.getVolumeStr());
+            else if (this.action.tradeMode === "notify")
+                this.notifyVolumeProfile(highestVolumeBar);
             else if (this.action.tradeMode === "breakout")
                 this.tradeWithTrend(highestVolumeBar);
             else if (this.action.tradeMode === "resistance")
@@ -135,6 +137,8 @@ export default class VolumeProfiler extends TechnicalStrategy {
             // we just got above the price of the highest volume bar
             if (this.isSufficientVolume() === false)
                 this.log("Insufficient volume to trade above highest volume price on volume profile " + this.getVolumeStr());
+            else if (this.action.tradeMode === "notify")
+                this.notifyVolumeProfile(highestVolumeBar);
             else if (this.action.tradeMode === "breakout")
                 this.tradeWithTrend(highestVolumeBar);
             else if (this.action.tradeMode === "resistance")
@@ -163,6 +167,12 @@ export default class VolumeProfiler extends TechnicalStrategy {
                 this.tradeAgainstTrend(highestVolumeBar);
         }
         */
+    }
+
+    protected notifyVolumeProfile(highestVolumeBar: VolumeProfileBar) {
+        const reason = utils.sprintf("%smin candles, %s interval, candle trend %s, %s %s", this.action.candleSize, this.action.interval,
+            this.candle.trend, highestVolumeBar.volume, this.getVolumeStr());
+        this.sendNotification("Price on highest volume bar", reason)
     }
 
     protected tradeWithTrend(highestVolumeBar: VolumeProfileBar) {

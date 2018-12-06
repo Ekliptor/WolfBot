@@ -781,6 +781,18 @@
           "tradeStrategy": "RSIScalpOrderer",
           "enableLog": true
         },
+        "VolumeProfiler": {
+          "interval": 48,
+          "volumeRows": 24,
+          "valueAreaPercent": 75.0,
+          "minVolumeSpike": 1.2,
+          "tradeMode": "notify",
+          "minVolumeSpikeBreakout": 2.1,
+          "pair": "BTC_ETH",
+          "candleSize": 60,
+          "tradeStrategy": "RSIScalpOrderer",
+          "enableLog": false
+        },
         "RSIScalper": {
           "percentage": 20,
           "low": 25,
@@ -1655,7 +1667,7 @@
               "action": "buy",
               "comp": "<",
               "position": "none",
-              "rate": 0.0138,
+              "rate": 0.0131,
               "reason": "middle high",
               "indicators": ["RSI"]
             },
