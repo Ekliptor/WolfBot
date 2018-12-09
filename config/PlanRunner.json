@@ -12,7 +12,7 @@
               "action": "buy",
               "comp": "<",
               "position": "none",
-              "rate": 3000.9,
+              "rate": 2700.9,
               "reason": "middle high",
               "indicators": ["RSI"]
             },
@@ -199,7 +199,7 @@
               "action": "buy",
               "comp": "<",
               "position": "none",
-              "rate": 28.1,
+              "rate": 23.1,
               "reason": "middle high",
               "indicators": ["RSI"]
             },
@@ -385,7 +385,7 @@
               "action": "buy",
               "comp": "<",
               "position": "none",
-              "rate": 100.9,
+              "rate": 65.9,
               "reason": "middle high",
               "indicators": ["RSI"]
             },
@@ -717,7 +717,7 @@
               "action": "buy",
               "comp": "<",
               "position": "none",
-              "rate": 76.9,
+              "rate": 49.9,
               "reason": "middle high",
               "indicators": ["RSI"]
             },
@@ -863,7 +863,7 @@
               "action": "buy",
               "comp": "<",
               "position": "none",
-              "rate": 0.26,
+              "rate": 0.21,
               "reason": "middle high",
               "indicators": ["RSI"]
             }
@@ -1007,7 +1007,7 @@
               "action": "buy",
               "comp": "<",
               "position": "none",
-              "rate": 61.9,
+              "rate": 51.9,
               "reason": "middle high",
               "indicators": ["RSI"]
             },
@@ -1149,7 +1149,7 @@
     },
     {
       "exchanges": ["Bitfinex"],
-      "marginTrading": true,
+      "marginTrading": false,
       "tradeTotalBtc": 0.0,
       "notifyTrades": true,
       "strategies": {
@@ -1432,7 +1432,7 @@
               "action": "buy",
               "comp": "<",
               "position": "none",
-              "rate": 6.579,
+              "rate": 5.579,
               "reason": "middle high",
               "indicators": ["RSI"]
             },
@@ -1715,7 +1715,7 @@
               "action": "buy",
               "comp": "<",
               "position": "none",
-              "rate": 0.27,
+              "rate": 0.21,
               "reason": "middle high",
               "indicators": ["RSI"]
             },

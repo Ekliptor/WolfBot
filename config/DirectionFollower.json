@@ -158,7 +158,7 @@
               "action": "buy",
               "comp": "<",
               "position": "none",
-              "rate": 0.18,
+              "rate": 0.1,
               "reason": "middle high",
               "indicators": ["RSI"]
             },
@@ -293,7 +293,7 @@
               "action": "buy",
               "comp": "<",
               "position": "none",
-              "rate": 0.68,
+              "rate": 0.54,
               "reason": "middle high",
               "indicators": ["RSI"]
             },
@@ -442,7 +442,7 @@
               "action": "buy",
               "comp": "<",
               "position": "none",
-              "rate": 4.159,
+              "rate": 2.7159,
               "reason": "middle high",
               "indicators": ["RSI"]
             },
@@ -590,7 +590,7 @@
               "action": "buy",
               "comp": "<",
               "position": "none",
-              "rate": 1.999,
+              "rate": 0.33,
               "reason": "middle high",
               "indicators": ["RSI"]
             },
@@ -738,7 +738,7 @@
               "action": "buy",
               "comp": "<",
               "position": "none",
-              "rate": 0.0273,
+              "rate": 0.02173,
               "reason": "middle high",
               "indicators": ["RSI"]
             },
@@ -892,7 +892,7 @@
     },
     {
       "exchanges": ["Bitfinex"],
-      "marginTrading": true,
+      "marginTrading": false,
       "tradeTotalBtc": 0.0,
       "notifyTrades": true,
       "strategies": {
@@ -1202,7 +1202,7 @@
               "action": "buy",
               "comp": "<",
               "position": "none",
-              "rate": 0.00103170,
+              "rate": 0.00094103,
               "reason": "middle high",
               "indicators": [
                 "RSI"
@@ -1667,7 +1667,7 @@
               "action": "buy",
               "comp": "<",
               "position": "none",
-              "rate": 0.0131,
+              "rate": 0.0125,
               "reason": "middle high",
               "indicators": ["RSI"]
             },

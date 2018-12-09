@@ -173,6 +173,7 @@ export class CoinMarketCap {
             case "PAC":         return "$PAC"; // $PAC and PAC not working on API
             case "YYW":         return "YOYOW";
             //case "BSV":         return "BCHSV";
+            case "TWOGIVE":     return "2GIVE";
         }
         return label;
     }
@@ -188,6 +189,7 @@ export class CoinMarketCap {
             case "$PAC":    return Currency.Currency.PAC;
             case "YOYOW":   return Currency.Currency.YYW;
             //case "BCHSV":   return Currency.Currency.BSV;
+            case "2GIVE":   return Currency.Currency.TWOGIVE;
             default:
                 let currency = Currency.Currency[currencyStr];
                 if (currency)

@@ -30,6 +30,7 @@ config.config = {
     "httpTimeoutSec": 10, // for our own webserver
     "localAddress": "", // bind outgoing requests to a specific local IP
     "projectUrl": "https://wolfbot.org",
+    "preferredCrawlerIPs": [],
 
     "tempDir": "./temp/",
     "fullTempDir": "", // set on every start. use this to get the fully resolved path

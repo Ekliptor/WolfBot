@@ -170,8 +170,8 @@ export default class VolumeProfiler extends TechnicalStrategy {
     }
 
     protected notifyVolumeProfile(highestVolumeBar: VolumeProfileBar) {
-        const reason = utils.sprintf("%smin candles, %s interval, candle trend %s, %s %s", this.action.candleSize, this.action.interval,
-            this.candle.trend, highestVolumeBar.volume, this.getVolumeStr());
+        const reason = utils.sprintf("%smin candles, %s interval, candle trend %s, %s %s\r\nrate %s", this.action.candleSize, this.action.interval,
+            this.candle.trend, highestVolumeBar.volume.toFixed(8), this.getVolumeStr(), this.avgMarketPrice.toFixed(8));
         this.sendNotification("Price on highest volume bar", reason)
     }
 

@@ -32,6 +32,7 @@
 // --config: the name of the crawler config file under /config/social/ to define which sites to crawl
 // --social: use the social crawler
 // -c: social crawler class name - only run this class (useful for debugging). "Price" to crawl price data
+// --instance: instance number (starting at 1) to distribute social crawling across nodes
 
 // Updater config
 // --update: only update to latest version. exit after update (or if we are already running the latest version)
