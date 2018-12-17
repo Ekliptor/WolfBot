@@ -5,7 +5,7 @@
   "usernameOrEmail": "Username or Email",
   "colon": ": ",
   "email": "Email",
-  "password": "Passwort",
+  "password": "Password",
   "passwordRepeat": "Repeat password",
   "register": "Register",
   "login": "Login",
@@ -1014,6 +1014,7 @@
       "setback": "The trailing stop percentage the price has to move against an open position for the stop to be triggered.",
       "setbackLong": "optional, default 0 (use 'setback') - The trailing stop percentage the price has to move against an open long position for the stop to be triggered. Use this to define a different (usually higher) stop for long positions.",
       "time": "optional, default 0 - After the stop price is reached start a countdown of x seconds before closing the position. The countdown gets reset if the price moves above the stop price before the counter reaches 0 seconds.",
+      "closePosition": "optional, default 'always' - Only close a position if its profit/loss is in that defined state. Values: always|profit|loss",
       "increaseTimeByVolatility": "optional, default false - Increase the stop time during volatile markets (by a factor between 1 and 2 computed from Bollinger Bandwidth). Takes precedence over reduceTimeByVolatility.",
       "reduceTimeByVolatility": "optional, default true - Reduce the stop time during high volatility market moments (by a divisor between 1 and 2 computed from Bollinger Bandwidth).",
       "keepTrendOpen": "optional, default true - Don't close if the last candle moved in our direction (only applicable with 'time' and 'candleSize' being set).",
@@ -1280,5 +1281,6 @@
   "confEditError": "Error editing your config after a strategy replacement or currency pair change. Please restart your bot to continue.",
   "enterExConfFirst": "Please enter at least 1 exchange API key on the configuration page first before making config changes for live trading. You must also select that exchange in the trading configuration.<br>Afterwards please restart the bot.",
   "deleteApiKey": "Delete API key",
-  "deleteApiKeyConfirm": "Do you really want to delete this API key?"
+  "deleteApiKeyConfirm": "Do you really want to delete this API key?",
+  "botToken": "Bot token"
 }

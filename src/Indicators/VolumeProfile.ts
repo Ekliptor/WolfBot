@@ -41,6 +41,17 @@ export class VolumeProfileBar {
     public getMeanPrice() {
         return (this.priceZoneHigh + this.priceZoneLow) / 2.0;
     }
+
+    /**
+     * Get the percentage of this volume bar relative to totalVolume.
+     * @param totalVolume
+     */
+    public getVolumePercentage(totalVolume: number) {
+        if (totalVolume < 0.0)
+            return 0.0;
+        return this.volume / totalVolume * 100;
+    }
+
     public toString() {
         return utils.sprintf("ID %s, low %s, high %s, vol %s (up %s, down %s)", this.id,
             this.priceZoneLow.toFixed(8), this.priceZoneHigh.toFixed(8), this.volume.toFixed(8),

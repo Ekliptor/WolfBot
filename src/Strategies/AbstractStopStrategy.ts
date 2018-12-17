@@ -8,8 +8,11 @@ import {MarginPosition} from "../structs/MarginPosition";
 import {TradeInfo} from "../Trade/AbstractTrader";
 import * as helper from "../utils/helper";
 
+export type ClosePositionState = "always" | "profit" | "loss";
+
 export interface AbstractStopStrategyAction extends TechnicalStrategyAction {
     time: number; // in seconds, optional
+    closePosition: ClosePositionState; // optional, default always // Only close a position if its profit/loss is in that defined state.
     increaseTimeByVolatility: boolean; // optional, default false. increase the stop time during volatile markets. takes precedence over reduceTimeByVolatility
     reduceTimeByVolatility: boolean; // optional, default true. reduce the stop time during high volatility market moments
     notifyBeforeStopSec: number; // optional, notify seconds before the stop executes
@@ -219,6 +222,25 @@ export abstract class AbstractStopStrategy extends /*AbstractStrategy*/Technical
             message += ", p/l: " + this.position.pl.toFixed(8) + " " + this.action.pair.getBase();
         this.sendNotification("Stop imminent", message);
         this.stopNotificationSent = true;
+    }
+
+    protected getPositionState(): ClosePositionState {
+        let profit = false;
+        if (this.position) // margin trading
+            profit = this.hasProfitReal();
+        else
+            profit = this.hasProfit(this.entryPrice);
+        return profit === true ? "profit" : "loss";
+    }
+
+    protected canClosePositionByState() {
+        switch (this.action.closePosition) {
+            case "profit":
+            case "loss":
+                return this.getPositionState() === this.action.closePosition;
+            default: // always
+                return true;
+        }
     }
 
     protected useProfitStop() {

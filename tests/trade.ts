@@ -15,6 +15,7 @@ import {ok} from "assert";
 import Bittrex from "../src/Exchanges/Bittrex";
 import Binance from "../src/Exchanges/Binance";
 import BitMEX from "../src/Exchanges/BitMEX";
+import Deribit from "../src/Exchanges/Deribit";
 
 let repeatPoloniexOrder = (order: Promise<OrderResult>) => {
     return new Promise<OrderResult>((resolve, reject) => {
@@ -274,6 +275,26 @@ let testBitmex = () => {
     })
 }
 
+let testDeribit = async () => {
+    let deribit = new Deribit(nconf.get("serverConfig:apiKey:exchange:Deribit")[0])
+    let params = {}
+
+    let pair = new Currency.CurrencyPair(Currency.Currency.USD, Currency.Currency.BTC)
+    deribit.subscribeToMarkets([pair]);
+    await utils.promiseDelay(1200); // wait til we are connected
+
+    //deribit.getBalances().then((test) => {
+    //deribit.getMarginAccountSummary().then((test) => {
+    //deribit.importHistory(pair, new Date(Date.now()-2*utils.constants.HOUR_IN_SECONDS*1000), new Date()).then((test) => {
+    //deribit.getOpenOrders(pair).then((test) => {
+    deribit.marginBuy(pair, 3100, 4, params).then((test) => {
+        //binance.moveOrder(pair, 25959783, 0.00000723, 360, params).then((balances) => {
+        console.log(test)
+    }).catch((err) => {
+        logger.error("Error trading", err)
+    })
+}
+
 Controller.loadServerConfig(() => {
     utils.file.touch(AbstractExchange.cookieFileName).then(() => {
         //buy()
@@ -283,6 +304,7 @@ Controller.loadServerConfig(() => {
         //testPolo();
         //testBittrex();
         //testBinance();
-        testBitmex();
+        //testBitmex();
+        testDeribit();
     })
 })

@@ -176,7 +176,8 @@ export class ExchangeMap extends Map<string, AbstractExchange> { // (exchange na
 
 export enum PushApiConnectionType {
     AUTOBAHN = 1,
-    WEBSOCKET = 2
+    WEBSOCKET = 2,
+    API_WEBSOCKET = 3
 }
 
 export abstract class AbstractExchange {
@@ -480,6 +481,7 @@ export abstract class AbstractExchange {
             options.proxy = this.proxy[utils.getRandomInt(0, this.proxy.length)]
         // TODO detect >You are being rate limited< and change IP via proxy or other CF errors instead of json
         const reqStart = Date.now();
+        // @ts-ignore
         return utils.getPageCode(address, (body, response) => {
             this.addResponseTime(reqStart);
             callback(body, response);
@@ -497,6 +499,7 @@ export abstract class AbstractExchange {
         if (this.proxy.length !== 0 && !options.proxy)
             options.proxy = this.proxy[utils.getRandomInt(0, this.proxy.length)]
         const reqStart = Date.now();
+        // @ts-ignore
         return utils.postData(address, data, (body, response) => {
             this.addResponseTime(reqStart);
             callback(body, response);
@@ -542,7 +545,20 @@ export abstract class AbstractExchange {
         if (AbstractExchange.pushApiConnections.has(this.className))
             return; // already connected
         logger.verbose("Opening Websocket connection in %s to %s", this.className, this.pushApiUrl)
-        let connection = this.pushApiConnectionType === PushApiConnectionType.AUTOBAHN ? this.createConnection() : this.createWebsocketConnection();
+        let connection = null;
+        switch (this.pushApiConnectionType) {
+            case PushApiConnectionType.AUTOBAHN:
+                connection = this.createConnection();
+                break;
+            case PushApiConnectionType.WEBSOCKET:
+                connection = this.createWebsocketConnection();
+                break;
+            case PushApiConnectionType.API_WEBSOCKET:
+                connection = this.createApiWebsocketConnection();
+                break;
+            default:
+                utils.test.assertUnreachableCode(this.pushApiConnectionType);
+        }
         if (connection)
             AbstractExchange.pushApiConnections.set(this.className, connection);
         this.resetWebsocketTimeout();
@@ -554,6 +570,11 @@ export abstract class AbstractExchange {
     }
 
     protected createWebsocketConnection(): WebSocket {
+        // overwrite this in the subclass and return the connection
+        return null;
+    }
+
+    protected createApiWebsocketConnection(): any {
         // overwrite this in the subclass and return the connection
         return null;
     }
@@ -595,6 +616,8 @@ export abstract class AbstractExchange {
             if (!socket)
                 logger.error("No socket available to close WebSocket connection to %s", this.className)
             else {
+                if (this.pushApiConnectionType === PushApiConnectionType.API_WEBSOCKET)
+                    this.closeApiWebsocketConnection();
                 if (socket instanceof WebSocket)
                     socket.close();
                 //else if (socket instanceof autobahn.Connection)
@@ -615,6 +638,10 @@ export abstract class AbstractExchange {
             logger.error("Error closing timed out WebSocket connection", err);
         }
         this.onConnectionClose(reason);
+    }
+
+    protected closeApiWebsocketConnection() {
+        // overwrite this when using PushApiConnectionType.API_WEBSOCKET
     }
 
     protected resetWebsocketTimeout() {

@@ -16,6 +16,7 @@ export class BotSubscription {
     id: number;
     url: string;
     expiration: Date;
+    token: string = ""; // server-generated unique token per bot
     coupon: string = ""; // cooupon code
     discount: number = 0; // percentage of the discount with the coupon
     constructor(id: number, url: string, expiration: Date) {
@@ -176,6 +177,7 @@ export class LoginController extends AbstractSubController {
                         this.subscription.coupon = sub.bot_url.coupon;
                         this.subscription.discount = sub.bot_url.discount;
                     }
+                    this.subscription.token = sub.bot_url.token;
                     return true;
                 }
             }

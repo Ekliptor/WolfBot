@@ -10,6 +10,7 @@ import {TradeInfo} from "../Trade/AbstractTrader";
 interface TakeProfitPartialAction extends AbstractTakeProfitStrategyAction {
     // assuming we pay 0.25% taker fee for buying and selling, this value should be > 0.5%
     // add interest rates for margin trading (0.13% on average for BTC on poloniex) ==> > 0.63%
+    stop: number; // optional. A fixed stop price when to sell (> for long position) or buy (< for short position). If present takes precedence over 'profit'.
     profit: number; // 1.3% // in %
     percentage: number; // 20% // how many percent of the open position shall be closed
     // TODO reopen percentage: how many % the price has to move back AFTER taking profit to increase the position again
@@ -47,7 +48,7 @@ export default class TakeProfitPartial extends TakeProfit {
         // TODO better support to specify amount in coins for futures, see getOrderAmount() of IndexStrategy
         // if StopLossTurn has a small candleSize it will do almost the same (but close the order completely)
         if (nconf.get("trader") !== "Backtester") { // backtester uses BTC as unit, live mode USD
-            if (leverage >= 10 && (this.action.pair.toString() === "USD_BTC" || this.action.pair.toString() === "USD_LTC"))
+            if (leverage >= 10 && this.isPossibleFuturesPair(this.action.pair) === true)
                 amount = tradeTotalBtc * leverage * /*this.ticker.last*/this.avgMarketPrice;
         }
 

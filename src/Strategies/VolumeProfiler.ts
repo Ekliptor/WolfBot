@@ -170,14 +170,16 @@ export default class VolumeProfiler extends TechnicalStrategy {
     }
 
     protected notifyVolumeProfile(highestVolumeBar: VolumeProfileBar) {
-        const reason = utils.sprintf("%smin candles, %s interval, candle trend %s, %s %s\r\nrate %s", this.action.candleSize, this.action.interval,
-            this.candle.trend, highestVolumeBar.volume.toFixed(8), this.getVolumeStr(), this.avgMarketPrice.toFixed(8));
+        const volumeProfile = this.getVolumeProfile("VolumeProfile");
+        const reason = utils.sprintf("%smin candles, %s interval, candle trend %s\r\nvol bar %s%%\r\n%s\r\nrate %s", this.action.candleSize, this.action.interval,
+            this.candle.trend, highestVolumeBar.getVolumePercentage(volumeProfile.getTotalVolume()).toFixed(8), this.getVolumeStr(), this.avgMarketPrice.toFixed(8));
         this.sendNotification("Price on highest volume bar", reason)
     }
 
     protected tradeWithTrend(highestVolumeBar: VolumeProfileBar) {
         // also check for the price x candles back? but that might go against or intention on highly volatile markets
-        const reason = utils.sprintf("Trading with trend on highest volume profile bar with vol %s %s", highestVolumeBar.volume, this.getVolumeStr());
+        const volumeProfile = this.getVolumeProfile("VolumeProfile");
+        const reason = utils.sprintf("Trading with trend on highest volume profile bar with vol %s%% %s", highestVolumeBar.getVolumePercentage(volumeProfile.getTotalVolume()).toFixed(8), this.getVolumeStr());
         if (this.candle.trend === "up")
             this.emitBuy(this.defaultWeight, reason);
         else if (this.candle.trend === "down")
@@ -187,7 +189,8 @@ export default class VolumeProfiler extends TechnicalStrategy {
     }
 
     protected tradeAgainstTrend(highestVolumeBar: VolumeProfileBar) {
-        const reason = utils.sprintf("Trading against trend on highest volume profile bar with vol %s %s", highestVolumeBar.volume, this.getVolumeStr());
+        const volumeProfile = this.getVolumeProfile("VolumeProfile");
+        const reason = utils.sprintf("Trading against trend on highest volume profile bar with vol %s%% %s", highestVolumeBar.getVolumePercentage(volumeProfile.getTotalVolume()).toFixed(8), this.getVolumeStr());
         if (this.candle.trend === "up")
             this.emitSell(this.defaultWeight, reason);
         else if (this.candle.trend === "down")

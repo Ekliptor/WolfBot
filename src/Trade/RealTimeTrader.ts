@@ -76,7 +76,7 @@ export default class RealTimeTrader extends PortfolioTrader {
                         continue;
                     if (!exchange.marginTradingSupport())
                         continue // TODO should we fallback to normal trading below?
-                    let buyBtc = strategy.getOrderAmount(this.config.tradeTotalBtc, exchange.getMaxLeverage());
+                    let buyBtc = strategy.getOrderAmount(this.getMarginPositionOrderAmount(strategy), exchange.getMaxLeverage());
                     if (this.skipTrade("buy", exchange, strategy, buyBtc) || this.skipTrend("buy"))
                         continue;
                     /*
@@ -224,7 +224,7 @@ export default class RealTimeTrader extends PortfolioTrader {
                     if (this.skipShortSell(exchange, coinPair))
                         continue;
 
-                    let sellBtc = strategy.getOrderAmount(this.config.tradeTotalBtc, exchange.getMaxLeverage());
+                    let sellBtc = strategy.getOrderAmount(this.getMarginPositionOrderAmount(strategy), exchange.getMaxLeverage());
                     if (this.skipTrade("sell", exchange, strategy, sellBtc) || this.skipTrend("sell"))
                         continue;
                     let orderBook = exchange.getOrderBook().get(coinPair.toString())

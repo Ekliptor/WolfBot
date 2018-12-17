@@ -1687,6 +1687,14 @@ deprecated@^0.0.1:
   version "0.0.1"
   resolved "https://registry.yarnpkg.com/deprecated/-/deprecated-0.0.1.tgz#f9c9af5464afa1e7a971458a8bdef2aa94d5bb19"
 
+deribit-ws-nodejs@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/deribit-ws-nodejs/-/deribit-ws-nodejs-1.0.0.tgz#3d7c738f0055ef691d03f2fb9340ad7c145b51a2"
+  integrity sha512-4uoLO+mx6jiTNZ8Rl2zyNuUgUWnQt4Z2r4MfLmXKocrID2fNsc/9QWauELDyq4GcyJtRzZoLjwagr+CP55R6bg==
+  dependencies:
+    debug "^3.1.0"
+    nodejs-websocket "^1.7.1"
+
 detect-file@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/detect-file/-/detect-file-1.0.0.tgz#f0d66d03672a825cb1b73bdb3fe62310c8e552b7"
@@ -4348,6 +4356,11 @@ node-gyp@^3.8.0:
     tar "^2.0.0"
     which "1"
 
+nodejs-websocket@^1.7.1:
+  version "1.7.2"
+  resolved "https://registry.yarnpkg.com/nodejs-websocket/-/nodejs-websocket-1.7.2.tgz#94abd1e248f57d4d1c663dec3831015c6dad98a6"
+  integrity sha512-PFX6ypJcCNDs7obRellR0DGTebfUhw1SXGKe2zpB+Ng1DQJhdzbzx1ob+AvJCLzy2TJF4r8cCDqMQqei1CZdPQ==
+
 nodemailer@^4.0.1:
   version "4.6.7"
   resolved "https://registry.yarnpkg.com/nodemailer/-/nodemailer-4.6.7.tgz#b68de7f36d65618bdeeeb76234e3547d51266373"
@@ -6005,9 +6018,10 @@ typescript@2.7.2:
   version "2.7.2"
   resolved "https://registry.yarnpkg.com/typescript/-/typescript-2.7.2.tgz#2d615a1ef4aee4f574425cdff7026edf81919836"
 
-typescript@2.8.1:
-  version "2.8.1"
-  resolved "https://registry.yarnpkg.com/typescript/-/typescript-2.8.1.tgz#6160e4f8f195d5ba81d4876f9c0cc1fbc0820624"
+typescript@3.2.2:
+  version "3.2.2"
+  resolved "https://registry.yarnpkg.com/typescript/-/typescript-3.2.2.tgz#fe8101c46aa123f8353523ebdcf5730c2ae493e5"
+  integrity sha512-VCj5UiSyHBjwfYacmDuc/NOk4QQixbE+Wn7MFJuS0nRuPQbof132Pw4u53dm264O8LPc2MVsc7RJNml5szurkg==
 
 typescript@^2.3.4:
   version "2.9.2"

@@ -11,6 +11,7 @@ import TradeAdvisor from "../TradeAdvisor";
 import {PortfolioTrader, BotEvaluation} from "../Trade/PortfolioTrader"
 import {AbstractAdvisor} from "../AbstractAdvisor";
 import * as helper from "../utils/helper";
+import {LoginController} from "../LoginController";
 
 export interface StatusUpdate {
     name: string;
@@ -21,6 +22,7 @@ export interface StatusUpdate {
     started: Date;
     installed: Date;
     botApiKey: string;
+    botToken: string;
     nodeVersion: string;
     username: string;
     //currencies: string[];
@@ -61,6 +63,8 @@ export class StatusUpdater extends AppPublisher {
 
         utils.file.getInstallDate().then((installDate) => {
             //const firstCurrency = this.tradeAdvisor.getConfigs()[0].markets[0]; // needed for market exposure time
+            let login = LoginController.getInstance();
+            const subscription = login.getSubscription();
             let update: StatusUpdate = {
                 name: this.getBotDirName(),
                 config: this.advisor.getConfigName(),
@@ -70,6 +74,7 @@ export class StatusUpdater extends AppPublisher {
                 started: this.advisor.getStarted(),
                 installed: installDate,
                 botApiKey: helper.getFirstApiKey(),
+                botToken: subscription ? subscription.token : "",
                 nodeVersion: process.version,
                 username: nconf.get("serverConfig:premium") === true ? nconf.get("serverConfig:username") : "",
                 currencies: this.advisor.getCandleCurrencies().toString().replaceAll(",", ", "),

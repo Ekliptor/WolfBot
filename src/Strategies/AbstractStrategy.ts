@@ -1074,6 +1074,11 @@ export abstract class AbstractStrategy extends AbstractGenericStrategy {
             }
         }
     }
+
+    protected isPossibleFuturesPair(pair: Currency.CurrencyPair) {
+        const futurePairs: string[] = nconf.get("serverConfig:futureCoinPairs");
+        return futurePairs.indexOf(pair.toString()) !== -1;
+    }
 }
 
 // force loading dynamic imports for TypeScript

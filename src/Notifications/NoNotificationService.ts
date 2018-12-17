@@ -5,7 +5,7 @@ import {AbstractNotification, NotificationOpts} from "./AbstractNotification";
 import Notification from "./Notification";
 
 /**
- * This is class serves as a placeholder instead of a real notification service.
+ * This class serves as a placeholder instead of a real notification service.
  * The purpose of it is that we always have a notifier object and don't have to check for !== null
  */
 export default class NoNotificationService extends AbstractNotification {

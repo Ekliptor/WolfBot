@@ -2,7 +2,7 @@ import * as utils from "@ekliptor/apputils";
 const logger = utils.logger
     , nconf = utils.nconf;
 import {AbstractStrategy, StrategyAction, TradeAction} from "./AbstractStrategy";
-import {AbstractStopStrategy, AbstractStopStrategyAction} from "./AbstractStopStrategy";
+import {AbstractStopStrategy, AbstractStopStrategyAction, ClosePositionState} from "./AbstractStopStrategy";
 import {Currency, Trade, Order, Candle} from "@ekliptor/bit-models";
 import {TradeInfo} from "../Trade/AbstractTrader";
 import * as helper from "../utils/helper";
@@ -21,6 +21,7 @@ interface StopLossTurnAction extends AbstractStopStrategyAction {
     time: number; // in seconds, optional
     // close early if the last high/low is x minutes back (instead of waiting for the stop to trigger)
     //closeTimeMin: number; // in minutes, optional, only use this if we have a profit already // removed, use TakeProfit strategy
+    closePosition: ClosePositionState; // optional, default always // Only close a position if its profit/loss is in that defined state.
     increaseTimeByVolatility: boolean; // optional, default false. Increase the stop time during volatile markets (by a factor between 1 and 2 computed from Bollinger Bandwidth). Takes precedence over reduceTimeByVolatility.
     reduceTimeByVolatility: boolean; // optional, default true. Reduce the stop time during high volatility market moments (by a divisor between 1 and 2 computed from Bollinger Bandwidth).
     keepTrendOpen: boolean; // optional, default true, Don't close if the last candle moved in our direction (only applicable with 'time' and 'candleSize' being set).
@@ -67,6 +68,8 @@ export default class StopLossTurn extends AbstractStopStrategy {
             this.action.setbackLong = 0.0;
         if (!this.action.time)
             this.stopCountStart = new Date(0); // sell immediately
+        if (["always", "profit", "loss"].indexOf(this.action.closePosition) === -1)
+            this.action.closePosition = "always";
         if (this.action.keepTrendOpen === undefined)
             this.action.keepTrendOpen = StopLossTurn.KEEP_TREND_OPEN;
         if (typeof this.action.forceMaker !== "boolean")
@@ -239,6 +242,8 @@ export default class StopLossTurn extends AbstractStopStrategy {
             return this.logOnce("skipping stop SELL because candle trend is up %", this.candle.getPercentChange());
         else if (this.lastRSI !== -1 && this.lastRSI > this.action.high)
             return this.logOnce("skipping stop SELL because RSI value indicates up:", this.lastRSI);
+        else if (this.canClosePositionByState() === false)
+            return this.logOnce("skipping stop SELL because of required position state:", this.action.closePosition);
         else if (this.stopCountStart.getTime() + this.getStopTimeSec() * 1000 <= this.marketTime.getTime())
             this.closeLongPosition();
     }
@@ -259,6 +264,8 @@ export default class StopLossTurn extends AbstractStopStrategy {
             return this.logOnce("skipping stop BUY because candle trend is down %", this.candle.getPercentChange());
         else if (this.lastRSI !== -1 && this.lastRSI < this.action.low)
             return this.logOnce("skipping stop BUY because RSI value indicates down:", this.lastRSI);
+        else if (this.canClosePositionByState() === false)
+            return this.logOnce("skipping stop BUY because of required position state:", this.action.closePosition);
         else if (this.stopCountStart.getTime() + this.getStopTimeSec() * 1000 <= this.marketTime.getTime())
             this.closeShortPosition();
     }

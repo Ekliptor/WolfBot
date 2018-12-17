@@ -706,7 +706,7 @@
               "action": "buy",
               "comp": "<",
               "position": "none",
-              "rate": 0.0000349,
+              "rate": 0.0000189,
               "reason": "middle high",
               "indicators": ["RSI"]
             },

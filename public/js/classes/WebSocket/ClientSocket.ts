@@ -48,7 +48,7 @@ export abstract class ClientSocketReceiver extends AbstractWidget {
         if (/^https?:\/\//i.test(url) === false) {
             if (url[0] !== "/")
                 url = "/" + url;
-            url = (document as any).origin + url;
+            url = this.getOrigin() + url;
             if (url[url.length-1] !== "/")
                 url += "/";
         }
@@ -69,6 +69,14 @@ export abstract class ClientSocketReceiver extends AbstractWidget {
         };
         http.open("POST", url, true);
         http.send(params);
+    }
+
+    protected getOrigin(): string {
+        if (typeof window.origin === "string")
+            return window.origin;
+        else if (document.location.origin === "string")
+            return document.location.origin;
+        return (document as any).origin; // legacy
     }
 }
 

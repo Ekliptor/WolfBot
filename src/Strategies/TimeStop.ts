@@ -2,14 +2,12 @@ import * as utils from "@ekliptor/apputils";
 const logger = utils.logger
     , nconf = utils.nconf;
 import {AbstractStrategy, StrategyAction, TradeAction} from "./AbstractStrategy";
-import {AbstractStopStrategy, AbstractStopStrategyAction} from "./AbstractStopStrategy";
+import {AbstractStopStrategy, AbstractStopStrategyAction, ClosePositionState} from "./AbstractStopStrategy";
 import {Currency, Trade, Order, Candle} from "@ekliptor/bit-models";
 import {TradeInfo} from "../Trade/AbstractTrader";
 import * as helper from "../utils/helper";
 import {MarginPosition} from "../structs/MarginPosition";
 
-
-type ClosePositionState = "always" | "profit" | "loss";
 
 interface TimeStopAction extends AbstractStopStrategyAction {
     minCandles: number; // 12 // The minimum number of candles a position has to be open before being closed.
@@ -249,25 +247,6 @@ export default class TimeStop extends AbstractStopStrategy {
 
     protected getStopTimeSec() {
         return super.getStopTimeSec();
-    }
-
-    protected getPositionState(): ClosePositionState {
-        let profit = false;
-        if (this.position) // margin trading
-            profit = this.hasProfitReal();
-        else
-            profit = this.hasProfit(this.entryPrice);
-        return profit === true ? "profit" : "loss";
-    }
-
-    protected canClosePositionByState() {
-        switch (this.action.closePosition) {
-            case "profit":
-            case "loss":
-                return this.getPositionState() === this.action.closePosition;
-            default: // always
-                return true;
-        }
     }
 
     protected resetValues() {

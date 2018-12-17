@@ -2627,7 +2627,7 @@ class ClientSocketReceiver extends AbstractWidget_1.AbstractWidget {
         if (/^https?:\/\//i.test(url) === false) {
             if (url[0] !== "/")
                 url = "/" + url;
-            url = document.origin + url;
+            url = this.getOrigin() + url;
             if (url[url.length - 1] !== "/")
                 url += "/";
         }
@@ -2648,6 +2648,13 @@ class ClientSocketReceiver extends AbstractWidget_1.AbstractWidget {
         };
         http.open("POST", url, true);
         http.send(params);
+    }
+    getOrigin() {
+        if (typeof window.origin === "string")
+            return window.origin;
+        else if (document.location.origin === "string")
+            return document.location.origin;
+        return document.origin; // legacy
     }
 }
 exports.ClientSocketReceiver = ClientSocketReceiver;
@@ -4680,7 +4687,7 @@ class Status extends AbstractController_1.AbstractController {
                 this.$("#botEvaluation, #stateForm").addClass("hidden");
             else {
                 this.$("#botEvaluation").html(JSON.stringify(data.evaluation, null, 4));
-                this.$("#usernameRow").addClass("hidden");
+                this.$("#usernameRow, #tokenRow").addClass("hidden");
             }
             this.removeAsyncLoadingIcon();
             Hlp.updateTimestampsRepeating();

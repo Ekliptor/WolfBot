@@ -753,6 +753,13 @@ export abstract class PortfolioTrader extends AbstractTrader {
         return coinAmount;
     }
 
+    protected getMarginPositionOrderAmount(strategy: AbstractStrategy) {
+        if (nconf.get("serverConfig:marginTradingPartialAmountFromRealBalance") !== true || this.isStopOrTakeProfitStrategy(strategy) === false)
+            return this.config.tradeTotalBtc;
+        let realAmount = strategy.getPositionAmount();
+        return realAmount > 0.0 ? realAmount : this.config.tradeTotalBtc;
+    }
+
     /**
      * Write a trade graph html file for the current trading state (used for backtesting).
      * @param {Currency.CurrencyPair} currencyPair

@@ -71,6 +71,12 @@ class ServerConfig {
                 secret: "",
                 marginNotification: 0.03,
                 testnet: false
+            }],
+            Deribit: [{
+                key: "",
+                secret: "",
+                marginNotification: 0.03,
+                testnet: false
             }]
         },
         notify: {

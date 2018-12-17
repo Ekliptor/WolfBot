@@ -118,6 +118,7 @@ export class ConfigEditor extends AppPublisher {
     protected savedState = false;
     protected selectedTab: ConfigTab = "tabGeneral";
     protected configErrorTimer: NodeJS.Timer = null;
+    protected lastWorkingExchanges: string[] = [];
 
     constructor(serverSocket: ServerSocket, advisor: AbstractAdvisor) {
         super(serverSocket, advisor)
@@ -1163,6 +1164,27 @@ export class ConfigEditor extends AppPublisher {
         {
             if (Array.isArray(configObj.data[i].exchanges) === false)
                 configObj.data[i].exchanges = [configObj.data[i].exchanges]; // JSONView sends a string with the exchange
+            // ensure only valid exchange names are set
+            let validExchanges = [];
+            for (let u = 0; u < configObj.data[i].exchanges.length; u++)
+            {
+                const exchangeName = configObj.data[i].exchanges[u];
+                if (Currency.ExchangeName.has(exchangeName) === true)
+                    validExchanges.push(exchangeName);
+                else
+                    logger.error("Filtered invalid exchange %s from config", exchangeName);
+            }
+            if (validExchanges.length === 0 || (nconf.get("arbitrage") === true && validExchanges.length !== 2)) {
+                logger.error("Invalid number of of exchanges %s in config. Going back to previous setting", validExchanges.length);
+                const requiredLen = nconf.get("arbitrage") === true ? 2 : 1;
+                const existingExchanges = Array.from(Currency.ExchangeName.keys());
+                let count = 0;
+                while (validExchanges.length < requiredLen) {
+                    let next = this.lastWorkingExchanges.length > count ? this.lastWorkingExchanges[count] : existingExchanges[count];
+                    validExchanges.push(next);
+                }
+            }
+            configObj.data[i].exchanges = validExchanges;
         }
         return configObj;
     }
@@ -1207,8 +1229,10 @@ export class ConfigEditor extends AppPublisher {
     protected setLastWorkingConfig() {
         if (this.selectedTradingMode === "trading") {
             setTimeout(() => {
-                if (typeof this.selectedConfig === "string" && this.selectedConfig.length !== 0)
+                if (typeof this.selectedConfig === "string" && this.selectedConfig.length !== 0) {
                     nconf.set("serverConfig:lastWorkingConfigName", this.selectedConfig);
+                    this.lastWorkingExchanges = utils.uniqueArrayValues<string>(Array.from(this.advisor.getExchanges().keys()));
+                }
             }, 30*1000);
             serverConfig.saveConfigLocal();
         }

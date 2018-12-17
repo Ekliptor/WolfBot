@@ -76,7 +76,7 @@ export default class RSIScalper extends TechnicalStrategy {
         let amount = tradeTotalBtc * leverage;
         // TODO better support to specify amount in coins for futures, see getOrderAmount() of IndexStrategy
         if (nconf.get("trader") !== "Backtester") { // backtester uses BTC as unit, live mode USD
-            if (leverage >= 10 && (this.action.pair.toString() === "USD_BTC" || this.action.pair.toString() === "USD_LTC"))
+            if (leverage >= 10 && this.isPossibleFuturesPair(this.action.pair) === true)
                 amount = tradeTotalBtc * leverage * /*this.ticker.last*/this.avgMarketPrice;
         }
 

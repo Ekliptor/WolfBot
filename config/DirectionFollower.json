@@ -433,7 +433,7 @@
     {
       "exchanges": ["Bitfinex"],
       "marginTrading": true,
-      "tradeTotalBtc": 100.0,
+      "tradeTotalBtc": 120.0,
       "notifyTrades": true,
       "strategies": {
         "PlanRunner": {
@@ -502,6 +502,7 @@
           "setback": 5.0,
           "setbackLong": 5.5,
           "time": 1800,
+          "closePosition": "profit",
           "setbackProfit": 2.7,
           "triggerProfit": 4.3,
           "timeProfit": 120,
@@ -532,7 +533,7 @@
         "TimeStop": {
           "minCandles": 48,
           "trailingStopPerc": 1.5,
-          "closePosition": "always",
+          "closePosition": "profit",
           "time": 30,
           "keepTrendOpen": false,
           "low": 25,
@@ -770,7 +771,7 @@
           "valueAreaPercent": 85.0,
           "waitEntrySec": 900,
           "clearTradeTicks": 8,
-          "minVolumeSpike": 0.9,
+          "minVolumeSpike": 1.2,
           "percentBThreshold": 0.04,
           "trailingStopPerc": 0.05,
           "N": 20,
@@ -1082,7 +1083,7 @@
           "valueAreaPercent": 85.0,
           "waitEntrySec": 900,
           "clearTradeTicks": 8,
-          "minVolumeSpike": 0.9,
+          "minVolumeSpike": 1.2,
           "percentBThreshold": 0.04,
           "trailingStopPerc": 0.05,
           "N": 20,
@@ -1230,7 +1231,7 @@
           "valueAreaPercent": 85.0,
           "waitEntrySec": 900,
           "clearTradeTicks": 8,
-          "minVolumeSpike": 0.9,
+          "minVolumeSpike": 1.2,
           "percentBThreshold": 0.04,
           "trailingStopPerc": 0.05,
           "N": 20,
@@ -1667,7 +1668,7 @@
               "action": "buy",
               "comp": "<",
               "position": "none",
-              "rate": 0.0125,
+              "rate": 0.009663,
               "reason": "middle high",
               "indicators": ["RSI"]
             },
