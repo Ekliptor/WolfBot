@@ -1,8 +1,8 @@
-// Example of how to connect to WolfBot using WebSockets to receive
+// Example for NodeJS of how to connect to WolfBot using WebSockets to receive
 // - live trades data
 // - live strategy data
 
-const WebSocket = require('ws');
+//const WebSocket = require('ws');
 
 
 class WolfbotWebsocketAPI {

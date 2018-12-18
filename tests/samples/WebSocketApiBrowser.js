@@ -1,14 +1,12 @@
-// Example of how to connect to WolfBot using WebSockets to receive
+// Example for the browser of how to connect to WolfBot using WebSockets to receive
 // - live trades data
 // - live strategy data
-
-//const WebSocket = require('ws');
 
 
 class WolfbotWebsocketAPI {
     constructor() {
         // WOLFBOT_API_KEY is the api key of your WolfBot instance
-        this.ws = new WebSocket('wss://hostname:port/?apiKey=WOLFBOT_API_KEY&format=json');
+        this.ws = new WebSocket('wss://bz38fnr.wolfbot.org:8443/?apiKey=UujuyIMxTarguzWW0xCh&format=json');
 
         // add WebSocket event listeners
         this.ws.onerror = (error) => {
