@@ -2,7 +2,7 @@
 // - live trades data
 // - live strategy data
 
-//const WebSocket = require('ws');
+const WebSocket = require('ws');
 
 
 class WolfbotWebsocketAPI {
