@@ -62,8 +62,7 @@ if (!nconf.get('tlsPort'))
     nconf.set('tlsPort', nconf.get('tlsPortDef'))
 if (!argv.trader)
     nconf.set('trader', 'RealTimeTrader')
-if (argv.paper)
-    nconf.set('tradeMode', 1)
+nconf.set('tradeMode', argv.paper ? 1 : 0);
 // TODO for better command line interface: https://www.npmjs.com/package/commander
 if (process.env.IS_CHILD) {
     nconf.set('port', 0) // we run multiple processes, let NodeJS choose free ports

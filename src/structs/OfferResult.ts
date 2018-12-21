@@ -32,7 +32,7 @@ export class OfferResult {
         else if (json.id) // Bitfinex lending
             result.offerNumber = json.id;
         if (result.offerNumber === Number.NaN || !result.offerNumber) {
-            logger.warn("Missing order number in order result json:", json)
+            logger.warn("Missing order-offer number in order result json:", json)
             result.offerNumber = 0;
         }
 

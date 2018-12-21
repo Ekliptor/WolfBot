@@ -114,7 +114,6 @@ export abstract class AbstractStrategy extends AbstractGenericStrategy {
     protected rate = -1; // return a rate > 0 if this strategy forces AbstractTrader to buy/sell at a specific price
     protected closedPositions = false; // our strategy is already running for a while and closed (not just started). needed for sync
     protected orderAmountPercent = 0.0;
-    protected mainStrategy = false;
     protected openOppositePositions = false;
     protected tradePosition: TradePosition = null; // for non-margin trading
     protected position: MarginPosition = null;
@@ -389,19 +388,6 @@ export abstract class AbstractStrategy extends AbstractGenericStrategy {
         return false;
     }
 
-    /**
-     * Set this strategy to be the main strategy. Usually the first strategy in the config is the main one.
-     * A main strategy is able to determine the current trend we trade on (so it is able to send conflicting buy/sell signals)
-     * @param mainStrategy
-     */
-    public setMainStrategy(mainStrategy: boolean) {
-        this.mainStrategy = mainStrategy;
-    }
-
-    public isMainStrategy() {
-        return this.mainStrategy;
-    }
-
     public canOpenOppositePositions() {
         return this.mainStrategy || this.openOppositePositions;
     }
@@ -626,6 +612,8 @@ export abstract class AbstractStrategy extends AbstractGenericStrategy {
      */
     public unserialize(state: GenericStrategyState) {
         super.unserialize(state);
+        if (this.candles1min.length === 0)
+            this.scheduleRestore1minCandlesFromMainStrategy();
         this.entryPrice = state.entryPrice;
         this.action.order = state.strategyOrder;
         this.strategyPosition = state.strategyPosition;
@@ -650,6 +638,17 @@ export abstract class AbstractStrategy extends AbstractGenericStrategy {
 
     // ################################################################
     // ###################### PRIVATE FUNCTIONS #######################
+
+    protected scheduleRestore1minCandlesFromMainStrategy() {
+        setTimeout(() => { // do this after all strategies are loaded
+            let mainStrategies = this.strategyGroup.getMainStrategies();
+            if (mainStrategies.length === 0) {
+                logger.warn("No main strategy found in %s %s to unserialize 1min candle history", this.action.pair.toString(), this.className);
+                return;
+            }
+            this.candles1min = mainStrategies[0].getCandles1Min(); // don't copy them to save memory
+        }, 0);
+    }
 
     /**
      * Emit a buy call from this strategy.

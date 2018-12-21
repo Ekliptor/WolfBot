@@ -821,6 +821,7 @@ export abstract class PortfolioTrader extends AbstractTrader {
 
                     let state = {}
                     state[confPair] = this.tradeAdvisor.serializeStrategyData(confPair);
+                    state[confPair].performance = JSON.stringify(tradeResult);
                     // don't serialize all states during backfind
                     if ((!process.env.IS_CHILD || process.env.SAVE_STATE) && Object.keys(state).length !== 0 && Object.keys(state[confPair]).length !== 0) {
                         target = target.replace(/\.html/, ".json")

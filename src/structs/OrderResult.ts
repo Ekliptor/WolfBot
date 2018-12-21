@@ -39,7 +39,8 @@ export class OrderResult {
     orderNumber: number | string = 0;
     resultingTrades : TradeList = new TradeList();
 
-    constructor() {
+    constructor(message = "") {
+        this.message = message;
     }
 
     public static fromJson(json, currencyPair: Currency.CurrencyPair, exchange: AbstractExchange) {

@@ -69,7 +69,8 @@ export class TradeBook {
         }
         else
             type = order.type === Trade.TradeType.BUY ? BotTrade.LogTradeType.BUY : BotTrade.LogTradeType.SELL;
-        let botTrade = new BotTrade.BotTrade(order.date, market, type, order.exchange, order.currencyPair)
+        let botTrade = new BotTrade.BotTrade(order.date, market, type, order.exchange, order.currencyPair);
+        botTrade.paper = nconf.get("tradeMode") === 1;
         let strategies = this.tradeAdvisor.getStrategies();
         let pairStrategies = strategies.get(configCurrencyPair);
         botTrade.setTradingData(this.tradeAdvisor.getConfigName(), pairStrategies.map(s => s.getClassName()), trades, info.reason);

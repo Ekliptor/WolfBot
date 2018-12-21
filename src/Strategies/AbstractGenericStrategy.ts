@@ -50,6 +50,7 @@ export interface GenericStrategyAction {
 export abstract class AbstractGenericStrategy extends EventEmitter {
     protected className: string;
     protected action: GenericStrategyAction;
+    protected mainStrategy = false; // only used for trading mode (with multiple strategies) currently
     protected readonly runningCandleSize: number = -1;
     protected marketPrice: number = -1; // price of the last trade for the market this strategy is watching
     protected lastMarketPrice: number = -1;
@@ -117,6 +118,19 @@ export abstract class AbstractGenericStrategy extends EventEmitter {
 
     public getAction() {
         return this.action;
+    }
+
+    /**
+     * Set this strategy to be the main strategy. Usually the first strategy in the config is the main one.
+     * A main strategy is able to determine the current trend we trade on (so it is able to send conflicting buy/sell signals)
+     * @param mainStrategy
+     */
+    public setMainStrategy(mainStrategy: boolean) {
+        this.mainStrategy = mainStrategy;
+    }
+
+    public isMainStrategy() {
+        return this.mainStrategy;
     }
 
     public getMarketTime() {
@@ -274,11 +288,12 @@ export abstract class AbstractGenericStrategy extends EventEmitter {
      * Overwrite this function to serialize more data.
      */
     public serialize(): GenericStrategyState {
+        // TODO move candles up to strategy group for all strategies with same candleSize
         return {
             // json gets too big with trade data data (> 500MB for 2 weeks)
             runningCandleSize: this.runningCandleSize,
             candleHistory: Candle.Candle.copy(this.candleHistory), // TODO add parameter to remove oldest candles (checking candle start property)
-            candles1min: Candle.Candle.copy(this.candles1min),
+            candles1min: nconf.get("lending") === true || nconf.get("arbitrage") === true || this.isMainStrategy() === true ? Candle.Candle.copy(this.candles1min) : [],
             lastNotification: this.lastNotification
         }
     }
@@ -289,7 +304,8 @@ export abstract class AbstractGenericStrategy extends EventEmitter {
         // use if (state.value) this.value = state.value; to avoid undefined problems during update
 
         this.candleHistory = Candle.Candle.copy(state.candleHistory);
-        this.candles1min = Candle.Candle.copy(state.candles1min);
+        if (state.candles1min && state.candles1min.length !== 0)
+            this.candles1min = Candle.Candle.copy(state.candles1min);
         this.candle = this.getCandleAt(0);
         if (this.candle)
             this.candleTrend = this.candle.trend;
