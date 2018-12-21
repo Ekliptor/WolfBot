@@ -1150,7 +1150,7 @@
     },
     {
       "exchanges": ["Bitfinex"],
-      "marginTrading": false,
+      "marginTrading": true,
       "tradeTotalBtc": 0.0,
       "notifyTrades": true,
       "strategies": {
@@ -1720,7 +1720,7 @@
     {
       "exchanges": ["Bitfinex"],
       "marginTrading": true,
-      "tradeTotalBtc": 120.0,
+      "tradeTotalBtc": 0.0,
       "notifyTrades": true,
       "strategies": {
         "PlanRunner": {

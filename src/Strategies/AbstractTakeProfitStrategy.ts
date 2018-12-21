@@ -137,6 +137,11 @@ export abstract class AbstractTakeProfitStrategy extends /*AbstractStrategy*/Tec
         return this.stopCountStart;
     }
 
+    public onConfigChanged() {
+        super.onConfigChanged();
+        this.closedPositions = false;
+    }
+
     // ################################################################
     // ###################### PRIVATE FUNCTIONS #######################
 

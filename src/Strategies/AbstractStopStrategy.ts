@@ -155,6 +155,11 @@ export abstract class AbstractStopStrategy extends /*AbstractStrategy*/Technical
         return this.stopCountStart;
     }
 
+    public onConfigChanged() {
+        super.onConfigChanged();
+        this.closedPositions = false;
+    }
+
     // ################################################################
     // ###################### PRIVATE FUNCTIONS #######################
 

@@ -621,7 +621,7 @@ export abstract class AbstractStrategy extends AbstractGenericStrategy {
         this.done = state.done;
         this.lastRun = state.lastRun;
         this.lastTrade = state.lastTrade;
-        this.closedPositions = state.closedPositions === true;
+        //this.closedPositions = state.closedPositions === true; // better don't repeat close after restart. config might have changed
         this.lastTradeTimeClass = state.lastTradeTimeClass;
         this.lastTradeTimePair = state.lastTradeTimePair;
         if (typeof state.holdingCoins === "number")
