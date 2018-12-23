@@ -12,7 +12,7 @@
               "action": "buy",
               "comp": "<",
               "position": "none",
-              "rate": 2700.9,
+              "rate": 3900.9,
               "reason": "middle high",
               "indicators": ["RSI"]
             },
@@ -20,7 +20,7 @@
               "action": "sell",
               "comp": ">",
               "position": "none",
-              "rate": 6810.9,
+              "rate": 4300.9,
               "reason": "middle high",
               "indicators": ["RSI"]
             }
@@ -1151,7 +1151,7 @@
     {
       "exchanges": ["Bitfinex"],
       "marginTrading": true,
-      "tradeTotalBtc": 0.0,
+      "tradeTotalBtc": 120.0,
       "notifyTrades": true,
       "strategies": {
         "PlanRunner": {
@@ -1188,6 +1188,23 @@
           "tradeDirection": "watch",
           "candleSize": 240,
           "pair": "USD_BCH",
+          "tradeStrategy": "RSIScalpOrderer",
+          "enableLog": true
+        },
+        "BollingerBouncer": {
+          "interval": 48,
+          "volumeRows": 24,
+          "valueAreaPercent": 85.0,
+          "waitEntrySec": 900,
+          "clearTradeTicks": 8,
+          "minVolumeSpike": 1.2,
+          "percentBThreshold": 0.04,
+          "trailingStopPerc": 0.05,
+          "N": 20,
+          "K": 2,
+          "MAType": 0,
+          "pair": "USD_BCH",
+          "candleSize": 60,
           "tradeStrategy": "RSIScalpOrderer",
           "enableLog": true
         },

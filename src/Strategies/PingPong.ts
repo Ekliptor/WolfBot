@@ -142,7 +142,8 @@ export default class PingPong extends TechnicalStrategy {
 
     public unserialize(state: any) {
         super.unserialize(state);
-        this.trailingStopPrice = state.trailingStopPrice;
+        if (this.trailingStopPrice) // be sure this never gets undefined
+            this.trailingStopPrice = state.trailingStopPrice;
     }
 
     // ################################################################

@@ -179,7 +179,8 @@ export default class BollingerBouncer extends TechnicalStrategy {
 
     public unserialize(state: any) {
         super.unserialize(state);
-        this.trailingStopPrice = state.trailingStopPrice;
+        if (this.trailingStopPrice) // be sure this never gets undefined
+            this.trailingStopPrice = state.trailingStopPrice;
         if (state.lastBuy)
             this.lastBuy = Object.assign(new LastTradePoint(state.lastBuy.rate), state.lastBuy);
         if (state.lastSell)
