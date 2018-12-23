@@ -185,7 +185,6 @@ export default class BollingerBouncer extends TechnicalStrategy {
             this.lastBuy = Object.assign(new LastTradePoint(state.lastBuy.rate), state.lastBuy);
         if (state.lastSell)
             this.lastSell = Object.assign(new LastTradePoint(state.lastSell.rate), state.lastSell);
-        this.candles1min
     }
 
     // ################################################################

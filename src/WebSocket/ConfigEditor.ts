@@ -719,7 +719,8 @@ export class ConfigEditor extends AppPublisher {
                         tradeTotalBtc: conf.tradeTotalBtc,
                         maxLeverage: conf.maxLeverage ? parseFloat(conf.maxLeverage) : 1.0,
                         tradeDirection: conf.tradeDirection,
-                        warmUpMin: conf.warmUpMin
+                        warmUpMin: conf.warmUpMin,
+                        updateIndicatorsOnTrade: conf.updateIndicatorsOnTrade
                     }
                     if (configs.length > i)
                         configs[i].update(update)

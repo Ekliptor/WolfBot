@@ -27,6 +27,7 @@ export interface LendingStrategyAction {
  */
 export abstract class AbstractLendingStrategy extends AbstractGenericStrategy {
     protected action: LendingStrategyAction;
+    protected config: LendingConfig = null;
     protected minInterestRate: number = 0;
     protected lendingOrderbookReady = false;
     protected lendingOrderBook = new OrderBook<Funding.FundingOrder>();
@@ -38,6 +39,14 @@ export abstract class AbstractLendingStrategy extends AbstractGenericStrategy {
             this.action.percentDecrease = 0.0;
         if (typeof options.pair === "string")
             this.action.currency = LendingConfig.getCurrency(options.currency);
+    }
+
+    public setConfig(config: LendingConfig) {
+        if (this.config !== null) {
+            logger.error("Config can only be set once in %s", this.className);
+            return;
+        }
+        this.config = config;
     }
 
     public sendTick(trades: Funding.FundingTrade[]) {

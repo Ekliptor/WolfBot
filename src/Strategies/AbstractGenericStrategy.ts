@@ -19,6 +19,7 @@ import {AbstractNotification} from "../Notifications/AbstractNotification";
 import {AbstractCandlestickPatterns} from "../Indicators/Candlestick/AbstractCandlestickPatterns";
 import {Trendlines} from "../Indicators/Trendline/Trendlines";
 import {FibonacciRetracement} from "../Indicators/Trendline/FibonacciRetracement";
+import {LendingConfig} from "../Lending/LendingConfig";
 
 
 export interface InfoProperty {
@@ -161,6 +162,8 @@ export abstract class AbstractGenericStrategy extends EventEmitter {
         return this.lastAvgMarketPrice;
     }
 
+    public abstract setConfig(config: TradeConfig | LendingConfig): void;
+
     public getCandle() {
         return this.candle;
     }
@@ -171,6 +174,13 @@ export abstract class AbstractGenericStrategy extends EventEmitter {
             let isNew = true;
             if (this.currentCandle && this.currentCandle.start.getTime() === candle.start.getTime())
                 isNew = false;
+            if (typeof candle.close !== "number") { // shouldn't happen as CandleMaker always has a close and open value
+                //candle = Candle.Candle.copy([candle], true)[0];
+                if (candle.tradeData && candle.tradeData.length > 0)
+                    candle.close = candle.tradeData[candle.tradeData.length-1].rate;
+                else
+                    candle.close = candle.open;
+            }
             this.currentCandle = candle;
             //this.emit("onCurrentCandleTick", this); // sync call to events. currently no event for done (save CPU, not needed, same as trades event)
             return this.currentCandleTick(candle, isNew)

@@ -223,6 +223,8 @@ export abstract class TechnicalStrategy extends AbstractStrategy implements Tech
      */
     protected candleTick(candle: Candle.Candle): Promise<void> {
         return new Promise<void>((resolve, reject) => {
+            if (this.config.updateIndicatorsOnTrade === true)
+                return resolve();
             this.addCandle(candle);
 
             let candleCalcOps = []
@@ -240,6 +242,37 @@ export abstract class TechnicalStrategy extends AbstractStrategy implements Tech
                 resolve() // wait for the possibly async indicator check
             }).catch((err) => {
                 logger.error("Error calculating indicators on candle update in %s", this.className, err)
+            })
+            //resolve() // we can continue immediately
+        })
+    }
+
+    protected currentCandleTick(candle: Candle.Candle, isNew: boolean): Promise<void> {
+        return new Promise<void>((resolve, reject) => {
+            if (this.config.updateIndicatorsOnTrade === false)
+                return resolve();
+            if (this.candles.length !== 0)
+                this.candles.splice(-1, 1);
+            this.addCandle(candle);
+            //if (this.candle === null)
+                this.candle = candle; // a lot of strategies use it in checkIndicators() // always set it for now
+            // TODO this means secondLastRSI etc.. values are from the last tick instead of the last candle. strategies using this setting should be modified
+
+            let candleCalcOps = []
+            for (let ind of this.indicators)
+            {
+                ind[1].sync(candle);
+                candleCalcOps.push(ind[1].addCandle(candle));
+            }
+            Promise.all(candleCalcOps).then(() => {
+                let promise = null;
+                if (this.allIndicatorsReady())
+                    promise = this.checkIndicators();
+                return promise ? promise : Promise.resolve()
+            }).then(() => {
+                resolve() // wait for the possibly async indicator check
+            }).catch((err) => {
+                logger.error("Error calculating indicators on current candle update in %s", this.className, err)
             })
             //resolve() // we can continue immediately
         })

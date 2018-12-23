@@ -87,6 +87,7 @@ export abstract class AbstractStrategy extends AbstractGenericStrategy {
     // TODO count winTrades and lossTrades for some strategies (such as BladeRunner) -> new subclass?
     // TODO include exchange name in notifications. just like in TradeNotifier. strategy doesn't know exchange + config
     protected action: StrategyAction;
+    protected config: TradeConfig = null;
     protected defaultWeight: number = 100;
     protected strategyPosition: StrategyPosition = "none";
     protected holdingCoins = 0.0;
@@ -193,6 +194,14 @@ export abstract class AbstractStrategy extends AbstractGenericStrategy {
         }).catch((err) => {
             logger.error("Error in 1min candle tick of %s", this.className, err)
         })
+    }
+
+    public setConfig(config: TradeConfig) {
+        if (this.config !== null) {
+            logger.error("Config can only be set once in %s", this.className);
+            return;
+        }
+        this.config = config;
     }
 
     public getAction() {

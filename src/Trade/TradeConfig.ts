@@ -14,6 +14,7 @@ export interface ConfigRuntimeUpdate {
     maxLeverage: number;
     tradeDirection: TradeDirection;
     warmUpMin: number;
+    updateIndicatorsOnTrade: boolean;
 }
 
 export class TradeConfig extends AbstractConfig {
@@ -25,6 +26,7 @@ export class TradeConfig extends AbstractConfig {
     public readonly maxLeverage = 0.0; // in AbstractExchange default is 0.0 too
     public readonly tradeDirection: TradeDirection = "both";
     public readonly warmUpMin: number = 0;
+    public readonly updateIndicatorsOnTrade: boolean = false;
     public readonly notifyTrades: boolean = false;
     //public readonly strategies: any; // not stored here. strategies have their own instances
     //public readonly configNr: number = 0;
@@ -58,6 +60,8 @@ export class TradeConfig extends AbstractConfig {
             this.tradeDirection = json.tradeDirection;
         if (json.warmUpMin)
             this.warmUpMin = parseInt(json.warmUpMin);
+        if (typeof json.updateIndicatorsOnTrade === "boolean")
+            this.updateIndicatorsOnTrade = json.updateIndicatorsOnTrade;
         if (typeof json.notifyTrades === "boolean")
             this.notifyTrades = json.notifyTrades;
     }

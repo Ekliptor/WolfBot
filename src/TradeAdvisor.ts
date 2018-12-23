@@ -505,6 +505,7 @@ export default class TradeAdvisor extends AbstractAdvisor {
                     let strategies = this.strategies.get(configCurrencyPair)
                     if (!strategies)
                         strategies = []
+                    strategyInstance.setConfig(config);
                     strategies.push(strategyInstance)
                     this.strategies.set(configCurrencyPair, strategies)
                     this.connectStrategyEvents(config, strategyInstance, pair);
