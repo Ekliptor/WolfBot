@@ -6,7 +6,7 @@ import {AbstractExchange, ExchangeMap} from "./Exchanges/AbstractExchange";
 import {Brain} from "./AI/Brain";
 import {ConfigEditor} from "./WebSocket/ConfigEditor";
 import {TradeConfig, ConfigCurrencyPair} from "./Trade/TradeConfig";
-import {Currency, Process} from "@ekliptor/bit-models";
+import {Currency, Process, serverConfig} from "@ekliptor/bit-models";
 import * as db from'./database';
 import * as path from "path";
 import * as fs from "fs";
@@ -34,6 +34,7 @@ export default class ExchangeController extends AbstractSubController {
             return; // updater instance...
         if (this.configFilename.substr(-5) !== ".json")
             this.configFilename += ".json";
+        this.ensureAllExchangesPresent();
         this.loadConfig();
         // TODO "quickstart" for live trading
         // 1. fetch trade history of last x days (can be a lot to be sure)
@@ -228,6 +229,18 @@ export default class ExchangeController extends AbstractSubController {
                 reject(err)
             })
         })
+    }
+
+    protected ensureAllExchangesPresent() {
+        const emptyConfig = new serverConfig.ServerConfig();
+        let exchanges = Array.from(Currency.ExchangeName.keys());
+        exchanges.forEach((exchange) => {
+            let exchangeConf = nconf.get("serverConfig:apiKey:exchange:" + exchange);
+            if (exchangeConf)
+                return;
+            logger.error("Exchange %s api key config is missing, restoring defaults", exchange);
+            nconf.set("serverConfig:apiKey:exchange:" + exchange, emptyConfig.apiKey.exchange[exchange]);
+        });
     }
 
     protected loadConfig() {
