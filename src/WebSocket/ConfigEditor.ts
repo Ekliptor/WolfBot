@@ -481,9 +481,40 @@ export class ConfigEditor extends AppPublisher {
                         this.sendConfigErrorOnce();
                     }
                 }
+                data = this.ensureProperConfigFileData(data);
                 resolve(data)
             })
         })
+    }
+
+    protected ensureProperConfigFileData(data: string): string {
+        let json = utils.parseJson(data);
+        if (json === null || Array.isArray(json.data) === false) {
+            logger.error("Invalid config JSON data found")
+            return data;
+        }
+        // ensure no errors (happens after we update config pairs to same value)
+        json.data.forEach((curData) => {
+            for (let strategyName in curData.strategies)
+            {
+                let strategyData = curData.strategies[strategyName];
+                if (typeof strategyData.pair !== "string")
+                    strategyData.pair = this.ensureCurrencyPairString(strategyData.pair);
+            }
+        });
+        return utils.stringifyBeautiful(json);
+    }
+
+    protected ensureCurrencyPairString(pair: any): string {
+        if (typeof pair === "string")
+            return pair;
+        if (pair instanceof Currency.CurrencyPair)
+            return pair.toString();
+        if (!pair.from || !pair.to) {
+            logger.error("Unknown currency pair data provided: %s", JSON.stringify(pair));
+            return (new Currency.CurrencyPair(Currency.Currency.USD, Currency.Currency.BTC)).toString();
+        }
+        return (new Currency.CurrencyPair(pair.from, pair.to)).toString();
     }
 
     protected async readConfigFileParsed(name: string, updateStrategyValues: boolean = true) {
@@ -547,6 +578,8 @@ export class ConfigEditor extends AppPublisher {
     protected copyFirstStrategyCurrencyPair(json: StrategyJson, firstCurrencyPair: string = null) {
         // lending strategies have their currency pair one level above in config
         let missingPair = false;
+        if (firstCurrencyPair !== null && typeof firstCurrencyPair !== "string")
+            firstCurrencyPair = this.ensureProperConfigFileData(firstCurrencyPair);
         for (let name in json)
         {
             let conf = json[name];
@@ -556,7 +589,7 @@ export class ConfigEditor extends AppPublisher {
                 continue;
             }
             if (firstCurrencyPair === null) {
-                firstCurrencyPair = conf.pair;
+                firstCurrencyPair = this.ensureCurrencyPairString(conf.pair);
                 continue;
             }
             else if (conf.pair !== firstCurrencyPair) {

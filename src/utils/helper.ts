@@ -4,19 +4,24 @@ const nconf = utils.nconf
 
 let checkedParent = false;
 
-export function sendMessageToParent(message: any) {
+export function sendMessageToParent(message: any, exitOnError = false) {
     return new Promise<void>((resolve, reject) => {
         if (typeof process.send !== "function") {
             if (checkedParent === false) {
                 checkedParent = true;
                 let type = message.type ? message.type : "unknown";
                 logger.verbose("NodeJS is not running as a child process. Skipped sending '%s' message to parent.", type)
+                if (exitOnError === true)
+                    process.exit(0);
             }
             return setTimeout(resolve.bind(this), 0);
         }
         process.send(message, undefined, undefined, (err) => {
-            if (err)
+            if (err) {
+                if (exitOnError === true)
+                    process.exit(0);
                 return reject({txt: "Error sending message to parent process", err: err})
+            }
             resolve()
         })
     })
