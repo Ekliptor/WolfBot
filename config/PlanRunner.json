@@ -20,7 +20,7 @@
               "action": "sell",
               "comp": ">",
               "position": "none",
-              "rate": 4300.9,
+              "rate": 5000.9,
               "reason": "middle high",
               "indicators": ["RSI"]
             }

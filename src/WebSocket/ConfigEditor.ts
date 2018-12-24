@@ -20,7 +20,6 @@ import {SocialController} from "../Social/SocialController";
 import {SocialConfig} from "../Social/SocialConfig";
 import {BotConfigMode} from "../Trade/AbstractConfig";
 import * as db from "../database";
-import {setUserUpdateSec} from "@ekliptor/bit-models/build/models/user";
 import {AbstractNotification} from "../Notifications/AbstractNotification";
 import Notification from "../Notifications/Notification";
 
@@ -119,6 +118,7 @@ export class ConfigEditor extends AppPublisher {
     protected selectedTab: ConfigTab = "tabGeneral";
     protected configErrorTimer: NodeJS.Timer = null;
     protected lastWorkingExchanges: string[] = [];
+    protected pairChangePendingRestart = false;
 
     constructor(serverSocket: ServerSocket, advisor: AbstractAdvisor) {
         super(serverSocket, advisor)
@@ -284,7 +284,14 @@ export class ConfigEditor extends AppPublisher {
             this.saveConfigFile(data.configName, data.saveConfig).then(() => {
                 let requireRestrt = this.updateConfig(data.saveConfig);
                 this.send(clientSocket, {saved: true, restart: requireRestrt})
-            }).catch((err) => {
+                // causes problems when reading changes, possible reverting currency pair
+                //return this.readConfigFile(this.selectedConfig)
+            /*}).then((configFileData) => {
+                this.send(clientSocket, { // make sure we display latest values
+                    configFileData: configFileData,
+                    jsonEditorData: this.createEditorSchema(configFileData, this.selectedConfig),
+                });
+            */}).catch((err) => {
                 logger.error("Error saving config", err)
                 this.send(clientSocket, {error: true, errorTxt: "Error saving config."})
             });
@@ -352,8 +359,11 @@ export class ConfigEditor extends AppPublisher {
                 nconf.set("serverConfig:apiKey:notify:" + method, currentKey);
                 serverConfig.saveConfigLocal();
             }
-            if (JSON.stringify(nconf.get("serverConfig:apiKey:notify")) !== previousNotficiationSetting)
-                this.sendTestNotification(data.notificationMeta.title, data.notificationMeta.text);
+            if (JSON.stringify(nconf.get("serverConfig:apiKey:notify")) !== previousNotficiationSetting) {
+                setTimeout(() => { // delay this to ensure we use the latest config
+                    this.sendTestNotification(data.notificationMeta.title, data.notificationMeta.text);
+                }, 1000);
+            }
             this.send(clientSocket, {saved: true})
         }
         else if (typeof data.debugMode === "boolean") {
@@ -595,6 +605,7 @@ export class ConfigEditor extends AppPublisher {
             else if (conf.pair !== firstCurrencyPair) {
                 logger.warn("Different currency pairs for strategies found. Updating %s to %s in %s strategy", conf.pair, firstCurrencyPair, name);
                 conf.pair = firstCurrencyPair;
+                this.pairChangePendingRestart = true;
             }
         }
         if (missingPair === true && firstCurrencyPair !== null)
@@ -633,6 +644,8 @@ export class ConfigEditor extends AppPublisher {
                             // check if the value in the json string "conf" is idential to the current live state
                             // compare as strings to be sure comparison works for objects such as CurrencyPair
                             if (strategyConf[prop] !== undefined && action[prop] !== undefined && strategyConf[prop].toString() !== action[prop].toString()) {
+                                if (prop === "pair" && this.pairChangePendingRestart === true)
+                                    continue;
                                 logger.verbose("updating strategy %s %s %s from %s to %s", strat.getAction().pair.toString(), strat.getClassName(), prop, strategyConf[prop], action[prop])
                                 strategyConf[prop] = action[prop];
                             }
@@ -665,6 +678,8 @@ export class ConfigEditor extends AppPublisher {
                             // check if the value in the json string "conf" is idential to the current live state
                             // compare as strings to be sure comparison works for objects such as CurrencyPair
                             if (strategyConf[prop] !== undefined && action[prop] !== undefined && strategyConf[prop].toString() !== action[prop].toString()) {
+                                if ((prop === "pair" || prop === "currency") && this.pairChangePendingRestart === true)
+                                    continue;
                                 logger.verbose("updating strategy %s %s %s from %s to %s", strat.getAction().currency.toString(), strat.getClassName(), prop, strategyConf[prop], action[prop])
                                 strategyConf[prop] = action[prop];
                             }

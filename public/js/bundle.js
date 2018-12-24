@@ -3094,6 +3094,7 @@ class TradingViewDatafeed extends ClientSocket_1.ClientSocketReceiver {
                 configNr: this.configNr,
                 currencyPair: this.currencyPair,
                 //id: this.configNr + "-" + this.currencyPair + "-" + this.strategyName
+                strategy: this.strategyName,
                 id: subscriberUID.toString()
             },
             strategy: this.strategyName

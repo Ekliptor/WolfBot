@@ -41,6 +41,13 @@ export class CandleBatcher<T extends TradeBase> extends CandleStream<T> {
         return this.isMax;
     }
 
+    /**
+     * Batch candles to a single larger candle.
+     * Candles can have different candle sizes. The start date of the new candle will be the value of the 1st candle.
+     * @param smallCandles
+     * @param interval
+     * @param copyCandles
+     */
     public static batchCandles(smallCandles: Candle.Candle[], interval: number = 0, copyCandles = true): Candle.Candle {
         if (copyCandles)
             smallCandles = _.cloneDeep(smallCandles); // ensure we don't modify any data of candles being used outside of this class

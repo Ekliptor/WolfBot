@@ -261,8 +261,10 @@ export abstract class TechnicalStrategy extends AbstractStrategy implements Tech
             let candleCalcOps = []
             for (let ind of this.indicators)
             {
-                ind[1].sync(candle);
-                candleCalcOps.push(ind[1].addCandle(candle));
+                const indicator: AbstractIndicator = ind[1];
+                // TODO also replace candle on indicator
+                indicator.sync(candle);
+                candleCalcOps.push(indicator.addCandle(candle));
             }
             Promise.all(candleCalcOps).then(() => {
                 let promise = null;

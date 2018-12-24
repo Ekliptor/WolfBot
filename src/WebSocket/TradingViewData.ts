@@ -20,6 +20,7 @@ import {AbstractConfig} from "../Trade/AbstractConfig";
 import {AbstractLendingStrategy} from "../Lending/Strategies/AbstractLendingStrategy";
 import * as TradingView from "../../public/js/libs/tv/charting_library.min"
 import {CandleMaker} from "../Trade/Candles/CandleMaker";
+import {CandleBatcher} from "../Trade/Candles/CandleBatcher";
 
 export type CandleBarArray = number[][];
 export interface ChartSymbolUpdate {
@@ -75,10 +76,22 @@ interface RaltimeUpdate {
 }
 class RealtimeUpdateMap extends Map<string, RaltimeUpdate> { // (websocket client ID, listener)
 }
+class LatestCandleInfo {
+    public strategyName: string;
+    public candleSize: number;
+    public candle: Candle.Candle = null; // the very first candle. can be null if we don't have data yet
+    public lastCandleStart: Date = null;
+    public lastCandle: Candle.Candle = null; // the current candle we are adding data to for candleSize minutes
+    constructor(strategyName: string, candleSize: number) {
+        this.strategyName = strategyName;
+        this.candleSize = candleSize;
+    }
+}
 
 export class TradingViewData extends AppPublisher {
     public readonly opcode = WebSocketOpcode.TRADINGVIEW;
     protected realtimeUpdates = new RealtimeUpdateMap();
+    protected latestCandleMap = new Map<string, LatestCandleInfo>();
 
     constructor(serverSocket: ServerSocket, advisor: AbstractAdvisor) {
         super(serverSocket, advisor)
@@ -176,6 +189,10 @@ export class TradingViewData extends AppPublisher {
                 const firstExchangeLabel = firstExchange.getExchangeLabel();
                 candles = candles.filter(c => c.exchange === firstExchangeLabel);
             }
+            if (candles.length !== 0)
+                this.addLatestBarForSubscriber(clientSocket, data.strategy, data.bars.configNr, data.bars.currencyPair, candles[candles.length-1]);
+            else
+                this.addLatestBarForSubscriber(clientSocket, data.strategy, data.bars.configNr, data.bars.currencyPair, null);
             this.send(clientSocket, {barArr: Candle.Candle.toBarArray(candles), reqMs: data.reqMs});
         }
     }
@@ -195,6 +212,21 @@ export class TradingViewData extends AppPublisher {
             }
             let maker = this.advisor.getCandleMaker(realtimeReq.currencyPair, exchangeLabel);
             let listener = (candle: Candle.Candle) => {
+                // TradingView library prints a new bar if the date changes, so it must be the same until candleSize has passed
+                let barInfos = this.latestCandleMap.get(clientSocket.id);
+                if (barInfos) {
+                    if (!barInfos.candle)
+                        barInfos.candle = candle; // no data was ready when WS was opened. use this 1min candle as start
+                    // TODO what if data is not real time? call getMarketTime() from strategies
+                    if (barInfos.lastCandleStart && barInfos.lastCandleStart.getTime() + barInfos.candleSize*utils.constants.MINUTE_IN_SECONDS*1000 > Date.now()) {
+                        candle = CandleBatcher.batchCandles([barInfos.lastCandle, candle], barInfos.candleSize, true);
+                    }
+                    else {
+                        barInfos.lastCandleStart = candle.start; // cache the new value
+                        barInfos.lastCandle = candle;
+                    }
+                }
+                //console.log("CURRENT CANDLE update", candle.start)
                 this.send(clientSocket, {
                     realtime: {
                         candles: Candle.Candle.toBarArray([candle]),
@@ -212,13 +244,57 @@ export class TradingViewData extends AppPublisher {
     }
 
     protected stopRealtimeUpdates(data: TradingViewDataReq, clientSocket: ClientSocketOnServer) {
-        const key = data.unsubscribeID + (clientSocket as any).id;
+        const key = data.unsubscribeID + clientSocket.id;
         let update = this.realtimeUpdates.get(key);
         if (update) {
             logger.verbose("Stopping realtime chart updates for subscriber ID %s", key);
             update.candleMaker.removeListener("currentCandle", update.listener);
             this.realtimeUpdates.delete(key)
         }
+        this.latestCandleMap.delete(clientSocket.id);
+    }
+
+    protected addLatestBarForSubscriber(clientSocket: ClientSocketOnServer, strategy: string, configNr: number, currencyPair: string, candle: Candle.Candle) {
+        if (this.latestCandleMap.has(clientSocket.id) === true)
+            logger.warn("Latest candle map already has subscriber ID %s with candle %s", clientSocket.id, utils.date.toDateTimeStr(candle ? candle.start : new Date(), true));
+        let candleSize = candle ? candle.interval : 0;
+        if (candleSize === 0) {
+            candleSize = this.getCandleSizeOfStrategy(strategy, configNr, currencyPair);
+            if (candleSize === 0) {
+                logger.warn("Unable to get candle size for %s. Displaying 1min candles", strategy);
+                candleSize = 1;
+            }
+        }
+        let info = new LatestCandleInfo(strategy, candleSize);
+        if (candle)
+            info.candle = candle;
+        this.latestCandleMap.set(clientSocket.id, info);
+    }
+
+    protected getCandleSizeOfStrategy(strategy: string, configNr: number, currencyPair: string) {
+        if (this.advisor instanceof TradeAdvisor) {
+            const configCurrencyPair = TradeConfig.createConfigCurrencyPair(configNr, Currency.CurrencyPair.fromString(currencyPair));
+            let strategies = this.advisor.getStrategies().get(configCurrencyPair);
+            for (let i = 0; i < strategies.length; i++)
+            {
+                if (strategies[i].getClassName() === strategy)
+                    return strategies[i].getAction().candleSize ? strategies[i].getAction().candleSize : 0;
+            }
+        }
+        else if (this.advisor instanceof LendingAdvisor) {
+            let endPos = currencyPair.indexOf("_");
+            if (endPos === -1)
+                endPos = currencyPair.length;
+            let currencyFirst = currencyPair.substr(0, endPos);
+            const configCurrencyPair = LendingConfig.createConfigCurrencyPair(configNr, Currency.Currency[currencyFirst]);
+            let strategies = this.advisor.getLendingStrategies().get(configCurrencyPair);
+            for (let i = 0; i < strategies.length; i++)
+            {
+                if (strategies[i].getClassName() === strategy)
+                    return strategies[i].getAction().candleSize ? strategies[i].getAction().candleSize : 0;
+            }
+        }
+        return 0;
     }
 
     protected send(ws: ClientSocketOnServer, data: TradingViewDataRes, options?: ServerSocketSendOptions) {
