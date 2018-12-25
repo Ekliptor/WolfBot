@@ -74,6 +74,12 @@ export default class ADX extends AbstractIndicator {
         })
     }
 
+    public removeLatestCandle() {
+        this.valuesHigh = this.removeLatestData(this.valuesHigh);
+        this.valuesLow = this.removeLatestData(this.valuesLow);
+        this.valuesClose = this.removeLatestData(this.valuesClose);
+    }
+
     public isReady() {
         return this.adx !== -1 && this.plusDM !== -1 && this.plusDI !== -1 && this.valuesHigh.length >= this.params.interval
             && (this.adxr !== -1 || this.disabledADXR);

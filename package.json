@@ -11,7 +11,10 @@
     "@ekliptor/bintrees-local": "^1.0.6",
     "@ekliptor/bit-models": "^1.0.35",
     "@ekliptor/bitfinex-api-node-seq": "^1.1.1",
+    "@ekliptor/browserutils": "^0.0.3",
+    "@ekliptor/chrome-browser": "^0.0.4",
     "@ekliptor/node-bittrex-api-fix": "^0.8.2",
+    "@ekliptor/packed-updater": "^1.0.4",
     "@ekliptor/reddit-snooper": "^1.0.1",
     "async": "^2.6.0",
     "autobahn": "^17.5.1",
@@ -21,6 +24,7 @@
     "cheerio": "^0.22.0",
     "datatables.net": "^1.10.16",
     "datatables.net-bs": "^1.10.16",
+    "deribit-ws-nodejs": "^1.0.0",
     "elasticsearch": "^12.1.0",
     "eventemitter2": "^4.1.0",
     "feedparser": "^2.2.8",
@@ -78,7 +82,7 @@
     "gulp-typedoc": "^2.2.0",
     "source-map-loader": "^0.2.3",
     "typedoc": "^0.11.1",
-    "typescript": "2.8.1"
+    "typescript": "3.2.2"
   },
   "workspaces": [
     "packages/*"

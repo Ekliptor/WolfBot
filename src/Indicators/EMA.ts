@@ -35,6 +35,11 @@ export default class EMA extends AbstractIndicator {
         })
     }
 
+    public removeLatestCandle() {
+        this.shortEMA = this.removeLatestData(this.shortEMA);
+        this.longEMA = this.removeLatestData(this.longEMA);
+    }
+
     public isReady() {
         return this.shortLineValue !== -1 && this.longLineValue !== -1 && this.longEMA.length >= this.params.long;
     }

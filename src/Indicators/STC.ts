@@ -100,6 +100,15 @@ export default class STC extends AbstractIndicator {
         })
     }
 
+    public removeLatestCandle() {
+        this.valuesSTC = this.removeLatestData(this.valuesSTC);
+        this.valuesMACD = this.removeLatestData(this.valuesMACD);
+        this.f1Buffer = this.removeLatestData(this.f1Buffer);
+        this.f2Buffer = this.removeLatestData(this.f2Buffer);
+        this.pfBuffer = this.removeLatestData(this.pfBuffer);
+        this.pffBuffer = this.removeLatestData(this.pffBuffer);
+    }
+
     public isReady() {
         return this.value !== -1/* && this.valuesSTC.length >= this.params.interval*/;
     }

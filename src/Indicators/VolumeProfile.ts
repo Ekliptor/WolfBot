@@ -127,6 +127,10 @@ export default class VolumeProfile extends AbstractIndicator {
         })
     }
 
+    public removeLatestCandle() {
+        this.candleHistory = this.removeLatestDataAny<Candle.Candle>(this.candleHistory);
+    }
+
     /**
      * Returns the volume profile bars sorted from highest to lowest volume.
      */

@@ -39,6 +39,10 @@ export default class BollingerBands extends AbstractIndicator {
         })
     }
 
+    public removeLatestCandle() {
+        this.valuesBollinger = this.removeLatestData(this.valuesBollinger);
+    }
+
     public isReady() {
         return this.upperValue !== -1 && this.middleValue !== -1 && this.lowerValue !== -1 && this.valuesBollinger.length >= this.params.N;
     }

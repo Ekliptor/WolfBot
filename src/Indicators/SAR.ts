@@ -37,6 +37,11 @@ export default class SAR extends AbstractIndicator {
         })
     }
 
+    public removeLatestCandle() {
+        this.valuesHigh = this.removeLatestData(this.valuesHigh);
+        this.valuesLow = this.removeLatestData(this.valuesLow);
+    }
+
     public isReady() {
         return this.value !== -1/* && this.valuesHigh.length >= this.params.interval*/;
     }

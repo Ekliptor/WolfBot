@@ -42,6 +42,7 @@ export interface RealtimeSubscribe {
     configNr: number;
     currencyPair: string;
     id: string;
+    candleSize: number;
 }
 export interface RealtimeUpdate {
     candles: CandleBarArray;
@@ -72,7 +73,8 @@ export interface TradingViewDataRes {
 
 interface RaltimeUpdate {
     listener: (...args: any[]) => void;
-    candleMaker: CandleMaker<any>;
+    //candleMaker: CandleMaker<any>;
+    candleMaker: CandleBatcher<any>;
 }
 class RealtimeUpdateMap extends Map<string, RaltimeUpdate> { // (websocket client ID, listener)
 }
@@ -210,9 +212,16 @@ export class TradingViewData extends AppPublisher {
                 }
                 exchangeLabel = firstExchange.getExchangeLabel();
             }
-            let maker = this.advisor.getCandleMaker(realtimeReq.currencyPair, exchangeLabel);
+            //let maker = this.advisor.getCandleMaker(realtimeReq.currencyPair, exchangeLabel);
+            let batchers = this.advisor.getCandleBatchers(realtimeReq.currencyPair, exchangeLabel);
+            let batcher = batchers.get(realtimeReq.candleSize);
+            if (batcher === undefined) {
+                logger.error("No candle batcher of size %s available. Can not update live chart", realtimeReq.candleSize);
+                return;
+            }
             let listener = (candle: Candle.Candle) => {
                 // TradingView library prints a new bar if the date changes, so it must be the same until candleSize has passed
+                // the currentCandle event only brings a new candle every candleSize minutes. but the start might differ from what we show, so better check again
                 let barInfos = this.latestCandleMap.get(clientSocket.id);
                 if (barInfos) {
                     if (!barInfos.candle)
@@ -236,10 +245,10 @@ export class TradingViewData extends AppPublisher {
                         this.stopRealtimeUpdates({unsubscribeID: realtimeReq.id}, clientSocket); // TODO unsubscribe only after x errors?
                 });
             }
-            maker.on("currentCandle", listener);
+            batcher.on("currentCandle", listener);
             const key = realtimeReq.id + (clientSocket as any).id;
             logger.verbose("Starting realtime chart updates for subscriber ID %s", key);
-            this.realtimeUpdates.set(key, {listener: listener, candleMaker: maker});
+            this.realtimeUpdates.set(key, {listener: listener, candleMaker: batcher});
         }
     }
 

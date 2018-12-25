@@ -49,6 +49,11 @@ export default class OBV extends AbstractIndicator {
         })
     }
 
+    public removeLatestCandle() {
+        this.valuesPrice = this.removeLatestData(this.valuesPrice);
+        this.valuesVolume = this.removeLatestData(this.valuesVolume);
+    }
+
     public isReady() {
         return this.value !== -1 && this.valuesPrice.length >= this.params.interval;
     }

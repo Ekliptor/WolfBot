@@ -24,6 +24,7 @@ interface BollingerBouncerAction extends TechnicalStrategyAction {
     minVolumeSpike: number; // default 1.1. The min volume compared to the average volume of the last 'interval' candles to open a position.
     percentBThreshold: number; // 0.01, optional, A number indicating how close to %b the price has to be to consider it "reached".
     trailingStopPerc: number; // optional, default 0.05% ( 0 = disabled) // The trailing stop percentage that will be placed after the opposite Bollinger Band has been reached.
+    pauseTicksOnLoss: number; // optional, default 12. Pause trading for x candles after a position is closed with a loss.
 
     // optional, for defaults see BolloingerBandsParams
     N: number; // The time period for MA of BollingerBands.
@@ -58,6 +59,7 @@ export default class BollingerBouncer extends TechnicalStrategy {
     protected trailingStopPrice: number = -1;
     protected lastBuy: LastTradePoint = null;
     protected lastSell: LastTradePoint = null;
+    protected pauseTicks: number = 0;
     //protected pendingOpenPositionTrade: ScheduledTrade = null; // use pendingOrder
 
     constructor(options) {
@@ -80,6 +82,8 @@ export default class BollingerBouncer extends TechnicalStrategy {
             this.action.percentBThreshold = 0.01;
         if (typeof this.action.trailingStopPerc !== "number")
             this.action.trailingStopPerc = 0.05;
+        if (typeof this.action.pauseTicksOnLoss !== "number")
+            this.action.pauseTicksOnLoss = 12;
         this.addIndicator("VolumeProfile", "VolumeProfile", this.action);
         this.addIndicator("AverageVolume", "AverageVolume", this.action);
         this.addIndicator("BollingerBands", "BollingerBands", this.action);
@@ -150,6 +154,7 @@ export default class BollingerBouncer extends TechnicalStrategy {
         this.addInfoFunction("lastSell", () => {
             return this.lastSell === null ? "" : this.lastSell.toString();
         });
+        this.addInfo("pauseTicks", "pauseTicks");
 
         this.saveState = true;
         this.mainStrategy = true;
@@ -159,6 +164,8 @@ export default class BollingerBouncer extends TechnicalStrategy {
         super.onTrade(action, order, trades, info);
         if (action === "close") {
             this.trailingStopPrice = -1;
+            if (info && info.pl < 0.0)
+                this.pauseTicks = this.action.pauseTicksOnLoss;
         }
     }
 
@@ -174,6 +181,7 @@ export default class BollingerBouncer extends TechnicalStrategy {
         state.trailingStopPrice = this.trailingStopPrice;
         state.lastBuy = this.lastBuy;
         state.lastSell = this.lastSell;
+        state.pauseTicks = this.pauseTicks;
         return state;
     }
 
@@ -185,6 +193,8 @@ export default class BollingerBouncer extends TechnicalStrategy {
             this.lastBuy = Object.assign(new LastTradePoint(state.lastBuy.rate), state.lastBuy);
         if (state.lastSell)
             this.lastSell = Object.assign(new LastTradePoint(state.lastSell.rate), state.lastSell);
+        if (state.pauseTicks)
+            this.pauseTicks = state.pauseTicks;
     }
 
     // ################################################################
@@ -214,6 +224,11 @@ export default class BollingerBouncer extends TechnicalStrategy {
     }
 
     protected checkIndicators() {
+        if (this.pauseTicks > 0) {
+            this.log(utils.sprintf("Skipped checking indicators because trading is paused for %s ticks", this.pauseTicks));
+            this.pauseTicks--;
+            return;
+        }
         const bollinger = this.getBollinger("BollingerBands");
         const value = bollinger.getPercentB(this.candle.close);
         const volumeProfile = this.getVolumeProfile("VolumeProfile");

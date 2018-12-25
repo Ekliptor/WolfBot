@@ -39,6 +39,11 @@ export default class RSI extends AbstractIndicator {
         })
     }
 
+    public removeLatestCandle() {
+        this.valuesRSI = this.removeLatestData(this.valuesRSI);
+        this.valuesVolume = this.removeLatestData(this.valuesVolume);
+    }
+
     public getBuyVolume() {
         return this.buyVolume;
     }

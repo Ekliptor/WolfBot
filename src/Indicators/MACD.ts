@@ -36,6 +36,10 @@ export default class MACD extends AbstractIndicator {
         })
     }
 
+    public removeLatestCandle() {
+        this.valuesMACD = this.removeLatestData(this.valuesMACD);
+    }
+
     public isReady() {
         return this.macd !== -1 && this.signal !== -1 && this.histogram !== -1 && this.valuesMACD.length >= this.params.long;
     }

@@ -43,6 +43,7 @@ export default class Sentiment extends AbstractIndicator {
     protected candleCount = 0;
     protected buckets: TradeRatioBucket[] = [];
     protected currentBucket: TradeRatioBucket = null;
+    protected canAddNewBucket = true;
 
     constructor(params: MomentumIndicatorParams) {
         super(params)
@@ -51,10 +52,17 @@ export default class Sentiment extends AbstractIndicator {
 
     public addCandle(candle: Candle.Candle) {
         return new Promise<void>((resolve, reject) => {
-            this.candleCount++;
-            this.addRatioBucket();
+            if (this.canAddNewBucket === true) {
+                this.candleCount++;
+                this.addRatioBucket();
+            }
+            this.canAddNewBucket = true; // on the next call we can add a new bucket unless removeLatestCandle() has been called again before
             resolve()
         })
+    }
+
+    public removeLatestCandle() {
+        this.canAddNewBucket = false;
     }
 
     public addTrades(trades: Trade.Trade[]) {

@@ -102,7 +102,7 @@ export class CandleMaker<T extends TradeBase> extends CandleStream<T> {
     }
 
     protected emitCurrentCandle(candle: Candle.Candle) {
-        this.emit("currentCandle", candle);
+        this.emit("currentCandle1min", candle);
     }
 
     protected filter(trades: T[]) {

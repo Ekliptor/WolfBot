@@ -120,6 +120,8 @@ export abstract class AbstractIndicator extends DataPlotCollector {
     // for momentum indicators
     protected value = -1;
 
+    protected loggedUnsupportedCandleUpdateOnTrade = false;
+
     constructor(params: IndicatorParams) {
         super()
 
@@ -157,6 +159,11 @@ export abstract class AbstractIndicator extends DataPlotCollector {
             // overwrite in subclass if this strategy uses candles
             resolve()
         })
+    }
+
+    public removeLatestCandle() {
+        // overwrite this if your indicator uses updateIndicatorsOnTrade to update its value within the same candle on live trades
+        // usually means calling removeLatestData() on all number arrays of indicator values
     }
 
     public addPricePoint(price: number): Promise<void> {
@@ -261,6 +268,18 @@ export abstract class AbstractIndicator extends DataPlotCollector {
         return data;
     }
 
+    protected removeLatestData(data: number[]) {
+        if (data.length !== 0)
+            data.splice(-1, 1);
+        return data;
+    }
+
+    protected removeLatestDataAny<T>(data: T[]) {
+        if (data.length !== 0)
+            data.splice(-1, 1);
+        return data;
+    }
+
     protected computeLineDiff(shortResult: TaLibResult, longResult: TaLibResult) {
         this.shortLineValue = TaLib.getLatestResultPoint(shortResult);
         this.longLineValue = TaLib.getLatestResultPoint(longResult);
@@ -285,6 +304,16 @@ export abstract class AbstractIndicator extends DataPlotCollector {
         if (!this.params.enableLog)
             return;
         logger.info("Indicator %s:", this.className, ...args)
+    }
+
+    /**
+     * Log arguments as warning
+     * @param args the arguments to log. You can't use %s, but arguments will be formatted as string.
+     */
+    protected warn(...args) {
+        if (!this.params.enableLog)
+            return;
+        logger.warn("Indicator %s:", this.className, ...args)
     }
 
     protected static isLineCrossIndicator(params: any): params is LineCrossIndicatorParams {

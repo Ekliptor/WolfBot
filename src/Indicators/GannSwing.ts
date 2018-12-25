@@ -134,6 +134,13 @@ export default class GannSwing extends AbstractCryptotraderIndicator {
         })
     }
 
+    public removeLatestCandle() {
+        if (this.loggedUnsupportedCandleUpdateOnTrade === true)
+            return;
+        this.loggedUnsupportedCandleUpdateOnTrade = true;
+        this.warn("Using updateIndicatorsOnTrade is not yet supported by this indicator");
+    }
+
     public isReady() {
         return this.instrument.low.length >= this.period && this.highma[0] > 0 && this.lowma[0] > 0;
     }

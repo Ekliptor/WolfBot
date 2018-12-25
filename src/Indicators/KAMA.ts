@@ -37,6 +37,10 @@ export default class KAMA extends AbstractIndicator {
         })
     }
 
+    public removeLatestCandle() {
+        this.valuesClose = this.removeLatestData(this.valuesClose);
+    }
+
     public isReady() {
         return this.value !== -1 && this.valuesClose.length >= this.params.interval;
     }

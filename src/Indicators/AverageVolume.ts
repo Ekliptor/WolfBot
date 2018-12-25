@@ -36,6 +36,10 @@ export default class AverageVolume extends AbstractIndicator {
         })
     }
 
+    public removeLatestCandle() {
+        this.candleVolumes = this.removeLatestData(this.candleVolumes);
+    }
+
     /**
      * Returns a factor how big volume of the latest candle was relative to average volume.
      * @return {number} values > 1.0 meaning the volume was bigger, values < 1.0 mean it was lower.

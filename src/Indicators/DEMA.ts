@@ -35,6 +35,11 @@ export default class DEMA extends AbstractIndicator {
         })
     }
 
+    public removeLatestCandle() {
+        this.shortDEMA = this.removeLatestData(this.shortDEMA);
+        this.longDEMA = this.removeLatestData(this.longDEMA);
+    }
+
     public isReady() {
         return this.shortLineValue !== -1 && this.longLineValue !== -1 && this.longDEMA.length >= this.params.long;
     }

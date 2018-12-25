@@ -40,6 +40,13 @@ export default class MFI extends AbstractIndicator {
         })
     }
 
+    public removeLatestCandle() {
+        this.valuesHigh = this.removeLatestData(this.valuesHigh);
+        this.valuesLow = this.removeLatestData(this.valuesLow);
+        this.valuesClose = this.removeLatestData(this.valuesClose);
+        this.valuesVolume = this.removeLatestData(this.valuesVolume);
+    }
+
     public isReady() {
         return this.value !== -1 && this.valuesHigh.length >= this.params.interval;
     }

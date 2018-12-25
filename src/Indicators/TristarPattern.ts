@@ -43,6 +43,13 @@ export default class TristarPattern extends AbstractIndicator {
         })
     }
 
+    public removeLatestCandle() {
+        this.open = this.removeLatestData(this.open);
+        this.high = this.removeLatestData(this.high);
+        this.low = this.removeLatestData(this.low);
+        this.close = this.removeLatestData(this.close);
+    }
+
     public isReady() {
         return this.value !== -1 && this.open.length >= this.params.interval;
     }

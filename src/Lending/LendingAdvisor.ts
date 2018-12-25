@@ -317,18 +317,19 @@ export class LendingAdvisor extends AbstractAdvisor {
 
     protected connectCandles() {
         // forward to strategies
+        let attachedCurrentCandleListeners = false;
         for (let candle of this.candleMakers)
         {
+            const currencyStr = Currency.Currency[candle[1].getCurrencyPair().from];
+            let interestedBatchers = this.candleBatchers.get(currencyStr);
             candle[1].on("candles", (candles: Candle.Candle[]) => {
                 // forward 1min candles to CandleBatcher
                 // TODO option to drop 1st candle here if we are in realtime mode (first candle is generally incomplete until we can fetch history data)
-                const currencyStr = Currency.Currency[candle[1].getCurrencyPair().from];
-                let interestedBatchers = this.candleBatchers.get(currencyStr);
                 if (!interestedBatchers)
                     return;
                 for (let bat of interestedBatchers)
                 {
-                    bat[1].removeAllListeners(); // attach them again every round (every candles event from the maker) // TODO improve
+                    bat[1].removeAllListeners("candles"); // attach them again every round (every candles event from the maker) // TODO improve
                     bat[1].on("candles", (candles: Candle.Candle[]) => {
                         // forward x min candles from batcher to strategies which are interested in this specific interval
                         candles.forEach((candle) => {
@@ -351,19 +352,28 @@ export class LendingAdvisor extends AbstractAdvisor {
                                 trader.sendCandleTick(candle);
                             })
                         })
-                    })
+                    });
+                    if (attachedCurrentCandleListeners === false) {
+                        attachedCurrentCandleListeners = true;
+                        bat[1].on("currentCandle", (candle: Candle.Candle) => {
+                            for (let strategyList of this.strategies)
+                            {
+                                strategyList[1].forEach((strategyInstance) => {
+                                    if (strategyInstance.getAction().currency !== candle.currencyPair.from)
+                                        return; // this strategy is not set for this currency pair
+                                    strategyInstance.sendCurrentCandleTick(candle);
+                                })
+                            }
+                        });
+                    }
                     bat[1].addCandles(candles); // has to be called AFTER we attach the event above
                 }
             });
-            candle[1].on("currentCandle", (candle: Candle.Candle) => {
-                for (let strategyList of this.strategies)
-                {
-                    strategyList[1].forEach((strategyInstance) => {
-                        if (strategyInstance.getAction().currency !== candle.currencyPair.from)
-                            return; // this strategy is not set for this currency pair
-                        strategyInstance.sendCurrentCandleTick(candle);
-                    })
-                }
+            candle[1].on("currentCandle1min", (candle: Candle.Candle) => {
+                if (!interestedBatchers || interestedBatchers.size === 0)
+                    return;
+                for (let bat of interestedBatchers)
+                    bat[1].updateCurrentCandle(candle);
             });
         }
     }

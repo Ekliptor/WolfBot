@@ -117,6 +117,12 @@ export default class VIX extends AbstractCryptotraderIndicator {
         })
     }
 
+    public removeLatestCandle() {
+        this.close = this.removeLatestData(this.close);
+        this.wvf = this.removeLatestData(this.wvf);
+        this.trade = this.removeLatestData(this.trade);
+    }
+
     public isReady() {
         return this.instrument.low.length >= this.period && this.sdev > 0 && this.midline > 0;
     }

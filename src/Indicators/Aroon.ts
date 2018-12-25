@@ -37,6 +37,11 @@ export default class Aroon extends AbstractIndicator {
         })
     }
 
+    public removeLatestCandle() {
+        this.valuesHigh = this.removeLatestData(this.valuesHigh);
+        this.valuesLow = this.removeLatestData(this.valuesLow);
+    }
+
     public isReady() {
         return this.up !== -1 && this.down !== -1 && this.valuesHigh.length >= this.params.interval;
     }

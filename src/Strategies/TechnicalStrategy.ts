@@ -251,7 +251,7 @@ export abstract class TechnicalStrategy extends AbstractStrategy implements Tech
         return new Promise<void>((resolve, reject) => {
             if (this.config.updateIndicatorsOnTrade === false)
                 return resolve();
-            if (this.candles.length !== 0)
+            if (this.candles.length !== 0 && isNew === false)
                 this.candles.splice(-1, 1);
             this.addCandle(candle);
             //if (this.candle === null)
@@ -262,8 +262,9 @@ export abstract class TechnicalStrategy extends AbstractStrategy implements Tech
             for (let ind of this.indicators)
             {
                 const indicator: AbstractIndicator = ind[1];
-                // TODO also replace candle on indicator
                 indicator.sync(candle);
+                if (isNew === false)
+                    indicator.removeLatestCandle();
                 candleCalcOps.push(indicator.addCandle(candle));
             }
             Promise.all(candleCalcOps).then(() => {

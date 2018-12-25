@@ -13,6 +13,7 @@ export class CandleBatcher<T extends TradeBase> extends CandleStream<T> {
     protected minuteCandles: Candle.Candle[] = [];
     protected lastCandle: Candle.Candle = null;
     protected isMax = false; // this instance has the max interval for this currency pair
+    protected currentCandleEmitTimer: NodeJS.Timer = null;
 
     constructor(interval: number, currencyPair: Currency.CurrencyPair, exchange: Currency.Exchange = Currency.Exchange.ALL) {
         super(currencyPair, exchange)
@@ -31,6 +32,23 @@ export class CandleBatcher<T extends TradeBase> extends CandleStream<T> {
             this.minuteCandles.push(candle);
             this.checkCandleReady();
         });
+    }
+
+    public updateCurrentCandle(candle: Candle.Candle) {
+        if (this.listenerCount("currentCandle") === 0)
+            return; // faster
+        let minuteCandles = [];
+        for (let i = 0; i < this.minuteCandles.length; i++)
+        {
+            if (i === 0) // props get modified on the 1st
+                minuteCandles.push(_.cloneDeep(this.minuteCandles[0]));
+            else
+                minuteCandles.push(this.minuteCandles[i]);
+        }
+        minuteCandles.push(candle); // add the incomplete one
+        let batchedIncomplete = CandleBatcher.batchCandles(minuteCandles, this.interval, false);
+        //console.log("incoming candle %s %s, listeners %s, interval %s", candle.start, candle.close, this.listenerCount("currentCandle"), this.interval)
+        this.emitCurrentCandle(batchedIncomplete);
     }
 
     public setMax(max: boolean) {
@@ -93,12 +111,23 @@ export class CandleBatcher<T extends TradeBase> extends CandleStream<T> {
     // ###################### PRIVATE FUNCTIONS #######################
 
     protected checkCandleReady() {
-        if (this.minuteCandles.length % this.interval !== 0)
+        if (this.minuteCandles.length % this.interval !== 0) {
+            //let incompleteCandle = CandleBatcher.batchCandles(this.minuteCandles, this.interval, true); // better done within the updates of latest 1min candle
+            //this.emitCurrentCandle(incompleteCandle);
             return;
+        }
 
         this.lastCandle = this.calculate();
         this.emitCandles([this.lastCandle]);
         this.minuteCandles = [];
+    }
+
+    protected emitCurrentCandle(candle: Candle.Candle) {
+        if (this.currentCandleEmitTimer !== null) // don't emit too much which slows down the process
+            clearTimeout(this.currentCandleEmitTimer);
+        this.currentCandleEmitTimer = setTimeout(() => {
+            this.emit("currentCandle", candle);
+        }, 10);
     }
 
     protected calculate() {

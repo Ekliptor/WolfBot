@@ -37,6 +37,10 @@ export default class StochRSI extends AbstractIndicator {
         })
     }
 
+    public removeLatestCandle() {
+        this.valuesRSI = this.removeLatestData(this.valuesRSI);
+    }
+
     public isReady() {
         return this.outFastK !== -1 && this.outFastD !== -1 && this.valuesRSI.length >= this.params.interval;
     }

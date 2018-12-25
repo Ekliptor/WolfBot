@@ -35,6 +35,11 @@ export default class SMA extends AbstractIndicator {
         })
     }
 
+    public removeLatestCandle() {
+        this.shortSMA = this.removeLatestData(this.shortSMA);
+        this.longSMA = this.removeLatestData(this.longSMA);
+    }
+
     public isReady() {
         return this.shortLineValue !== -1 && this.longLineValue !== -1 && this.longSMA.length >= this.params.long;
     }

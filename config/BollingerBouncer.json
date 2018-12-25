@@ -16,6 +16,7 @@
           "minVolumeSpike": 0.5,
           "percentBThreshold": 0.04,
           "trailingStopPerc": 0.05,
+          "pauseTicksOnLoss": 12,
           "N": 20,
           "K": 2,
           "MAType": 0,

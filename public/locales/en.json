@@ -624,7 +624,8 @@
       "stopBand": "optional, default middle. At which Bollinger Band this strategy starts placing a trailing stop.",
       "minVolumeSpike": "optional, default 1.1. The min volume compared to the average volume of the last 'interval' candles to open a position.",
       "percentBThreshold": "optional, default 0.01 - A number indicating how close to %b the price has to be to consider it 'reached'.",
-      "trailingStopPerc": "optional, default 0.05% ( 0 = disabled) - The trailing stop percentage that will be placed after the opposite Bollinger Band has been reached."
+      "trailingStopPerc": "optional, default 0.05% ( 0 = disabled) - The trailing stop percentage that will be placed after the opposite Bollinger Band has been reached.",
+      "pauseTicksOnLoss": "optional, default 12. Pause trading for x candles after a position is closed with a loss."
     },
     "BollingerBreakouts": {
       "desc": "Strategy that emits buy/sell based on the Bollinger Bands indicator. Our assumption is that the price will always jump between the upper and lower band (as in a sideways market). Consequently, at the upper we sell and at the lower band we buy. If the price stays at the upper/lower band for 'breakout' candles, we assume this breakout will continue. Additionally we use the Aroon indicator to assume a breakout if up/down is at 100. In that case we wait (don't trade based on Bollinger) and trade based on Aroon if it stays at 100 for 'breakout' candles.",

@@ -38,6 +38,10 @@ export default class PivotPoints extends AbstractIndicator {
         })
     }
 
+    public removeLatestCandle() {
+        this.candleHistory = this.removeLatestDataAny<Candle.Candle>(this.candleHistory);
+    }
+
     public getValue() {
         return this.pivotPoint;
     }
