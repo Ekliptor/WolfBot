@@ -747,7 +747,7 @@
               "action": "sell",
               "comp": ">",
               "position": "none",
-              "rate": 0.0348,
+              "rate": 0.0367,
               "reason": "middle high",
               "indicators": ["RSI"]
             }
@@ -903,7 +903,7 @@
               "action": "buy",
               "comp": "<",
               "position": "none",
-              "rate": 0.10095,
+              "rate": 0.034,
               "reason": "middle high",
               "indicators": ["RSI"]
             },
@@ -1051,7 +1051,7 @@
               "action": "buy",
               "comp": "<",
               "position": "none",
-              "rate": 0.0068191,
+              "rate": 0.007741,
               "reason": "middle high",
               "indicators": ["RSI"]
             },
@@ -1059,7 +1059,7 @@
               "action": "sell",
               "comp": ">",
               "position": "none",
-              "rate": 0.0095,
+              "rate": 0.00868,
               "reason": "middle high",
               "indicators": ["RSI"]
             }

@@ -1283,5 +1283,6 @@
   "enterExConfFirst": "Please enter at least 1 exchange API key on the configuration page first before making config changes for live trading. You must also select that exchange in the trading configuration.<br>Afterwards please restart the bot.",
   "deleteApiKey": "Delete API key",
   "deleteApiKeyConfirm": "Do you really want to delete this API key?",
-  "botToken": "Bot token"
+  "botToken": "Bot token",
+  "subscriptionValid": "Subscription valid"
 }

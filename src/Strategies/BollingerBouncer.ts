@@ -164,7 +164,7 @@ export default class BollingerBouncer extends TechnicalStrategy {
         super.onTrade(action, order, trades, info);
         if (action === "close") {
             this.trailingStopPrice = -1;
-            if (info && info.pl < 0.0)
+            if (info && info.pl < 0.0 && this.action.pauseTicksOnLoss > 0)
                 this.pauseTicks = this.action.pauseTicksOnLoss;
         }
     }

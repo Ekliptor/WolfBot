@@ -6,6 +6,8 @@ import * as path from "path";
 import {Currency, Trade, Candle, Order, Funding, serverConfig} from "@ekliptor/bit-models";
 import * as crypto from "crypto";
 import * as helper from "./utils/helper";
+import {AbstractNotification} from "./Notifications/AbstractNotification";
+import Notification from "./Notifications/Notification";
 
 
 export interface NodeConfigFile {
@@ -38,10 +40,14 @@ export class LoginController extends AbstractSubController {
     protected nodeConfig: NodeConfigFile = null;
     protected subscription: BotSubscription = null;
     protected tokenGenerated = false;
+    protected accountWasValid = false;
+    protected notifier: AbstractNotification;
+    protected sentExpirationMessage = false;
     protected static firstStart = false;
 
     constructor() {
         super()
+        this.notifier = AbstractNotification.getInstance(true);
         this.loadConfig().then(() => {
             this.generateApiKeyOnFirstStart();
         }).catch((err) => {
@@ -150,7 +156,13 @@ export class LoginController extends AbstractSubController {
     // ###################### PRIVATE FUNCTIONS #######################
 
     protected setLoggedIn() {
+        logger.info("Logged in as %s, login valid %s, subscription valid %s", nconf.get("serverConfig:username"), this.isLoginValid(), this.isSubscriptionValid());
         const loggedIn = this.isLoginValid() && this.isSubscriptionValid();
+        // send admin notification if subscription changed the state
+        if (this.accountWasValid === true && loggedIn === false)
+            this.sendAccountExpiredNotification();
+        else if (this.accountWasValid === false && loggedIn === true)
+            this.accountWasValid = true;
         nconf.set("serverConfig:loggedIn", loggedIn);
         nconf.set("serverConfig:userToken", this.getUserToken());
         // generate a new apiKey if login failed to ensure user can't access it anymore
@@ -159,6 +171,7 @@ export class LoginController extends AbstractSubController {
             this.generateApiKey();
         else if (Object.keys(nconf.get("apiKeys")).length === 0) // first start
             this.generateApiKey();
+        serverConfig.saveConfigLocal();
     }
 
     protected hasThisBotSubscription(subscriptions: any[]) {
@@ -285,5 +298,22 @@ export class LoginController extends AbstractSubController {
             cloudscraper: true,
             urlencoded: true // must be true with cloudscraper
         }
+    }
+
+    protected sendAccountExpiredNotification() {
+        if (this.sentExpirationMessage === true)
+            return;
+        let message = "";
+        if (this.subscription)
+            message = utils.sprintf("User: %s\r\nExpiration date: %s\r\nBot ID: %s", nconf.get("serverConfig:username"),
+                utils.date.toDateTimeStr(this.subscription.expiration, true), this.subscription.id);
+        else
+            message = utils.sprintf("User: %s\r\nNo subscription data loaded", nconf.get("serverConfig:username"));
+        let notification = new Notification("Subscription expired", message, false);
+        this.notifier.send(notification).then(() => {
+        }).catch((err) => {
+            logger.error("Error sending %s notification", this.className, err)
+        });
+        this.sentExpirationMessage = true;
     }
 }

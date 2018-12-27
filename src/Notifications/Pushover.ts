@@ -27,6 +27,10 @@ export default class Pushover extends AbstractNotification {
                 message: notification.text,
                 title: notification.title
             }
+            if (!data.user || data.user.length < 10) {
+                logger.verbose("Skipped sending %s notification due to incomplete credentials", this.className);
+                return resolve();
+            }
             if (notification.requireConfirmation) {
                 // high priority and retry every 60 sec for 1 h
                 data.priority = 2;

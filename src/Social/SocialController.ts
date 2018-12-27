@@ -117,7 +117,7 @@ export class SocialController extends AbstractAdvisor {
         return new Promise<void>((resolve, reject) => {
             if (this.errorState)
                 return; // wait until restart
-            if (!process.env.IS_CHILD) {
+            if (!process.env.IS_CHILD && !SocialController.isMultiNodeCrawlerSetup()) {
                 this.cleanupOldData();
                 this.checkSocialSpikes();
                 this.priceWatcher.process();
@@ -209,6 +209,10 @@ export class SocialController extends AbstractAdvisor {
             return false;
         }
         return (telegram as Telegram).addMessage(message);
+    }
+
+    public static isMultiNodeCrawlerSetup() {
+        return argv.instance && nconf.get("serverConfig:socialCralerInstanceCount") > 1;
     }
 
     // ################################################################

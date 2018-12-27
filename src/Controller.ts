@@ -381,6 +381,7 @@ export class Controller extends AbstractController { // TODO implement graceful 
         }
         if (typeof localConf.orverrides === "function")
             localConf.orverrides();
+        // should we call loginController immediately with a force = true parameter?
     }
 
     protected handleDatabaseConnectionError(err) {

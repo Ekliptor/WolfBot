@@ -16,6 +16,7 @@ import EventStream from "../Trade/EventStream";
 import {Currency, Ticker, Trade, TradeHistory, MarketOrder} from "@ekliptor/bit-models";
 import {MarketAction} from "../Trade/MarketStream";
 import {CandleMaker} from "../Trade/Candles/CandleMaker";
+import {ReadPreference} from "mongodb";
 
 export class HistoryExchangeMap extends Map<string, HistoryDataExchange> { // (exchange name, instance)
     constructor() {
@@ -233,7 +234,9 @@ export default class HistoryDataExchange extends AbstractExchange {
                     {date: {$gt: start}},
                     {date: {$lt: end}}
                 ]
-            }).sort({date: 1});
+            })
+                .setReadPreference(ReadPreference.SECONDARY_PREFERRED)
+                .sort({date: 1});
             let tradeDocs = [];
             let sendTrades = (docs, callback) => {
                 // we can trust that our trades from local database already are in the right order
