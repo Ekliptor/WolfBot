@@ -1,0 +1,45 @@
+{
+  "data": [
+    {
+      "exchanges": "Binance",
+      "marginTrading": false,
+      "tradeTotalBtc": 0.15,
+      "warmUpMin": 0,
+      "strategies": {
+        "MACD": {
+          "short": 10,
+          "long": 26,
+          "signal": 9,
+          "pair": "USDT_BTC",
+          "candleSize": 30,
+          "tradeStrategy": "RSIScalpOrderer",
+          "enableLog": true
+        },
+        "RSIScalpOrderer": {
+          "low": 34,
+          "high": 70,
+          "expiry": 20,
+          "candleSize": 3,
+          "pair": "USDT_BTC",
+          "enableLog": true
+        },
+        "StopLossTurn": {
+          "order": "closeShort",
+          "setback": 2.1,
+          "time": 180,
+          "candleSize": 5,
+          "pair": "USDT_BTC",
+          "enableLog": true
+        },
+        "TakeProfit": {
+          "order": "closeShort",
+          "profit": 2.2,
+          "time": 900,
+          "candleSize":  5,
+          "pair": "USDT_BTC",
+          "enableLog": true
+        }
+      }
+    }
+  ]
+}
