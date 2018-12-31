@@ -484,6 +484,7 @@
           "setback": 5.0,
           "setbackLong": 5.5,
           "time": 1800,
+          "closePosition": "profit",
           "setbackProfit": 2.7,
           "triggerProfit": 4.3,
           "timeProfit": 120,
@@ -514,7 +515,7 @@
         "TimeStop": {
           "minCandles": 48,
           "trailingStopPerc": 1.5,
-          "closePosition": "always",
+          "closePosition": "profit",
           "time": 30,
           "keepTrendOpen": false,
           "low": 25,
@@ -1229,6 +1230,7 @@
           "setback": 5.0,
           "setbackLong": 5.5,
           "time": 1800,
+          "closePosition": "profit",
           "setbackProfit": 2.7,
           "triggerProfit": 4.3,
           "timeProfit": 120,
@@ -1259,7 +1261,7 @@
         "TimeStop": {
           "minCandles": 48,
           "trailingStopPerc": 1.5,
-          "closePosition": "always",
+          "closePosition": "profit",
           "time": 30,
           "keepTrendOpen": false,
           "low": 25,

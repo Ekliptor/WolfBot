@@ -1253,7 +1253,7 @@
   "pushoverKey": "Pushover User key",
   "secretOnce": "The API Secret is only beeing shown while entering it...",
   "expiredMsg": "Your bot membership has expired. Live trading will no longer work. Please buy a new cloud bot instance to continue trading. This instance is scheduled for removal.",
-  "expiringSoonMsg": "Your bot membership will expire on {{date}}. Please buy a new cloud bot instance if you wish to continue trading.",
+  "expiringSoonMsg": "Your bot membership will expire on {{date}}. Please buy a new cloud bot instance if you wish to continue trading afterwards.",
   "beforeDiscount": "If you buy a new cloud bot before {{date}} you will get a {{percent}}% discount using this coupon: {{code}}",
   "importRunning": "Importing trade history from exchange to initialize strategies. This usually only takes a few minutes.",
   "importFailed": "Importing trades from an exchange failed or is not supported. WolfBot will start trading after collecting live data for a few hours.",

@@ -1408,7 +1408,7 @@
               "action": "sell",
               "comp": ">",
               "position": "none",
-              "rate": 0.00009058,
+              "rate": 0.000097058,
               "reason": "middle high",
               "indicators": ["RSI"]
             }
@@ -1567,7 +1567,7 @@
     {
       "exchanges": ["Bitfinex"],
       "marginTrading": true,
-      "tradeTotalBtc": 0.0,
+      "tradeTotalBtc": 0.01,
       "notifyTrades": true,
       "strategies": {
         "PlanRunner": {
@@ -1615,6 +1615,7 @@
           "setback": 5.0,
           "setbackLong": 5.5,
           "time": 1800,
+          "closePosition": "profit",
           "setbackProfit": 2.7,
           "triggerProfit": 4.3,
           "timeProfit": 120,
@@ -1645,7 +1646,7 @@
         "TimeStop": {
           "minCandles": 48,
           "trailingStopPerc": 1.5,
-          "closePosition": "always",
+          "closePosition": "profit",
           "time": 30,
           "keepTrendOpen": false,
           "low": 25,
