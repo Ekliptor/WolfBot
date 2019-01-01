@@ -81,6 +81,7 @@ src/Social/Crawler
 src/Social/Watcher
 config/social
 src/Strategies/TradingViewSignal.ts
+config/TradingViewSignal.json
 src/Exchanges/BitmexFix.ts
 
 public/js/libs/tv
