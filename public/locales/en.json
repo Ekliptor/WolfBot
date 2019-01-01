@@ -1109,7 +1109,17 @@
     },
     "TradingViewSignal": {
       "desc": "Strategy that buys or sells based on TradingView.com signals. Signals can be anything such as alerts from the CryptoScreener, alerts on a chart, indicator or buy/sell signals of a TradingView strategy - including your own Pine Script.<br>You should ensure that your signal messages include the words 'buy', 'sell' and 'close' to instruct WolfBot (using default settings, can be configured).",
-      "email": ""
+      "email": "The email address to check for TradingView alerts.",
+      "password": "The corresponding password of the email account.",
+      "host": "optional, default automatic. The IMAP host of your email address.",
+      "port": "optional, default automatic. The IMAP port of your email address.",
+      "tls": "optional, default true. Whether to use TLS encryption to open your email inbox.",
+      "checkMailSec": "optional, default 20 seconds. How often your inbox shall be checked for new TradingView alerts.",
+      "tradeDirection": "optional, default 'both'. The direction in which this strategy shall act on signals from TradingView. Values: up|down|both",
+      "buyWords": "optional, default 'buy'. A list of words (case insensitive, separated by |) on which the strategy buys. It is recommended to fine-tune your alert messages first and only use this as fallback.",
+      "sellWords": "optional, default 'sell'. A list of words (case insensitive, separated by |) on which the strategy sells. It is recommended to fine-tune your alert messages first and only use this as fallback.",
+      "closeWords": "optional, default 'close'. A list of words (case insensitive, separated by |) on which the strategy sells. If no close signals are used this strategy can still buy and (short) sell the same position without closing.",
+      "forceMaker": "optional. default false. Only place a maker order (not paying the higher taker fee)."
     },
     "Trendatron": {
       "desc": "A strategy that follows waves of the chart by doing swing trading. It does this by combining 4 SMAs to Gann Swing indicator and adding VIX to check for volatility. Additionally it supports scalping, meaning it can buy more after sharp drops in price.",

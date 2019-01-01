@@ -2,7 +2,7 @@
     "data": [
         {
             "exchanges": [
-                "BitMEX"
+                "Bitfinex"
             ],
             "marginTrading": true,
             "tradeTotalBtc": 0,
