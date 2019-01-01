@@ -87,7 +87,7 @@ let buy = () => {
     */
 }
 
-let testOkex = () => {
+let testOkex = async () => {
     let okex = new OKEX(nconf.get("serverConfig:apiKey:exchange:OKEX")[0])
     let pair = new Currency.CurrencyPair(Currency.Currency.USD, Currency.Currency.BTC)
     //console.log(okex.getCurrencies().getExchangePair(pair))
@@ -102,9 +102,11 @@ let testOkex = () => {
 
     const leverage = 20;
     const rate = 3445.95;
-    okex.marginBuy(pair, rate, (1*leverage)/rate, orderParams).then((ticker) => {
+
+    //okex.marginBuy(pair, rate, (1*leverage)/rate, orderParams).then((ticker) => {
     //okex.closeMarginPosition(pair).then((ticker) => {
-        console.log(ticker)
+    okex.getBalances().then((info) => {
+        console.log(info)
     }).catch((err) => {
         console.error("API ERR", err)
     })
@@ -302,13 +304,13 @@ let testDeribit = async () => {
 Controller.loadServerConfig(() => {
     utils.file.touch(AbstractExchange.cookieFileName).then(() => {
         //buy()
-        //testOkex()
+        testOkex()
         //testKraken()
         //testBitfinex()
         //testPolo();
         //testBittrex();
         //testBinance();
         //testBitmex();
-        testDeribit();
+        //testDeribit();
     })
 })

@@ -77,6 +77,12 @@ class ServerConfig {
                 secret: "",
                 marginNotification: 0.03,
                 testnet: false
+            }],
+            CoinbasePro: [{
+                key: "",
+                secret: "",
+                passphrase: "",
+                marginNotification: 0.5
             }]
         },
         notify: {

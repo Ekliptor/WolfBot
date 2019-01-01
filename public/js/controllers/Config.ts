@@ -52,6 +52,8 @@ export class Config extends TableController {
             return;
         }
 
+        if (data.configWasReset === true)
+            Hlp.showMsg(data.errorTxt ? data.errorTxt : AppF.tr(data.errorCode ? data.errorCode : 'configWasReset'), 'danger');
         if (!this.isVisible())
             return;
         if (data.configFiles) {

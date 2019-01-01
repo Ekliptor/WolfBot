@@ -78,6 +78,7 @@ import "./src/Strategies/TakeProfitPartial";
 import "./src/Strategies/TakeProfitStochRSI";
 import "./src/Strategies/TimeOrder";
 import "./src/Strategies/TimeStop";
+import "./src/Strategies/TradingViewSignal";
 import "./src/Strategies/Trendatron";
 import "./src/Strategies/TrendlineScalper";
 import "./src/Strategies/TriggerOrder";

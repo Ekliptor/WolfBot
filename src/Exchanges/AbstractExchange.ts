@@ -836,8 +836,8 @@ export abstract class AbstractExchange {
 // force loading dynamic imports for TypeScript
 import "./Bitfinex";
 import "./Bittrex";
+import "./CoinbasePro";
 import "./Deribit";
-import "./GDAX";
 import "./HistoryDataExchange";
 import "./Kraken";
 import "./OKCoin";

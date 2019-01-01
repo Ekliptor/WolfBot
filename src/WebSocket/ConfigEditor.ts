@@ -63,6 +63,7 @@ export interface ConfigRes extends ConfigData {
     errorCode?: string;
 
     premium?: boolean;
+    configWasReset?: boolean;
 
     tradingModes?: BotTrade.TradingMode[];
     configFiles?: string[];
@@ -201,6 +202,7 @@ export class ConfigEditor extends AppPublisher {
                 debugMode: nconf.get("debugRestart"),
                 devMode: nconf.get("serverConfig:user:devMode"),
                 restoreCfg: nconf.get("serverConfig:user:restoreCfg"),
+                configWasReset: nconf.get("serverConfig:configReset"),
                 tabs: CONFIG_TABS,
                 selectedTab: this.selectedTab,
                 exchanges: Array.from(Currency.ExchangeName.keys()),
@@ -208,6 +210,8 @@ export class ConfigEditor extends AppPublisher {
                 notifications: this.getNotificationMethods()
             });
             this.setLastWorkingConfig();
+            if (nconf.get("serverConfig:configReset") === true)
+                nconf.set("serverConfig:configReset", false);
         }).catch((err) => {
             logger.error("Error loading config view data", err)
             this.restart(true); // user will likely not be able to change config
@@ -429,9 +433,11 @@ export class ConfigEditor extends AppPublisher {
                 this.selectedTradingMode = "trading";
                 // bad idea to just restore to "Noop" because the user might not have API keys or modified/broke that config
                 this.selectedConfig = nconf.get("serverConfig:lastWorkingConfigName");
+                nconf.set("serverConfig:configReset", true);
                 //this.selectedConfig = nconf.get("serverConfig:fallbackTradingConfig");
             }
             nconf.set("serverConfig:lastRestartTime", new Date()); // only count forced (auto) restarts
+            serverConfig.saveConfigLocal();
         }
         this.saveState().then(() => {
             let processArgs = Object.assign([], process.execArgv)

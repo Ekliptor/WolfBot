@@ -1,4 +1,6 @@
 // https://www.okex.com/rest_request.html
+// https://www.okex.com/docs/en/
+// TODO wait for docs on https://github.com/okcoin-okex/okex-api-v3-node-sdk
 
 import * as utils from "@ekliptor/apputils";
 const logger = utils.logger
@@ -15,7 +17,7 @@ import * as crypto from "crypto";
 import * as querystring from "querystring";
 import * as db from "../database";
 import * as helper from "../utils/helper";
-
+import * as pako from "pako";
 import EventStream from "../Trade/EventStream";
 import {Currency, Ticker, Trade, TradeHistory, MarketOrder} from "@ekliptor/bit-models";
 import {MarketAction} from "../Trade/MarketStream";
@@ -188,6 +190,21 @@ export class OKEXCurrencies implements Currency.ExchangeCurrencies {
     }
 }
 
+class OKEXContract {
+    public id: string;
+    public delivery: Date;
+    constructor(id: string, delivery: Date) {
+        this.id = id;
+        this.delivery = delivery;
+    }
+}
+
+class OKEXContracts extends Map <string, OKEXContract> { // (currency, delivery date)
+    constructor() {
+        super()
+    }
+}
+
 export class FutureContractTypeMap extends Map<string, string> { // (currency, contract type)
     constructor() {
         super()
@@ -216,16 +233,18 @@ export default class OKEX extends AbstractContractExchange {
     protected static readonly FETCH_PAIRS = ["btc_usd", "ltc_usd", "eth_usd", "etc_usd", "bch_usd", "btg_usd", "xrp_usd", "eos_usd"];
     //protected futureContractType: string = nconf.get("serverConfig:futureContractType");
     protected futureContractType = new FutureContractTypeMap();
+    protected contractTypes = new OKEXContracts();
 
     protected currencies: OKEXCurrencies;
     protected rawBalances: any = null; // needed for margin profit
 
     constructor(options: ExOptions) {
         super(options)
-        this.publicApiUrl = "https://www.okex.com/api/v1/";
+        this.publicApiUrl = "https://www.okex.com/api/";
         this.privateApiUrl = this.publicApiUrl;
         //this.pushApiUrl = "wss://api.poloniex.com"; // for autobahn
-        this.pushApiUrl = "wss://real.okex.com:10440/websocket/okcoinapi";
+        //this.pushApiUrl = "wss://real.okex.com:10440/websocket/okcoinapi";
+        this.pushApiUrl = "wss://real.okex.com:10442/ws/v3";
         this.pushApiConnectionType = PushApiConnectionType.WEBSOCKET;
         this.dateTimezoneSuffix = " GMT+0800"; // china, not needed here?
         this.serverTimezoneDiffMin = -480;
@@ -249,6 +268,7 @@ export default class OKEX extends AbstractContractExchange {
         this.contractValues.set("BTG", 10);
         this.contractValues.set("XRP", 10);
         this.contractValues.set("EOS", 10);
+        this.loadContractTypes();
     }
 
     public getRawBalances() {
@@ -305,6 +325,7 @@ export default class OKEX extends AbstractContractExchange {
 
     public getTicker() {
         return new Promise<Ticker.TickerMap>((resolve, reject) => {
+            /*
             let reqOps = []
             const fetchPairs = this.getFetchPairs();
             fetchPairs.forEach((fetchPair) => { // fetch all pairs and return a map
@@ -328,28 +349,35 @@ export default class OKEX extends AbstractContractExchange {
             }).catch((err) => {
                 reject(err)
             })
+            */
+            // ticker data is updated via websocket push api
+            // their ticker HTTP api only allows fetching 1 currency pair at a time
+            setTimeout(() => {
+                resolve(this.ticker)
+            }, 0)
         })
     }
 
     public getIndexPrice() {
         return new Promise<Ticker.TickerMap>((resolve, reject) => {
             let reqOps = []
-            const fetchPairs = this.getFetchPairs();
-            fetchPairs.forEach((fetchPair) => { // fetch all pairs and return a map
-                let params = {
-                    symbol: fetchPair
-                }
-                reqOps.push(this.publicReq("future_index", params))
-            })
+            for (let cont of this.contractTypes)
+            {
+                const contract = cont[1];
+                console.log("FETCH", contract.id)
+                reqOps.push(this.publicReq("futures/v3/instruments/" + contract.id + "/index"))
+            }
             Promise.all(reqOps).then((tickerArr) => {
-                let map = new Ticker.TickerMap()
-                for (let i = 0; i < fetchPairs.length; i++)
+                let map = new Ticker.TickerMap();
+                let i = 0;
+                for (let cont of this.contractTypes)
                 {
-                    const localPair = this.currencies.getLocalPair(fetchPairs[i]);
+                    const localPair = Currency.CurrencyPair.fromString(cont[0]);
                     let tickerObj = new Ticker.Ticker(this.exchangeLabel);
-                    tickerObj.indexValue = tickerArr[i].future_index;
-                    tickerObj.currencyPair = localPair
-                    map.set(localPair.toString(), tickerObj)
+                    tickerObj.indexValue = tickerArr[i].index;
+                    tickerObj.currencyPair = localPair;
+                    map.set(localPair.toString(), tickerObj);
+                    i++;
                 }
                 resolve(map)
             }).catch((err) => {
@@ -362,7 +390,7 @@ export default class OKEX extends AbstractContractExchange {
         return new Promise<Currency.LocalCurrencyList>((resolve, reject) => {
             //reject({txt: "getBalances() is not available in " + this.className})
             let params = {}
-            this.privateReq("future_userinfo", params).then((balance) => {
+            this.privateReq("account/v3/wallet", params).then((balance) => {
                 //console.log(balance)
                 /**
                  * { info:
@@ -380,6 +408,16 @@ export default class OKEX extends AbstractContractExchange {
                             risk_rate: 10000 } },
                       result: true }
                  */
+                /**
+                 * NEW
+                 * {
+                        "available":37.11827078,
+                        "balance":37.11827078,
+                        "currency":"EOS",
+                        "hold":0
+                    }
+                 */
+                console.log("BALANCES", balance)
                 this.rawBalances = balance;
                 let balances = {}
                 this.getFetchCurrencies().forEach((currencyStr) => {
@@ -778,7 +816,7 @@ export default class OKEX extends AbstractContractExchange {
                 return reject({txt: "PublicApiUrl must be provided for public exchange request", exchange: this.className})
 
             params.api_key = this.apiKey.key;
-            params = this.signRequest(params) // signature shouldn't be needed for most these requests here
+            //params = this.signRequest(params) // signature shouldn't be needed for most these requests here
             let query = querystring.stringify(params);
             const urlStr = this.publicApiUrl + method + ".do?" + query;
             let options = {
@@ -799,12 +837,18 @@ export default class OKEX extends AbstractContractExchange {
             if (!this.privateApiUrl || !this.apiKey)
                 return reject({txt: "PrivateApiUrl and apiKey must be provided for private exchange request", exchange: this.className})
 
-            params.api_key = this.apiKey.key;
-            params = this.signRequest(params)
             let options = {
                 retry: false, // don't retry
-                cloudscraper: true
+                cloudscraper: true,
+                headers: {
+                    "OK-ACCESS-KEY": this.apiKey.key,
+                    "OK-ACCESS-SIGN": "",
+                    //"OK-ACCESS-TIMESTAMP": Math.floor(Date.now() / 1000),
+                    "OK-ACCESS-TIMESTAMP": Date.now(),
+                    "OK-ACCESS-PASSPHRASE": this.apiKey.secret
+                }
             }
+            this.signRequest(method, options.headers);
             const urlStr = this.privateApiUrl + method + ".do";
             this.post(urlStr, params, (body, response) => {
                 this.verifyExchangeResponse(body, response, method).then((json) => {
@@ -816,12 +860,12 @@ export default class OKEX extends AbstractContractExchange {
         })
     }
 
-    protected signRequest(params: ExRequestParams) {
-        let data = utils.objects.sortByKey(Object.assign({}, params));
-        let signData = Object.assign({}, data);
-        signData.secret_key = this.apiKey.secret;
-        data.sign = crypto.createHash('md5').update(querystring.stringify(signData), 'utf8').digest('hex').toUpperCase();
-        return data;
+    protected signRequest(method: string, headers) { // TODO fix
+        // https://www.okex.com/docs/en/#summary-yan-zheng
+        console.log(headers) // code 405 not listed https://www.okex.com/docs/en/#change-README - likely wrong signature
+        // sign=CryptoJS.enc.Base64.stringify(CryptoJS.HmacSHA256(timestamp + 'GET' + '/users/self/verify', secretKey))
+        let signData = headers["OK-ACCESS-TIMESTAMP"] + "POST" + method;
+        headers["OK-ACCESS-SIGN"] = crypto.createHmac('sha256', this.apiKey.secret).update(signData, 'utf8').digest('base64');
     }
 
     protected createConnection(): autobahn.Connection {
@@ -846,11 +890,17 @@ export default class OKEX extends AbstractContractExchange {
                 marketEventStream.on("value", (value, seqNr) => {
                     this.marketStream.write(pair, value, seqNr);
                 })
+                /*
                 const exchangePairParts = marketPair.split("_")
                 let channel = utils.sprintf("ok_sub_future_%s_depth_%s_%s", exchangePairParts[0], this.futureContractType.get(marketPair), exchangePairParts[1]); // orders
                 conn.send(JSON.stringify({event: "addChannel", channel: channel})); // subscribe to this channel first because it contains a timestamp
                 channel = utils.sprintf("ok_sub_future%s_%s_trade_%s", exchangePairParts[1], exchangePairParts[0], this.futureContractType.get(marketPair)); // trades
                 conn.send(JSON.stringify({event: "addChannel", channel: channel}));
+                */
+                console.log(this.contractTypes)
+                conn.send(JSON.stringify({op: "subscribe", args: "futures/trade:" + this.contractTypes.get(pair.toString())}));
+                conn.send(JSON.stringify({op: "subscribe", args: "futures/ticker:" + this.contractTypes.get(pair.toString())}));
+                conn.send(JSON.stringify({op: "subscribe", args: "futures/depth:" + this.contractTypes.get(pair.toString())}));
 
                 this.orderBook.get(pair.toString()).setSnapshot([], this.localSeqNr); // we receive an implicit snapshot with the first response
             })
@@ -865,10 +915,18 @@ export default class OKEX extends AbstractContractExchange {
             this.localSeqNr++;
             //this.localSeqNr = Date.now(); // bad idea because we emit early if nextSeq === lastSeqNr+1
             try {
-                if (typeof e.data !== "string")
+                let msg: any = null;
+                if (typeof e.data === "string")
+                    msg = JSON.parse(e.data);
+                else if (e.data)
+                    msg = pako.inflateRaw(e.data as any, {to: 'string'});
+                else
                     throw new Error("Received data with invalid type " + typeof e.data);
-                const msg = JSON.parse(e.data);
+                // https://github.com/okcoin-okex/API-docs-OKEx.com/tree/master/demo
+                console.log(msg)
+
                 if (!msg[0] || !msg[0].channel || !msg[0].data) {
+                    debugger
                     if (msg.event !== "pong")
                         logger.error("Received WebSocket message in unknown format in %s", this.className, msg)
                     return;
@@ -1113,5 +1171,24 @@ export default class OKEX extends AbstractContractExchange {
             }
         }
         return fetchCurrencies;
+    }
+
+    protected loadContractTypes() {
+        return new Promise<void>((resolve, reject) => {
+            this.publicReq("futures/v3/instruments").then((contracts: any[]) => {
+                contracts.forEach((contract) => {
+                    const delivery = new Date(contract.delivery);
+                    //const key = contract.instrument_id;
+                    const key = this.currencies.getLocalName(contract.quote_currency) + "_" + this.currencies.getLocalName(contract.underlying_index);
+                    let existing = this.contractTypes.get(key);
+                    if (existing === undefined || existing.delivery.getTime() < delivery.getTime()) // TODO option to choose contract duration, use same map with different key
+                        this.contractTypes.set(key, new OKEXContract(contract.instrument_id, delivery));
+                });
+                logger.verbose("loaded %s %s contracts", this.className, this.contractTypes.size);
+                resolve();
+            }).catch((err) => {
+                logger.error("Error loading %s contracts", this.className, err);
+            })
+        });
     }
 }

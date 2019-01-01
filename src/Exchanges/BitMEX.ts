@@ -18,12 +18,17 @@ import * as crypto from "crypto";
 import * as querystring from "querystring";
 import * as db from "../database";
 import * as helper from "../utils/helper";
-import * as BitMEXClient from "bitmex-realtime-api";
+import * as BitMEXClient from "@ekliptor/bitmex-realtime-api-fix";
 
 import EventStream from "../Trade/EventStream";
 import {Currency, Ticker, Trade, TradeHistory, MarketOrder} from "@ekliptor/bit-models";
 import {MarketAction} from "../Trade/MarketStream";
 import {OrderBook} from "../Trade/OrderBook";
+
+
+import * as argvFunction from "minimist";
+const argv = argvFunction(process.argv.slice(2));
+const bitmexFix = nconf.get("serverConfig:premium") === true || argv.bitmex === true ? require("./BitmexFix").bitmexFix : null;
 
 
 export class BitMEXCurrencies implements Currency.ExchangeCurrencies {
@@ -189,7 +194,8 @@ export default class BitMEX extends AbstractContractExchange {
             testnet: this.apiKey.testnet === true,
             apiKeyID: this.apiKey.key,
             apiKeySecret: this.apiKey.secret,
-            maxTableLen: 20000  // the maximum number of table elements to keep in memory (FIFO queue)
+            maxTableLen: 10000,  // the maximum number of table elements to keep in memory (FIFO queue)
+            wsExtras: bitmexFix ? bitmexFix.getWebsocketExtras() : null
         });
         // TODO support for time-spread arbitrage, i.e. multiple contracts of the same currency pair
 
@@ -743,7 +749,8 @@ export default class BitMEX extends AbstractContractExchange {
                         }
                     });
 
-                    this.apiClient.addStream(marketPair, 'orderBookL2', (data, symbol, tableName)=> {
+                    // we get more trades if we don't subscribe to all levels of the orderbook. some max data limit?
+                    this.apiClient.addStream(marketPair, /*'orderBookL2'*/'orderBookL2_25', (data, symbol, tableName)=> {
                         // we get maxTableLen newest results, if the table is full it behaves like a FIFO, so we need to detect whats new
                         this.resetWebsocketTimeout();
 

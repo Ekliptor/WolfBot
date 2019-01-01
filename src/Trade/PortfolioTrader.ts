@@ -693,7 +693,7 @@ export abstract class PortfolioTrader extends AbstractTrader {
             if (this.config.marginTrading) {
                 // TODO exchange API calls to get max tradable leveraged balance. currently must assume to have enough collateral for configured amount
                 // we can't check our coinBalances because they are in a different wallet (not used as collateral)
-                return coinAmount;
+                //return coinAmount;
             }
             else {
                 let buyBalances = PortfolioTrader.coinBalances.get(buyExchange.getClassName());
@@ -712,7 +712,7 @@ export abstract class PortfolioTrader extends AbstractTrader {
                     curSellBalance = 0.0;
                 if (coinAmount > curSellBalance)
                     return curSellBalance * maxTradeFactor; // no short selling, we can trade with at most the coins we have to sell on one exchange
-                return coinAmount;
+                //return coinAmount;
             }
         }
 

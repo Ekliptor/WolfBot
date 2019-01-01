@@ -1107,6 +1107,10 @@
       "low": "optional, default 0 (disabled) - Below this value RSI will be considered oversold. This strategy will never close short positions during RSI oversold.",
       "high": "optional, default 0 (disabled) - Above this value RSI will be considered overbought. This strategy will never close long positions during RSI overbought."
     },
+    "TradingViewSignal": {
+      "desc": "Strategy that buys or sells based on TradingView.com signals. Signals can be anything such as alerts from the CryptoScreener, alerts on a chart, indicator or buy/sell signals of a TradingView strategy - including your own Pine Script.<br>You should ensure that your signal messages include the words 'buy', 'sell' and 'close' to instruct WolfBot (using default settings, can be configured).",
+      "email": ""
+    },
     "Trendatron": {
       "desc": "A strategy that follows waves of the chart by doing swing trading. It does this by combining 4 SMAs to Gann Swing indicator and adding VIX to check for volatility. Additionally it supports scalping, meaning it can buy more after sharp drops in price.",
       "interval": "The number of candles for SMAs to compute GannSwing.",
@@ -1284,5 +1288,6 @@
   "deleteApiKey": "Delete API key",
   "deleteApiKeyConfirm": "Do you really want to delete this API key?",
   "botToken": "Bot token",
-  "subscriptionValid": "Subscription valid"
+  "subscriptionValid": "Subscription valid",
+  "configWasReset": "Your configuration was reset to the last working configuration because of irrecoverable errors. This was most likely caused by invalid exchange API keys, typos in your strategy parameters or not supported currency pairs by your exchange (such as USD instead of USDT)."
 }
