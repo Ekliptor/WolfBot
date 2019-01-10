@@ -71,7 +71,7 @@ if (process.env.IS_CHILD) {
 }
 nconf.set("uiDev", argv.uiDev === true);
 if (argv.noBrowser)
-    logger.info("***DISCOUNT*** Having trouble setting up WolfBot on your local machine? Try the cloud version at https://wolfbot.org with a 40% discount with this code: gitsource7393");
+    logger.info("***DISCOUNT*** Having trouble setting up WolfBot on your local machine? Try the cloud version at https://wolfbot.org with a 30% discount with this code: gitsource7393");
 
 nconf.set("ai", argv.train === true || argv.predict === true);
 nconf.set("lending", argv.lending === true);
