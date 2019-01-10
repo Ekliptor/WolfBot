@@ -27,6 +27,7 @@ import "./src/Strategies/HoneyBadger";
 import "./src/Strategies/IndicatorDivergence";
 import "./src/Strategies/InterestIndicator";
 import "./src/Strategies/KAMA";
+import "./src/Strategies/LiquidationCatcher";
 import "./src/Strategies/MACD";
 import "./src/Strategies/MACDLeverage";
 import "./src/Strategies/MakerFeeOrder";

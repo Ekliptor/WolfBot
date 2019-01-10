@@ -75,7 +75,7 @@ Look into the `/src/Strategies` folder for more examples.
 ### Modifying the UI
 In the project root directory, run:
 ```
-webpack --progress --colors --watch
+yarn watch
 ```
 
 You should also run the bot with the `--uiDev` flag so that changes to HTML template files are reloaded from disk.

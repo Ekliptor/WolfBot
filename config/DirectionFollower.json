@@ -747,7 +747,7 @@
               "action": "sell",
               "comp": ">",
               "position": "none",
-              "rate": 0.0367,
+              "rate": 0.059267,
               "reason": "middle high",
               "indicators": ["RSI"]
             }
@@ -764,23 +764,6 @@
           "low": 54,
           "high": 55,
           "enableLog": false
-        },
-        "BollingerBouncer": {
-          "interval": 48,
-          "volumeRows": 24,
-          "valueAreaPercent": 85.0,
-          "waitEntrySec": 900,
-          "clearTradeTicks": 8,
-          "minVolumeSpike": 1.2,
-          "percentBThreshold": 0.04,
-          "trailingStopPerc": 0.05,
-          "N": 20,
-          "K": 2,
-          "MAType": 0,
-          "pair": "BTC_ETH",
-          "candleSize": 60,
-          "tradeStrategy": "RSIScalpOrderer",
-          "enableLog": true
         },
         "VolumeProfiler": {
           "interval": 48,
@@ -1077,23 +1060,6 @@
           "high": 55,
           "enableLog": false
         },
-        "BollingerBouncer": {
-          "interval": 48,
-          "volumeRows": 24,
-          "valueAreaPercent": 85.0,
-          "waitEntrySec": 900,
-          "clearTradeTicks": 8,
-          "minVolumeSpike": 1.2,
-          "percentBThreshold": 0.04,
-          "trailingStopPerc": 0.05,
-          "N": 20,
-          "K": 2,
-          "MAType": 0,
-          "pair": "BTC_LTC",
-          "candleSize": 60,
-          "tradeStrategy": "RSIScalpOrderer",
-          "enableLog": true
-        },
         "RSIScalper": {
           "percentage": 20,
           "low": 25,
@@ -1222,23 +1188,6 @@
           ],
           "pair": "BTC_ETC",
           "candleSize": 1,
-          "tradeStrategy": "RSIScalpOrderer",
-          "enableLog": true
-        },
-        "BollingerBouncer": {
-          "interval": 48,
-          "volumeRows": 24,
-          "valueAreaPercent": 85.0,
-          "waitEntrySec": 900,
-          "clearTradeTicks": 8,
-          "minVolumeSpike": 1.2,
-          "percentBThreshold": 0.04,
-          "trailingStopPerc": 0.05,
-          "N": 20,
-          "K": 2,
-          "MAType": 0,
-          "pair": "BTC_ETC",
-          "candleSize": 60,
           "tradeStrategy": "RSIScalpOrderer",
           "enableLog": true
         },
@@ -1408,7 +1357,7 @@
               "action": "sell",
               "comp": ">",
               "position": "none",
-              "rate": 0.000097058,
+              "rate": 0.0001151,
               "reason": "middle high",
               "indicators": ["RSI"]
             }
@@ -1567,7 +1516,7 @@
     {
       "exchanges": ["Bitfinex"],
       "marginTrading": true,
-      "tradeTotalBtc": 0.01,
+      "tradeTotalBtc": 0.0,
       "notifyTrades": true,
       "strategies": {
         "PlanRunner": {

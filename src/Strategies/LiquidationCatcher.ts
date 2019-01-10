@@ -1,6 +1,11 @@
 
-// TODO look at the trend of the last x candles and follow it
-
+// TODO https://www.youtube.com/watch?v=gG1iCf1EAig
+/**
+ * look for price high/low bars with with volume (1 min candles or small)
+ * compute where these people entering with the trend at 100x get liquidated
+ * place a limit buy/sell order near that price to catch their liquidations
+ * those price points should be crossed after entry (to allow people to exit at profit). else there won't be many liquidations
+ */
 
 import * as utils from "@ekliptor/apputils";
 const logger = utils.logger
@@ -11,7 +16,7 @@ import {Currency, Trade} from "@ekliptor/bit-models";
 
 /**
  */
-export default class SwingTrader extends AbstractStrategy {
+export default class LiquidationCatcher extends AbstractStrategy {
     constructor(options) {
         super(options)
         throw new Error(this.className + " is not yet implemented");
