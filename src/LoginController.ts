@@ -8,6 +8,7 @@ import * as crypto from "crypto";
 import * as helper from "./utils/helper";
 import {AbstractNotification} from "./Notifications/AbstractNotification";
 import Notification from "./Notifications/Notification";
+import {LoginData, LoginUpdateRes} from "./WebSocket/LoginUpdater";
 
 
 export interface NodeConfigFile {
@@ -101,6 +102,45 @@ export class LoginController extends AbstractSubController {
         })
     }
 
+    public async login(loginData: LoginData) {
+        nconf.set("serverConfig:username", loginData.username);
+        nconf.set("serverConfig:password", loginData.password);
+        try {
+            await this.checkLogin();
+            let res: LoginUpdateRes = {
+                loginRes: {
+                    loginValid: this.isLoginValid(),
+                    subscriptionValid: this.isSubscriptionValid(),
+                    apiKey: Object.keys(nconf.get("apiKeys"))[0]
+                }
+            }
+            if (!res) {
+                res.error = true;
+                res.errorCode = "unknownError";
+            }
+            else if (res.loginRes.loginValid === false || res.loginRes.subscriptionValid === false) {
+                res.error = true;
+                res.errorCode = res.loginRes.loginValid === false ? "userNotFound" : "subscriptionNotFound";
+            }
+            serverConfig.saveConfigLocal();
+            return res;
+        }
+        catch (err) {
+            logger.error("Error checking new login data", err)
+            //return null;
+            let res: LoginUpdateRes = {
+                loginRes: {
+                    loginValid: false,
+                    subscriptionValid: false,
+                    apiKey: Object.keys(nconf.get("apiKeys"))[0]
+                }
+            }
+            res.error = true;
+            res.errorCode = "internalError";
+            return res;
+        }
+    }
+
     /**
      * Verifies if the login is valid with the API server.
      * Call isLoginValid() after this function is done to see if the login is valid.
@@ -126,12 +166,21 @@ export class LoginController extends AbstractSubController {
                 if (json === null)
                     return reject({txt: "Invalid response from login API", res: body})
                 if (json.error === true) {
-                    this.loginValid = false;
-                    this.subscriptionValid = false;
-                    logger.info("Login to cloud API is not valid")
+                    if (this.usernameChanged() === true) {
+                        logger.verbose("Keeping previous login after username change");
+                        nconf.set("serverConfig:username", nconf.get("serverConfig:lastUsername"));
+                        return reject({txt: "username changed"});
+                    }
+                    else {
+                        this.loginValid = false;
+                        this.subscriptionValid = false;
+                        logger.info("Login to cloud API is not valid")
+                    }
                 }
                 else if (Array.isArray(json.data) === true && json.data.length === 1 && json.data[0].data) {
                     this.loginValid = true;
+                    nconf.set("serverConfig:lastUsername", nconf.get("serverConfig:username"));
+                    //const registeredUsername = json.data[0].data.user_login;
                     if (Array.isArray(json.data[0].data.subscriptions) === true)
                         this.subscriptionValid = this.hasThisBotSubscription(json.data[0].data.subscriptions);
                     else
@@ -140,6 +189,11 @@ export class LoginController extends AbstractSubController {
                         logger.info("Cloud bot subscription has expired")
                     else
                         logger.info("Cloud bot subscription is active")
+                }
+                else if (this.usernameChanged() === true) {
+                    logger.verbose("Keeping previous login after username change with wrong credentials");
+                    nconf.set("serverConfig:username", nconf.get("serverConfig:lastUsername"));
+                    return reject({txt: "username changed"});
                 }
                 else {
                     this.loginValid = false;
@@ -315,5 +369,11 @@ export class LoginController extends AbstractSubController {
             logger.error("Error sending %s notification", this.className, err)
         });
         this.sentExpirationMessage = true;
+    }
+
+    protected usernameChanged() {
+        if (!nconf.get("serverConfig:lastUsername"))
+            return false;
+        return nconf.get("serverConfig:lastUsername") !== nconf.get("serverConfig:username")
     }
 }

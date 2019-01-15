@@ -59,44 +59,9 @@ export class LoginUpdater extends AppPublisher {
 
     public async verifyLogin(loginData: LoginData, clientSocket: ClientSocketOnServer): Promise<LoginUpdateRes> {
         let login = LoginController.getInstance();
-        nconf.set("serverConfig:username", loginData.username);
-        nconf.set("serverConfig:password", loginData.password);
-        try {
-            await login.checkLogin();
-            let res: LoginUpdateRes = {
-                loginRes: {
-                    loginValid: login.isLoginValid(),
-                    subscriptionValid: login.isSubscriptionValid(),
-                    apiKey: Object.keys(nconf.get("apiKeys"))[0]
-                }
-            }
-            if (!res) {
-                res.error = true;
-                res.errorCode = "unknownError";
-            }
-            else if (res.loginRes.loginValid === false || res.loginRes.subscriptionValid === false) {
-                res.error = true;
-                res.errorCode = res.loginRes.loginValid === false ? "userNotFound" : "subscriptionNotFound";
-            }
-            serverConfig.saveConfigLocal();
-            this.send(clientSocket, res) // usually called via http from main controller instead
-            return res;
-        }
-        catch (err) {
-            logger.error("Error checking new login data", err)
-            //return null;
-            let res: LoginUpdateRes = {
-                loginRes: {
-                    loginValid: false,
-                    subscriptionValid: false,
-                    apiKey: Object.keys(nconf.get("apiKeys"))[0]
-                }
-            }
-            res.error = true;
-            res.errorCode = "internalError";
-            this.send(clientSocket, res) // usually called via http from main controller instead
-            return res;
-        }
+        let res = await login.login(loginData);
+        this.send(clientSocket, res) // usually called via http from main controller instead
+        return res;
     }
 
     // ################################################################

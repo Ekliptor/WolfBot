@@ -11,7 +11,7 @@ export default class Pushover extends AbstractNotification {
         super(options)
         if (!nconf.get("serverConfig:apiKey:notify:Pushover:appToken"))
             throw new Error("Pushover appToken must be set to send Pushover notifications");
-        if (!this.options.receiver)
+        if (!this.options.receiver && !this.options.adminReceiver)
             throw new Error("Receiver has to be defined to send Pushover notifications");
     }
 

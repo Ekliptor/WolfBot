@@ -468,15 +468,16 @@ export class Controller extends AbstractController { // TODO implement graceful 
 
     public async login(req: http.IncomingMessage, res: http.ServerResponse) {
         let json = utils.getJsonPostData((req as any).formFields);
-        let loginRes = await this.websocketController.getLoginUpdater().verifyLogin({
+        let login = LoginController.getInstance();
+        let loginRes = await await login.login({
             username: json.login.username,
             password: json.login.password
-        }, null);
+        });
         if (!loginRes) {
             loginRes.error = true;
             loginRes.errorCode = "unknownError";
         }
-        else if (loginRes.loginRes.loginValid === false || loginRes.loginRes.subscriptionValid === false) {
+        else if (loginRes.loginRes.loginValid === false || loginRes.loginRes.subscriptionValid === false || json.login.username !== nconf.get("serverConfig:username")) {
             loginRes.error = true;
             loginRes.errorCode = loginRes.loginRes.loginValid === false ? "userNotFound" : "subscriptionNotFound";
         }

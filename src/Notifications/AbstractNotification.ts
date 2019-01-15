@@ -24,6 +24,7 @@ export abstract class AbstractNotification {
     }
 
     public static getInstance(adminInstance = false) {
+        const fallbackClass = "NoNotificationService";
         if (adminInstance === true) {
             if (AbstractNotification.adminInstance === null) {
                 let notificationClass = nconf.get('serverConfig:adminNotificationMethod');
@@ -32,11 +33,12 @@ export abstract class AbstractNotification {
                     notificationOpts = nconf.get("serverConfig:apiKey:notify:" + notificationClass);
                 else
                     notificationClass = "NoNotificationService";
-                const modulePath = path.join(__dirname, notificationClass)
+                let modulePath = path.join(__dirname, notificationClass)
                 AbstractNotification.adminInstance = AbstractNotification.loadModule(modulePath, notificationOpts);
-                if (!AbstractNotification.adminInstance && notificationClass !== "NoNotificationService") {
-                    logger.error("Loading admin notification class %s failed. Loading fallback", notificationClass)
-                    AbstractNotification.adminInstance = AbstractNotification.loadModule(modulePath, notificationOpts);
+                if (!AbstractNotification.adminInstance && notificationClass !== fallbackClass) {
+                    logger.error("Loading admin notification class %s failed. Loading fallback %s", fallbackClass)
+                    modulePath = path.join(__dirname, fallbackClass)
+                    AbstractNotification.adminInstance = AbstractNotification.loadModule(modulePath, {});
                 }
             }
             AbstractNotification.adminInstance.isAdminInstance = true;
@@ -49,11 +51,12 @@ export abstract class AbstractNotification {
                 notificationOpts = nconf.get("serverConfig:apiKey:notify:" + notificationClass);
             else
                 notificationClass = "NoNotificationService";
-            const modulePath = path.join(__dirname, notificationClass)
+            let modulePath = path.join(__dirname, notificationClass)
             AbstractNotification.instance = AbstractNotification.loadModule(modulePath, notificationOpts);
-            if (!AbstractNotification.instance && notificationClass !== "NoNotificationService") {
-                logger.error("Loading notification class %s failed. Loading fallback", notificationClass)
-                AbstractNotification.instance = AbstractNotification.loadModule(modulePath, notificationOpts);
+            if (!AbstractNotification.instance && notificationClass !== fallbackClass) {
+                logger.error("Loading notification class %s failed. Loading fallback %s", fallbackClass)
+                modulePath = path.join(__dirname, fallbackClass)
+                AbstractNotification.instance = AbstractNotification.loadModule(modulePath, {});
             }
         }
         return AbstractNotification.instance;
@@ -64,7 +67,8 @@ export abstract class AbstractNotification {
         notification.title = this.getBotDirName() + " " + notification.title;
         let forceAdmin = false;
         if (this === AbstractNotification.adminInstance && AbstractNotification.adminInstance.isAdminInstance === true) {
-            notification.text += utils.sprintf("\nHost: %s", os.hostname());
+            const userInfo = os.userInfo({encoding: "utf8"});
+            notification.text += utils.sprintf("\nHost: %s, User: %s", os.hostname(), (userInfo ? userInfo.username : "unknown"));
             forceAdmin = true;
         }
         return this.sendNotification(notification, forceAdmin);

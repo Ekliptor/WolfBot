@@ -169,6 +169,9 @@ export class ConfigEditor extends AppPublisher {
                 if (err)
                     reject(err)
                 dirFiles = dirFiles.filter(f => f.substr(1).indexOf(path.sep) === -1); // filter files in subfolders (other trading modes)
+                if (nconf.get("serverConfig:premium") === true) { // filter local backtesting files
+                    dirFiles = dirFiles.filter(f => f.substr(0, 6) !== "/Back-");
+                }
                 resolve(dirFiles)
             })
         })
@@ -417,11 +420,16 @@ export class ConfigEditor extends AppPublisher {
     }
 
     public restart(forceDefaults = false) {
+        const configFile = this.getFirstFileForMode(this.selectedTradingMode);
         if (forceDefaults === true) {
+            const paramsFile = path.join(/*utils.appDir, */nconf.get("lastParamsFile")); // use working dir
+            fs.unlink(paramsFile, (err) => {
+                if (err && err.code !== "ENOENT")
+                    logger.warn("Error deleting last params file on restart", err);
+            });
             let resetAll = false;
             if (this.selectedTradingMode !== "trading") {
                 // try the 1st config file of that mode if we aren't already using it
-                let configFile = this.getFirstFileForMode(this.selectedTradingMode);
                 if (this.selectedConfig !== configFile)
                     this.selectedConfig = configFile;
                 else
@@ -433,6 +441,8 @@ export class ConfigEditor extends AppPublisher {
                 this.selectedTradingMode = "trading";
                 // bad idea to just restore to "Noop" because the user might not have API keys or modified/broke that config
                 this.selectedConfig = nconf.get("serverConfig:lastWorkingConfigName");
+                if (fs.existsSync(path.join(TradeConfig.getConfigDirForMode(this.selectedTradingMode), this.selectedConfig + ".json")) === false)
+                    this.selectedConfig = configFile;
                 nconf.set("serverConfig:configReset", true);
                 //this.selectedConfig = nconf.get("serverConfig:fallbackTradingConfig");
             }
