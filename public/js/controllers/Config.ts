@@ -33,6 +33,7 @@ export class Config extends TableController {
     protected editor: AceAjax.Editor;
     protected canEdit = false;
     protected currencyTable: DataTables.Api = null;
+    protected exchangeLinks: any = {}
 
     constructor(socket: ClientSocket) {
         super(socket)
@@ -253,6 +254,8 @@ export class Config extends TableController {
             this.$("#exchanges").append(this.getSelectOption(exchangeName, exchangeName, firstEx))
             firstEx = false;
         });
+        this.exchangeLinks = data.exchangeLinks;
+        this.$("#exchangeLink").attr("href", this.exchangeLinks[data.exchanges[0]]);
         let notificationMethods = Object.keys(data.notifications);
         let firstNotification = true;
         notificationMethods.forEach((method) => {
@@ -497,6 +500,7 @@ export class Config extends TableController {
         let exchangeKey = this.fullData.exchangeKeys[exchangeName];
         if (!exchangeKey)
             return AppF.log("Error getting exchange key " + exchangeName);
+        this.$("#exchangeLink").attr("href", this.exchangeLinks[exchangeName]);
         this.$("#apiKey").val(exchangeKey.key);
         this.$("#apiSecret").val(exchangeKey.secret);
         this.$("#apiKey2").val(exchangeKey.key2 || "");

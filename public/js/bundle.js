@@ -3576,6 +3576,7 @@ class Config extends TableController_1.TableController {
         this.createJsonViewTimerID = 0;
         this.canEdit = false;
         this.currencyTable = null;
+        this.exchangeLinks = {};
         this.persistent = true;
     }
     onData(data) {
@@ -3781,6 +3782,8 @@ class Config extends TableController_1.TableController {
             this.$("#exchanges").append(this.getSelectOption(exchangeName, exchangeName, firstEx));
             firstEx = false;
         });
+        this.exchangeLinks = data.exchangeLinks;
+        this.$("#exchangeLink").attr("href", this.exchangeLinks[data.exchanges[0]]);
         let notificationMethods = Object.keys(data.notifications);
         let firstNotification = true;
         notificationMethods.forEach((method) => {
@@ -4016,6 +4019,7 @@ class Config extends TableController_1.TableController {
         let exchangeKey = this.fullData.exchangeKeys[exchangeName];
         if (!exchangeKey)
             return AppF.log("Error getting exchange key " + exchangeName);
+        this.$("#exchangeLink").attr("href", this.exchangeLinks[exchangeName]);
         this.$("#apiKey").val(exchangeKey.key);
         this.$("#apiSecret").val(exchangeKey.secret);
         this.$("#apiKey2").val(exchangeKey.key2 || "");

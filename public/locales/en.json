@@ -1299,5 +1299,6 @@
   "deleteApiKeyConfirm": "Do you really want to delete this API key?",
   "botToken": "Bot token",
   "subscriptionValid": "Subscription valid",
-  "configWasReset": "Your configuration was reset to the last working configuration because of irrecoverable errors. This was most likely caused by invalid exchange API keys, typos in your strategy parameters or not supported currency pairs by your exchange (such as USD instead of USDT)."
+  "configWasReset": "Your configuration was reset to the last working configuration because of irrecoverable errors. This was most likely caused by invalid exchange API keys, typos in your strategy parameters or not supported currency pairs by your exchange (such as USD instead of USDT).",
+  "registerAccount": "Register an account"
 }

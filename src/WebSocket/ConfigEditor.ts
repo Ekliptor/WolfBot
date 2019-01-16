@@ -41,6 +41,9 @@ export interface ExchangeApiConfig {
 export interface ExchangeApiKeyMap {
     [exchangeName: string]: ExchangeApiConfig;
 }
+export interface ExchangeLinkMap {
+    [exchangeName: string]: string;
+}
 export interface NotificationKey {
     //key: string;
     receiver?: string;
@@ -80,6 +83,7 @@ export interface ConfigRes extends ConfigData {
     tabs?: ConfigTab[];
     exchanges?: string[];
     exchangeKeys?: ExchangeApiKeyMap;
+    exchangeLinks?: ExchangeLinkMap;
     notifications?: NotificationMethodMap;
     currencies?: DisplayCurrencyMap;
 
@@ -210,6 +214,7 @@ export class ConfigEditor extends AppPublisher {
                 selectedTab: this.selectedTab,
                 exchanges: Array.from(Currency.ExchangeName.keys()),
                 exchangeKeys: this.getExchangeKeys(),
+                exchangeLinks: Currency.ExchangeLink.toObject(),
                 notifications: this.getNotificationMethods()
             });
             this.setLastWorkingConfig();
