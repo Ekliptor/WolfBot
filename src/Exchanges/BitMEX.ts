@@ -302,7 +302,6 @@ export default class BitMEX extends AbstractContractExchange {
             let offset = 0;
             const count = 500;
             let importNext = () => {
-
                 let outParams = {
                     symbol: marketPair,
                     startTime: utils.getUnixTimeStr(true, start),
@@ -311,22 +310,19 @@ export default class BitMEX extends AbstractContractExchange {
                     start: offset
                 }
                 this.privateReq("GET /trade", outParams).then((history) => {
-
                     let trades = [];
                     history.forEach((rawTrade) => {
-
                         let tradeObj = new Trade.Trade();
                         tradeObj.date = new Date(rawTrade.timestamp);
                         tradeObj.type = rawTrade.side == "Sell" ? Trade.TradeType.SELL : Trade.TradeType.BUY;
                         tradeObj.amount = Math.abs(rawTrade.size); // todo: is teh unit right?
                         tradeObj.rate = rawTrade.price;
                         tradeObj.tradeID = Math.floor(tradeObj.date.getTime() * tradeObj.amount)
-
                         tradeObj = Trade.Trade.verifyNewTrade(tradeObj, currencyPair, this.getExchangeLabel(), this.getFee())
 
                         trades.push(tradeObj)
-                    })
-
+                    });
+                    const currentMs = trades.length !== 0 ? trades[trades.length-1].date.getTime() : Date.now();
                     Trade.storeTrades(db.get(), trades, (err) => {
                         if (err)
                             logger.error("Error storing trades", err)
@@ -334,6 +330,7 @@ export default class BitMEX extends AbstractContractExchange {
 
                     if(history.length >= count) {
                         offset += count;
+                        logger.verbose("%s %s import at %s with %s trades", this.className, currencyPair.toString(), utils.date.toDateTimeStr(new Date(currentMs)), count)
                         setTimeout(importNext.bind(this), 3000) // avoid hitting the rate limit -> temporary ban
                     }
                     else {

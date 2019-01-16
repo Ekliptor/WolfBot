@@ -26,7 +26,6 @@ import{FileResponder} from "./Web/FileResponder";
 import{HttpProxy} from "./Web/HttpProxy";
 import {TaLib, TaLibParams, TaLibResult} from "./Indicators/TaLib";
 import {Brain} from "./AI/Brain";
-import {RawTelegramMessage} from "./Social/Crawler/Telegram";
 import {WebErrorCode} from "./Web/errorCodes";
 import {JsonResponse} from "./Web/JsonResponse";
 
@@ -453,7 +452,7 @@ export class Controller extends AbstractController { // TODO implement graceful 
         return {data: status}
     }
 
-    public addTelegramMessage(message: RawTelegramMessage) {
+    public addTelegramMessage(message: /*RawTelegramMessage*/any) {
         if (this.socialController)
             this.socialController.addTelegramMessage(message);
     }
