@@ -72,7 +72,7 @@ export default class DEMA extends AbstractTurnStrategy {
         this.addInfoFunction("long", () => {
             return this.action.long;
         });
-        let dema = this.indicators.get("DEMA")
+        const dema = this.indicators.get("DEMA");
         this.addInfoFunction("shortValue", () => {
             return dema.getShortLineValue();
         });
@@ -134,7 +134,7 @@ export default class DEMA extends AbstractTurnStrategy {
     protected checkIndicators() {
         this.plotChart();
         this.checkResetValues();
-        let dema = this.indicators.get("DEMA")
+        const dema = this.indicators.get("DEMA");
         let bollinger = this.getBollinger("BollingerBands")
         const diff = dema.getLineDiffPercent();
         if (!this.isActiveStrategy()) {

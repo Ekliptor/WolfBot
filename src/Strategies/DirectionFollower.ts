@@ -55,7 +55,7 @@ export default class DirectionFollower extends TechnicalStrategy {
             return this.action.adxTrend;
         });
         */
-        let adx = this.getADX("ADX")
+        const adx = this.getADX("ADX");
         adx.disableADXR(true);
         this.addInfo("secondLastADX", "secondLastADX");
         this.addInfo("secondLastADXR", "secondLastADXR");
@@ -110,7 +110,7 @@ export default class DirectionFollower extends TechnicalStrategy {
     // ###################### PRIVATE FUNCTIONS #######################
 
     protected checkIndicators() {
-        let adx = this.getADX("ADX")
+        const adx = this.getADX("ADX");
         //let sar = this.indicators.get("SAR")
         //console.log(adx.getAllValues())
         //console.log("SAR: " + sar.getValue())

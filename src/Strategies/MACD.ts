@@ -84,7 +84,7 @@ export default class MACD extends AbstractTurnStrategy {
         this.addInfoFunction("long", () => {
             return this.action.long;
         });
-        let macd = this.getMACD("MACD");
+        const macd = this.getMACD("MACD");
         this.addInfoFunction("MACD", () => {
             return macd.getMACD();
         });
@@ -169,7 +169,7 @@ export default class MACD extends AbstractTurnStrategy {
 
     protected checkIndicators() {
         this.plotChart();
-        let macd = this.getMACD("MACD")
+        const macd = this.getMACD("MACD");
         const histogram = macd.getHistogram();
         this.setMaxHistogram(histogram);
         // we use the max histogram and check the % change. this means on highly volatile markets (1 candle up, 1 candle down) our MACD won't open a position

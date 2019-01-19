@@ -259,7 +259,12 @@ export default class ExchangeController extends AbstractSubController {
                   at TradeAdvisor.loadConfig (/home/bitbrain2/nodejs/BitBrain2/src/TradeAdvisor.ts:427:23)\n
                   at TradeAdvisor.checkRestoreConfig.then (/home/bitbrain2/nodejs/BitBrain2/src/TradeAdvisor.ts:213:18)","errno":-2,"syscall":"open","code":"ENOENT","path":"/home/bitbrain2/nodejs/BitBrain2/Sensor1/config/Bitfinex.json"}
                  */
-                logger.warn("Unable to load config file %s in %s - most likely wrong trading mode after restart. Retrying defaults", filePath, this.className)
+                logger.warn("Unable to load config file %s in %s - most likely wrong trading mode after restart. Retrying defaults", filePath, this.className);
+                const paramsFile = path.join(/*utils.appDir, */nconf.get("lastParamsFile")); // use working dir
+                fs.unlink(paramsFile, (err) => {
+                    if (err && err.code !== "ENOENT")
+                        logger.warn("Error deleting last params file on new start", err);
+                });
                 if (TradeConfig.isTradingMode() === false || this.getConfigFilename() !== "Noop") { // TODO always ensure this file exists
                     setTimeout(async () => { // WebsocketController is loaded after exchanges
                         let controller = await import("./Controller");

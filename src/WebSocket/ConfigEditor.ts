@@ -214,6 +214,7 @@ export class ConfigEditor extends AppPublisher {
                 selectedTab: this.selectedTab,
                 exchanges: Array.from(Currency.ExchangeName.keys()),
                 exchangeKeys: this.getExchangeKeys(),
+                // @ts-ignore
                 exchangeLinks: Currency.ExchangeLink.toObject(),
                 notifications: this.getNotificationMethods()
             });
@@ -295,7 +296,10 @@ export class ConfigEditor extends AppPublisher {
             }
             this.saveConfigFile(data.configName, data.saveConfig).then(() => {
                 let requireRestrt = this.updateConfig(data.saveConfig);
-                this.send(clientSocket, {saved: true, restart: requireRestrt})
+                this.send(clientSocket, {saved: true, restart: requireRestrt});
+                setTimeout(() => { // make sure JSONview has the latest data
+                    this.sendInitialData(clientSocket);
+                }, 0);
                 // causes problems when reading changes, possible reverting currency pair
                 //return this.readConfigFile(this.selectedConfig)
             /*}).then((configFileData) => {
