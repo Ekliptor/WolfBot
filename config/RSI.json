@@ -1,0 +1,68 @@
+{
+    "data": [
+        {
+            "exchanges": [
+                "Bitfinex"
+            ],
+            "marginTrading": true,
+            "tradeTotalBtc": 200.0,
+            "warmUpMin": 0,
+            "strategies": {
+                "RSI": {
+                    "interval": 5,
+                    "low": 54,
+                    "high": 55,
+                    "mode": "trend",
+                    "pair": "USD_BTC",
+                    "candleSize": 60,
+                    "tradeStrategy": "RSIScalpOrderer",
+                    "enableLog": true
+                },
+                "RSIScalpOrderer": {
+                    "low": 34,
+                    "high": 70,
+                    "expiry": 20,
+                    "candleSize": 5,
+                    "pair": "USD_BTC",
+                    "enableLog": true
+                },
+                "StopLossTurn": {
+                    "order": "closeLong",
+                    "setback": 3.5,
+                    "setbackLong": 4.5,
+                    "time": 600,
+                    "reduceTimeByVolatility": false,
+                    "low": 52,
+                    "high": 56,
+                    "candleSize": 5,
+                    "pair": "USD_BTC",
+                    "enableLog": false
+                },
+                "TakeProfit": {
+                    "order": "closeLong",
+                    "profit": 5.2,
+                    "time": 3600,
+                    "candleSize": 5,
+                    "pair": "USD_BTC",
+                    "enableLog": false
+                },
+                "TakeProfitStochRSI": {
+                    "percentage": 50,
+                    "low": 11,
+                    "high": 87,
+                    "interval": 25,
+                    "closeRateFactor": 0.9992,
+                    "candleSize": 60,
+                    "orderStrategy": "TriggerOrder",
+                    "pair": "USD_BTC",
+                    "enableLog": true
+                },
+                "TriggerOrder": {
+                    "candleSize": 1,
+                    "pair": "USD_BTC",
+                    "enableLog": true
+                }
+            }
+        }
+    ]
+}
