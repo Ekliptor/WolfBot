@@ -80,7 +80,7 @@ export default class ExchangeController extends AbstractSubController {
     }
 
     public getExchanges() {
-        return this.exchanges
+        return this.exchanges;
     }
 
     public isExchangesIdle() {
@@ -265,6 +265,12 @@ export default class ExchangeController extends AbstractSubController {
                     if (err && err.code !== "ENOENT")
                         logger.warn("Error deleting last params file on new start", err);
                 });
+                this.copyFallbackConfigFile(filePath);
+                const lastWorking = new Date(nconf.get("serverConfig:lastWorkingConfigTime") || 0);
+                if (lastWorking.getTime() + nconf.get("serverConfig:lastWorkingResetConfigMin")*utils.constants.MINUTE_IN_SECONDS*1000 < Date.now()) {
+                    nconf.set("serverConfig:lastWorkingConfigName", nconf.get("serverConfig:fallbackTradingConfig"));
+                    serverConfig.saveConfigLocal();
+                }
                 if (TradeConfig.isTradingMode() === false || this.getConfigFilename() !== "Noop") { // TODO always ensure this file exists
                     setTimeout(async () => { // WebsocketController is loaded after exchanges
                         let controller = await import("./Controller");
@@ -315,6 +321,16 @@ export default class ExchangeController extends AbstractSubController {
         LendingConfig.resetCounter();
         this.connectedExchanges = utils.uniqueArrayValues(connectedExchanges); // shouldn't change anything
         this.configReady = true;
+    }
+    
+    protected async copyFallbackConfigFile(dest: string): Promise<void> {
+        let filePath = path.join(TradeConfig.getConfigDirForMode("trading"), nconf.get("serverConfig:fallbackTradingConfig") + ".json");
+        try {
+            await fs.promises.copyFile(filePath, dest)
+        }
+        catch (err) {
+            logger.error("Error copying fallback config from %s", filePath, err);
+        }
     }
 
     protected setExchangesIdle(idle: boolean) {

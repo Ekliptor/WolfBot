@@ -1,0 +1,22 @@
+{
+  "data": [
+    {
+      "exchanges": ["Bitfinex"],
+      "marginTrading": true,
+      "tradeTotalBtc": 200.0,
+      "notifyTrades": false,
+      "strategies": {
+        "SARStop": {
+          "initialStop": true,
+          "accelerationFactor": 0.02,
+          "accelerationMax": 0.2,
+          "time": 300,
+          "keepTrendOpen": true,
+          "candleSize": 5,
+          "pair": "USD_BTC",
+          "enableLog": false
+        }
+      }
+    }
+  ]
+}

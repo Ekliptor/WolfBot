@@ -3589,6 +3589,13 @@ class Config extends TableController_1.TableController {
                 this.showRestartMsg();
             if (data.configFiles)
                 this.rebuildConfigDropdown(data.configFiles);
+            if (data.restarting)
+                this.showRestartingNowPage(i18next.t("fineTuneConfig"));
+            this.checkUpdateWizard();
+            return;
+        }
+        else if (data.wizardErrorCode) {
+            $("#wizardError").text(i18next.t(data.wizardErrorCode));
             return;
         }
         if (data.configWasReset === true)
@@ -3617,55 +3624,8 @@ class Config extends TableController_1.TableController {
         Hlp.confirm(AppF.tr('restartConfirm'), (answer) => {
             if (answer !== true)
                 return;
-            let vars = {
-                title: AppF.tr('restarting'),
-                text: AppF.tr('restartingTxt')
-            };
-            let disconnected = AppF.translate(pageData.html.misc.restartDialog, vars);
-            $(index_1.AppClass.cfg.appSel).append(disconnected);
             this.send({ restart: true });
-            $("#reloadPage").click((event) => {
-                window.location.reload(true);
-            });
-            let checkRestartDone = (responseCount) => {
-                setTimeout(() => {
-                    let data = new FormData(); // multipart POST data
-                    data.append("data", JSON.stringify({
-                        apiKey: AppF.getCookie("apiKey") // if the key changed we won't be able to open the app either way
-                    }));
-                    $.ajax({
-                        url: pageData.pathRoot + "state/",
-                        method: "POST",
-                        timeout: 5000,
-                        cache: false,
-                        contentType: false,
-                        processData: false,
-                        data: data
-                    }).done((data) => {
-                        if (data.data && data.data.ready === true) {
-                            responseCount++;
-                            if (responseCount > 2) { // wait for 3 responses to ensure it's not the update process
-                                // check for content to see if the app is really ready (and not just the http server running + updater restarting again)
-                                setTimeout(() => {
-                                    document.location.reload(true);
-                                }, 1500);
-                            }
-                            else
-                                checkRestartDone(responseCount);
-                        }
-                        else {
-                            if (responseCount > 0)
-                                responseCount--;
-                            checkRestartDone(responseCount);
-                        }
-                    }).fail((err) => {
-                        if (responseCount > 0)
-                            responseCount--;
-                        checkRestartDone(responseCount);
-                    });
-                }, 1200);
-            };
-            checkRestartDone(0);
+            this.showRestartingNowPage();
         });
     }
     pauseTrading() {
@@ -3734,7 +3694,9 @@ class Config extends TableController_1.TableController {
         }
     }
     setupGeneralTab(data) {
-        let html = AppF.translate(pageData.html.config.general);
+        let html = AppF.translate(pageData.html.config.general, {
+            apiSettings: AppF.translate(pageData.html.config.apiSettings)
+        }, true);
         this.$("#tabContent").append(html);
         data.tradingModes.forEach((mode) => {
             this.$("#tradingMode").append(this.getSelectOption(mode, AppF.tr(mode), mode === data.selectedTradingMode));
@@ -3777,19 +3739,30 @@ class Config extends TableController_1.TableController {
         data.traders.forEach((trader) => {
             this.$("#traders").append(this.getSelectOption(trader, AppF.tr(trader), data.selectedTrader === trader));
         });
-        let firstEx = true;
-        data.exchanges.forEach((exchangeName) => {
-            this.$("#exchanges").append(this.getSelectOption(exchangeName, exchangeName, firstEx));
-            firstEx = false;
+        this.$("#openWizard").click((event) => {
+            this.$("#apiSettings").html("");
+            let vars = {
+                wizardExchange: AppF.translate(pageData.html.config.apiSettings)
+            };
+            let wizard = AppF.translate(pageData.html.wizard.wizard, vars, true);
+            $(index_1.AppClass.cfg.appSel).append(wizard);
+            $("#closeWizardDialog").click((event) => {
+                $("#modal-wizard-dialog").remove();
+                setTimeout(() => {
+                    //this.setupGeneralTab(data);
+                    this.displayTab("tabGeneral");
+                }, 100);
+            });
+            this.setupWizard(data);
         });
-        this.exchangeLinks = data.exchangeLinks;
-        this.$("#exchangeLink").attr("href", this.exchangeLinks[data.exchanges[0]]);
         let notificationMethods = Object.keys(data.notifications);
         let firstNotification = true;
         notificationMethods.forEach((method) => {
             this.$("#notificationMethod").append(this.getSelectOption(method, method, firstNotification));
             firstNotification = false;
         });
+        // Exchange API Keys
+        this.setupExchangeForm(data);
         index_1.App.initMultiSelect((optionEl, checked) => {
             const id = optionEl.attr("id");
             if (id !== "exchanges")
@@ -3802,8 +3775,14 @@ class Config extends TableController_1.TableController {
             }
             else if (id === "traders")
                 this.send({ traderChange: optionEl.val() });
-            else if (id === "tradingMode")
-                this.send({ tradingModeChange: optionEl.val() });
+            else if (id === "tradingMode") {
+                const mode = optionEl.val();
+                this.send({ tradingModeChange: mode });
+                if (mode === "trading")
+                    this.$("#openWizard").fadeIn("slow");
+                else
+                    this.$("#openWizard").fadeOut("slow");
+            }
             else if (id === "exchanges")
                 this.showEditExchangeApiKeys(optionEl.val());
             else if (id === "notificationMethod")
@@ -3813,6 +3792,8 @@ class Config extends TableController_1.TableController {
             this.$("#traders").multiselect('disable'); // TODO wait for typings
         else if (data.social === true)
             this.$(".traderCtrl").addClass("hidden");
+        if (data.selectedTradingMode !== "trading")
+            this.$("#openWizard").fadeOut("slow");
         this.$("#debug").prop("checked", data.debugMode);
         this.$("#debug").change((event) => {
             this.send({ debugMode: $(event.target).is(":checked") });
@@ -3843,45 +3824,6 @@ class Config extends TableController_1.TableController {
             }
             else
                 this.send({ restoreCfg: checked });
-        });
-        // Exchange API Keys
-        this.$("#configExchangeForm input[type=text]").change((event) => {
-            this.$("#saveKey").fadeIn("slow");
-            if (this.canDeleteApiKey() === true)
-                this.$("#deleteApiKey").fadeIn("slow");
-        });
-        setTimeout(() => {
-            if (this.canDeleteApiKey() === true)
-                this.$("#deleteApiKey").fadeIn("slow");
-        }, 0);
-        this.showEditExchangeApiKeys(this.$("#exchanges").val());
-        this.showNotificationKeyInput(this.$("#notificationMethod").val());
-        //this.$("#saveKey").click((event) => { // we want to use the browser to validate the form
-        this.$("#configExchangeForm").submit((event) => {
-            event.preventDefault();
-            let saveReq = {};
-            const exchangeName = this.$("#exchanges").val();
-            saveReq[exchangeName] = {
-                key: this.$("#apiKey").val(),
-                secret: this.$("#apiSecret").val(),
-                key2: "",
-                secret2: ""
-            };
-            if (this.$("#key2Panel").is(":visible") === true) {
-                saveReq[exchangeName].key2 = this.$("#apiKey2").val();
-                saveReq[exchangeName].secret2 = this.$("#apiSecret2").val();
-            }
-            this.send({
-                saveKey: saveReq
-            });
-        });
-        this.$("#deleteApiKey").click((event) => {
-            Hlp.confirm(AppF.tr('deleteApiKeyConfirm'), (answer) => {
-                if (answer !== true)
-                    return;
-                const exchangeName = this.$("#exchanges").val();
-                this.send({ removeApiKey: exchangeName });
-            });
         });
         // Notification method
         this.$("#notificationsForm input[type=text]").change((event) => {
@@ -4015,23 +3957,168 @@ class Config extends TableController_1.TableController {
             });
         });
     }
+    setupWizard(data) {
+        /*
+        let wizardExchange = AppF.translate(pageData.html.config.general, {
+
+        }, true);
+        */
+        this.setupExchangeForm(data, true);
+        index_1.App.initSingleMultiSelect("#exchanges", (optionEl, checked) => {
+            const id = optionEl.attr("id");
+            if (id === "exchanges") {
+                const exchange = optionEl.val();
+                this.showEditExchangeApiKeys(exchange);
+                this.rebuildExchangePairs(data, exchange);
+                if (this.hasExchangeKey(exchange) === true)
+                    $(".apiKeyPanel").fadeOut("slow");
+                else
+                    $(".apiKeyPanel").fadeIn("slow");
+            }
+        });
+        const selectedExchange = $("#exchanges").val();
+        let firstPair = true;
+        data.exchangePairs[selectedExchange].forEach((pairStr) => {
+            $("#currencyPair").append(this.getSelectOption(pairStr, pairStr, firstPair));
+            firstPair = false;
+        });
+        index_1.App.initSingleMultiSelect("#currencyPair", (optionEl, checked) => {
+            const id = optionEl.attr("id");
+            if (id === "currencyPair")
+                this.updateBaseCurrency(optionEl.val());
+        });
+        if (data.exchangePairs[selectedExchange].length !== 0)
+            this.updateBaseCurrency(data.exchangePairs[selectedExchange][0]);
+        let firstStrategy = true;
+        data.wizardStrategies.forEach((strategy) => {
+            $("#strategy").append(this.getSelectOption(strategy, strategy, firstStrategy));
+            firstStrategy = false;
+        });
+        index_1.App.initSingleMultiSelect("#strategy", (optionEl, checked) => {
+            const id = optionEl.attr("id");
+            if (id === "strategy") {
+                const strategySelected = optionEl.val();
+                $("#strategyText").html(this.getStrategyDesc(strategySelected, "trading"));
+            }
+        });
+        if (data.wizardStrategies.length !== 0)
+            $("#strategyText").html(this.getStrategyDesc(data.wizardStrategies[0], "trading"));
+        $("#startBotReplace, #startBotAdd").click((event) => {
+            let element = $(event.target);
+            this.send({
+                wizardData: {
+                    exchange: $("#exchanges").val(),
+                    currencyPair: $("#currencyPair").val(),
+                    tradingCapital: parseFloat($("#tradingCapital").val()),
+                    strategy: $("#strategy").val(),
+                    configName: $("#configName").val(),
+                    replace: element.attr("id") === "startBotReplace"
+                }
+            });
+        });
+    }
+    checkUpdateWizard() {
+        if ($("#modal-wizard-dialog").length === 0)
+            return;
+        if ($("#apiKey").val() && $("#apiSecret").val())
+            $(".apiKeyPanel").fadeOut("slow");
+    }
+    rebuildExchangePairs(data, selectedExchange) {
+        $("#currencyPair option").remove();
+        let firstPair = true;
+        data.exchangePairs[selectedExchange].forEach((pairStr) => {
+            $("#currencyPair").append(this.getSelectOption(pairStr, pairStr, firstPair));
+            firstPair = false;
+        });
+        $("#currencyPair").multiselect("rebuild");
+    }
+    updateBaseCurrency(currencyPair) {
+        let currency = currencyPair.split("_")[0];
+        $(".tradingBaseCurrency").text(currency);
+    }
+    getStrategyDesc(strategyName, mode) {
+        const roots = new Map([
+            ["trading", "stratDesc"],
+            ["arbitrage", "arbitrageStratDesc"],
+            ["lending", "lendingStratDesc"]
+        ]);
+        const key = roots.get(mode) + "." + strategyName + ".desc";
+        if (i18next.exists(key))
+            return i18next.t(key);
+        return i18next.t("noDesc");
+    }
+    setupExchangeForm(data, wizard = false) {
+        // we have to use global $ because modal dialog is outside of this page
+        let firstEx = true;
+        data.exchanges.forEach((exchangeName) => {
+            $("#exchanges").append(this.getSelectOption(exchangeName, exchangeName, firstEx));
+            firstEx = false;
+        });
+        this.exchangeLinks = data.exchangeLinks;
+        $("#configExchangeForm input[type=text]").change((event) => {
+            $("#saveKey").fadeIn("slow");
+            if (this.canDeleteApiKey() === true)
+                $("#deleteApiKey").fadeIn("slow");
+        });
+        setTimeout(() => {
+            if (this.canDeleteApiKey() === true)
+                $("#deleteApiKey").fadeIn("slow");
+        }, 0);
+        this.showEditExchangeApiKeys($("#exchanges").val());
+        this.showNotificationKeyInput($("#notificationMethod").val());
+        //$("#saveKey").click((event) => { // we want to use the browser to validate the form
+        $("#configExchangeForm").submit((event) => {
+            event.preventDefault();
+            let saveReq = {};
+            const exchangeName = this.$("#exchanges").val();
+            saveReq[exchangeName] = {
+                key: $("#apiKey").val(),
+                secret: $("#apiSecret").val(),
+                key2: "",
+                secret2: ""
+            };
+            if ($("#key2Panel").is(":visible") === true) {
+                saveReq[exchangeName].key2 = $("#apiKey2").val();
+                saveReq[exchangeName].secret2 = $("#apiSecret2").val();
+            }
+            this.send({
+                saveKey: saveReq
+            });
+        });
+        $("#deleteApiKey").click((event) => {
+            Hlp.confirm(AppF.tr('deleteApiKeyConfirm'), (answer) => {
+                if (answer !== true)
+                    return;
+                const exchangeName = $("#exchanges").val();
+                this.send({ removeApiKey: exchangeName });
+            });
+        });
+        $(".exchangeLink").attr("href", this.exchangeLinks[data.exchanges[0]]);
+        const selectedExchange = $("#exchanges").val();
+        if (wizard === true && this.hasExchangeKey(selectedExchange) === true)
+            $(".apiKeyPanel").fadeOut("slow");
+    }
     showEditExchangeApiKeys(exchangeName) {
         let exchangeKey = this.fullData.exchangeKeys[exchangeName];
         if (!exchangeKey)
             return AppF.log("Error getting exchange key " + exchangeName);
-        this.$("#exchangeLink").attr("href", this.exchangeLinks[exchangeName]);
-        this.$("#apiKey").val(exchangeKey.key);
-        this.$("#apiSecret").val(exchangeKey.secret);
-        this.$("#apiKey2").val(exchangeKey.key2 || "");
-        this.$("#apiSecret2").val(exchangeKey.secret2 || "");
+        $("#exchangeLink").attr("href", this.exchangeLinks[exchangeName]);
+        $("#apiKey").val(exchangeKey.key);
+        $("#apiSecret").val(exchangeKey.secret);
+        $("#apiKey2").val(exchangeKey.key2 || "");
+        $("#apiSecret2").val(exchangeKey.secret2 || "");
         if (exchangeKey.key2 === undefined) {
-            this.$("#key2Panel").fadeOut("slow");
-            this.$("#apiKey2, #apiSecret2").removeAttr("required");
+            $("#key2Panel").fadeOut("slow");
+            $("#apiKey2, #apiSecret2").removeAttr("required");
         }
         else {
-            this.$("#key2Panel").fadeIn("slow");
-            this.$("#apiKey2, #apiSecret2").attr("required", "required");
+            $("#key2Panel").fadeIn("slow");
+            $("#apiKey2, #apiSecret2").attr("required", "required");
         }
+    }
+    hasExchangeKey(exchangeName) {
+        let exchangeKey = this.fullData.exchangeKeys[exchangeName];
+        return exchangeKey && exchangeKey.key != "";
     }
     showNotificationKeyInput(notifytMethod) {
         let notifyKeys = this.fullData.notifications[notifytMethod];
@@ -4149,6 +4236,8 @@ class Config extends TableController_1.TableController {
         return "stratDesc.";
     }
     showRestartMsg() {
+        if ($("#restartLnk").length !== 0)
+            return; // already showing
         let msg = i18next.t('restartRequiredConf');
         let vars = {
             title: AppF.tr('restartNow'),
@@ -4189,6 +4278,59 @@ class Config extends TableController_1.TableController {
             ]);
         }
         this.currencyTable.draw(false);
+    }
+    showRestartingNowPage(textAddon = "") {
+        $("#modal-wizard-dialog").remove();
+        let vars = {
+            title: AppF.tr('restarting'),
+            text: AppF.tr('restartingTxt')
+        };
+        if (textAddon.length !== 0)
+            vars.text += " " + textAddon;
+        let disconnected = AppF.translate(pageData.html.misc.restartDialog, vars);
+        $(index_1.AppClass.cfg.appSel).append(disconnected);
+        $("#reloadPage").click((event) => {
+            window.location.reload(true);
+        });
+        let checkRestartDone = (responseCount) => {
+            setTimeout(() => {
+                let data = new FormData(); // multipart POST data
+                data.append("data", JSON.stringify({
+                    apiKey: AppF.getCookie("apiKey") // if the key changed we won't be able to open the app either way
+                }));
+                $.ajax({
+                    url: pageData.pathRoot + "state/",
+                    method: "POST",
+                    timeout: 5000,
+                    cache: false,
+                    contentType: false,
+                    processData: false,
+                    data: data
+                }).done((data) => {
+                    if (data.data && data.data.ready === true) {
+                        responseCount++;
+                        if (responseCount > 2) { // wait for 3 responses to ensure it's not the update process
+                            // check for content to see if the app is really ready (and not just the http server running + updater restarting again)
+                            setTimeout(() => {
+                                document.location.reload(true);
+                            }, 1500);
+                        }
+                        else
+                            checkRestartDone(responseCount);
+                    }
+                    else {
+                        if (responseCount > 0)
+                            responseCount--;
+                        checkRestartDone(responseCount);
+                    }
+                }).fail((err) => {
+                    if (responseCount > 0)
+                        responseCount--;
+                    checkRestartDone(responseCount);
+                });
+            }, 1200);
+        };
+        checkRestartDone(0);
     }
     getPlainConfigName(filename) {
         return filename.substr(1).replace(/\.json$/, "");
@@ -5860,8 +6002,11 @@ class AppClass {
         document.title = title + " - " + AppF.tr("siteName");
     }
     initMultiSelect(onChangeCallback) {
+        this.initSingleMultiSelect('.multiSel', onChangeCallback);
+    }
+    initSingleMultiSelect(selector, onChangeCallback) {
         // has be be called from controller AFTER multi sel is added to page
-        $('.multiSel').each((i, el) => {
+        $(selector).each((i, el) => {
             let selOpts = {
                 nonSelectedText: i18next.t("nothingSelected"),
                 nSelectedText: i18next.t("selected"),

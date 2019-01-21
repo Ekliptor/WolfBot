@@ -41,67 +41,15 @@
     <span class="left10">{tr:trader}{tr:colon} </span>
     <select id="traders" class="multiSel" name="traders"></select>
 </span>
+  <button id="openWizard" class="btn btn-success" type="button" name="openWizard">{tr:openWizard}</button>
+  <span class="left10"><a target="_blank" href="https://wolfbot.org/faq/getting-started/">{tr:gettingStarted}</a></span>
 </div>
 <div class="checkbox bottom30">
   <label id="debugCtrls"><input type="checkbox" name="debug" value="" id="debug">{tr:debugMode}</label>
   <label id="devModeCtrls"><input type="checkbox" name="devMode" value="" id="devMode">{tr:devMode}</label>
   <label id="restoreCfgCtrls"><input type="checkbox" name="restoreCfg" value="" id="restoreCfg">{tr:restoreCfg}</label>
 </div>
-<div class="panel panel-primary">
-  <div class="panel-heading">{tr:exchangeKeys}</div>
-  <div class="panel-body">
-    <form id="configExchangeForm" class="row form-horizontal" action="" method="post" enctype="application/x-www-form-urlencoded">
-      <div class="form-group bottom20">
-        <label for="exchanges" class="control-label col-sm-3">{tr:exchange}{tr:colon}</label>
-        <div class="col-sm-9">
-          <select id="exchanges" class="multiSel" name="exchanges"></select>
-          <a id="exchangeLink" target="_blank" href="">{tr:registerAccount}</a>
-          <button id="deleteApiKey" class="btn btn-danger" type="submit" name="saveKey" style="display: none">{tr:deleteApiKey}</button>
-        </div>
-      </div>
-      <div class="panel panel-default bottom20">
-        <div class="panel-heading">{tr:apiKey}</div>
-        <div class="panel-body">
-          <div class="form-group">
-            <label for="apiKey" class="control-label col-sm-3">{tr:apiKey}{tr:colon}</label>
-            <div class="col-sm-9">
-              <input id="apiKey" type="text" class="form-control" name="apiKey" value="" required autocomplete="off">
-            </div>
-          </div>
-          <div class="form-group">
-            <label for="apiSecret" class="control-label col-sm-3">{tr:apiSecret}{tr:colon}</label>
-            <div class="col-sm-9">
-              <input id="apiSecret" type="text" class="form-control" name="apiSecret" value="" placeholder="{tr:secretOnce}" required autocomplete="off">
-            </div>
-          </div>
-        </div>
-      </div>
-      <div id="key2Panel" class="panel panel-default bottom20">
-        <div class="panel-heading">{tr:apiKey2}</div>
-        <div class="panel-body">
-          <p>{tr:twoKeys}</p>
-          <div class="form-group">
-            <label for="apiKey2" class="control-label col-sm-3">{tr:apiKey}{tr:colon}</label>
-            <div class="col-sm-9">
-              <input id="apiKey2" type="text" class="form-control" name="apiKey2" value="" required autocomplete="off">
-            </div>
-          </div>
-          <div class="form-group">
-            <label for="apiSecret2" class="control-label col-sm-3">{tr:apiSecret}{tr:colon}</label>
-            <div class="col-sm-9">
-              <input id="apiSecret2" type="text" class="form-control" name="apiSecret2" value="" placeholder="{tr:secretOnce}" required autocomplete="off">
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="form-group">
-        <div class="col-sm-offset-3 col-sm-9">
-          <button id="saveKey" class="btn btn-success" type="submit" name="saveKey" style="display: none">{tr:save}</button>
-        </div>
-      </div>
-    </form>
-  </div>
-</div>
+<div id="apiSettings">{apiSettings}</div>
 <div class="panel panel-primary">
   <div class="panel-heading">{tr:notifications}</div>
   <div class="panel-body">
@@ -135,6 +83,63 @@
   </div>
 </div>
 <!-- /general -->
+<!-- apiSettings -->
+<div class="panel panel-primary">
+  <div class="panel-heading">{tr:exchangeKeys}</div>
+  <div class="panel-body">
+    <form id="configExchangeForm" class="row form-horizontal" action="" method="post" enctype="application/x-www-form-urlencoded">
+      <div class="form-group bottom20">
+        <label for="exchanges" class="control-label col-sm-3">{tr:exchange}{tr:colon}</label>
+        <div class="col-sm-9">
+          <select id="exchanges" class="multiSel" name="exchanges"></select>
+          <a class="exchangeLink" target="_blank" href="">{tr:registerAccount}</a>
+          <button id="deleteApiKey" class="btn btn-danger" type="submit" name="saveKey" style="display: none">{tr:deleteApiKey}</button>
+        </div>
+      </div>
+      <div class="panel panel-default bottom20 apiKeyPanel">
+        <div class="panel-heading">{tr:apiKey}</div>
+        <div class="panel-body">
+          <div class="form-group">
+            <label for="apiKey" class="control-label col-sm-3">{tr:apiKey}{tr:colon}</label>
+            <div class="col-sm-9">
+              <input id="apiKey" type="text" class="form-control" name="apiKey" value="" required autocomplete="off">
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="apiSecret" class="control-label col-sm-3">{tr:apiSecret}{tr:colon}</label>
+            <div class="col-sm-9">
+              <input id="apiSecret" type="text" class="form-control" name="apiSecret" value="" placeholder="{tr:secretOnce}" required autocomplete="off">
+            </div>
+          </div>
+        </div>
+      </div>
+      <div id="key2Panel" class="panel panel-default bottom20 apiKeyPanel">
+        <div class="panel-heading">{tr:apiKey2}</div>
+        <div class="panel-body">
+          <p>{tr:twoKeys}</p>
+          <div class="form-group">
+            <label for="apiKey2" class="control-label col-sm-3">{tr:apiKey}{tr:colon}</label>
+            <div class="col-sm-9">
+              <input id="apiKey2" type="text" class="form-control" name="apiKey2" value="" required autocomplete="off">
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="apiSecret2" class="control-label col-sm-3">{tr:apiSecret}{tr:colon}</label>
+            <div class="col-sm-9">
+              <input id="apiSecret2" type="text" class="form-control" name="apiSecret2" value="" placeholder="{tr:secretOnce}" required autocomplete="off">
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="form-group apiKeyPanel">
+        <div class="col-sm-offset-3 col-sm-9">
+          <button id="saveKey" class="btn btn-success" type="submit" name="saveKey" style="display: none">{tr:save}</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+<!-- /apiSettings -->
 <!-- jsonView -->
 <div class="bottom20 asyncData">
   <button id="saveConfig" class="left10 btn btn-success" type="button" name="saveConfig" style="display: none;">{tr:saveChanges}</button>

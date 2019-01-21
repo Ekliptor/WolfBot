@@ -1315,5 +1315,22 @@
   "botToken": "Bot token",
   "subscriptionValid": "Subscription valid",
   "configWasReset": "Your configuration was reset to the last working configuration because of irrecoverable errors. This was most likely caused by invalid exchange API keys, typos in your strategy parameters or not supported currency pairs by your exchange (such as USD instead of USDT).",
-  "registerAccount": "Register an account"
+  "registerAccount": "Register an account",
+  "gettingStarted": "Getting started",
+  "openWizard": "Open setup wizard",
+  "addTradingPair": "Add trading pair",
+  "startBotReplace": "Start Bot (replace all existing trading pairs)",
+  "startBotAdd": "Start Bot (add new currency pair)",
+  "strategy": "Strategy",
+  "tradingCapital": "Trading capital",
+  "noDesc": "No description available",
+  "invalidExchange": "Invalid exchange selected.",
+  "strategyNotAvailable": "This strategy is not available.",
+  "invalidCurrencyPair": "Invalid currency pair selected.",
+  "unableLoadStrategy": "Unable to load the strategy data.",
+  "configNamePlace": "Enter a name for your new bot configuration...",
+  "configExistsAlready": "A configuration with this name exists already.",
+  "errorWritingConfig": "Error writing configuration file.",
+  "configNameMissing": "Please enter a valid config name.",
+  "fineTuneConfig": "After the restart is done you may fine-tune your bot configuration by adjusting some parameters in the 'Trading' tab."
 }

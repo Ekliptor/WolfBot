@@ -22,6 +22,7 @@ import {BotConfigMode} from "../Trade/AbstractConfig";
 import * as db from "../database";
 import {AbstractNotification} from "../Notifications/AbstractNotification";
 import Notification from "../Notifications/Notification";
+import {Wizard, WizardData} from "./widgets/Wizard";
 
 export type ConfigTab = "tabGeneral" | "tabTrading" | "tabTradingDev";
 const CONFIG_TABS: ConfigTab[] = ["tabGeneral", "tabTrading", "tabTradingDev"];
@@ -44,6 +45,9 @@ export interface ExchangeApiKeyMap {
 export interface ExchangeLinkMap {
     [exchangeName: string]: string;
 }
+export interface ExchangePairMap {
+    [exchangeName: string]: string[]; // list of recommended pairs per exchange
+}
 export interface NotificationKey {
     //key: string;
     receiver?: string;
@@ -64,6 +68,7 @@ export interface ConfigRes extends ConfigData {
     error?: boolean;
     errorTxt?: string;
     errorCode?: string;
+    wizardErrorCode?: string;
 
     premium?: boolean;
     configWasReset?: boolean;
@@ -84,12 +89,15 @@ export interface ConfigRes extends ConfigData {
     exchanges?: string[];
     exchangeKeys?: ExchangeApiKeyMap;
     exchangeLinks?: ExchangeLinkMap;
+    exchangePairs?: ExchangePairMap;
+    wizardStrategies?: string[];
     notifications?: NotificationMethodMap;
     currencies?: DisplayCurrencyMap;
 
     changed?: boolean;
     saved?: boolean;
-    restart?: boolean;
+    restart?: boolean; // notify the client he should restart
+    restarting?: boolean; // restart initiated by server
 }
 export interface ConfigReq extends ConfigData {
     saveConfig?: string;
@@ -110,6 +118,7 @@ export interface ConfigReq extends ConfigData {
     setPausedOpening?: boolean;
     restart?: boolean;
     getCurrencies?: boolean;
+    wizardData?: WizardData;
 }
 
 export class ConfigEditor extends AppPublisher {
@@ -124,6 +133,7 @@ export class ConfigEditor extends AppPublisher {
     protected configErrorTimer: NodeJS.Timer = null;
     protected lastWorkingExchanges: string[] = [];
     protected pairChangePendingRestart = false;
+    protected initialPairs = new Set<string>();
 
     constructor(serverSocket: ServerSocket, advisor: AbstractAdvisor) {
         super(serverSocket, advisor)
@@ -216,6 +226,8 @@ export class ConfigEditor extends AppPublisher {
                 exchangeKeys: this.getExchangeKeys(),
                 // @ts-ignore
                 exchangeLinks: Currency.ExchangeLink.toObject(),
+                exchangePairs: Currency.ExchangeRecommendedPairs.toObject(),
+                wizardStrategies: nconf.get("serverConfig:wizardStrategies"),
                 notifications: this.getNotificationMethods()
             });
             this.setLastWorkingConfig();
@@ -426,6 +438,10 @@ export class ConfigEditor extends AppPublisher {
             this.sendInitialData(clientSocket); // send the data again to display possibly updated values in UI
             return;
         }
+        else if (typeof data.wizardData === "object") {
+            this.addWizardConfig(data.wizardData, clientSocket);
+            return;
+        }
     }
 
     public restart(forceDefaults = false) {
@@ -535,6 +551,8 @@ export class ConfigEditor extends AppPublisher {
                 let strategyData = curData.strategies[strategyName];
                 if (typeof strategyData.pair !== "string")
                     strategyData.pair = this.ensureCurrencyPairString(strategyData.pair);
+                else if (this.initialPairs.has(strategyData.pair) === false)
+                    this.pairChangePendingRestart = true;
             }
         });
         return utils.stringifyBeautiful(json);
@@ -549,7 +567,10 @@ export class ConfigEditor extends AppPublisher {
             logger.error("Unknown currency pair data provided: %s", JSON.stringify(pair));
             return (new Currency.CurrencyPair(Currency.Currency.USD, Currency.Currency.BTC)).toString();
         }
-        return (new Currency.CurrencyPair(pair.from, pair.to)).toString();
+        let pairStr = (new Currency.CurrencyPair(pair.from, pair.to)).toString(); // TODO lending mode?
+        if (this.initialPairs.has(pairStr) === false)
+            this.pairChangePendingRestart = true;
+        return pairStr;
     }
 
     protected async readConfigFileParsed(name: string, updateStrategyValues: boolean = true) {
@@ -647,6 +668,7 @@ export class ConfigEditor extends AppPublisher {
         let json = utils.parseJson(jsonStr);
         if (!json || !Array.isArray(json.data))
             return jsonStr;
+        const firstLoad = this.initialPairs.size === 0;
         if (this.advisor instanceof TradeAdvisor) {
             let configs: TradeConfig[] = this.advisor.getConfigs();
             let strategies = this.advisor.getStrategies();
@@ -662,6 +684,8 @@ export class ConfigEditor extends AppPublisher {
                     let strategyList = strategies.get(pair); // get values from all strategies for this config-currency pair
                     strategyList.forEach((strat) => {
                         let action = strat.getAction();
+                        if (firstLoad === true)
+                            this.initialPairs.add(action.pair.toString());
                         let strategyConf = conf.strategies[strat.getClassName()];
                         if (!strategyConf)
                             return logger.error("Strategy settings are missing in loaded config for strategy %s", strat.getClassName())
@@ -669,7 +693,7 @@ export class ConfigEditor extends AppPublisher {
                             // check if the value in the json string "conf" is idential to the current live state
                             // compare as strings to be sure comparison works for objects such as CurrencyPair
                             if (strategyConf[prop] !== undefined && action[prop] !== undefined && strategyConf[prop].toString() !== action[prop].toString()) {
-                                if (prop === "pair" && this.pairChangePendingRestart === true)
+                                if (prop === "pair" && (this.pairChangePendingRestart === true || this.initialPairs.has(strategyConf[prop]) === false))
                                     continue;
                                 logger.verbose("updating strategy %s %s %s from %s to %s", strat.getAction().pair.toString(), strat.getClassName(), prop, strategyConf[prop], action[prop])
                                 strategyConf[prop] = action[prop];
@@ -696,6 +720,8 @@ export class ConfigEditor extends AppPublisher {
                     let strategyList = strategies.get(currency); // get values from all strategies for this config-currency pair
                     strategyList.forEach((strat) => {
                         let action = strat.getAction();
+                        if (firstLoad === true)
+                            this.initialPairs.add(action.currency.toString());
                         let strategyConf = conf.strategies[strat.getClassName()];
                         if (!strategyConf)
                             return logger.error("Strategy settings are missing in loaded config for strategy %s", strat.getClassName())
@@ -703,7 +729,7 @@ export class ConfigEditor extends AppPublisher {
                             // check if the value in the json string "conf" is idential to the current live state
                             // compare as strings to be sure comparison works for objects such as CurrencyPair
                             if (strategyConf[prop] !== undefined && action[prop] !== undefined && strategyConf[prop].toString() !== action[prop].toString()) {
-                                if ((prop === "pair" || prop === "currency") && this.pairChangePendingRestart === true)
+                                if ((prop === "pair" || prop === "currency") && (this.pairChangePendingRestart === true || this.initialPairs.has(strategyConf[prop]) === false))
                                     continue;
                                 logger.verbose("updating strategy %s %s %s from %s to %s", strat.getAction().currency.toString(), strat.getClassName(), prop, strategyConf[prop], action[prop])
                                 strategyConf[prop] = action[prop];
@@ -1305,6 +1331,7 @@ export class ConfigEditor extends AppPublisher {
             setTimeout(() => {
                 if (typeof this.selectedConfig === "string" && this.selectedConfig.length !== 0) {
                     nconf.set("serverConfig:lastWorkingConfigName", this.selectedConfig);
+                    nconf.set("serverConfig:lastWorkingConfigTime", new Date());
                     this.lastWorkingExchanges = utils.uniqueArrayValues<string>(Array.from(this.advisor.getExchanges().keys()));
                 }
             }, 30*1000);
@@ -1340,5 +1367,20 @@ export class ConfigEditor extends AppPublisher {
                 resolve();
             });
         })
+    }
+
+    protected async addWizardConfig(wizardData: WizardData, clientSocket: ClientSocketOnServer): Promise<void> {
+        this.selectedTradingMode = "trading"; // just to be sure
+        let wizard = new Wizard(this.activeConfig);
+        let errorMsg = await wizard.addWizardConfig(wizardData);
+        if (errorMsg) {
+            this.send(clientSocket, {wizardErrorCode: errorMsg});
+            return;
+        }
+        this.selectedConfig = wizardData.configName;
+        this.send(clientSocket, {saved: true, restarting: true});
+        setTimeout(() => {
+            this.restart(false);
+        }, 1000);
     }
 }

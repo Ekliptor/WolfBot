@@ -145,16 +145,17 @@ export class TradeConfig extends AbstractConfig {
         return path.join(utils.appDir, "config") // trading
     }
 
-    public static getConfigDirForMode(mode: BotConfigMode) {
+    public static getConfigDirForMode(mode: BotConfigMode, backupDir = false) {
+        const root = backupDir === true ? "config-bak" : "config";
         if (mode === "ai")
-            return path.join(utils.appDir, "config", "machine-learning")
+            return path.join(utils.appDir, root, "machine-learning")
         else if (mode === "lending")
-            return path.join(utils.appDir, "config", "lending")
+            return path.join(utils.appDir, root, "lending")
         else if (mode === "arbitrage")
-            return path.join(utils.appDir, "config", "arbitrage")
+            return path.join(utils.appDir, root, "arbitrage")
         else if (mode === "social")
-            return path.join(utils.appDir, "config", "social")
-        return path.join(utils.appDir, "config") // trading
+            return path.join(utils.appDir, root, "social")
+        return path.join(utils.appDir, root) // trading
     }
 
     public static getConfigRootDir() {

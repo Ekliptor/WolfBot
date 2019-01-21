@@ -1,0 +1,19 @@
+{
+  "data": [
+    {
+      "exchanges": ["Bitfinex"],
+      "marginTrading": true,
+      "tradeTotalBtc": 200.0,
+      "notifyTrades": false,
+      "strategies": {
+        "ProtectProfit": {
+          "profit": 0.7,
+          "time": 30,
+          "candleSize": 1,
+          "pair": "USD_BTC",
+          "enableLog": true
+        }
+      }
+    }
+  ]
+}

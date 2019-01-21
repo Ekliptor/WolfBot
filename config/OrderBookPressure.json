@@ -2,13 +2,13 @@
     "data": [
         {
             "exchanges": [
-                "OKEX"
+                "Bitfinex"
             ],
             "marginTrading": true,
             "tradeTotalBtc": 0.024,
             "warmUpMin": 0,
             "strategies": {
-                "OrderBookPressureLeverage": {
+                "OrderBookPressure": {
                     "ticks": 1,
                     "percentChange": 0.35,
                     "minDiffPercent": 75,

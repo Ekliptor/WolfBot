@@ -1,0 +1,24 @@
+{
+  "data": [
+    {
+      "exchanges": ["Bitfinex"],
+      "marginTrading": true,
+      "tradeTotalBtc": 0.15,
+      "warmUpMin": 0,
+      "strategies": {
+        "TakeProfit": {
+          "order": "closeLong",
+          "profit": 5.2,
+          "time": 3600,
+          "reduceTimeByVolatility": false,
+          "keepTrendOpen": true,
+          "forceMaker": true,
+          "minRate": 0.0,
+          "candleSize": 6,
+          "pair": "USD_BTC",
+          "enableLog": false
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "data": [
+    {
+      "exchanges": ["Bitfinex"],
+      "marginTrading": true,
+      "tradeTotalBtc": 200.0,
+      "notifyTrades": false,
+      "strategies": {
+        "OrderPartitioner": {
+          "tradeCount": 20,
+          "percentChange": 0.35,
+          "whalePercentage": 5,
+          "fishPercentage": 1.1,
+          "pair": "USD_BTC",
+          "candleSize": 60,
+          "enableLog": true
+        }
+      }
+    }
+  ]
+}

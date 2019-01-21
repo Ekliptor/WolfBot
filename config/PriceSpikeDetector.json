@@ -1,0 +1,19 @@
+{
+  "data": [
+    {
+      "exchanges": ["Bitfinex"],
+      "marginTrading": true,
+      "tradeTotalBtc": 200.0,
+      "notifyTrades": false,
+      "strategies": {
+        "PriceSpikeDetector": {
+          "spikePercent": 3.0,
+          "tradeDirection": "notify",
+          "candleSize": 5,
+          "pair": "USD_BTC",
+          "enableLog": true
+        }
+      }
+    }
+  ]
+}

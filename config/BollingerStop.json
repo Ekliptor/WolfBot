@@ -1,0 +1,21 @@
+{
+  "data": [
+    {
+      "exchanges": ["Bitfinex"],
+      "marginTrading": true,
+      "tradeTotalBtc": 200.0,
+      "notifyTrades": false,
+      "strategies": {
+        "BollingerStop": {
+          "time": 300,
+          "notifyBeforeStopSec": 0,
+          "stopBand": "opposite",
+          "delayTicks": 2,
+          "candleSize": 60,
+          "pair": "USD_BTC",
+          "enableLog": false
+        }
+      }
+    }
+  ]
+}

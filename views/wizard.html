@@ -1,0 +1,52 @@
+<!-- wizard -->
+<div id="modal-wizard-dialog">
+  <div id="modal-background"></div>
+  <div id="modal" class="modal">
+    <div class="modal-inner">
+      <h2>{tr:addTradingPair}</h2>
+      <div class="dialogCtrls bottom50">
+        <div class="dialogCloseCtrls">
+          <button id="closeWizardDialog" class="btn btn-danger" type="button" name="closeWizardDialog">{tr:close}</button>
+        </div>
+      </div>
+      <div id="wizardPage">
+        <div id="wizardExchange" class="row">{wizardExchange}</div>
+        <div id="wizardPair" class="row">
+          <div class="panel panel-primary">
+            <div class="panel-heading">{tr:currencyPair}</div>
+            <div class="panel-body">
+              <div>{tr:currencyPair}{tr:colon}<select id="currencyPair" class="multiSel" name="currencyPair"></select></div>
+              <div class="top10">
+                {tr:tradingCapital}{tr:colon}<input id="tradingCapital" type="number" class="form-control" name="tradingCapital" value="1.0" required>
+                <span class="tradingBaseCurrency"></span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div id="wizardStrategies" class="row">
+          <div class="panel panel-primary">
+            <div class="panel-heading">{tr:strategy}</div>
+            <div class="panel-body">
+              {tr:strategy}{tr:colon}<select id="strategy" class="multiSel" name="strategy"></select>
+              <div id="strategyText"></div>
+            </div>
+          </div>
+        </div>
+        <div id="wizardName" class="row">
+          <div class="panel panel-primary">
+            <div class="panel-heading">{tr:configName}</div>
+            <div class="panel-body">
+              {tr:configName}{tr:colon}<input id="configName" type="text" class="form-control" name="configName" value="" placeholder="{tr:configNamePlace}" required>
+            </div>
+          </div>
+        </div>
+        <div id="wizardSave" class="row top30">
+          <button id="startBotReplace" class="btn btn-success" type="button" name="startBotReplace">{tr:startBotReplace}</button>
+          <button id="startBotAdd" class="btn btn-success" type="button" name="startBotAdd">{tr:startBotAdd}</button>
+          <div id="wizardError" class="red top10">.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- /wizard -->

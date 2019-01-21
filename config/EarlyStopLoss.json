@@ -1,0 +1,23 @@
+{
+  "data": [
+    {
+      "exchanges": ["Bitfinex"],
+      "marginTrading": true,
+      "tradeTotalBtc": 200.0,
+      "notifyTrades": false,
+      "strategies": {
+        "EarlyStopLoss": {
+          "order": "closeLong",
+          "low": 21,
+          "high": 79,
+          "profitLow": 35,
+          "profitHigh": 70,
+          "spikeClose": 1.1,
+          "candleSize": 3,
+          "pair": "USD_BTC",
+          "enableLog": false
+        }
+      }
+    }
+  ]
+}

@@ -64,6 +64,10 @@ export interface RenderViewResponse {
     controller: AbstractController;
 }
 
+export interface MultiSelectCallback {
+    (optionEl: JQuery, checked: boolean): void;
+}
+
 export class AppClass {
     public static readonly cfg = {
         tpl: '', // for loading images/styles from a subdir instead of root
@@ -194,9 +198,13 @@ export class AppClass {
         document.title = title + " - " + AppF.tr("siteName");
     }
 
-    public initMultiSelect(onChangeCallback?: (optionEl: JQuery, checked: boolean) => void) {
+    public initMultiSelect(onChangeCallback?: MultiSelectCallback) {
+        this.initSingleMultiSelect('.multiSel', onChangeCallback);
+    }
+
+    public initSingleMultiSelect(selector: string, onChangeCallback?: MultiSelectCallback) {
         // has be be called from controller AFTER multi sel is added to page
-        $('.multiSel').each((i, el) => {
+        $(selector).each((i, el) => {
             let selOpts: any = {
                 nonSelectedText: i18next.t("nothingSelected"),
                 nSelectedText: i18next.t("selected"),

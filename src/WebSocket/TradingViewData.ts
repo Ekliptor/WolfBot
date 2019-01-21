@@ -265,7 +265,7 @@ export class TradingViewData extends AppPublisher {
 
     protected addLatestBarForSubscriber(clientSocket: ClientSocketOnServer, strategy: string, configNr: number, currencyPair: string, candle: Candle.Candle) {
         if (this.latestCandleMap.has(clientSocket.id) === true)
-            logger.warn("Latest candle map already has subscriber ID %s with candle %s", clientSocket.id, utils.date.toDateTimeStr(candle ? candle.start : new Date(), true));
+            logger.verbose("Latest candle map already has subscriber ID %s with candle %s", clientSocket.id, utils.date.toDateTimeStr(candle ? candle.start : new Date(), true));
         let candleSize = candle ? candle.interval : 0;
         if (candleSize === 0) {
             candleSize = this.getCandleSizeOfStrategy(strategy, configNr, currencyPair);

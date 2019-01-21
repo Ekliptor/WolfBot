@@ -6,7 +6,8 @@
       "tradeTotalBtc": 0.031,
       "notifyTrades": false,
       "strategies": {
-        "StopLossTurn": {
+        "StopLossTurnPartial": {
+          "percentage": 50,
           "order": "closeLong",
           "setback": 5.0,
           "setbackLong": 5.5,

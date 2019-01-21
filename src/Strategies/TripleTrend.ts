@@ -311,7 +311,7 @@ export default class TripleTrend extends TechnicalStrategy {
     }
 
     protected checkLongEmaStop() {
-        if (this.action.stopLongEma !== true)
+        if (this.action.stopLongEma !== true || !this.candle)
             return;
         const dema = this.indicators.get("EMA");
         const stop = dema.getLongLineValue();
@@ -335,8 +335,8 @@ export default class TripleTrend extends TechnicalStrategy {
         this.maxHistogram = sum / this.histograms.length;
     }
 
-    protected getEmaAction() {
-        let action = this.action;
+    protected getEmaAction(): TripleTrendAction {
+        let action = Object.assign({}, this.action);
         action.long = this.action.longEma;
         action.short = this.action.shortEma;
         return action;
