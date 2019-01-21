@@ -134,26 +134,37 @@ export default class Binance extends AbstractExchange implements ExternalTickerE
     public async getTicker(): Promise<Ticker.TickerMap> {
         let map = new Ticker.TickerMap()
         let fetchOps = [];
-        this.currencyPairs.forEach((pair) => { // we have to fetch each currency ticker separately
-            let marketPair = this.currencies.getExchangePair(pair);
-            fetchOps.push(new Promise((resolve, reject) => {
-                this.apiClient.dailyStats({symbol: marketPair}).then((stats) => {
+        if (false && this.currencyPairs.length === 1) {
+            let marketPair = this.currencies.getExchangePair(this.currencyPairs[0]);
+            try {
+                let stats = await this.apiClient.dailyStats({symbol: marketPair});
+                const tickerObj = this.currencies.toLocalTicker(stats)
+                if (tickerObj)
+                    map.set(tickerObj.currencyPair.toString(), tickerObj)
+            }
+            catch (err) {
+                logger.error("Error fetching %s %s ticker stats", this.className, this.currencyPairs[0].toString(), err)
+            }
+        }
+        else {
+            try {
+                let allStats = await this.apiClient.dailyStats({});
+                allStats.forEach((stats) => {
                     const tickerObj = this.currencies.toLocalTicker(stats)
                     if (tickerObj)
                         map.set(tickerObj.currencyPair.toString(), tickerObj)
-                    resolve()
-                }).catch((err) => {
-                    logger.error("Error fetching %s %s ticker stats", this.className, pair.toString(), err)
-                    resolve()
-                })
-            }));
-        })
-        await Promise.all(fetchOps);
+                });
+            }
+            catch (err) {
+                logger.error("Error fetching all %s ticker stats", this.className, err)
+            }
+        }
         return map;
     }
 
     public async getExternalTicker(requiredCurrencies: string[]): Promise<Ticker.ExternalTickerMap> {
         let map = new Ticker.ExternalTickerMap()
+        /*
         let fetchOps = [];
         let allPrices = await this.apiClient.prices();
         let exchangePairs: string[] = Object.keys(allPrices);
@@ -181,6 +192,23 @@ export default class Binance extends AbstractExchange implements ExternalTickerE
             })
         })
         await asyncPromise;
+        */
+        try {
+            let allStats = await this.apiClient.dailyStats({});
+            allStats.forEach((stats) => {
+                if (!Currency.isExternalExchangeTicker(this.currencies))
+                    return;
+                const tickerObj = this.currencies.toExternalTicker(stats)
+                if (tickerObj) {
+                    const currencyStr = tickerObj.currencyPair.toString();
+                    //if (requiredCurrencies.indexOf(currencyStr) !== -1) // we use exchange names here
+                        map.set(tickerObj.currencyPair.toString(), tickerObj)
+                }
+            });
+        }
+        catch (err) {
+            logger.error("Error fetching all %s ticker stats", this.className, err)
+        }
         return map;
     }
 

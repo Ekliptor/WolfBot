@@ -879,9 +879,10 @@ bignumber.js@^7.2.1:
   version "7.2.1"
   resolved "https://registry.yarnpkg.com/bignumber.js/-/bignumber.js-7.2.1.tgz#80c048759d826800807c4bfd521e50edbba57a5f"
 
-binance-api-node@^0.7.1:
-  version "0.7.6"
-  resolved "https://registry.yarnpkg.com/binance-api-node/-/binance-api-node-0.7.6.tgz#5bf9f54278ccaf0f65a799c8253aed9c160e53c1"
+binance-api-node@^0.8.18:
+  version "0.8.18"
+  resolved "https://registry.yarnpkg.com/binance-api-node/-/binance-api-node-0.8.18.tgz#1ec8f76abb786a9f648317479a91dcfc6e5ea425"
+  integrity sha512-4trWjZR2/NUIsNvGmuDCEzNEW9/ZV7xU4xSYy/1RCcuGwhMhUyh1e/T/vDDC+GRmeNUVIUoLXgCnVq3VLT0sxQ==
   dependencies:
     html5-websocket "^2.0.2"
     isomorphic-fetch "^2.2.1"
@@ -891,16 +892,6 @@ binance-api-node@^0.7.1:
 bit-twiddle@^1.0.0, bit-twiddle@^1.0.2:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/bit-twiddle/-/bit-twiddle-1.0.2.tgz#0c6c1fabe2b23d17173d9a61b7b7093eb9e1769e"
-
-bitmex-realtime-api@^0.4.0:
-  version "0.4.0"
-  resolved "https://registry.yarnpkg.com/bitmex-realtime-api/-/bitmex-realtime-api-0.4.0.tgz#d30b05caa0f982cff4e34101c2bf7f4ac9850945"
-  dependencies:
-    debug "^3.1.0"
-    eventemitter2 "^5.0.1"
-    lodash "^4.17.10"
-    superagent "^3.8.3"
-    ws "^6.0.0"
 
 bl@^1.0.0:
   version "1.2.2"

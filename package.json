@@ -19,7 +19,7 @@
     "@ekliptor/reddit-snooper": "^1.0.1",
     "async": "^2.6.0",
     "autobahn": "^17.5.1",
-    "binance-api-node": "^0.7.1",
+    "binance-api-node": "^0.8.18",
     "@ekliptor/bitmex-realtime-api-fix": "^0.4.0",
     "chart.js": "^2.7.1",
     "cheerio": "^0.22.0",
