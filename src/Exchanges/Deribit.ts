@@ -147,7 +147,8 @@ export default class Deribit extends AbstractContractExchange {
                     this.orderReject = null;
                 }
                 const errorMsg = err ? err.toString() : "";
-                if (!errorMsg || (errorMsg.indexOf("authorization_required") === -1 && errorMsg.indexOf("invalid") === -1 && errorMsg.indexOf("order") === -1))
+                if (!errorMsg || (errorMsg.indexOf("authorization_required") === -1 && errorMsg.indexOf("invalid") === -1 && errorMsg.indexOf("order") === -1
+                    && errorMsg.indexOf("not_enough_funds") === -1))
                     this.closeConnection("WebSocket error");
             },
 

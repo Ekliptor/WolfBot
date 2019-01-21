@@ -1332,5 +1332,8 @@
   "configExistsAlready": "A configuration with this name exists already.",
   "errorWritingConfig": "Error writing configuration file.",
   "configNameMissing": "Please enter a valid config name.",
-  "fineTuneConfig": "After the restart is done you may fine-tune your bot configuration by adjusting some parameters in the 'Trading' tab."
+  "fineTuneConfig": "After the restart is done you may fine-tune your bot configuration by adjusting some parameters in the 'Trading' tab.",
+  "orBig": "OR",
+  "newBig": "NEW",
+  "wizardFront": "Just go to the \"Configuration\" page and click on the button:"
 }

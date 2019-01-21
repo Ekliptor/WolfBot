@@ -455,7 +455,7 @@ export abstract class PortfolioTrader extends AbstractTrader {
     protected skipTrade(action: TradeAction, exchange: AbstractExchange, strategy: AbstractStrategy, amountBtc: number = -1) {
         const currencyPair = strategy.getAction().pair.toString();
         const exchangeName = exchange.getClassName();
-        if (this.config.marginTrading && strategy.canOpenOppositePositions() === false) {
+        if (this.config.marginTrading && strategy.canOpenOppositePositions() === false && this.isStopOrTakeProfitStrategy(strategy) === false) {
             let positions = PortfolioTrader.marginPositions.get(exchangeName);
             if (positions && positions.has(currencyPair)) {
                 let position = positions.get(currencyPair);
