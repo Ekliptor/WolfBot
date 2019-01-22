@@ -55,7 +55,7 @@ export abstract class IndexStrategy extends TechnicalStrategy {
     // ###################### PRIVATE FUNCTIONS #######################
     // TypeScript implements mixins as an interface, so these functions have to be public too
 
-    public init(options) {
+    public init(options: any) {
         if (nconf.get("trader") === "Backtester")
             throw new Error(utils.sprintf("%s is not available during backtesting. Please use a class that doesn't implement IndexStrategy instead.", this.className))
         this.actionMixin = this.action as any; // copy properties modified from constructor

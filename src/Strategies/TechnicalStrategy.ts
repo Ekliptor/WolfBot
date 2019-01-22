@@ -165,7 +165,7 @@ export abstract class TechnicalStrategy extends AbstractStrategy implements Tech
     // ###################### PRIVATE FUNCTIONS #######################
 
     // TechnicalAnalysis mixin members
-    public init: (options) => void;
+    public init: (options: any) => void;
     public addCandle: (candle: Candle.Candle) => void;
 
     /**
@@ -211,6 +211,7 @@ export abstract class TechnicalStrategy extends AbstractStrategy implements Tech
             {
                 ind[1].addTrades(trades);
                 ind[1].addPricePoint(this.avgMarketPrice);
+                this.orderBook
             }
             resolve()
         })
@@ -230,8 +231,10 @@ export abstract class TechnicalStrategy extends AbstractStrategy implements Tech
             let candleCalcOps = []
             for (let ind of this.indicators)
             {
-                ind[1].sync(candle);
-                candleCalcOps.push(ind[1].addCandle(candle));
+                const indicator: AbstractIndicator = ind[1];
+                indicator.sync(candle);
+                indicator.setOrderBook(this.orderBook); // TODO move this to addIndicator() ? but not present for lending
+                candleCalcOps.push(indicator.addCandle(candle));
             }
             Promise.all(candleCalcOps).then(() => {
                 let promise = null;
@@ -263,6 +266,7 @@ export abstract class TechnicalStrategy extends AbstractStrategy implements Tech
             {
                 const indicator: AbstractIndicator = ind[1];
                 indicator.sync(candle);
+                indicator.setOrderBook(this.orderBook);
                 if (isNew === false)
                     indicator.removeLatestCandle();
                 candleCalcOps.push(indicator.addCandle(candle));

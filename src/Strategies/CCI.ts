@@ -12,6 +12,7 @@ import {
 interface CciAction extends TechnicalStrategyAction  {
     low: number; // -100 // Open a short position after CCI goes below this value.
     high: number; // 100 // Open a long position after CCI goes above this value.
+    closePosition: boolean; // optional, default false - Close a position when reaching closeShort or closeLong values.
     closeShort: number; // default 0 // Close a short position after CCI goes above this value.
     closeLong: number; // default 0 // Close a long position after CCI goes below this value.
     interval: number; // default 20 // The number of candles of the SMA for the CCI average price calculation.
@@ -31,6 +32,8 @@ export default class CCI extends TechnicalStrategy {
 
     constructor(options) {
         super(options)
+        if (typeof this.action.closePosition !== "boolean")
+            this.action.closePosition = false;
         if (typeof this.action.closeShort !== "number")
             this.action.closeShort = 0;
         if (typeof this.action.closeLong !== "number")
@@ -71,10 +74,12 @@ export default class CCI extends TechnicalStrategy {
         const valueFormatted = Math.round(value * 100) / 100.0;
         this.secondLastCCI = this.lastCCI;
         if (this.strategyPosition !== "none") {
-            if (this.strategyPosition === "long" && value < this.action.closeLong)
-                this.emitClose(this.defaultWeight, "closing long at CCI value: " + valueFormatted);
-            else if (this.strategyPosition === "short" && value > this.action.closeShort)
-                this.emitClose(this.defaultWeight, "closing short at CCI value: " + valueFormatted);
+            if (this.action.closePosition === true) {
+                if (this.strategyPosition === "long" && value < this.action.closeLong)
+                    this.emitClose(this.defaultWeight, "closing long at CCI value: " + valueFormatted);
+                else if (this.strategyPosition === "short" && value > this.action.closeShort)
+                    this.emitClose(this.defaultWeight, "closing short at CCI value: " + valueFormatted);
+            }
             this.lastCCI = value;
             return;
         }
