@@ -123,7 +123,7 @@ export abstract class TechnicalStrategy extends AbstractStrategy implements Tech
             {
                 const indicatorName = ind[0];
                 let indicator: AbstractIndicator = ind[1];
-                indicator.sync(candle); // only needed for plotting, shouldn't matter
+                indicator.sync(candle, this.avgMarketPrice); // only needed for plotting, shouldn't matter
                 candleCalcOps.push(indicator.addCandle(candle));
                 if (state.indicators && state.indicators[indicatorName])
                     indicator.unserialize(state.indicators[indicatorName]);
@@ -209,9 +209,10 @@ export abstract class TechnicalStrategy extends AbstractStrategy implements Tech
         return new Promise<void>((resolve, reject) => {
             for (let ind of this.indicators)
             {
-                ind[1].addTrades(trades);
-                ind[1].addPricePoint(this.avgMarketPrice);
-                this.orderBook
+                const indicator: AbstractIndicator = ind[1];
+                indicator.setOrderBook(this.orderBook, this.avgMarketPrice); // TODO move this to addIndicator() ? but not present for lending
+                indicator.addTrades(trades);
+                indicator.addPricePoint(this.avgMarketPrice);
             }
             resolve()
         })
@@ -232,8 +233,7 @@ export abstract class TechnicalStrategy extends AbstractStrategy implements Tech
             for (let ind of this.indicators)
             {
                 const indicator: AbstractIndicator = ind[1];
-                indicator.sync(candle);
-                indicator.setOrderBook(this.orderBook); // TODO move this to addIndicator() ? but not present for lending
+                indicator.sync(candle, this.avgMarketPrice);
                 candleCalcOps.push(indicator.addCandle(candle));
             }
             Promise.all(candleCalcOps).then(() => {
@@ -265,8 +265,7 @@ export abstract class TechnicalStrategy extends AbstractStrategy implements Tech
             for (let ind of this.indicators)
             {
                 const indicator: AbstractIndicator = ind[1];
-                indicator.sync(candle);
-                indicator.setOrderBook(this.orderBook);
+                indicator.sync(candle, this.avgMarketPrice);
                 if (isNew === false)
                     indicator.removeLatestCandle();
                 candleCalcOps.push(indicator.addCandle(candle));

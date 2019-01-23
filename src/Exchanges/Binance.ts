@@ -621,7 +621,7 @@ export default class Binance extends AbstractExchange implements ExternalTickerE
                 orderType: params.matchBestPrice ? "MARKET" : "LIMIT",
                 pairStr: this.currencies.getExchangePair(currencyPair),
                 // precision mostly 8 or 6 http://python-binance.readthedocs.io/en/latest/binance.html#binance.client.Client.get_symbol_info
-                rate: Math.floor(rate * 100000000) / 100000000.0
+                rate: Math.floor(rate * 1000000) / 1000000.0
             }
             resolve(outParams)
         })

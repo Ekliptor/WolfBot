@@ -30,6 +30,10 @@ export default class ExchangeController extends AbstractSubController {
     constructor(configFilename: string) {
         super()
         this.configFilename = configFilename;
+        if (this.configFilename !== undefined && typeof this.configFilename !== "string") {
+            // @ts-ignore
+            this.configFilename = this.configFilename.toString();
+        }
         if (!this.configFilename)
             return; // updater instance...
         if (this.configFilename.substr(-5) !== ".json")

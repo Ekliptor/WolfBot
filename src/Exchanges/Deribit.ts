@@ -119,7 +119,7 @@ export class DeribitCurrencies implements Currency.ExchangeCurrencies {
 }
 
 export default class Deribit extends AbstractContractExchange {
-    protected deribitContractType = 'BTC-PERPETUAL';
+    protected deribitContractType = 'BTC-PERPETUAL'; // ETH on testnet. coming soon?
 
     protected currencies: DeribitCurrencies;
     protected websocket: DeribitApi = null;
@@ -132,32 +132,9 @@ export default class Deribit extends AbstractContractExchange {
         this.privateApiUrl = this.publicApiUrl;
         this.pushApiUrl = "wss://deribit-api";
         this.pushApiConnectionType = PushApiConnectionType.API_WEBSOCKET;
-        this.websocket = new DeribitApi({
-            key: this.apiKey.key,
-            secret: this.apiKey.secret,
-            testnet: this.apiKey.testnet === true,
-            message: (msg) => {
-                if (msg && ((Array.isArray(msg) === true && msg.length !== 0) || Object.keys(msg).length !== 0))
-                    logger.verbose("%s message: ", this.className, msg);
-            },
-            error: (err) => {
-                logger.error("%s error: %s", this.className, err);
-                if (this.orderReject !== null) {
-                    this.orderReject(err);
-                    this.orderReject = null;
-                }
-                const errorMsg = err ? err.toString() : "";
-                if (!errorMsg || (errorMsg.indexOf("authorization_required") === -1 && errorMsg.indexOf("invalid") === -1 && errorMsg.indexOf("order") === -1
-                    && errorMsg.indexOf("not_enough_funds") === -1))
-                    this.closeConnection("WebSocket error");
-            },
-
-            // see documentation for possible events // events not coming through here
-            /*
-            trade: (trade) => {
-                logger.verbose("%s trade: %s", this.className, trade);
-            }, */
-        });
+        if (!options || !this.apiKey.key)
+            return; // temp instance to check exchange type
+        this.createWebsocket();
         this.exchangeLabel = Currency.Exchange.DERIBIT;
         this.minTradingValue = 1.0; // min value is 1 contract, BTC contract fixed at 10$
         this.fee = 0.00002; // only for opening positions // https://www.deribit.com/main#/pages/information/fees
@@ -614,6 +591,36 @@ export default class Deribit extends AbstractContractExchange {
         catch (err) {
             logger.error("Error disconnecting %s websocket connection", this.className, err);
         }
+        this.createWebsocket(); // API error when re-using it
+    }
+
+    protected createWebsocket() {
+        this.websocket = new DeribitApi({
+            key: this.apiKey.key,
+            secret: this.apiKey.secret,
+            testnet: this.apiKey.testnet === true,
+            message: (msg) => {
+                if (msg && ((Array.isArray(msg) === true && msg.length !== 0) || Object.keys(msg).length !== 0))
+                    logger.verbose("%s message: ", this.className, msg);
+            },
+            error: (err) => {
+                logger.error("%s error: %s", this.className, err);
+                if (this.orderReject !== null) {
+                    this.orderReject(err);
+                    this.orderReject = null;
+                }
+                const errorMsg = err ? err.toString() : "";
+                if (!errorMsg || (errorMsg.indexOf("authorization_required") === -1 && errorMsg.indexOf("invalid") === -1 && errorMsg.indexOf("order") === -1
+                    && errorMsg.indexOf("not_enough_funds") === -1))
+                    this.closeConnection("WebSocket error");
+            },
+
+            // see documentation for possible events // events not coming through here
+            /*
+            trade: (trade) => {
+                logger.verbose("%s trade: %s", this.className, trade);
+            }, */
+        });
     }
 
     protected verifyTradeRequest(currencyPair: Currency.CurrencyPair, rate: number, amount: number, params: OrderParameters = {}) {

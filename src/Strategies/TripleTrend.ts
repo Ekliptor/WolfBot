@@ -178,6 +178,8 @@ export default class TripleTrend extends TechnicalStrategy {
         this.secondLastADXR = state.secondLastADXR;
         this.adxTrend = state.adxTrend;
         this.histograms = state.histograms;
+        if (Array.isArray(this.histograms) === false)
+            this.histograms = [];
         this.maxHistogram = state.maxHistogram;
         this.lastHistogram = state.lastHistogram;
         this.macdTrend = state.macdTrend;

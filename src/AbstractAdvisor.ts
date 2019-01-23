@@ -533,6 +533,8 @@ export abstract class AbstractAdvisor extends AbstractSubController {
             case 'importTick':
                 //message.data.percent
                 break;
+            case 'autoImportNotSupported':
+                break;
             case 'errorImport':
                 logger.error("Error importing trade history of %s", message.exchange)
                 this.backtestWarmupState = BacktestWarmupState.IMPORT_FAILED;

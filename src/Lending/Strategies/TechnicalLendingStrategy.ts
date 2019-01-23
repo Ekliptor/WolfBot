@@ -100,7 +100,7 @@ export abstract class TechnicalLendingStrategy extends AbstractLendingStrategy i
             {
                 const indicatorName = ind[0];
                 let indicator: AbstractIndicator = ind[1];
-                indicator.sync(candle); // only needed for plotting, shouldn't matter
+                indicator.sync(candle, this.avgMarketPrice); // only needed for plotting, shouldn't matter
                 candleCalcOps.push(indicator.addCandle(candle));
                 if (state.indicators && state.indicators[indicatorName])
                     indicator.unserialize(state.indicators[indicatorName]);
@@ -159,7 +159,7 @@ export abstract class TechnicalLendingStrategy extends AbstractLendingStrategy i
             let candleCalcOps = []
             for (let ind of this.indicators)
             {
-                ind[1].sync(candle);
+                ind[1].sync(candle, this.avgMarketPrice);
                 candleCalcOps.push(ind[1].addCandle(candle));
             }
             Promise.all(candleCalcOps).then(() => {

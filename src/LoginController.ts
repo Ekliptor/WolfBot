@@ -336,7 +336,6 @@ export class LoginController extends AbstractSubController {
             nconf.set("serverConfig:firstStart", new Date());
             if (nconf.get("serverConfig:premium") === true)
                 this.generateApiKey(); // make sure every bot has a different default API key
-
         }
     }
 

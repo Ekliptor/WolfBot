@@ -70,6 +70,8 @@ if (process.env.IS_CHILD) {
     nconf.set('tlsPort', 0)
 }
 nconf.set("uiDev", argv.uiDev === true);
+if (argv.config !== undefined && typeof argv.config !== "string")
+    argv.config = argv.config.toString();
 if (argv.noBrowser)
     logger.info("***DISCOUNT*** Having trouble setting up WolfBot on your local machine? Try the cloud version at https://wolfbot.org with a 30% discount with this code: gitsource7393");
 

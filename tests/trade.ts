@@ -290,11 +290,11 @@ let testDeribit = async () => {
     //deribit.getMarginAccountSummary().then((test) => {
     //deribit.importHistory(pair, new Date(Date.now()-2*utils.constants.HOUR_IN_SECONDS*1000), new Date()).then((test) => {
     //deribit.getOpenOrders(pair).then((test) => {
-    //deribit.marginSell(pair, 4900, 4, params).then((test) => {
+    deribit.marginBuy(pair, 3900, 4, params).then((test) => {
     //deribit.moveMarginOrder(pair, 2028730532, 4999, 4, params).then((test) => {
     //deribit.marginCancelOrder(pair, 1024236179).then((test) => {
     //deribit.getAllMarginPositions().then((test) => {
-    deribit.closeMarginPosition(pair).then((test) => {
+    //deribit.closeMarginPosition(pair).then((test) => {
         //binance.moveOrder(pair, 25959783, 0.00000723, 360, params).then((balances) => {
         console.log(test)
     }).catch((err) => {
@@ -310,8 +310,8 @@ Controller.loadServerConfig(() => {
         //testBitfinex()
         //testPolo();
         //testBittrex();
-        testBinance();
+        //testBinance();
         //testBitmex();
-        //testDeribit();
+        testDeribit();
     })
 })

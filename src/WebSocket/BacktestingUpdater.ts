@@ -300,6 +300,14 @@ export class BacktestingUpdater extends AppPublisher {
                 }
                 this.publish(importUpdate)
                 break;
+            case 'autoImportNotSupported': {
+                let strategyWarning: BacktestRes = {
+                    success: false,
+                    errorCode: "autoImportOtherExchange"
+                }
+                this.publish(startUpdate)
+                break;
+            }
             case 'errorImport':
                 logger.error("Error importing trade history of %s", message.exchange)
                 let update: BacktestRes = {

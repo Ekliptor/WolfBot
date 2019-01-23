@@ -190,6 +190,8 @@ export default class BitMEX extends AbstractContractExchange {
         this.currencies = new BitMEXCurrencies(this);
         this.webSocketTimeoutMs = nconf.get('serverConfig:websocketTimeoutMs')*6; // they don't send pings too often
         this.httpKeepConnectionsAlive = true; // they have full support for it. allegedly as fast as websockets
+        if (!options || !this.apiKey.key)
+            return; // temp instance to check exchange type
         this.apiClient = new BitMEXClient({
             testnet: this.apiKey.testnet === true,
             apiKeyID: this.apiKey.key,

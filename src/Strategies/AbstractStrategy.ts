@@ -171,7 +171,7 @@ export abstract class AbstractStrategy extends AbstractGenericStrategy {
              if (this.strategyPosition !== "none")
                 this.positionOpenTicks++;
              this.addCandleInternal(candle);
-             this.plotData.sync(candle)
+             this.plotData.sync(candle, this.avgMarketPrice)
              this.updateIndicatorCandles();
              this.emit("startCandleTick", this); // sync call to events
             return this.candleTick(candle)

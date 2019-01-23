@@ -29,6 +29,7 @@ export class PlotMarkMap extends Map<string, PlotMark[]> { // (key, data)
 export class DataPlotCollector {
     protected className: string;
     protected marketTime: Date = null;
+    protected avgMarketPrice: number = -1;
     protected marks = new PlotMarkMap();
 
     constructor() {
@@ -46,8 +47,9 @@ export class DataPlotCollector {
         return this.marks.get(key)
     }
 
-    public sync(candle: Candle.Candle) {
+    public sync(candle: Candle.Candle, avgMarketPrice: number) {
         this.marketTime = candle.start;
+        this.avgMarketPrice = avgMarketPrice;
     }
 
     public plotMark(mark: PlotMarkValues, secondaryY = false, dots = false) {

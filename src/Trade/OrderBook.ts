@@ -436,20 +436,27 @@ export class OrderBook<T extends DatabaseOrderBookEntry> { // T is MarketOrder.M
     /**
      * Get the amount people are willing to buy (go down)
      * @param {number} maxRate (optional) the rate to start with. Otherwise use the last market rate
+     * @param {number} minRate (optional) the rate to end with. Otherwise go through the full orderbook
      * @returns {number}
      */
-    public getBidAmount(maxRate: number = 0) {
+    public getBidAmount(maxRate: number = 0, minRate: number = 0) {
         let it = this.orders.lowerBound(this.getMarketOrder(maxRate)) // >= rate, go down
         if (!it.data() || it.prev() == null)
             return 0;
         let item;
-        let amount = it.data().amount;
+        let node: T = it.data();
+        let amount = node.amount;
         while (item = it.prev() != null)
-            amount += it.data().amount;
+        {
+            node = it.data();
+            if (minRate !== 0 && node.rate <= minRate)
+                break;
+            amount += node.amount;
+        }
         return amount;
     }
 
-    public getBidAmountBase(maxRate: number = 0) {
+    public getBidAmountBase(maxRate: number = 0, minRate: number = 0) {
         let it = this.orders.lowerBound(this.getMarketOrder(maxRate)) // >= rate, go down
         if (!it.data() || it.prev() == null)
             return 0;
@@ -459,6 +466,8 @@ export class OrderBook<T extends DatabaseOrderBookEntry> { // T is MarketOrder.M
         while (item = it.prev() != null)
         {
             node = it.data();
+            if (minRate !== 0 && node.rate <= minRate)
+                break;
             amount += node.amount * node.rate;
         }
         return amount;
@@ -467,20 +476,27 @@ export class OrderBook<T extends DatabaseOrderBookEntry> { // T is MarketOrder.M
     /**
      * Get the amount people are willing to sell (go up)
      * @param {number} minRate (optional) the rate to start with. Otherwise use the last market rate
+     * @param {number} maxRate (optional) the rate to end with. Otherwise go through the full orderbook
      * @returns {number}
      */
-    public getAskAmount(minRate: number = 0) {
+    public getAskAmount(minRate: number = 0, maxRate: number = 0) {
         let it = this.orders.upperBound(this.getMarketOrder(minRate)) // > rate, go up
         if (!it.data())
             return 0;
         let item;
-        let amount = it.data().amount;
+        let node: T = it.data();
+        let amount = node.amount;
         while (item = it.next() != null)
-            amount += it.data().amount;
+        {
+            node = it.data();
+            if (maxRate !== 0 && node.rate > maxRate)
+                break;
+            amount += node.amount;
+        }
         return amount;
     }
 
-    public getAskAmountBase(minRate: number = 0) {
+    public getAskAmountBase(minRate: number = 0, maxRate: number = 0) {
         let it = this.orders.upperBound(this.getMarketOrder(minRate)) // > rate, go up
         if (!it.data())
             return 0;
@@ -490,6 +506,8 @@ export class OrderBook<T extends DatabaseOrderBookEntry> { // T is MarketOrder.M
         while (item = it.next() != null)
         {
             node = it.data();
+            if (maxRate !== 0 && node.rate > maxRate)
+                break;
             // TODO poloniex always shows a bit less here. but if we use the current rate the amount in BTC would be even higher.
             // they probably just fetch more orders?
             amount += node.amount * node.rate;

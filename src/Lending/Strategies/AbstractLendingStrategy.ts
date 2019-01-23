@@ -86,7 +86,7 @@ export abstract class AbstractLendingStrategy extends AbstractGenericStrategy {
             this.candleTrend = candle.trend;
             this.candleTicks++;
             this.addCandleInternal(candle);
-            this.plotData.sync(candle)
+            this.plotData.sync(candle, this.avgMarketPrice)
             this.updateIndicatorCandles();
             this.emit("startCandleTick", this); // sync call to events
             return this.candleTick(candle)

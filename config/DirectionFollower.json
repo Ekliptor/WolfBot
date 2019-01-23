@@ -877,7 +877,7 @@
     {
       "exchanges": ["Bitfinex"],
       "marginTrading": true,
-      "tradeTotalBtc": 120.0,
+      "tradeTotalBtc": 0.01,
       "notifyTrades": true,
       "strategies": {
         "PlanRunner": {
@@ -886,7 +886,7 @@
               "action": "buy",
               "comp": "<",
               "position": "none",
-              "rate": 0.034,
+              "rate": 0.032,
               "reason": "middle high",
               "indicators": ["RSI"]
             },

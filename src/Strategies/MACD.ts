@@ -151,6 +151,8 @@ export default class MACD extends AbstractTurnStrategy {
     public unserialize(state: any) {
         super.unserialize(state);
         this.histograms = state.histograms;
+        if (Array.isArray(this.histograms) === false)
+            this.histograms = [];
         this.lastHistogram = state.lastHistogram;
         this.decreasingHistogramTicks = state.decreasingHistogramTicks;
         this.lastOpenShortPrice = state.lastOpenShortPrice;

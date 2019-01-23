@@ -236,6 +236,10 @@ export default class Backtester extends PortfolioTrader {
             }).then(() => {
                 logger.info("Start importing %s history from %s to %s", exchangeName, start, end);
                 if (exchange.supportsAutomaticImports() === false) {
+                    helper.sendMessageToParent({
+                        type: 'autoImportNotSupported',
+                        data: {}
+                    }, nconf.get("serverConfig:premium") === true);
                     logger.warn("%s doesn't support automatic imports", exchange.getClassName())
                     return Promise.resolve()
                 }

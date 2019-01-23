@@ -366,8 +366,10 @@ export class Controller extends AbstractController { // TODO implement graceful 
         for (let prop in localConf)
         {
             if (prop === "root") {
-                for (let childProp in localConf[prop])
-                    nconf.set(childProp, localConf[prop][childProp]);
+                for (let childProp in localConf[prop]) {
+                    if (childProp !== "apiKeys"/* || !nconf.get("serverConfig:premium")*/) // overwrites happen after
+                        nconf.set(childProp, localConf[prop][childProp]);
+                }
             }
             else {
                 for (let childProp in localConf[prop])

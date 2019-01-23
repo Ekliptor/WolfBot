@@ -4,7 +4,7 @@ const logger = utils.logger
 import {TaLib, TaLibParams, TaLibResult} from "./TaLib";
 //import {AbtractCryptotraderIndicator} from "./AbtractCryptotraderIndicator"; // circular reference: parent - child
 import {DataPlotCollector, PlotMarkValues, PlotMark} from "./DataPlotCollector";
-import {Currency, Trade, Candle} from "@ekliptor/bit-models";
+import {Currency, Trade, Candle, MarketOrder} from "@ekliptor/bit-models";
 
 export interface IndicatorParams {
     enableLog: boolean; // since params get copied from Strategy this value will be the same as "enableLog" for the strategy
@@ -99,6 +99,11 @@ export class PivotPointsParams implements IntervalIndicatorParams {
     interval: number = 15; // the number of candles to use for high/low calculation
     enableLog: boolean;
 }
+export class OrderbookHeatIndicatorParams implements IntervalIndicatorParams {
+    interval: number = 14; // number of candles for the indicator
+    priceStepBucket: number = 0.1; // The orderbook granularity, meaning how much of a price change in the order book shall be combined in a single bucket.
+    enableLog: boolean;
+}
 
 export type TrendDirection = Candle.TrendDirection; // moved, keep it as alias
 
@@ -112,6 +117,9 @@ export abstract class AbstractIndicator extends DataPlotCollector {
 
     protected params: IndicatorParams;
     protected taLib = new TaLib();
+
+    // only present for trading indicators (not in lending mode)
+    protected orderBook: OrderBook<MarketOrder.MarketOrder> = null;
 
     // for line cross indicators
     protected shortLineValue = -1;
@@ -171,6 +179,16 @@ export abstract class AbstractIndicator extends DataPlotCollector {
             // overwrite in subclass if this strategy uses a price stream
             resolve()
         })
+    }
+
+    /**
+     * Sets the order book ONLY if it hasn't already been set.
+     * @param orderBook
+     */
+    public setOrderBook(orderBook: OrderBook<MarketOrder.MarketOrder>, avgMarketPrice: number) {
+        //if (this.orderBook === null) // be safe in case reference gets updated
+            this.orderBook = orderBook;
+        this.avgMarketPrice = avgMarketPrice;
     }
 
     public abstract isReady() :boolean;
@@ -360,3 +378,4 @@ import "./TristarPattern";
 import "./VIX";
 import "./VolumeProfile";
 import "./VWMA";
+import {OrderBook} from "../Trade/OrderBook";
