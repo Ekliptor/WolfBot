@@ -528,19 +528,19 @@ export default class OKEX extends AbstractContractExchange {
 
     public buy(currencyPair: Currency.CurrencyPair, rate: number, amount: number, params: OrderParameters = {}) {
         return new Promise<OrderResult>((resolve, reject) => {
-            reject({txt: "buy() is not available in " + this.className})
+            reject({txt: "buy() is not available in " + this.className + ". Most likely you forgot to enable marginTrading"})
         })
     }
 
     public sell(currencyPair: Currency.CurrencyPair, rate: number, amount: number, params: OrderParameters = {}) {
         return new Promise<OrderResult>((resolve, reject) => {
-            reject({txt: "sell() is not available in " + this.className})
+            reject({txt: "sell() is not available in " + this.className + ". Most likely you forgot to enable marginTrading"})
         })
     }
 
     public cancelOrder(currencyPair: Currency.CurrencyPair, orderNumber: number | string) {
         return new Promise<CancelOrderResult>((resolve, reject) => {
-            reject({txt: "cancelOrder() is not available in " + this.className})
+            reject({txt: "cancelOrder() is not available in " + this.className + ". Most likely you forgot to enable marginTrading"})
         })
     }
 
@@ -571,7 +571,7 @@ export default class OKEX extends AbstractContractExchange {
 
     public moveOrder(currencyPair: Currency.CurrencyPair, orderNumber: number | string, rate: number, amount: number, params: OrderParameters) {
         return new Promise<OrderResult>((resolve, reject) => {
-            reject({txt: "moveOrder() is not available in " + this.className})
+            reject({txt: "moveOrder() is not available in " + this.className + ". Most likely you forgot to enable marginTrading"})
         })
     }
 

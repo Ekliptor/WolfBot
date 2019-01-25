@@ -185,7 +185,7 @@ export default class BitMEX extends AbstractContractExchange {
         //this.minTradingValue = 1.0; // for margin positions, min 1 contract (100 USD with BTC, 10 USD with LTC)
         this.minTradingValue = 0.09; // actually different for LTC and BTC, depending on contract value
         this.fee = 0.003; // only for opening positions
-        this.maxLeverage = 20; // 2 - 100
+        this.maxLeverage = 25; // 2 - 100
         //this.maxTimeAheadMs = 20000; // their clock goes ahead?
         this.currencies = new BitMEXCurrencies(this);
         this.webSocketTimeoutMs = nconf.get('serverConfig:websocketTimeoutMs')*6; // they don't send pings too often
@@ -212,6 +212,8 @@ export default class BitMEX extends AbstractContractExchange {
         this.contractValues.set("XRP", 10);
         this.contractValues.set("EOS", 10);
         */
+        this.contractValues.set("BTC", 1);
+        this.contractValues.set("ETH", 1);
     }
 
     public repeatFailedTrade(error: any, currencyPair: Currency.CurrencyPair) {
@@ -348,19 +350,19 @@ export default class BitMEX extends AbstractContractExchange {
 
     public buy(currencyPair: Currency.CurrencyPair, rate: number, amount: number, params: OrderParameters = {}) {
         return new Promise<OrderResult>((resolve, reject) => {
-            reject({txt: "buy() is not available in " + this.className})
+            reject({txt: "buy() is not available in " + this.className + ". Most likely you forgot to enable marginTrading"})
         })
     }
 
     public sell(currencyPair: Currency.CurrencyPair, rate: number, amount: number, params: OrderParameters = {}) {
         return new Promise<OrderResult>((resolve, reject) => {
-            reject({txt: "sell() is not available in " + this.className})
+            reject({txt: "sell() is not available in " + this.className + ". Most likely you forgot to enable marginTrading"})
         })
     }
 
     public cancelOrder(currencyPair: Currency.CurrencyPair, orderNumber: number | string) {
         return new Promise<CancelOrderResult>((resolve, reject) => {
-            reject({txt: "cancelOrder() is not available in " + this.className})
+            reject({txt: "cancelOrder() is not available in " + this.className + ". Most likely you forgot to enable marginTrading"})
         })
     }
 
@@ -400,7 +402,7 @@ export default class BitMEX extends AbstractContractExchange {
 
     public moveOrder(currencyPair: Currency.CurrencyPair, orderNumber: number | string, rate: number, amount: number, params: OrderParameters) {
         return new Promise<OrderResult>((resolve, reject) => {
-            reject({txt: "moveOrder() is not available in " + this.className})
+            reject({txt: "moveOrder() is not available in " + this.className + ". Most likely you forgot to enable marginTrading"})
         })
     }
 
@@ -428,8 +430,9 @@ export default class BitMEX extends AbstractContractExchange {
                     'symbol': marketPair, //"XBTUSD",
                     'ordType': params && params.matchBestPrice ?  "Market" : "Limit", // limit is default
                     // 'side': "Buy" / "Sell", can be ommited if orderQty or simpleOrderQty is present positive value means buy negative measns sell
-                    //orderQty: amount, this would require amount = this.getContractAmount(currencyPair, rate, amount);
-                    simpleOrderQty: amount
+                    //orderQty: amount, this would require amount = this.getContractAmount(currencyPair, rate, amount); // simpleOrderQty X at price Y: orderQty = Y * round( X, 8 ) * [Leverage?]
+                    //simpleOrderQty: amount
+                    orderQty: this.getContractAmount(currencyPair, rate, amount)
                 }
                 if(params && params.fillOrKill) {
                     outParams.execInst = "AllOrNone"

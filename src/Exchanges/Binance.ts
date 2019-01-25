@@ -2,28 +2,32 @@
 // https://github.com/binance-exchange/binance-api-node
 
 import * as utils from "@ekliptor/apputils";
-const logger = utils.logger
-    , nconf = utils.nconf;
-import {AbstractExchange, ExOptions, ExApiKey, OrderBookUpdate, OpenOrders, OpenOrder, ExRequestParams, ExResponse, OrderParameters, MarginOrderParameters, CancelOrderResult, PushApiConnectionType} from "./AbstractExchange";
+import {
+    AbstractExchange,
+    CancelOrderResult,
+    ExOptions,
+    ExRequestParams,
+    ExResponse,
+    MarginOrderParameters,
+    OpenOrder,
+    OpenOrders,
+    OrderBookUpdate,
+    OrderParameters,
+    PushApiConnectionType
+} from "./AbstractExchange";
 import {OrderResult} from "../structs/OrderResult";
 import {MarginPosition, MarginPositionList} from "../structs/MarginPosition";
 import MarginAccountSummary from "../structs/MarginAccountSummary";
-import * as autobahn from "autobahn";
 import * as WebSocket from "ws";
 import * as request from "request";
-import * as crypto from "crypto";
-import * as querystring from "querystring";
 import * as db from "../database";
 import * as helper from "../utils/helper";
-
-import EventStream from "../Trade/EventStream";
-import {Currency, Ticker, Trade, TradeHistory, MarketOrder} from "@ekliptor/bit-models";
-import {MarketAction} from "../Trade/MarketStream";
-import {OrderBook} from "../Trade/OrderBook";
-import {OfferResult} from "../structs/OfferResult";
+import {MarketOrder, Ticker, Trade, TradeHistory, Currency} from "@ekliptor/bit-models";
 import {default as BinanceAPI} from 'binance-api-node';
-import {ExternalTickerExchange, filterCurrencyPairs} from "./ExternalTickerExchange";
-import * as async from "async";
+import {ExternalTickerExchange} from "./ExternalTickerExchange";
+
+const logger = utils.logger
+    , nconf = utils.nconf;
 
 
 class LastTradePriceMap extends Map<string, number> { // (local currency string, price)
@@ -321,8 +325,8 @@ export default class Binance extends AbstractExchange implements ExternalTickerE
                 useServerTime: true,
                 symbol: outParams.pairStr,
                 side: "BUY",
-                quantity: amount,
-                price: outParams.rate,
+                quantity: this.getMaxTradeDecimals(amount, currencyPair),
+                price: this.getMaxTradeDecimals(outParams.rate as number, currencyPair),
                 type: outParams.orderType
             });
             return OrderResult.fromJson(result, currencyPair, this)
@@ -339,8 +343,8 @@ export default class Binance extends AbstractExchange implements ExternalTickerE
                 useServerTime: true,
                 symbol: outParams.pairStr,
                 side: "SELL",
-                quantity: amount,
-                price: outParams.rate,
+                quantity: this.getMaxTradeDecimals(amount, currencyPair),
+                price: this.getMaxTradeDecimals(outParams.rate as number, currencyPair),
                 type: outParams.orderType
             });
             return OrderResult.fromJson(result, currencyPair, this)
@@ -621,10 +625,26 @@ export default class Binance extends AbstractExchange implements ExternalTickerE
                 orderType: params.matchBestPrice ? "MARKET" : "LIMIT",
                 pairStr: this.currencies.getExchangePair(currencyPair),
                 // precision mostly 8 or 6 http://python-binance.readthedocs.io/en/latest/binance.html#binance.client.Client.get_symbol_info
-                rate: Math.floor(rate * 1000000) / 1000000.0
+                rate: this.getMaxTradeDecimals(rate, currencyPair)
             }
             resolve(outParams)
         })
+    }
+
+    protected getMaxTradeDecimals(value: number, currencyPair: Currency.CurrencyPair) {
+        // https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#lot_size
+        let shift = 1000000.0; // 6 decimals
+        if (currencyPair.equals(new Currency.CurrencyPair(Currency.Currency.BTC, Currency.Currency.XRP)) ||
+            currencyPair.equals(new Currency.CurrencyPair(Currency.Currency.BTC, Currency.Currency.TRX)) ||
+            currencyPair.equals(new Currency.CurrencyPair(Currency.Currency.BTC, Currency.Currency.ADA)) ||
+            currencyPair.equals(new Currency.CurrencyPair(Currency.Currency.BTC, Currency.Currency.IOTA)))
+            shift = 100000000.0; // 8 decimals
+        else if (currencyPair.equals(new Currency.CurrencyPair(Currency.Currency.BTC, Currency.Currency.WAVES)) ||
+            currencyPair.equals(new Currency.CurrencyPair(Currency.Currency.BTC, Currency.Currency.EOS)) ||
+            currencyPair.equals(new Currency.CurrencyPair(Currency.Currency.BTC, Currency.Currency.ONT)))
+            shift = 10000000.0; // 7 decimals
+        if (currencyPair.from)
+        return Math.floor(value * shift) / shift;
     }
 
     protected verifyExchangeResponse(body: string | false, response: request.RequestResponse, method: string) {
