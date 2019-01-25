@@ -567,6 +567,7 @@
     "exchanges": "Here you have to select the exchange you want to trade on. For arbitrage you must choose 2 exchanges.",
     "marginTrading": "Do you want to do margin (leveraged) trading on this exchange? This setting must be enabled for futures trading.",
     "tradeTotalBtc": "Enter the total amount you want to trade in your base currency (USD when trading USD_BTC, BTC when trading BTC_ETH,...). If you enable margin trading this amount will be leveraged (multiplied).",
+    "maxLeverage": "The max leverage to use for margin trading to multiply 'tradeTotalBtc' with. This also applies to futures trading.",
     "warmUpMin": "How many minutes after start shall the bot start trading? Keep it to 0 (immediately) unless you want to wait for some external market events (news, crash,...). WolfBot will sync pre-existing positions positions on startup and initialize strategies with historical data, so increasing this value doesn't give WolfBot a better understanding of the market.",
     "notifyTrades": "Send push notifications of all trades to your smartphone."
   },
@@ -1110,7 +1111,7 @@
       "high": "optional, default 0 (disabled) - Above this value RSI will be considered overbought. This strategy will never close long positions during RSI overbought."
     },
     "TradingViewSignal": {
-      "desc": "Strategy that buys or sells based on TradingView.com signals. Signals can be anything such as alerts from the CryptoScreener, alerts on a chart, indicator or buy/sell signals of a TradingView strategy - including your own Pine Script.<br>You should ensure that your signal messages include the words 'buy', 'sell' and 'close' to instruct WolfBot (using default settings, can be configured).",
+      "desc": "Strategy that buys or sells based on TradingView.com signals. Signals can be anything such as alerts from the CryptoScreener, alerts on a chart, indicator or buy/sell signals of a TradingView strategy - including your own Pine Script.<br>You should ensure that your signal messages include the words 'buy', 'sell' and 'close' to instruct WolfBot (using default settings, can be configured).<br>You can optionally specify a rate for a limit order in your TradingView alert message. To do this, you must include the text limit= - so a full alert could look like this: \"some text, buy, limit=3500.5\". Otherwise the rate of the last trade will be used. To use a custom limit, this strategy must trade directly, meaning 'tradeStrategy' must not be set.",
       "email": "The email address to check for TradingView alerts.",
       "password": "The corresponding password of the email account.",
       "host": "optional, default automatic - The IMAP host of your email address.",
