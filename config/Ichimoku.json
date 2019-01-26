@@ -1,22 +1,16 @@
 {
     "data": [
         {
-            "exchanges": [
-                "Deribit"
-            ],
+            "exchanges": ["Bitfinex"],
             "marginTrading": true,
-            "tradeTotalBtc": 200,
-            "maxLeverage": 100,
+            "tradeTotalBtc": 200.0,
             "warmUpMin": 0,
-            "updateIndicatorsOnTrade": true,
             "strategies": {
-                "CCI": {
-                    "low": -100,
-                    "high": 100,
-                    "closeShort": 0,
-                    "closeLong": 0,
-                    "interval": 20,
-                    "mode": "trend",
+                "Ichimoku": {
+                    "conversionPeriod": 9,
+                    "basePeriod": 26,
+                    "spanPeriod": 52,
+                    "displacement": 26,
                     "pair": "USD_BTC",
                     "candleSize": 60,
                     "tradeStrategy": "RSIScalpOrderer",
@@ -32,9 +26,12 @@
                 },
                 "StopLossTurn": {
                     "order": "closeLong",
-                    "setback": 3,
+                    "setback": 3.0,
                     "setbackLong": 4.5,
-                    "time": 7200,
+                    "time": 600,
+                    "setbackProfit": 2.1,
+                    "triggerProfit": 4.5,
+                    "timeProfit": 120,
                     "reduceTimeByVolatility": false,
                     "low": 52,
                     "high": 56,

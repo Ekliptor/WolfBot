@@ -239,16 +239,16 @@ let testBinance = () => {
     let params = {}
 
     //let pair =[Currency.Currency.BTC, Currency.Currency.ETH]
-    let pair = new Currency.CurrencyPair(Currency.Currency.BTC, Currency.Currency.TRX)
+    let pair = new Currency.CurrencyPair(Currency.Currency.BTC, Currency.Currency.LTC)
     binance.subscribeToMarkets([pair])
 
-    //binance.buy(pair, 0.00004040, 30).then((balances) => {
+    binance.buy(pair, 0.000041412121212, 30).then((balances) => {
     //binance.getOpenOrders(pair).then((balances) => {
     //binance.importHistory(pair, new Date(Date.now()-2*utils.constants.HOUR_IN_SECONDS*1000), new Date()).then((balances) => {
     //binance.sell(pair, 0.00000623, 350).then((balances) => {
     //binance.getOpenOrders(pair).then((balances) => {
     //binance.moveOrder(pair, 25959783, 0.00000723, 360, params).then((balances) => {
-    binance.getExternalTicker(["USD_BTC"]).then((balances) => {
+    //binance.getExternalTicker(["USD_BTC"]).then((balances) => {
         console.log(balances)
     }).catch((err) => {
         logger.error("Error trading", err)
@@ -310,8 +310,8 @@ Controller.loadServerConfig(() => {
         //testBitfinex()
         //testPolo();
         //testBittrex();
-        //testBinance();
+        testBinance();
         //testBitmex();
-        testDeribit();
+        //testDeribit();
     })
 })

@@ -1,7 +1,7 @@
 {
   "data": [
     {
-      "exchanges": "Poloniex",
+      "exchanges": ["Poloniex"],
       "marginTrading": true,
       "tradeTotalBtc": 0.7,
       "warmUpMin": 0,

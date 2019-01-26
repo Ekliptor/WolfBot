@@ -22,6 +22,7 @@ import {CandleBatcher} from "../Trade/Candles/CandleBatcher";
 import AverageVolume from "../Indicators/AverageVolume";
 import VolumeProfile from "../Indicators/VolumeProfile";
 import PivotPoints from "../Indicators/PivotPoints";
+import IchimokuClouds from "../Indicators/IchimokuClouds";
 
 export interface TechnicalStrategyAction extends StrategyAction {
     // properties are optional because not all strategies will have all indicators (and some might inherit TechnicalStrategy for other functions)
@@ -192,6 +193,7 @@ export abstract class TechnicalStrategy extends AbstractStrategy implements Tech
     public getVolume: (name: string) => AverageVolume;
     public getVolumeProfile: (name: string) => VolumeProfile;
     public getPivotPoints: (name: string) => PivotPoints;
+    public getIchimokuClouds: (name: string) => IchimokuClouds;
     public allIndicatorsReady: () => boolean;
     public getXMinuteMA: (minutes: number, period: number, depth: number) => Promise<number>;
     public computeCustomIndicator: (name: string, computeResult: Promise<number>) => Promise<number>;

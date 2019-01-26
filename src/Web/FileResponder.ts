@@ -33,10 +33,11 @@ export class FileResponder {
         // path.join(utils.appDir, nconf.get("tradesDir"), nconf.get("backfindDir")); // TODO backfinding for web interface
         const localPath = path.join(utils.appDir, nconf.get("tradesDir"), req.params.bt);
         try {
-            res.writeHead(200, {'Content-Type': 'text/html; charset=UTF-8'});
             let data = await utils.file.readFile(localPath);
+            let headers: any = {'Content-Type': 'text/html; charset=UTF-8'}
             if (download === true)
-                res.setHeader("Content-Disposition", utils.sprintf('attachment; filename="%s"', req.params)); // params already get decoded
+                headers["Content-Disposition"] = utils.sprintf('attachment; filename="%s"', req.params.bt); // params already get decoded
+            res.writeHead(200, headers);
             res.end(data);
         }
         catch (err) {

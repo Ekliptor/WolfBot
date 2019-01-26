@@ -423,7 +423,6 @@ export default class BitMEX extends AbstractContractExchange {
                 rate = utils.calc.round(rate, 5);
 
             this.verifyTradeRequest(currencyPair, rate, amount, params).then((oP) => {
-
                 let marketPair = this.currencies.getExchangePair(currencyPair);
 
                 let outParams: any = {
@@ -432,7 +431,8 @@ export default class BitMEX extends AbstractContractExchange {
                     // 'side': "Buy" / "Sell", can be ommited if orderQty or simpleOrderQty is present positive value means buy negative measns sell
                     //orderQty: amount, this would require amount = this.getContractAmount(currencyPair, rate, amount); // simpleOrderQty X at price Y: orderQty = Y * round( X, 8 ) * [Leverage?]
                     //simpleOrderQty: amount
-                    orderQty: this.getContractAmount(currencyPair, rate, amount)
+                    orderQty: this.getContractAmount(currencyPair, rate, amount), // can be negative for sell, but better use "side"
+                    side: amount < 0.0 ? "Sell" : "Buy"
                 }
                 if(params && params.fillOrKill) {
                     outParams.execInst = "AllOrNone"

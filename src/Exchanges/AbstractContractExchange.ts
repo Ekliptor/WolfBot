@@ -47,7 +47,7 @@ export abstract class AbstractContractExchange extends AbstractExchange {
     // ###################### PRIVATE FUNCTIONS #######################
 
     protected getContractAmount(currencyPair: Currency.CurrencyPair, rate: number, coinAmount: number) {
-        const baseValue = coinAmount * rate;
+        const baseValue = Math.abs(coinAmount) * rate;
         let contractValue = this.contractValues.get(Currency.Currency[currencyPair.to]);
         if (!contractValue) {
             logger.error("Missing contract value for currency pair %s in %s", currencyPair.toString(), this.className)

@@ -5,6 +5,7 @@ import {TaLib, TaLibParams, TaLibResult} from "./TaLib";
 //import {AbtractCryptotraderIndicator} from "./AbtractCryptotraderIndicator"; // circular reference: parent - child
 import {DataPlotCollector, PlotMarkValues, PlotMark} from "./DataPlotCollector";
 import {Currency, Trade, Candle, MarketOrder} from "@ekliptor/bit-models";
+import {OrderBook} from "../Trade/OrderBook";
 
 export interface IndicatorParams {
     enableLog: boolean; // since params get copied from Strategy this value will be the same as "enableLog" for the strategy
@@ -102,6 +103,13 @@ export class PivotPointsParams implements IntervalIndicatorParams {
 export class OrderbookHeatIndicatorParams implements IntervalIndicatorParams {
     interval: number = 14; // number of candles for the indicator
     priceStepBucket: number = 0.1; // The orderbook granularity, meaning how much of a price change in the order book shall be combined in a single bucket.
+    enableLog: boolean;
+}
+export class IchimokuIndicatorParams implements IndicatorParams {
+    conversionPeriod: number = 9;
+    basePeriod: number = 26;
+    spanPeriod: number = 52;
+    displacement: number = 26;
     enableLog: boolean;
 }
 
@@ -378,4 +386,3 @@ import "./TristarPattern";
 import "./VIX";
 import "./VolumeProfile";
 import "./VWMA";
-import {OrderBook} from "../Trade/OrderBook";

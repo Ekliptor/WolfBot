@@ -643,7 +643,7 @@ export default class Binance extends AbstractExchange implements ExternalTickerE
             currencyPair.equals(new Currency.CurrencyPair(Currency.Currency.BTC, Currency.Currency.EOS)) ||
             currencyPair.equals(new Currency.CurrencyPair(Currency.Currency.BTC, Currency.Currency.ONT)))
             shift = 10000000.0; // 7 decimals
-        if (currencyPair.from)
+
         return Math.floor(value * shift) / shift;
     }
 

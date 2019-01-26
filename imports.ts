@@ -24,6 +24,7 @@ import "./src/Strategies/Extrapolation";
 import "./src/Strategies/FishingNet";
 import "./src/Strategies/FlashCrash";
 import "./src/Strategies/HoneyBadger";
+import "./src/Strategies/Ichimoku";
 import "./src/Strategies/IndicatorDivergence";
 import "./src/Strategies/InterestIndicator";
 import "./src/Strategies/KAMA";

@@ -793,6 +793,13 @@
       "resetLastCloseCount": "optional, default 10 (0 = disabled) - After how many candles shall the last close line diff be reset to 0.",
       "dynamicPersistence": "optional, default false. Decrease the persistence count on high volatility markets."
     },
+    "Ichimoku": {
+      "desc": "Strategy that buys and sells depending on signals from the Ichimoku Clouds indicator. This indicator is mostly used to show support and resistance as well as the trend direction.<br>A bullish signal occurs when:<br> Price moves above Cloud (trend)<br>- Cloud turns from red to green (ebb-flow within trend)<br>- Price Moves above the Base Line (momentum)<br>- Conversion Line moves above Base Line (momentum)<br>A bearish signal occurs when:<br>- Price moves below Cloud (trend)<br>- Cloud turns from green to red (ebb-flow within trend)<br>- Price Moves below Base Line (momentum)<br>- Conversion Line moves below Base Line (momentum)<br>This strategy only opens positions. You need a stop-loss and/or take profit strategy.",
+      "conversionPeriod": "",
+      "basePeriod": "",
+      "spanPeriod": "",
+      "displacement": ""
+    },
     "MFI": {
       "desc": "Strategy that emits buy/sell based on the MFI indicator. MFI is an oscillator that contains both price and volume. You can think of it as RSI with volume.",
       "low": "Below this value MFI will be considered oversold. The strategy will queue a buy order to be executed after 'trendCandles' going up.",
@@ -1111,7 +1118,7 @@
       "high": "optional, default 0 (disabled) - Above this value RSI will be considered overbought. This strategy will never close long positions during RSI overbought."
     },
     "TradingViewSignal": {
-      "desc": "Strategy that buys or sells based on TradingView.com signals. Signals can be anything such as alerts from the CryptoScreener, alerts on a chart, indicator or buy/sell signals of a TradingView strategy - including your own Pine Script.<br>You should ensure that your signal messages include the words 'buy', 'sell' and 'close' to instruct WolfBot (using default settings, can be configured).<br>You can optionally specify a rate for a limit order in your TradingView alert message. To do this, you must include the text limit= - so a full alert could look like this: \"some text, buy, limit=3500.5\". Otherwise the rate of the last trade will be used. To use a custom limit, this strategy must trade directly, meaning 'tradeStrategy' must not be set.",
+      "desc": "Strategy that buys or sells based on TradingView.com signals. Signals can be anything such as alerts from the CryptoScreener, alerts on a chart, indicator or buy/sell signals of a TradingView strategy - including your own Pine Script.<br>You should ensure that your signal messages include the words 'buy', 'sell' and 'close' to instruct WolfBot (using default settings, can be configured).<br>You can optionally specify a rate for a limit order in your TradingView alert message. To do this, you must include the text limit= - so a full alert could look like this: \"some text, buy, limit=3500.5\". Otherwise the rate of the last trade will be used.<br>To use a custom limit, this strategy must trade directly, meaning 'tradeStrategy' must not be set. Otherwise the tradeStrategy decides the limit price once its indicator(s) match the desired trade direction.",
       "email": "The email address to check for TradingView alerts.",
       "password": "The corresponding password of the email account.",
       "host": "optional, default automatic - The IMAP host of your email address.",
