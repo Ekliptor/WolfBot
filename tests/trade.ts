@@ -242,7 +242,7 @@ let testBinance = () => {
     let pair = new Currency.CurrencyPair(Currency.Currency.BTC, Currency.Currency.LTC)
     binance.subscribeToMarkets([pair])
 
-    binance.buy(pair, 0.000041412121212, 30).then((balances) => {
+    binance.buy(pair, 0.0091495725, 1.0929472387917578).then((balances) => {
     //binance.getOpenOrders(pair).then((balances) => {
     //binance.importHistory(pair, new Date(Date.now()-2*utils.constants.HOUR_IN_SECONDS*1000), new Date()).then((balances) => {
     //binance.sell(pair, 0.00000623, 350).then((balances) => {

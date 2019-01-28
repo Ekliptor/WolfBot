@@ -321,14 +321,15 @@ export default class Binance extends AbstractExchange implements ExternalTickerE
     public async buy(currencyPair: Currency.CurrencyPair, rate: number, amount: number, params: OrderParameters = {}): Promise<OrderResult> {
         let outParams = await this.verifyTradeRequest(currencyPair, rate, amount, params)
         try {
-            let result = await this.apiClient.order({
+            let buyParams = {
                 useServerTime: true,
                 symbol: outParams.pairStr,
                 side: "BUY",
-                quantity: this.getMaxTradeDecimals(amount, currencyPair),
+                quantity: this.getMaxTradeDecimals(amount, currencyPair, true),
                 price: this.getMaxTradeDecimals(outParams.rate as number, currencyPair),
                 type: outParams.orderType
-            });
+            }
+            let result = await this.apiClient.order(buyParams);
             return OrderResult.fromJson(result, currencyPair, this)
         }
         catch (err) {
@@ -343,7 +344,7 @@ export default class Binance extends AbstractExchange implements ExternalTickerE
                 useServerTime: true,
                 symbol: outParams.pairStr,
                 side: "SELL",
-                quantity: this.getMaxTradeDecimals(amount, currencyPair),
+                quantity: this.getMaxTradeDecimals(amount, currencyPair, true),
                 price: this.getMaxTradeDecimals(outParams.rate as number, currencyPair),
                 type: outParams.orderType
             });
@@ -631,20 +632,33 @@ export default class Binance extends AbstractExchange implements ExternalTickerE
         })
     }
 
-    protected getMaxTradeDecimals(value: number, currencyPair: Currency.CurrencyPair) {
+    protected getMaxTradeDecimals(value: number, currencyPair: Currency.CurrencyPair, isAmount = false) {
         // https://github.com/binance-exchange/binance-official-api-docs/blob/master/rest-api.md#lot_size
         let shift = 1000000.0; // 6 decimals
+        //let stepSize = 0.001; // TODO more?
+        //let minAmount = 0.001;
         if (currencyPair.equals(new Currency.CurrencyPair(Currency.Currency.BTC, Currency.Currency.XRP)) ||
             currencyPair.equals(new Currency.CurrencyPair(Currency.Currency.BTC, Currency.Currency.TRX)) ||
             currencyPair.equals(new Currency.CurrencyPair(Currency.Currency.BTC, Currency.Currency.ADA)) ||
             currencyPair.equals(new Currency.CurrencyPair(Currency.Currency.BTC, Currency.Currency.IOTA)))
-            shift = 100000000.0; // 8 decimals
+            shift = 1000000.0; // 8 decimals
         else if (currencyPair.equals(new Currency.CurrencyPair(Currency.Currency.BTC, Currency.Currency.WAVES)) ||
             currencyPair.equals(new Currency.CurrencyPair(Currency.Currency.BTC, Currency.Currency.EOS)) ||
             currencyPair.equals(new Currency.CurrencyPair(Currency.Currency.BTC, Currency.Currency.ONT)))
-            shift = 10000000.0; // 7 decimals
-
-        return Math.floor(value * shift) / shift;
+            shift = 100000.0; // 7 decimals
+        let valueFloor = Math.floor(value * shift) / shift;
+        /*
+        if (isAmount === true) {
+            let remainder = Math.floor(((valueFloor - minAmount) % stepSize) * shift) / shift;
+            if (remainder > 0.0) {
+                valueFloor -= remainder;
+                valueFloor = Math.floor(valueFloor * shift) / shift;
+            }
+        }
+        */
+        if (isAmount === true)
+            valueFloor = Math.floor(valueFloor * 100) / 100;
+        return valueFloor;
     }
 
     protected verifyExchangeResponse(body: string | false, response: request.RequestResponse, method: string) {

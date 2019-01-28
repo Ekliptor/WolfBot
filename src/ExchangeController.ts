@@ -29,7 +29,7 @@ export default class ExchangeController extends AbstractSubController {
 
     constructor(configFilename: string) {
         super()
-        this.configFilename = configFilename;
+        this.configFilename = configFilename.replace(/"*$/, "").replace(/^"*/, ""); // remove  possible "
         if (this.configFilename !== undefined && typeof this.configFilename !== "string") {
             // @ts-ignore
             this.configFilename = this.configFilename.toString();

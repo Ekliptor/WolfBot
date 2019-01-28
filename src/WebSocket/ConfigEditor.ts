@@ -967,7 +967,7 @@ export class ConfigEditor extends AppPublisher {
             else if (args[i] === "--debug" && !nconf.get("debugRestart"))
                 continue;
             if (args[i].substr(0, 8) === "--config")
-                newArgs.push("--config=" + this.selectedConfig);
+                newArgs.push('--config="' + this.selectedConfig + '"');
             else if (args[i].substr(0, 8) === "--trader") {
                 let params = getTraderParams();
                 newArgs.push(...params)
