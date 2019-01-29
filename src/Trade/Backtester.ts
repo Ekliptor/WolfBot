@@ -285,7 +285,7 @@ export default class Backtester extends PortfolioTrader {
                         continue;
                     // there is no need for order parameters because in simulation our order will always go through
                     let orderParameters = {};
-                    let rate = strategy.getRate();
+                    let rate = strategy.getRate("buy");
                     if (strategy.forceMakeOnly()) {
                         if (rate === -1)
                             rate = strategy.getAvgMarketPrice();
@@ -348,7 +348,7 @@ export default class Backtester extends PortfolioTrader {
                     if (this.skipTrade("buy", exchange, strategy, buyBtc) || this.skipTrend("buy"))
                         continue;
                     let orderParameters = {};
-                    let rate = strategy.getRate();
+                    let rate = strategy.getRate("buy");
                     if (strategy.forceMakeOnly()) {
                         if (rate === -1)
                             rate = strategy.getAvgMarketPrice();
@@ -413,7 +413,7 @@ export default class Backtester extends PortfolioTrader {
                     if (this.skipTrade("sell", exchange, strategy, sellBtc) || this.skipTrend("sell"))
                         continue;
                     let orderParameters = {};
-                    let rate = strategy.getRate();
+                    let rate = strategy.getRate("sell");
                     if (strategy.forceMakeOnly()) {
                         if (rate === -1)
                             rate = strategy.getAvgMarketPrice();
@@ -482,7 +482,7 @@ export default class Backtester extends PortfolioTrader {
                         continue; // nothing to sell
                     }
                     let orderParameters = {};
-                    let rate = strategy.getRate();
+                    let rate = strategy.getRate("sell");
                     if (strategy.forceMakeOnly()) {
                         if (rate === -1)
                             rate = strategy.getAvgMarketPrice();

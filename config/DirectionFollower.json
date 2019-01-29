@@ -886,7 +886,7 @@
               "action": "buy",
               "comp": "<",
               "position": "none",
-              "rate": 0.032,
+              "rate": 0.0239,
               "reason": "middle high",
               "indicators": ["RSI"]
             },

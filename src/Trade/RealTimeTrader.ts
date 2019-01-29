@@ -88,7 +88,7 @@ export default class RealTimeTrader extends PortfolioTrader {
                     */
                     let orderBook = exchange.getOrderBook().get(coinPair.toString())
                     let orderParameters: OrderParameters = {};
-                    let rate = strategy.getRate();
+                    let rate = strategy.getRate("buy");
                     if (strategy.forceMakeOnly()) {
                         if (rate === -1)
                             rate = orderBook.getLast();
@@ -153,7 +153,7 @@ export default class RealTimeTrader extends PortfolioTrader {
                         continue;
                     let orderBook = exchange.getOrderBook().get(coinPair.toString())
                     let orderParameters: OrderParameters = {};
-                    let rate = strategy.getRate();
+                    let rate = strategy.getRate("buy");
                     if (strategy.forceMakeOnly()) {
                         if (rate === -1)
                             rate = orderBook.getLast();
@@ -229,7 +229,7 @@ export default class RealTimeTrader extends PortfolioTrader {
                         continue;
                     let orderBook = exchange.getOrderBook().get(coinPair.toString())
                     let orderParameters: OrderParameters = {};
-                    let rate = strategy.getRate();
+                    let rate = strategy.getRate("sell");
                     if (strategy.forceMakeOnly()) {
                         if (rate === -1)
                             rate = orderBook.getLast();
@@ -293,7 +293,7 @@ export default class RealTimeTrader extends PortfolioTrader {
                     }
                     let orderBook = exchange.getOrderBook().get(coinPair.toString())
                     let orderParameters: OrderParameters = {};
-                    let rate = strategy.getRate();
+                    let rate = strategy.getRate("sell");
                     if (strategy.forceMakeOnly()) {
                         if (rate === -1)
                             rate = orderBook.getLast();

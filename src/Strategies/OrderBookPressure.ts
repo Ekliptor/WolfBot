@@ -1,7 +1,7 @@
 import * as utils from "@ekliptor/apputils";
 const logger = utils.logger
     , nconf = utils.nconf;
-import {AbstractStrategy, StrategyAction, TradeAction} from "./AbstractStrategy";
+import {AbstractStrategy, BuySellAction, StrategyAction, TradeAction} from "./AbstractStrategy";
 import {TechnicalStrategy, TechnicalStrategyAction} from "./TechnicalStrategy";
 import {AbstractIndicator, TrendDirection} from "../Indicators/AbstractIndicator";
 import {Currency, Trade, Candle, Order} from "@ekliptor/bit-models";
@@ -108,7 +108,7 @@ export default class OrderBookPressure extends TechnicalStrategy {
         super.onTrade(action, order, trades, info);
     }
 
-    public getRate(): number {
+    public getRate(action: BuySellAction): number {
         return -2; // use a market order (limit orders don't get filled during volatile moments)
     }
 

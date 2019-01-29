@@ -1,7 +1,7 @@
 import * as utils from "@ekliptor/apputils";
 const logger = utils.logger
     , nconf = utils.nconf;
-import {AbstractStrategy, StrategyAction} from "./AbstractStrategy";
+import {AbstractStrategy, BuySellAction, StrategyAction} from "./AbstractStrategy";
 import {Currency, Trade} from "@ekliptor/bit-models";
 
 interface MakerFeeAction extends StrategyAction {
@@ -28,7 +28,7 @@ export default class MakerFeeOrder extends AbstractStrategy {
         this.runOnce = true;
     }
 
-    public getRate() {
+    public getRate(action: BuySellAction) {
         return -1;
     }
 

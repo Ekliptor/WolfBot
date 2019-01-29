@@ -429,6 +429,8 @@ export default class Binance extends AbstractExchange implements ExternalTickerE
                 throw this.formatInvalidExchangeApiResponse(cancelResult);
 
             // now place the (modified) order again
+            if (Math.abs(amount) < 0.01) // remaining amount too low: erro -1013 LOT SIZE
+                return OrderResult.fromJson({message: "Order already filled (remaining amount too low)"}, currencyPair, this);
             let orderResult: OrderResult;
             if (order.type === "buy")
                 orderResult = await this.buy(currencyPair, rate, amount, params)
@@ -641,11 +643,11 @@ export default class Binance extends AbstractExchange implements ExternalTickerE
             currencyPair.equals(new Currency.CurrencyPair(Currency.Currency.BTC, Currency.Currency.TRX)) ||
             currencyPair.equals(new Currency.CurrencyPair(Currency.Currency.BTC, Currency.Currency.ADA)) ||
             currencyPair.equals(new Currency.CurrencyPair(Currency.Currency.BTC, Currency.Currency.IOTA)))
-            shift = 1000000.0; // 8 decimals
+            shift = 100000000.0; // 8 decimals
         else if (currencyPair.equals(new Currency.CurrencyPair(Currency.Currency.BTC, Currency.Currency.WAVES)) ||
             currencyPair.equals(new Currency.CurrencyPair(Currency.Currency.BTC, Currency.Currency.EOS)) ||
             currencyPair.equals(new Currency.CurrencyPair(Currency.Currency.BTC, Currency.Currency.ONT)))
-            shift = 100000.0; // 7 decimals
+            shift = 10000000.0; // 7 decimals
         let valueFloor = Math.floor(value * shift) / shift;
         /*
         if (isAmount === true) {
@@ -674,7 +676,7 @@ export default class Binance extends AbstractExchange implements ExternalTickerE
                 txt: "Invalid API response",
                 // MIN_NOTIONAL -> not enough balance, below min trading value
                 // PRICE_FILTER -> below min trading value
-                err: err ? err.toString() : err, // as err object it's often not passed along
+                err: err ? JSON.stringify(err) : err, // as err object it's often not passed along
                 permanent: permanent
             };
         }

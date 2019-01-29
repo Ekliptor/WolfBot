@@ -16,6 +16,7 @@ import {AbstractGenericStrategy, GenericStrategyState, StrategyInfo} from "./Abs
 import * as helper from "../utils/helper";
 import {TradePosition} from "../structs/TradePosition";
 
+export type BuySellAction = "buy" | "sell";
 export type TradeAction = "buy" | "sell" | "close";
 export type StrategyOrder = "buy" | "sell" | "closeLong" | "closeShort";
 export type StrategyEmitOrder = "buy" | "sell" | "hold" | "close" | "buyClose" | "sellClose";
@@ -31,7 +32,7 @@ export class ScheduledTrade {
 
     // cached values from the emitting strategy
     getOrderAmount: (tradeTotalBtc: number, leverage: number) => number;
-    getRate: () => number;
+    getRate: (action: BuySellAction) => number;
     forceMakeOnly: () => boolean;
     isIgnoreTradeStrategy: () => boolean;
     isMainStrategy: () => boolean;
@@ -48,7 +49,7 @@ export class ScheduledTrade {
 
     public bindEmittingStrategyFunctions(strategy: AbstractStrategy) {
         this.getOrderAmount = strategy.getOrderAmount.bind(strategy);
-        this.getRate = strategy.getRate.bind(strategy);
+        this.getRate = strategy.getRate.bind(strategy); // action will be passed on call
         this.forceMakeOnly = strategy.forceMakeOnly.bind(strategy);
         this.isIgnoreTradeStrategy = strategy.isIgnoreTradeStrategy.bind(strategy);
         this.isMainStrategy = strategy.isMainStrategy.bind(strategy);
@@ -66,6 +67,7 @@ export class ScheduledTrade {
 export interface StrategyAction {
     // undefined for dynamic strategies. might be changed after trade by AbstractStopStrategy
     order: StrategyOrder;
+    priceTolerancePercent: number; // optional, default 0.0 (use last trade price) - The max percent higher/lower the limit price shall be compared to the last trade price. This gives you the advantage of a market order - getting your order filled immediately the best available price - with the safety of a maximum price in case the orderbook is very thin.
     // removed, use global value
     //amount: number; // the amount (in specific coin) to trade // get all tradable from exchange and implement option for "all"
     pair: Currency.CurrencyPair; // The currency pair this strategy trades on. (The exchange is defined in the root of the config 1 level above the strategies.)
@@ -355,12 +357,17 @@ export abstract class AbstractStrategy extends AbstractGenericStrategy {
         this.adjustStaticOrder();
     }
 
-    public getRate(): number {
+    public getRate(action: BuySellAction): number {
         // return a rate > 0 if this strategy forces AbstractTrader to buy/sell at a specific price (limit order)
         // otherwise the trader will place a limit order at the last trade price
         // special values:
         // -1: limit order at the last price
         // -2: market order (if supported by exchange), otherwise identical to -1
+        if (this.action.priceTolerancePercent > 0.0 && this.avgMarketPrice !== -1) {
+            if (action === "buy")
+                return this.avgMarketPrice + this.avgMarketPrice/100.0*this.action.priceTolerancePercent;
+            return this.avgMarketPrice - this.avgMarketPrice/100.0*this.action.priceTolerancePercent; // sell
+        }
         return this.rate;
     }
 

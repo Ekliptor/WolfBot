@@ -1,7 +1,7 @@
 import * as utils from "@ekliptor/apputils";
 const logger = utils.logger
     , nconf = utils.nconf;
-import {AbstractStrategy, StrategyAction, TradeAction} from "./AbstractStrategy";
+import {AbstractStrategy, BuySellAction, StrategyAction, TradeAction} from "./AbstractStrategy";
 import {Currency, Trade, Candle, Order} from "@ekliptor/bit-models";
 import {TradeDirection, TradeInfo} from "../Trade/AbstractTrader";
 import {MarginPosition} from "../structs/MarginPosition";
@@ -45,10 +45,10 @@ export abstract class AbstractMomentumStrategy extends AbstractStrategy {
             this.done = false;
     }
 
-    public getRate() {
+    public getRate(action: BuySellAction) {
         if (!this.action.strongRate)
-            return super.getRate();
-        return super.getRate() * this.nextRateFactor;
+            return super.getRate(action);
+        return super.getRate(action) * this.nextRateFactor;
     }
 
     // ################################################################

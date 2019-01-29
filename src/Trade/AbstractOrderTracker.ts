@@ -69,7 +69,7 @@ export abstract class AbstractOrderTracker {
         if (!orderBook)
             return -1; // probably not in realtime trader
         //let orderParameters = {}; // parameters stay the same
-        let rate = pendingOrder.strategy.getRate();
+        let rate = pendingOrder.strategy.getRate(pendingOrder.order.type === Trade.TradeType.BUY ? "buy" : "sell");
         let changePercent = helper.getDiffPercent(rate, pendingOrder.order.rate);
         if (rate !== -1 && Math.abs(changePercent) > AbstractOrderTracker.MAX_PERCENT_CHANGE_RATE) {
             logger.warn("Rate of order to update changed %s% from %s to %s. Strategy probably lost state.", changePercent.toFixed(2), pendingOrder.order.rate.toFixed(8), rate.toFixed(8))

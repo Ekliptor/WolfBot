@@ -1,7 +1,7 @@
 import * as utils from "@ekliptor/apputils";
 const logger = utils.logger
     , nconf = utils.nconf;
-import {AbstractStrategy, StrategyAction, TradeAction} from "./AbstractStrategy";
+import {AbstractStrategy, BuySellAction, StrategyAction, TradeAction} from "./AbstractStrategy";
 import {AbstractTimeoutStrategy} from "./AbstractTimeoutStrategy";
 import {Currency, Trade, Candle, Order} from "@ekliptor/bit-models";
 import {TradeInfo} from "../Trade/AbstractTrader";
@@ -73,7 +73,7 @@ export default class BladeRunner extends AbstractTimeoutStrategy {
         this.clearTimeout();
     }
 
-    public getRate() {
+    public getRate(action: BuySellAction) {
         if (this.state === "opening")
             //return this.avgMarketPrice;
             return -1;

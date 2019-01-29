@@ -1,7 +1,7 @@
 import * as utils from "@ekliptor/apputils";
 const logger = utils.logger
     , nconf = utils.nconf;
-import {AbstractStrategy, ScheduledTrade, StrategyAction, TradeAction} from "./AbstractStrategy";
+import {AbstractStrategy, BuySellAction, ScheduledTrade, StrategyAction, TradeAction} from "./AbstractStrategy";
 import {TechnicalStrategy, TechnicalStrategyAction} from "./TechnicalStrategy";
 import {AbstractIndicator} from "../Indicators/AbstractIndicator";
 import {Currency, Trade, Candle, Order} from "@ekliptor/bit-models";
@@ -77,10 +77,10 @@ export abstract class AbstractOrderer extends TechnicalStrategy {
         return amount / 100 * this.orderAmountPercent;
     }
 
-    public getRate() {
+    public getRate(action: BuySellAction) {
         if (this.lastPendingOrder && this.lastPendingOrder.getRate)
-            return this.lastPendingOrder.getRate();
-        return super.getRate();
+            return this.lastPendingOrder.getRate(action);
+        return super.getRate(action);
     }
 
     public forceMakeOnly() {
