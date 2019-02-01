@@ -639,14 +639,16 @@ export default class Binance extends AbstractExchange implements ExternalTickerE
         let shift = 1000000.0; // 6 decimals
         //let stepSize = 0.001; // TODO more?
         //let minAmount = 0.001;
-        if (currencyPair.equals(new Currency.CurrencyPair(Currency.Currency.BTC, Currency.Currency.XRP)) ||
+        if (
             currencyPair.equals(new Currency.CurrencyPair(Currency.Currency.BTC, Currency.Currency.TRX)) ||
-            currencyPair.equals(new Currency.CurrencyPair(Currency.Currency.BTC, Currency.Currency.ADA)) ||
-            currencyPair.equals(new Currency.CurrencyPair(Currency.Currency.BTC, Currency.Currency.IOTA)))
+            currencyPair.equals(new Currency.CurrencyPair(Currency.Currency.BTC, Currency.Currency.ADA)))
             shift = 100000000.0; // 8 decimals
         else if (currencyPair.equals(new Currency.CurrencyPair(Currency.Currency.BTC, Currency.Currency.WAVES)) ||
             currencyPair.equals(new Currency.CurrencyPair(Currency.Currency.BTC, Currency.Currency.EOS)) ||
-            currencyPair.equals(new Currency.CurrencyPair(Currency.Currency.BTC, Currency.Currency.ONT)))
+            currencyPair.equals(new Currency.CurrencyPair(Currency.Currency.BTC, Currency.Currency.ONT)) ||
+            // 8 or 7 ?
+            currencyPair.equals(new Currency.CurrencyPair(Currency.Currency.BTC, Currency.Currency.XRP)) ||
+            currencyPair.equals(new Currency.CurrencyPair(Currency.Currency.BTC, Currency.Currency.IOTA)))
             shift = 10000000.0; // 7 decimals
         let valueFloor = Math.floor(value * shift) / shift;
         /*

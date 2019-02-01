@@ -234,7 +234,7 @@ export abstract class AbstractStrategy extends AbstractGenericStrategy {
         if (this.tradePosition && this.tradePosition.isEmpty() === false)
             return this.tradePosition.getProfitLoss(this.avgMarketPrice);
         if (this.strategyPosition !== "none" && this.lastSync && this.lastTradeTimePair && this.lastSync.getTime() > this.lastTradeTimePair.getTime())
-            logger.error("No trading and margin position found to compute profit/loss for %s", this.action.pair.toString());
+            logger.warn("No trading and margin position found to compute profit/loss for %s in %s", this.action.pair.toString(), this.className);
         return 0.0;
     }
 
@@ -244,7 +244,7 @@ export abstract class AbstractStrategy extends AbstractGenericStrategy {
         if (this.tradePosition && this.tradePosition.isEmpty() === false)
             return this.tradePosition.getProfitLossPercent(this.avgMarketPrice);
         if (this.strategyPosition !== "none" && this.lastSync && this.lastTradeTimePair && this.lastSync.getTime() > this.lastTradeTimePair.getTime())
-            logger.error("No trading and margin position found to compute profit/loss percent for %s", this.action.pair.toString());
+            logger.warn("No trading and margin position found to compute profit/loss percent for %s in %s", this.action.pair.toString(), this.className);
         return 0.0;
     }
 
