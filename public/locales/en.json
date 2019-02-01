@@ -1261,6 +1261,23 @@
       "low": "optional, default 20 - Below this value RSI will be considered oversold.",
       "high": "optional, default 80 - Above this value RSI will be considered overbought.",
       "MAType": "optional, default 0 (SMA) - The moving average type of BollingerBands. BollingerBands indicator is being used to determine the market volatility by looking at Bollinger Bandwidth."
+    },
+    "UnlimitedMargin": {
+      "desc": "Strategy that always closes positions at a profit. This is done by increasing the position size.<br>To be able to always increase your position size as required you should set about 0.5 - 1.0 % of your total available trading capital for this strategy to begin its first trade. Hence the name \"unlimited\" margin. This strategy is intended to be used for margin trading.<br>This strategy is optimized for the top 20 coins by market cap. It should not be used with other coins!<br>The first trade of this strategy will be AGAINST the current trend of your chosen indicator and this position will be increased on successive indicator highs/lows.<br>This strategy will open and close existing positions, so don't combine it with take-profit or stop-loss strategies to avoid unintended side effects (positions closing at a loss).<br>Keep in mind that during Backtesting trading fees are deducted which might still decrease your total balance if 'profitTargetPercent' isn't high enough and during real-time trading exchanges will charge you interest rates for margin trading.",
+      "profitTargetPercent": "optional, default 1.5%. The net profit of your total margin position (opened during multiple trades) when it shall be closed.",
+      "interval": "optional, default 15. The number of candles to use for the high/low calculation to compute the entry indicator value from.",
+      "minVolumeSpike": "optional, default 1.1. The min volume compared to the average volume of 'interval' candles to open a first position.",
+      "entryIndicator": "default RSI. The indicator to use to open and increase a position.",
+      "low": "optional, default 28. Only go long if the entry indicator is below this value.",
+      "high": "optional, default 72. Only go short if the entry indicator is above this value.",
+      "maxGoLongPrice": "optional, default 0 = any price. The maximum price to open a long position.",
+      "minGoShortPrice": "optional, default 0 = any price. The minimum price to open a short position."
+    },
+    "WeekPredictor": {
+      "desc": "Strategy that follows the weekly trend of the market. This strategy crawls various data feeds (including fundamentals) additionally to doing some Technical Analyisis. Therefore backtesting is not available for this strategy. You may still run it in paper trading mode if you are interested in its results without investing any money.<br>It works well on 1h candles and closes positions only if they are in profit. Consider adding a stop-loss strategy.<br>This strategy is optimized for the top 20 coins by market cap and should not be used for smaller coins.",
+      "priceReachedPercent": "optional, default 0.1% - How close the price must be to the reference rate to be considered reached.",
+      "interval": "optional, default 24 - The number of data points to keep in history.",
+      "minVolumeSpike": "optional, default 1.1 - The min volume compared to the average volume of the last 'interval' candles to open a position."
     }
   },
   "arbitrageStratDesc": {
