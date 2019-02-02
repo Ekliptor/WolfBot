@@ -4,9 +4,8 @@ const logger = utils.logger
 import {AbstractStrategy, StrategyAction, TradeAction} from "./AbstractStrategy";
 import {TechnicalStrategy, TechnicalStrategyAction} from "./TechnicalStrategy";
 import {AbstractIndicator, TrendDirection} from "../Indicators/AbstractIndicator";
-import {Currency, Trade, Candle} from "@ekliptor/bit-models";
+import {Currency, Trade, Candle, Order} from "@ekliptor/bit-models";
 import {BollingerBands as BollingerIndicator} from "../Indicators/BollingerBands";
-import * as Order from "@ekliptor/bit-models/build/models/Order";
 import {TradeInfo} from "../Trade/AbstractTrader";
 import {MarginPosition} from "../structs/MarginPosition";
 
@@ -142,7 +141,7 @@ export default class PingPong extends TechnicalStrategy {
 
     public unserialize(state: any) {
         super.unserialize(state);
-        if (this.trailingStopPrice) // be sure this never gets undefined
+        if (state.trailingStopPrice > 0.0) // be sure this never gets undefined
             this.trailingStopPrice = state.trailingStopPrice;
     }
 

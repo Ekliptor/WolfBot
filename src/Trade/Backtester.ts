@@ -190,7 +190,10 @@ export default class Backtester extends PortfolioTrader {
         // trades happened. check if any of those trades crossed the price of our orders and update our portfolio
         if (this.start === 0)
             this.start = trades[0].date.getTime();
-        this.marketTime = trades[trades.length-1].date; // should we also update rates? better just on candles
+        const lastTrade = trades[trades.length-1];
+        this.marketTime = lastTrade.date; // should we also update rates? better just on candles
+        this.marketRates.set(lastTrade.currencyPair.toString(), lastTrade.rate); // also done in syncMarket(). needed for position profit/loss calculation
+
         this.executeOrders(trades);
         this.updatePortfolio();
 
@@ -816,6 +819,7 @@ export default class Backtester extends PortfolioTrader {
         position.amount += amount;
         position.type = position.amount > 0 ? "long" : "short";
         position.addTrade(amount, rate);
+        position.computePl(this.marketRates.get(currencyPair.toString()));
         return position;
         // TODO lending fees for margin positions
         // TODO consider forced liquidation (we always work with stop loss for now)

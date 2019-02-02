@@ -622,7 +622,8 @@ export abstract class PortfolioTrader extends AbstractTrader {
         const positions = PortfolioTrader.marginPositions.get(exchange.getClassName())
         const coinBalance = PortfolioTrader.coinBalances.get(exchange.getClassName())
         //let remainingMarketPairs = new Set<Currency.CurrencyPair>(this.config.markets) // safer as string
-        let remainingMarketPairs = new Set<string>(PortfolioTrader.allMarkets)
+        let remainingMarketPairs = new Set<string>(PortfolioTrader.allMarkets);
+        const isBacktest = nconf.get("trader") === "Backtester";
 
         if (!positions) {
             logger.verbose("No open margin positions on %s to sync", exchange.getClassName())
@@ -630,6 +631,7 @@ export abstract class PortfolioTrader extends AbstractTrader {
         else {
             for (let pos of positions)
             {
+                const marginPos: MarginPosition = pos[1];
                 remainingMarketPairs.delete(pos[0]) // remove it first (even if coins are not loaded)
                 let pair = Currency.CurrencyPair.fromString(pos[0])
                 if (!pair || !pair.to || !coinBalance) {
@@ -637,7 +639,9 @@ export abstract class PortfolioTrader extends AbstractTrader {
                     continue; // happens on startup
                 }
                 let coins = coinBalance[pair.to] // from is BTC
-                this.emitSyncExchangePortfolio(exchange.getClassName(), pair, coins, pos[1])
+                if (isBacktest === true) // otherwise we get the actual profit/loss value from the exchange
+                    marginPos.computePl(this.marketRates.get(pair.toString()));
+                this.emitSyncExchangePortfolio(exchange.getClassName(), pair, coins, marginPos);
             }
         }
         for (let pairStr of remainingMarketPairs)

@@ -93,6 +93,8 @@ export class Controller extends AbstractController { // TODO implement graceful 
 
     start(webServer: http.Server | https.Server, runProcess = true) {
         this.webServer = webServer;
+        if (!this.webServer)
+            throw new Error("Unable to start app without web server. Please ensure you have permission to listen on your specified port.");
         return new Promise<void>((resolve, reject) => {
             // database
             this.connect(() => {

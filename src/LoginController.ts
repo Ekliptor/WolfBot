@@ -153,7 +153,9 @@ export class LoginController extends AbstractSubController {
                 botApiKey: helper.getFirstApiKey(), // easier to just send the key every time
                 apiKey: nconf.get("serverConfig:checkLoginApiKey"),
                 username: nconf.get("serverConfig:username"),
-                password: nconf.get("serverConfig:password")
+                password: nconf.get("serverConfig:password"),
+                // notification methods
+                pushover: nconf.get("serverConfig:apiKey:notify:Pushover:receiver")
             }
             serverConfig.saveConfigLocal();
             logger.verbose("Checking cloud login validity of account");

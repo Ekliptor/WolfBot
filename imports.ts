@@ -85,6 +85,7 @@ import "./src/Strategies/Trendatron";
 import "./src/Strategies/TrendlineScalper";
 import "./src/Strategies/TriggerOrder";
 import "./src/Strategies/TurnReorder";
+import "./src/Strategies/UnlimitedMargin";
 import "./src/Strategies/VolumeProfiler";
 import "./src/Strategies/VolumeSpikeDetector";
 import "./src/Strategies/VolumeSpikeDetectorLong";
@@ -96,6 +97,7 @@ import "./src/Strategies/WaveOpenerLeverage";
 import "./src/Strategies/WaveStopper";
 import "./src/Strategies/WaveSurfer";
 import "./src/Strategies/WaveSurferLeverage";
+import "./src/Strategies/WeekPredictor";
 import "./src/Strategies/WhaleWatcher";
 import "./src/Strategies/Wyckoff";
 

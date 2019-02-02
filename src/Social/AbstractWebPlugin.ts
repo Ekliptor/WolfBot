@@ -241,6 +241,8 @@ export abstract class AbstractWebPlugin extends EventEmitter {
             logger.error("Error sending %s notification", this.className, err)
         });
         this.lastNotification = new Date();
+
+        // TODO send premium notifications https://wolfbot.org/wp-json/tradebot/v1/getNotificationMethods?apiKey=
     }
 
     protected loadModule<T>(modulePath: string, options = undefined): T {

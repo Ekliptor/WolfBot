@@ -995,12 +995,12 @@ export abstract class AbstractStrategy extends AbstractGenericStrategy {
         if (entryPrice < 0) // -1 at init, shouldn't happen
             return false;
         // we might have manually bought more coins at a different price. check the position from exchange if available
-        if (this.position && nconf.get("trader") !== "Backtester") {
+        if (this.position/* && nconf.get("trader") !== "Backtester"*/) {
             if (this.position.pl < 0.0)
                 return false;
             if (minPercent == 0)
                 return true;
-            const positionSizeBase = Math.abs(this.position.amount) * this.ticker.last;
+            const positionSizeBase = Math.abs(this.position.amount) * this.getLastPrice();
             if (positionSizeBase > 0.0) { // otherwise no ticker data or sth else went wrong
                 const profitPercent = this.position.pl / positionSizeBase * 100.0;
                 return profitPercent >= minPercent;
@@ -1020,8 +1020,8 @@ export abstract class AbstractStrategy extends AbstractGenericStrategy {
     }
 
     protected hasProfitReal(minPercent = 0.1) {
-        if (nconf.get("trader") === "Backtester") // TODO update margin positions in backtesting, also above
-            return this.hasProfit(this.entryPrice, minPercent);
+        //if (nconf.get("trader") === "Backtester") // margin position profit is now available during backtesting
+            //return this.hasProfit(this.entryPrice, minPercent);
 
         if (!this.position) {
             logger.warn("Unable to check for real profit. This is only available during margin trading (and possibly not on all exchanges).")
@@ -1031,12 +1031,18 @@ export abstract class AbstractStrategy extends AbstractGenericStrategy {
             return false;
         if (minPercent == 0)
             return true;
-        const positionSizeBase = Math.abs(this.position.amount) * this.ticker.last;
+        const positionSizeBase = Math.abs(this.position.amount) * this.getLastPrice();
         if (positionSizeBase > 0.0) { // otherwise no ticker data or sth else went wrong
             const profitPercent = this.position.pl / positionSizeBase * 100.0;
             return profitPercent >= minPercent;
         }
         return false;
+    }
+
+    protected getLastPrice() {
+        if (this.ticker && this.ticker.last > 0.0) // ticker is not available during backtesting
+            return this.ticker.last;
+        return this.avgMarketPrice;
     }
 
     protected toTradeAction(action: StrategyOrder): TradeAction {

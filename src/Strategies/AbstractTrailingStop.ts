@@ -2,38 +2,33 @@ import * as utils from "@ekliptor/apputils";
 const logger = utils.logger
     , nconf = utils.nconf;
 import {AbstractStrategy, StrategyAction, TradeAction} from "./AbstractStrategy";
-import {AbstractStopStrategy, AbstractStopStrategyAction, ClosePositionState} from "./AbstractStopStrategy";
+import {ClosePositionState} from "./AbstractStopStrategy";
 import {Currency, Trade, Order, Candle} from "@ekliptor/bit-models";
 import {TradeInfo} from "../Trade/AbstractTrader";
 import * as helper from "../utils/helper";
 import {MarginPosition} from "../structs/MarginPosition";
+import {TechnicalStrategy, TechnicalStrategyAction} from "./TechnicalStrategy";
 
 
-interface TimeStopAction extends AbstractStopStrategyAction {
-    minCandles: number; // 12 // The minimum number of candles a position has to be open before being closed.
-    trailingStopPerc: number; // optional, default 0.05% // The trailing stop percentage that will be placed after minCandles have passed.
-    closePosition: ClosePositionState; // optional, default always // Only close a position if its profit/loss is in that defined state.
+export interface AbstractTrailingStopAction extends TechnicalStrategyAction {
+    trailingStopPerc: number; // optional, default 0.5% - The trailing stop percentage that will be placed after minCandles have passed.
+    closePosition: ClosePositionState; // optional, default always - Only close a position if its profit/loss is in that defined state.
 
-    time: number; // in seconds, optional // The time until the stop gets executed after the trailing stop has been reached.
-    keepTrendOpen: boolean; // optional, default false, Don't close if the last candle moved in our direction (only applicable with 'time' and 'candleSize' set).
-    notifyBeforeStopSec: number; // optional, notify seconds before the stop executes
-
-    // optional RSI values: don't close short if RSI < low (long if RSI > high)
-    low: number; // 52 // default 0 = disabled // This strategy will never close short positions during RSI oversold.
-    high: number; // 56 // This strategy will never close long positions during RSI overbought.
-    interval: number; // default 9
+    time: number; // optional, default 0 = immediately - The time in seconds until the stop gets executed after the trailing stop has been reached.
+    //keepTrendOpen: boolean; // optional, default false, Don't close if the last candle moved in our direction (only applicable with 'time' and 'candleSize' set).
+    // we don't use RSI or anything because this is intended as a main strategy implementation with likely a higher candle size
 }
 
 /**
- * A different kind of close-strategy, similar to a stop-loss strategy. This strategy places a trailing stop after a position was open
- * for a certain amount of candles. It can optionally look at RSI values before closing a position or only close if the position has a profit or loss.
- * Ideal for daytraders who want to exit the market after a certain amount of time to minimize risks.
+ * A template to easily implement a trailing stop strategy.
+ * This class will update the trailing stop once it has been set, your implementation just has to set it initially.
+ * It doesn't inerhit from the StopStrategy because it's intended to be used as a main strategy.
+ * If you want to use a simple trailing stop as a stop-loss strategy, use the TimeStop strategy with minCandles = 1.
  */
-export default class TimeStop extends AbstractStopStrategy {
-    public action: TimeStopAction;
+export abstract class AbstractTrailingStop extends /*AbstractStopStrategy*/TechnicalStrategy {
+    public action: AbstractTrailingStopAction;
     protected trailingStopPrice: number = -1;
-    //protected priceTime: Date = new Date(Date.now() +  365*utils.constants.DAY_IN_SECONDS * 1000); // time of the last high/low
-    protected lastRSI: number = -1; // identical ro RSI because it's updated on every candle tick
+    protected stopCountStart: Date = null;
 
     constructor(options) {
         super(options)
@@ -42,20 +37,15 @@ export default class TimeStop extends AbstractStopStrategy {
         if (["always", "profit", "loss"].indexOf(this.action.closePosition) === -1)
             this.action.closePosition = "always";
         if (typeof this.action.trailingStopPerc !== "number")
-            this.action.trailingStopPerc = 0.05;
-        if (!this.action.time)
+            this.action.trailingStopPerc = 0.5;
+        if (!this.action.time) {
             this.stopCountStart = new Date(0); // sell immediately
-        if (this.action.keepTrendOpen === undefined)
-            this.action.keepTrendOpen = false;
-        if (!this.action.interval)
-            this.action.interval = 9;
-
-        if (this.action.low > 0 && this.action.high > 0)
-            this.addIndicator("RSI", "RSI", this.action);
+            this.action.time = 0;
+        }
 
         //this.addInfo("highestPrice", "highestPrice");
         //this.addInfo("lowestPrice", "lowestPrice");
-        this.addInfo("positionOpenTicks", "positionOpenTicks");
+        //this.addInfo("positionOpenTicks", "positionOpenTicks");
         this.addInfoFunction("stop", () => {
             return this.getStopPrice();
         });
@@ -68,11 +58,6 @@ export default class TimeStop extends AbstractStopStrategy {
         this.addInfoFunction("positionState", () => {
             return this.getPositionState();
         });
-        if (this.action.low > 0 && this.action.high > 0) {
-            this.addInfoFunction("RSI", () => {
-                return this.indicators.get("RSI").getValue();
-            });
-        }
 
         this.saveState = true;
     }
@@ -94,7 +79,6 @@ export default class TimeStop extends AbstractStopStrategy {
     public serialize() {
         let state = super.serialize();
         state.trailingStopPrice = this.trailingStopPrice;
-        state.lastRSI = this.lastRSI;
         return state;
     }
 
@@ -102,7 +86,6 @@ export default class TimeStop extends AbstractStopStrategy {
         super.unserialize(state);
         if (state.trailingStopPrice > 0.0) // be sure this never gets undefined
             this.trailingStopPrice = state.trailingStopPrice;
-        this.lastRSI = state.lastRSI;
     }
 
     // ################################################################
@@ -115,9 +98,11 @@ export default class TimeStop extends AbstractStopStrategy {
 
             if (this.strategyPosition !== "none") {
                 this.updateStop();
-                if (this.action.order === "sell" || this.action.order === "closeLong")
+                //if (this.action.order === "sell" || this.action.order === "closeLong")
+                if (this.strategyPosition === "long")
                     this.checkStopSell();
-                else if (this.action.order === "buy" || this.action.order === "closeShort")
+                //else if (this.action.order === "buy" || this.action.order === "closeShort")
+                else if (this.strategyPosition === "short")
                     this.checkStopBuy();
             }
             super.tick(trades).then(() => {
@@ -138,26 +123,9 @@ export default class TimeStop extends AbstractStopStrategy {
         })
     }
 
-    protected checkIndicators() {
-        if (this.action.low  > 0 && this.action.high > 0) {
-            let rsi = this.indicators.get("RSI")
-            const value = rsi.getValue();
-
-            if (value > this.action.high) {
-                this.log("RSI UP trend detected, value", value)
-            }
-            else if (value < this.action.low) {
-                this.log("RSI DOWN trend detected, value", value)
-            }
-            else
-                this.log("no RSI trend detected, value", value);
-            this.lastRSI = value;
-        }
-    }
-
-    protected updateStop() {
-        if (this.positionOpenTicks < this.action.minCandles)
-            return;
+    protected updateStop(initialStop = false) {
+        if (initialStop === false && this.trailingStopPrice === -1)
+            return; // stop not set yet
         if (this.strategyPosition === "long") {
             const nextStop = this.avgMarketPrice - this.avgMarketPrice/100.0*this.action.trailingStopPerc;
             if (nextStop > this.trailingStopPrice)
@@ -176,18 +144,10 @@ export default class TimeStop extends AbstractStopStrategy {
         if (this.avgMarketPrice > this.getStopSell()) {
             if (this.action.time)
                 this.stopCountStart = null;
-            this.stopNotificationSent = false;
             return;
         }
         if (!this.stopCountStart)
             this.stopCountStart = this.marketTime;
-        // must come first to prevent sending notification too late
-        else if (this.action.notifyBeforeStopSec && !this.stopNotificationSent && this.getTimeUntilStopSec() > 0 && this.getTimeUntilStopSec() < this.action.notifyBeforeStopSec)
-            this.sendStopNotification();
-        else if (this.action.keepTrendOpen === true && this.candleTrend === "up")
-            return this.logOnce("skipping stop SELL because candle trend is up %", this.candle.getPercentChange());
-        else if (this.lastRSI !== -1 && this.lastRSI > this.action.high)
-            return this.logOnce("skipping stop SELL because RSI value indicates up:", this.lastRSI);
         else if (this.canClosePositionByState() === false)
             return this.logOnce("skipping stop SELL because of required position state:", this.action.closePosition);
         else if (this.stopCountStart.getTime() + this.getStopTimeSec() * 1000 <= this.marketTime.getTime())
@@ -198,18 +158,10 @@ export default class TimeStop extends AbstractStopStrategy {
         if (this.avgMarketPrice < this.getStopBuy()) {
             if (this.action.time)
                 this.stopCountStart = null;
-            this.stopNotificationSent = false;
             return;
         }
         if (!this.stopCountStart)
             this.stopCountStart = this.marketTime;
-        // must come first to prevent sending notification too late
-        else if (this.action.notifyBeforeStopSec && !this.stopNotificationSent && this.getTimeUntilStopSec() > 0 && this.getTimeUntilStopSec() < this.action.notifyBeforeStopSec)
-            this.sendStopNotification();
-        else if (this.action.keepTrendOpen === true && this.candleTrend === "down")
-            return this.logOnce("skipping stop BUY because candle trend is down %", this.candle.getPercentChange());
-        else if (this.lastRSI !== -1 && this.lastRSI < this.action.low)
-            return this.logOnce("skipping stop BUY because RSI value indicates down:", this.lastRSI);
         else if (this.canClosePositionByState() === false)
             return this.logOnce("skipping stop BUY because of required position state:", this.action.closePosition);
         else if (this.stopCountStart.getTime() + this.getStopTimeSec() * 1000 <= this.marketTime.getTime())
@@ -218,13 +170,13 @@ export default class TimeStop extends AbstractStopStrategy {
 
     protected closeLongPosition() {
         this.log("emitting sell because price dropped to", this.avgMarketPrice, "stop", this.getStopSell());
-        this.emitSellClose(Number.MAX_VALUE, this.getCloseReason(true) + (this.profitTriggerReached ? ", profit triggered" : ""));
+        this.emitClose(Number.MAX_VALUE, this.getCloseReason(true)); // SellClose
         this.done = true;
     }
 
     protected closeShortPosition() {
         this.log("emitting buy because price rose to", this.avgMarketPrice, "stop", this.getStopBuy());
-        this.emitBuyClose(Number.MAX_VALUE, this.getCloseReason(false) + (this.profitTriggerReached ? ", profit triggered" : ""));
+        this.emitClose(Number.MAX_VALUE, this.getCloseReason(false)); // BuyClose
         this.done = true;
     }
 
@@ -241,13 +193,50 @@ export default class TimeStop extends AbstractStopStrategy {
     }
 
     protected getStopPrice() {
-        if (this.action.order === "sell" || this.action.order === "closeLong")
+        //if (this.action.order === "sell" || this.action.order === "closeLong")
+        if (this.strategyPosition === "long")
             return this.getStopSell()
         return this.getStopBuy()
     }
 
     protected getStopTimeSec() {
-        return super.getStopTimeSec();
+        if (this.action.time == 0)
+            return 0;
+        let stopTime = this.action.time;
+        return stopTime > 0 ? stopTime : 1;
+    }
+
+    protected getTimeUntilStopSec() {
+        if (!this.stopCountStart || this.stopCountStart.getTime() > Date.now() || this.action.time == 0 || !this.marketTime)
+            return -1;
+        let stopMs = this.getStopTimeSec() * 1000 - (this.marketTime.getTime() - this.stopCountStart.getTime());
+        return stopMs > 0 ? Math.floor(stopMs/1000) : 0;
+    }
+
+    protected getPositionState(): ClosePositionState {
+        let profit = false;
+        if (this.position) // margin trading
+            profit = this.hasProfitReal();
+        else
+            profit = this.hasProfit(this.entryPrice);
+        return profit === true ? "profit" : "loss";
+    }
+
+    protected canClosePositionByState() {
+        switch (this.action.closePosition) {
+            case "profit":
+            case "loss":
+                return this.getPositionState() === this.action.closePosition;
+            default: // always
+                return true;
+        }
+    }
+
+    protected getCloseReason(closeLong: boolean) {
+        let priceDiff = Math.round(helper.getDiffPercent(this.avgMarketPrice, this.entryPrice) * 100.0) / 100.0;
+        const direction = closeLong ? "dropped" : "rose";
+        let reason = "price " + direction + " " + priceDiff + "%";
+        return reason;
     }
 
     protected resetValues() {

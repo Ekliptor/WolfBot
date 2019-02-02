@@ -140,7 +140,7 @@ export abstract class AbstractGenericStrategy extends EventEmitter {
                 logger.error("marketTime not yet set in %s %s", this.className, this.getCurrencyStr())
                 return null;
             }
-            logger.warn("marketTime not yet set in %s %s - assuming current time", this.className, this.getCurrencyStr())
+            logger.verbose("marketTime not yet set in %s %s - assuming current time", this.className, this.getCurrencyStr())
             return new Date();
         }
         return this.marketTime;
@@ -493,6 +493,13 @@ export abstract class AbstractGenericStrategy extends EventEmitter {
         this.candleHistory.unshift(candle);
         if (this.candleHistory.length > nconf.get("serverConfig:keepCandles"))
             this.candleHistory.pop();
+    }
+
+    protected addData(values: number[], next: number, maxDataPoints: number) {
+        values.push(next);
+        if (values.length > maxDataPoints)
+            values.shift();
+        return values;
     }
 
     protected updateIndicatorCandles() {

@@ -1277,7 +1277,10 @@
       "desc": "Strategy that follows the weekly trend of the market. This strategy crawls various data feeds (including fundamentals) additionally to doing some Technical Analyisis. Therefore backtesting is not available for this strategy. You may still run it in paper trading mode if you are interested in its results without investing any money.<br>It works well on 1h candles and closes positions only if they are in profit. Consider adding a stop-loss strategy.<br>This strategy is optimized for the top 20 coins by market cap and should not be used for smaller coins.",
       "priceReachedPercent": "optional, default 0.1% - How close the price must be to the reference rate to be considered reached.",
       "interval": "optional, default 24 - The number of data points to keep in history.",
-      "minVolumeSpike": "optional, default 1.1 - The min volume compared to the average volume of the last 'interval' candles to open a position."
+      "minVolumeSpike": "optional, default 1.1 - The min volume compared to the average volume of the last 'interval' candles to open a position.",
+      "closePosition": "optional, default always - Only close a position if its profit/loss is in that defined state. Values: always|profit|loss",
+      "trailingStopPerc": "optional, default 0.5% - The trailing stop percentage that will be placed once the computed profit target of the strategy has been reached.",
+      "time": "optional, default 0 = immediately - The time in seconds until the stop gets executed after the trailing stop has been reached."
     }
   },
   "arbitrageStratDesc": {

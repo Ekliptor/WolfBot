@@ -6,7 +6,6 @@ import {TechnicalStrategy, TechnicalStrategyAction} from "./TechnicalStrategy";
 import {AbstractIndicator, PivotPointsType} from "../Indicators/AbstractIndicator";
 import {Currency, Trade, Candle} from "@ekliptor/bit-models";
 import {PivotLineNr} from "../Indicators/PivotPoints";
-import {TrendDirection} from "@ekliptor/bit-models/build/models/Candle";
 
 type ConfirmationIndicatorName = "" | "RSI" | "CCI" | "MFI"; // OBV is unbound, bad for trading config
 
@@ -152,7 +151,7 @@ export default class PivotSniper extends TechnicalStrategy {
         return utils.sprintf("%s %s, spike %sx", indicator.getValue().toFixed(8), this.action.pair.getBase(), indicator.getVolumeFactor().toFixed(8));
     }
 
-    protected trendConfirmed(direction: TrendDirection) {
+    protected trendConfirmed(direction: Candle.TrendDirection) {
         if (!this.action.confirmationIndicator)
             return true; // no indicator set
         const indicator = this.indicators.get("ConfirmationIndicator");

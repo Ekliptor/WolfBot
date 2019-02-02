@@ -82,7 +82,9 @@ src/Social/Watcher
 config/social
 src/Arbitrage/Strategies/Leg.ts
 src/Strategies/TradingViewSignal.ts
+src/Strategies/WeekPredictor.ts
 config/TradingViewSignal.json
+config/WeekPredictor.json
 src/Exchanges/BitmexFix.ts
 
 public/js/libs/tv

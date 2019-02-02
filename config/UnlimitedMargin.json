@@ -1,0 +1,34 @@
+{
+    "data": [
+        {
+            "exchanges": ["Bitfinex"],
+            "marginTrading": true,
+            "tradeTotalBtc": 10.0,
+            "warmUpMin": 0,
+            "strategies": {
+                "UnlimitedMargin": {
+                    "profitTargetPercent": 1.5,
+                    "interval": 24,
+                    "minVolumeSpike": 1.1,
+                    "entryIndicator": "RSI",
+                    "low": 28,
+                    "high": 72,
+                    "maxGoLongPrice": 0.0,
+                    "minGoShortPrice": 0.0,
+                    "pair": "USD_BTC",
+                    "candleSize": 60,
+                    "tradeStrategy": "RSIScalpOrderer",
+                    "enableLog": true
+                },
+                "RSIScalpOrderer": {
+                    "low": 34,
+                    "high": 70,
+                    "expiry": 20,
+                    "candleSize": 5,
+                    "pair": "USD_BTC",
+                    "enableLog": true
+                }
+            }
+        }
+    ]
+}
