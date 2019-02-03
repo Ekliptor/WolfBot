@@ -1,6 +1,7 @@
 // exported keys in here must be exactly the same as they are written on nconf object (except "root")
 
 import {Currency} from "@ekliptor/bit-models";
+import {nconf} from "@ekliptor/apputils";
 
 const root = {
     "apiKeys" : { // leeave empty to disable API keys (public access)
@@ -112,8 +113,17 @@ class ServerConfig {
     }
 }
 
+// premium config
+let orverrides = () => {
+}
+
 const serverConfig = new ServerConfig();
-export {root, serverConfig}
+let tradingViewAccount = {
+    email: "",
+    password: ""
+}
+
+export {root, serverConfig, orverrides, tradingViewAccount}
 
 
 export type MultipleCurrencyImportExchange = "Poloniex" | "Bitfinex";
