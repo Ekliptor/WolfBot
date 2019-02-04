@@ -1274,9 +1274,11 @@
       "minGoShortPrice": "optional, default 0 = any price. The minimum price to open a short position."
     },
     "WeekPredictor": {
-      "desc": "Strategy that follows the weekly trend of the market. This strategy crawls various data feeds (including fundamentals) additionally to doing some Technical Analyisis. Therefore backtesting is not available for this strategy. You may still run it in paper trading mode if you are interested in its results without investing any money.<br>It works well on 1h candles and closes positions only if they are in profit. Consider adding a stop-loss strategy.<br>This strategy is optimized for the top 20 coins by market cap and should not be used for smaller coins.",
+      "desc": "Strategy that follows the weekly trend of the market. This strategy crawls various data feeds (including fundamentals) additionally to doing some Technical Analyisis. Therefore backtesting is not available for this strategy. You may still run it in paper trading mode if you are interested in its results without investing any money.<br>It works well on 1h candles and closes positions only if they are in profit. Consider adding a stop-loss strategy.<br>This strategy is optimized for the top 20 coins by market cap using USD as base currency and should not be used for smaller coins.",
       "priceReachedPercent": "optional, default 0.1% - How close the price must be to the reference rate to be considered reached.",
-      "interval": "optional, default 24 - The number of data points to keep in history.",
+      "interval": "optional, default 48 - The number of candles to compute the volume profile and average volume from. Also the number of data points to keep in history.",
+      "volumeRows": "The number of equally-sized price zones the price range is divided into.",
+      "valueAreaPercent": "default 60% - The percentage of the total volume that shall make up the value area, meaning the price range where x% of the trades happen.",
       "minVolumeSpike": "optional, default 1.1 - The min volume compared to the average volume of the last 'interval' candles to open a position.",
       "closePosition": "optional, default always - Only close a position if its profit/loss is in that defined state. Values: always|profit|loss",
       "trailingStopPerc": "optional, default 0.5% - The trailing stop percentage that will be placed once the computed profit target of the strategy has been reached.",

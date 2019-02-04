@@ -55,7 +55,7 @@ export abstract class AbstractCrawlerStrategy extends /*AbstractStrategy*/Abstra
 
     /**
      * Get status info of another WolfBot instance.
-     * @param url
+     * @param url The url of the bot api, usually ending with /state/
      * @param callback
      * @param options You ma specify options.apiKey if this bot uses another API key.
      */
@@ -139,8 +139,8 @@ export abstract class AbstractCrawlerStrategy extends /*AbstractStrategy*/Abstra
             options.cookieJar = this.cookieJar;
         if (options.timeout === undefined)
             options.timeout = nconf.get('serverConfig:httpTimeoutMs')
-        if (options.cloudscraper === undefined)
-            options.cloudscraper = true;
+        //if (options.cloudscraper === undefined) // not supported for POST yet
+            //options.cloudscraper = true;
         return options;
     }
 }

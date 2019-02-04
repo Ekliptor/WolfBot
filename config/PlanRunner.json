@@ -38,6 +38,22 @@
           "high": 55,
           "enableLog": false
         },
+        "TradingViewSignal": {
+          "email": "",
+          "password": "",
+          "host": "",
+          "port": 0,
+          "tls": true,
+          "checkMailSec": 20,
+          "tradeDirection": "both",
+          "buyWords": "buy",
+          "sellWords": "sell",
+          "forceMaker": false,
+          "pair": "USD_BTC",
+          "candleSize": 1,
+          "tradeStrategy": "RSIScalpOrderer",
+          "enableLog": true
+        },
         "DirectionFollower": {
           "interval": 14,
           "adxTrend": 20,

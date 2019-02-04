@@ -512,6 +512,15 @@ export abstract class AbstractGenericStrategy extends EventEmitter {
             this.fibonacci.setCandleInput(this.candleHistory);
     }
 
+    protected getStrategyInfoByName(infos: StrategyInfo[], strategyName: string) {
+        for (let i = 0; i < infos.length; i++)
+        {
+            if (infos[i].name === strategyName)
+                return infos[i];
+        }
+        return null;
+    }
+
     protected loadNotifier() {
         /*
         const notificationClass = nconf.get('serverConfig:notificationMethod');
