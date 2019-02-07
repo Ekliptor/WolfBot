@@ -104,6 +104,7 @@ export default class VolumeProfile extends AbstractIndicator {
     protected volumeProfileBars: VolumeProfileBar[] = []; // volume profile bars sorted from highest to lowest volume
     protected volumeProfileBarsByPrice: VolumeProfileBar[] = []; // volume profile bars sorted from lowest to highest price
     protected valueArea: ValueArea = null;
+    protected pointOfControl: number = -1;
 
     constructor(params: VolumeProfileParams) {
         super(params)
@@ -174,6 +175,10 @@ export default class VolumeProfile extends AbstractIndicator {
         return total;
     }
 
+    public getPointOfControl() {
+        return this.pointOfControl;
+    }
+
     public getAllValues() {
         const volumeProfile = this.getVolumeProfile();
         const valueArea = this.getValueArea();
@@ -186,7 +191,8 @@ export default class VolumeProfile extends AbstractIndicator {
             valueAreaLow: valueArea.valueAreaLow,
             totalVolume: this.getTotalVolume(),
             totalUpVolume: this.getTotalUpVolume(),
-            totalDownVolume: this.getTotalDownVolume()
+            totalDownVolume: this.getTotalDownVolume(),
+            pointOfControl: this.pointOfControl
         }
         values = Object.assign(values, utils.objects.getPlainArrayData(volumeProfile, "profile_"));
         return values;
@@ -202,6 +208,7 @@ export default class VolumeProfile extends AbstractIndicator {
         state.volumeProfileBars = this.volumeProfileBars;
         state.volumeProfileBarsByPrice = this.volumeProfileBarsByPrice;
         state.valueArea = this.valueArea;
+        state.pointOfControl = this.pointOfControl;
         return state;
     }
 
@@ -211,6 +218,8 @@ export default class VolumeProfile extends AbstractIndicator {
         this.volumeProfileBars = VolumeProfileBar.unserializeBars(state.volumeProfileBars);
         this.volumeProfileBarsByPrice = VolumeProfileBar.unserializeBars(state.volumeProfileBarsByPrice);
         this.valueArea = Object.assign(new ValueArea(), state.valueArea);
+        if (state.pointOfControl)
+            this.pointOfControl = state.pointOfControl;
     }
 
     // ################################################################
@@ -235,6 +244,8 @@ export default class VolumeProfile extends AbstractIndicator {
         this.volumeProfileBars = _.orderBy(volumeProfileBars, (bar) => {
             return bar.volume; // or just specify it as a string property too?
         }, ["desc"]);
+        const highestVulumeBar = this.volumeProfileBars[0];
+        this.pointOfControl = highestVulumeBar.getMeanPrice();
     }
 
     protected getTradeVolumeSumInZone(id: number, priceZoneLow: number, priceZoneHigh: number) {

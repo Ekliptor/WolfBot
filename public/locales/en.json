@@ -1125,7 +1125,7 @@
       "host": "optional, default automatic - The IMAP host of your email address.",
       "port": "optional, default automatic - The IMAP port of your email address.",
       "tls": "optional, default true - Whether to use TLS encryption to open your email inbox.",
-      "checkMailSec": "optional, default 20 seconds - How often your inbox shall be checked for new TradingView alerts.",
+      "checkMailSec": "optional, default 45 seconds - How often your inbox shall be checked for new TradingView alerts.",
       "tradeDirection": "optional, default 'both' - The direction in which this strategy shall act on signals from TradingView. Values: up|down|both",
       "buyWords": "optional, default 'buy' - A list of words (case insensitive, separated by |) on which the strategy buys. It is recommended to fine-tune your alert messages first and only use this as fallback.",
       "sellWords": "optional, default 'sell' - A list of words (case insensitive, separated by |) on which the strategy sells. It is recommended to fine-tune your alert messages first and only use this as fallback.",
@@ -1283,6 +1283,15 @@
       "closePosition": "optional, default always - Only close a position if its profit/loss is in that defined state. Values: always|profit|loss",
       "trailingStopPerc": "optional, default 0.5% - The trailing stop percentage that will be placed once the computed profit target of the strategy has been reached.",
       "time": "optional, default 0 = immediately - The time in seconds until the stop gets executed after the trailing stop has been reached."
+    },
+    "VolumeProfileControl": {
+      "desc": "Strategy that waits the current price is away a certain percentage from the highest Volume Profile bar and then opens a position under the assumption the price will diverge back to that price level again.<br>This is a medium/fast trading strategy designed for 5min to 30min candles in consolidating (not trending) markets.<br>This strategy only opens positions. You need a stop-loss and/or take profit strategy.",
+      "minPercentDivergence": "default 1.8. The min percentage the current price has to diverge from the highest volume profile bar to open a position.",
+      "interval": "default 24. The number of candles to compute the volume profile and average volume from.",
+      "volumeRows": "default 24. The number of equally-sized price zones the price range is divided into.",
+      "valueAreaPercent": "default 70%. The percentage of the total volume that shall make up the value area, meaning the price range where x% of the trades happen.",
+      "minVolumeSpike": "default 1.1. The min volume compared to the average volume of the last 'interval' candles to open a position.",
+      "aroonReached": "default 80. If AroonUp or AroonDown are above this value the market is assumed trending and this strategy will not open positions."
     }
   },
   "arbitrageStratDesc": {

@@ -44,7 +44,7 @@
           "host": "",
           "port": 0,
           "tls": true,
-          "checkMailSec": 20,
+          "checkMailSec": 45,
           "tradeDirection": "both",
           "buyWords": "buy",
           "sellWords": "sell",
@@ -871,6 +871,20 @@
           "low": 54,
           "high": 55,
           "enableLog": false
+        },
+        "WeekPredictor": {
+          "priceReachedPercent": 0.5,
+          "interval": 24,
+          "volumeRows": 24,
+          "valueAreaPercent": 60,
+          "minVolumeSpike": 1.1,
+          "closePosition": "always",
+          "trailingStopPerc": 0.5,
+          "time": 0,
+          "pair": "USD_IOTA",
+          "candleSize": 60,
+          "tradeStrategy": "RSIScalpOrderer",
+          "enableLog": true
         },
         "RSIScalper": {
           "percentage": 20,

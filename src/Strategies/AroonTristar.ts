@@ -33,7 +33,7 @@ export default class AroonTristar extends TechnicalStrategy {
         this.addInfoFunction("interval", () => {
             return this.action.interval;
         });
-        let aroon = this.getAroon("Aroon")
+        const aroon = this.getAroon("Aroon");
         this.addInfoFunction("AroonUp", () => {
             return aroon.getUp();
         });

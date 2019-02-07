@@ -72,10 +72,10 @@ export abstract class ClientSocketReceiver extends AbstractWidget {
     }
 
     protected getOrigin(): string {
-        if (typeof window.origin === "string")
-            return window.origin;
-        else if (document.location.origin === "string")
+        if (typeof document.location.origin === "string")
             return document.location.origin;
+        else if (typeof window.origin === "string")
+            return window.origin;
         return (document as any).origin; // legacy
     }
 }

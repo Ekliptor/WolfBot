@@ -425,6 +425,7 @@ export class Controller extends AbstractController { // TODO implement graceful 
             if (process.env.IS_CHILD)
                 return resolve()
             let params = process.argv.slice(2).join(" ");
+            // TODO how does this end up running? app.js --config=1Aneto-temp BitMEX test --trader=Backtester -p=2095
             const paramsFile = path.join(/*utils.appDir, */nconf.get("lastParamsFile")); // use working dir
             fs.writeFile(paramsFile, params, {encoding: "utf8"}, (err) => {
                 if (err)
