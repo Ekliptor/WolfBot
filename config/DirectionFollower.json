@@ -765,18 +765,6 @@
           "tradeStrategy": "RSIScalpOrderer",
           "enableLog": false
         },
-        "VolumeProfileControl": {
-          "minPercentDivergence": 0.6,
-          "interval": 24,
-          "volumeRows": 24,
-          "valueAreaPercent": 70.0,
-          "minVolumeSpike": 1.1,
-          "aroonReached": 80,
-          "pair": "BTC_ETH",
-          "candleSize": 15,
-          "tradeStrategy": "RSIScalpOrderer",
-          "enableLog": true
-        },
         "RSIScalpOrderer": {
           "low": 34,
           "high": 70,
@@ -1001,18 +989,6 @@
           "low": 54,
           "high": 55,
           "enableLog": false
-        },
-        "VolumeProfileControl": {
-          "minPercentDivergence": 0.6,
-          "interval": 24,
-          "volumeRows": 24,
-          "valueAreaPercent": 70.0,
-          "minVolumeSpike": 1.1,
-          "aroonReached": 80,
-          "pair": "BTC_LTC",
-          "candleSize": 10,
-          "tradeStrategy": "RSIScalpOrderer",
-          "enableLog": true
         },
         "RSIScalpOrderer": {
           "low": 34,
@@ -1539,18 +1515,6 @@
           "low": 54,
           "high": 55,
           "enableLog": false
-        },
-        "VolumeProfileControl": {
-          "minPercentDivergence": 0.6,
-          "interval": 24,
-          "volumeRows": 24,
-          "valueAreaPercent": 70.0,
-          "minVolumeSpike": 1.1,
-          "aroonReached": 100,
-          "pair": "BTC_XMR",
-          "candleSize": 30,
-          "tradeStrategy": "RSIScalpOrderer",
-          "enableLog": true
         },
         "RSIScalpOrderer": {
           "low": 34,

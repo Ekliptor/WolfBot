@@ -50,7 +50,7 @@ class LastTradePoint {
  * the latest 'interval' candles.
  * This strategy waits with the market entry until 'waitEntrySec' has passed and keeps track of the last buy/sell prices
  * to ensure it doesn't trade a a loss in prolonged sideways markets.
- * See PingPing strategy for a simpler version which doesn't keep track of the last buy/sell prices.
+ * See PingPong strategy for a simpler version which doesn't keep track of the last buy/sell prices.
  * ideas from https://medium.com/bitfinex/ping-pong-a-new-hf-algorithmic-order-dcc844950a25
  */
 export default class BollingerBouncer extends TechnicalStrategy {

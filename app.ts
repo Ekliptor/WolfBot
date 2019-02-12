@@ -47,8 +47,7 @@ import * as logger from "./src/utils/Logger";
 //const argv = require('minimist')(process.argv.slice(2))
 import * as argvFunction from "minimist";
 const argv = argvFunction(process.argv.slice(2));
-if (argv.debug === true)
-    nconf.set('debug', true);
+nconf.set('debug', argv.debug === true);
 if (argv.p) {
     nconf.set('port', argv.p)
     nconf.set('tlsPort', argv.p + 1)

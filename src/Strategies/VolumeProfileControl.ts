@@ -20,7 +20,7 @@ interface VolumeProfileControlAction extends TechnicalStrategyAction {
 }
 
 /**
- * Strategy that waits the current price is away a certain percentage from the highest Volume Profile bar
+ * Strategy that waits until the current price is away a certain percentage from the highest Volume Profile bar
  * and then opens a position under the assumption the price will diverge back to that price level again.
  * This is a medium/fast trading strategy designed for 5min to 30min candles in consolidating (not trending) markets.
  * This strategy only opens positions. You need a stop-loss and/or take profit strategy.

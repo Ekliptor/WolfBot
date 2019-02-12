@@ -35,7 +35,12 @@ export class MailFetchCriteria {
 
 export class Mailbox {
     public static readonly AUTH_TIMEOUT_MS = 5000;
-    public static readonly IMAP_SUBDOMAINS = ["imap", "mail"];
+    public static readonly IMAP_SUBDOMAINS = ["imap", "mail"]; // default fallbacks to try
+    // (mail host, subdomain)
+    public static readonly SUBDOMAIN_MAP = new Map<string, string>([
+        ["gmail.com", "imap.gmail.com"],
+        ["yandex.com", "imap.yandex.com"]
+    ]);
 
     protected account: MailboxAccount;
     protected connection: imaps.ImapSimple = null;
@@ -56,6 +61,17 @@ export class Mailbox {
             mailDomain = this.account.email.substr(start+1);
         if (mailDomain.length === 0 || mailDomain.indexOf(".") === -1)
             throw new Error("Email address doesn't contain a valid domain");
+        let knownMailDomain = Mailbox.SUBDOMAIN_MAP.get(mailDomain);
+        if (knownMailDomain !== undefined) {
+            try {
+                await this.tryConnectToHost(knownMailDomain);
+                if (this.connection !== null)
+                    return;
+            }
+            catch (err) {
+                logger.warn("Error connecting to known mailbox on %s", knownMailDomain, err); // continue with defaults below
+            }
+        }
         for (let i = 0; i < Mailbox.IMAP_SUBDOMAINS.length; i++)
         {
             let host = Mailbox.IMAP_SUBDOMAINS[i] + "." + mailDomain;
