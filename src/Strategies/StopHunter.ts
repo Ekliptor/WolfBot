@@ -6,7 +6,6 @@ import {TechnicalStrategy, TechnicalStrategyAction} from "./TechnicalStrategy";
 import {AbstractIndicator} from "../Indicators/AbstractIndicator";
 import {Currency, Trade, Candle} from "@ekliptor/bit-models";
 import * as helper from "../utils/helper";
-import {VolumeProfileBar} from "../Indicators/VolumeProfile";
 
 
 interface StopHunterAction extends TechnicalStrategyAction {

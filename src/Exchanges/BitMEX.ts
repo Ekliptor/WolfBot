@@ -106,22 +106,23 @@ export class BitMEXCurrencies implements Currency.ExchangeCurrencies {
         return summary;
     }
     public getMarginPosition(margin: any, maxLeverage): MarginPosition {
-        if (margin.simpleQty == 0)
+        // simpleQty in base currency removed, use currentQty
+        if (margin.currentQty === 0)
             return null;
 
         let position = new MarginPosition(maxLeverage);
-        if (margin.simpleQty >= 0) {
-            position.amount = margin.simpleQty;
+        if (margin.currentQty >= 0) {
+            position.amount = margin.currentQty;
             position.type = "long";
         }
         else {
-            position.amount = margin.simpleQty;
+            position.amount = margin.currentQty;
             position.type = "short";
         }
         if (typeof position.amount !== "number")
             position.amount = 0.0; // fix against undefined
 
-        position.liquidationPrice = margin.liquidationPrice
+        position.liquidationPrice = margin.liquidationPrice;
 
         position.pl = BitMEX.satoshi2BTC(margin.unrealisedPnl);
         const ticker = this.exchange.getTickerSync();
@@ -185,7 +186,7 @@ export default class BitMEX extends AbstractContractExchange {
         //this.minTradingValue = 1.0; // for margin positions, min 1 contract (100 USD with BTC, 10 USD with LTC)
         this.minTradingValue = 0.09; // actually different for LTC and BTC, depending on contract value
         this.fee = 0.003; // only for opening positions
-        this.maxLeverage = 25; // 2 - 100
+        this.maxLeverage = 1; // 2 - 100 // 1 is easier in cross-margin mode
         //this.maxTimeAheadMs = 20000; // their clock goes ahead?
         this.currencies = new BitMEXCurrencies(this);
         this.webSocketTimeoutMs = nconf.get('serverConfig:websocketTimeoutMs')*6; // they don't send pings too often
@@ -260,8 +261,9 @@ export default class BitMEX extends AbstractContractExchange {
                 if (!balance || balance.error)
                     return reject({txt: "Error getting bitmex balance", err: balance});
                 let balances = {}
-                if (balance.length > 1 && typeof balance[2].walletBalance === "number") // old API?
-                    balances["BTC"] = BitMEX.satoshi2BTC(balance[2].walletBalance);
+                // 0 = deposit, 1 = total
+                if (balance.length > 1 && typeof balance[1].walletBalance === "number")
+                    balances["BTC"] = BitMEX.satoshi2BTC(balance[1].walletBalance);
                 else if (balance.length > 0)
                     balances["BTC"] = balance[0].amount || 0.0;
                 else
@@ -513,7 +515,7 @@ export default class BitMEX extends AbstractContractExchange {
 
     public getAllMarginPositions() {
         return new Promise<MarginPositionList>((resolve, reject) => {
-            let params = { }
+            let params = {}
             this.privateReq("GET /position", params).then((positions) => {
                 let list = new MarginPositionList();
                 for (let i = 0; i < positions.length; i++)
@@ -523,8 +525,11 @@ export default class BitMEX extends AbstractContractExchange {
                         let marketPair = this.currencies.getExchangePair(this.currencyPairs[j]);
                         if(marketPair == positions[i].symbol) {
                             let position = this.currencies.getMarginPosition(positions[i], this.getMaxLeverage());
-                            if (position)
-                                list.set(this.currencyPairs[j].toString(), position)
+                            if (position) {
+                                position.amount = this.getBaseCurrencyAmount(this.currencyPairs[j], positions[i].lastPrice, position.amount);
+                                //position.pl *= positions[i].lastPrice;
+                                list.set(this.currencyPairs[j].toString(), position);
+                            }
                             break;
                         }
                     }
@@ -539,7 +544,6 @@ export default class BitMEX extends AbstractContractExchange {
     public getMarginPosition(currencyPair: Currency.CurrencyPair) {
         return new Promise<MarginPosition>((resolve, reject) => {
             let marketPair = this.currencies.getExchangePair(currencyPair);
-
             let params: any = {
                 filter: {
                     symbol: marketPair
@@ -549,8 +553,13 @@ export default class BitMEX extends AbstractContractExchange {
                 let position: MarginPosition;
                 if (Array.isArray(positions) === false || positions.length === 0)
                     position = new MarginPosition(this.getMaxLeverage());
-                else
+                else {
                     position = this.currencies.getMarginPosition(positions[0], this.getMaxLeverage());
+                    if (position) {
+                        position.amount = this.getBaseCurrencyAmount(currencyPair, positions[0].lastPrice, position.amount);
+                        //position.pl *= positions[0].lastPrice;
+                    }
+                }
                 resolve(position)
             }).catch((err) => {
                 reject(err)

@@ -7,7 +7,7 @@
       "warmUpMin": 0,
       "strategies": {
         "StopHunter": {
-          "candleTailPercent": 10.0,
+          "candleTailPercent": 5.0,
           "CrossMAType": "EMA",
           "short": 7,
           "long": 30,
