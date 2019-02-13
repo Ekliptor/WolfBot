@@ -1,0 +1,57 @@
+{
+  "data": [
+    {
+      "exchanges": ["Bitfinex"],
+      "marginTrading": true,
+      "tradeTotalBtc": 100.0,
+      "warmUpMin": 0,
+      "strategies": {
+        "StopHunter": {
+          "candleTailPercent": 10.0,
+          "CrossMAType": "EMA",
+          "short": 7,
+          "long": 30,
+          "interval": 24,
+          "minPercentDivergence": 0.6,
+          "interval": 24,
+          "minVolumeSpike": 1.5,
+          "pair": "USD_BTC",
+          "candleSize": 60,
+          "tradeStrategy": "RSIScalpOrderer",
+          "enableLog": true
+        },
+        "RSIScalpOrderer": {
+          "low": 34,
+          "high": 70,
+          "expiry": 20,
+          "candleSize": 3,
+          "pair": "USD_BTC",
+          "enableLog": false
+        },
+        "StopLossTurn": {
+          "order": "closeLong",
+          "setback": 2.1,
+          "setbackLong": 2.1,
+          "time": 600,
+          "setbackProfit": 1.1,
+          "triggerProfit": 2.6,
+          "timeProfit": 120,
+          "reduceTimeByVolatility": false,
+          "low": 52,
+          "high": 56,
+          "candleSize": 6,
+          "pair": "USD_BTC",
+          "enableLog": false
+        },
+        "TakeProfit": {
+          "order": "closeLong",
+          "profit": 2.2,
+          "time": 900,
+          "candleSize": 6,
+          "pair": "USD_BTC",
+          "enableLog": false
+        }
+      }
+    }
+  ]
+}

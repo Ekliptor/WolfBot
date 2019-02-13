@@ -71,6 +71,7 @@ import "./src/Strategies/SpeedCandles";
 import "./src/Strategies/SpikeDetector";
 import "./src/Strategies/STC";
 import "./src/Strategies/StochRSI";
+import "./src/Strategies/StopHunter";
 import "./src/Strategies/StopLossTime";
 import "./src/Strategies/StopLossTurn";
 import "./src/Strategies/StopLossTurnPartial";

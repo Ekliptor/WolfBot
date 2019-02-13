@@ -592,7 +592,10 @@ export abstract class AbstractStrategy extends AbstractGenericStrategy {
             //info.lastCandleTick = this.candle ? this.candle.start : null;
         }
         this.infoProperties.forEach((prop) => {
-            info[prop.label] = this[prop.property]; // should we check the type?
+            if (this[prop.property] && typeof this[prop.property] === "object" && typeof this[prop.property].toString === "function")
+                info[prop.label] = this[prop.property].toString(); // toString() should always be defined, yet sometimes with [object]
+            else
+                info[prop.label] = this[prop.property];
         })
         this.infoFunctions.forEach((fn) => {
             info[fn.label] = fn.propertyFn();

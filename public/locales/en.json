@@ -1292,6 +1292,15 @@
       "valueAreaPercent": "default 70%. The percentage of the total volume that shall make up the value area, meaning the price range where x% of the trades happen.",
       "minVolumeSpike": "default 1.1. The min volume compared to the average volume of the last 'interval' candles to open a position.",
       "aroonReached": "default 80. If AroonUp or AroonDown are above this value the market is assumed trending and this strategy will not open positions."
+    },
+    "StopHunter": {
+      "desc": "Strategy that keeps track of price highs and lows and opens a position with the current market trend after a possible stop-loss hunt took place. A stop-loss hunt is detected by a high volume candle with a long tail making a new price high/low. The current market trend is detected by the crossing of 2 EMAs.<br>This is a medium/ designed for 60min candles in trending markets.<br>This strategy only opens positions. You need a stop-loss and/or take profit strategy.",
+      "candleTailPercent": "optional, default 20% - The minimum percentage relative to the candle body ( abs(open - close) ) the candle high/low has to be long.",
+      "CrossMAType": "optional, default EMA - The indicator to use to look for line cross signals to identify an up/down trend. Values: EMA|DEMA|SMA",
+      "short": "optional, default 7 - The number of candles for the short moving average.",
+      "long": "optional, default 30 - The number of candles for the long moving average.",
+      "interval": "optional, default 24 - The number of candles to compute the average volume from and to check for price highs/lows.",
+      "minVolumeSpike": "optional, default 1.5 - The min volume compared to the average volume of the last 'interval' candles to open a position."
     }
   },
   "arbitrageStratDesc": {
