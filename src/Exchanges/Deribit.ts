@@ -138,7 +138,7 @@ export default class Deribit extends AbstractContractExchange {
         this.exchangeLabel = Currency.Exchange.DERIBIT;
         this.minTradingValue = 1.0; // min value is 1 contract, BTC contract fixed at 10$
         this.fee = 0.00002; // only for opening positions // https://www.deribit.com/main#/pages/information/fees
-        this.maxLeverage = 100;
+        this.maxLeverage = 1; // easier to configure with 1
         this.currencies = new DeribitCurrencies(this);
         this.webSocketTimeoutMs = nconf.get('serverConfig:websocketTimeoutMs')*3; // they don't send pings too often
 

@@ -1,21 +1,20 @@
 import * as utils from "@ekliptor/apputils";
-const logger = utils.logger
-    , nconf = utils.nconf;
 import {controller as Controller} from '../src/Controller';
 import {AbstractExchange} from "../src/Exchanges/AbstractExchange";
 import Poloniex from "../src/Exchanges/Poloniex";
 import OKEX from "../src/Exchanges/OKEX";
 import Kraken from "../src/Exchanges/Kraken";
 import Bitfinex from "../src/Exchanges/Bitfinex";
-import Pushover from "../src/Notifications/Pushover";
-import Notification from "../src/Notifications/Notification";
 import {OrderResult} from "../src/structs/OrderResult";
-import {Currency} from "@ekliptor/bit-models";
-import {ok} from "assert";
 import Bittrex from "../src/Exchanges/Bittrex";
 import Binance from "../src/Exchanges/Binance";
 import BitMEX from "../src/Exchanges/BitMEX";
 import Deribit from "../src/Exchanges/Deribit";
+import {Currency} from "@ekliptor/bit-models";
+import {AbstractMarketData} from "../src/Exchanges/feeds/AbstractMarketData";
+
+const logger = utils.logger
+    , nconf = utils.nconf;
 
 let repeatPoloniexOrder = (order: Promise<OrderResult>) => {
     return new Promise<OrderResult>((resolve, reject) => {
@@ -302,6 +301,14 @@ let testDeribit = async () => {
     })
 }
 
+let testBitmexLiquidations = async () => {
+    //let bitmex = new BitmexMarketData();
+    let bitmex = AbstractMarketData.getInstance("BitmexMarketData");
+    let btc = new Currency.CurrencyPair(Currency.Currency.BTC, Currency.Currency.USD)
+    let eth = new Currency.CurrencyPair(Currency.Currency.ETH, Currency.Currency.USD)
+    bitmex.subscribe([btc, eth]);
+}
+
 Controller.loadServerConfig(() => {
     utils.file.touch(AbstractExchange.cookieFileName).then(() => {
         //buy()
@@ -310,8 +317,9 @@ Controller.loadServerConfig(() => {
         //testBitfinex()
         //testPolo();
         //testBittrex();
-        testBinance();
+        //testBinance();
         //testBitmex();
+        testBitmexLiquidations();
         //testDeribit();
     })
 })

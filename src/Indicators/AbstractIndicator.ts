@@ -112,6 +112,24 @@ export class IchimokuIndicatorParams implements IndicatorParams {
     displacement: number = 26;
     enableLog: boolean;
 }
+export class LiquidatorParams implements IntervalIndicatorParams {
+    feed: ExchangeFeed = "BitmexMarketData";
+    //exchangePairs: Currency.CurrencyPair[] = [new Currency.CurrencyPair(Currency.Currency.USD, Currency.Currency.BTC)];
+    currencyPairs: string[] = ["USD_BTC"]; // value is parsed to CurrencyPair
+    interval: number = 15; // the number of candles to store liquidations for
+    enableLog: boolean;
+    public getPairs(): Currency.CurrencyPair[] {
+        let pairs = [];
+        this.currencyPairs.forEach((pair) => {
+            let pairObj = Currency.CurrencyPair.fromString(pair);
+            if (pairObj)
+                pairs.push(pairObj);
+            else if (this.enableLog)
+                logger.warn("Unable to parse currency pair %s in %s Liquidator", pair, this.feed);
+        });
+        return pairs;
+    }
+}
 
 export type TrendDirection = Candle.TrendDirection; // moved, keep it as alias
 
@@ -367,6 +385,7 @@ import "./EMA";
 import "./GannSwing";
 import "./IchimokuClouds";
 import "./KAMA";
+import "./Liquidator";
 import "./MACD";
 import "./MayerMultiple";
 import "./MFI";
@@ -386,3 +405,4 @@ import "./TristarPattern";
 import "./VIX";
 import "./VolumeProfile";
 import "./VWMA";
+import {ExchangeFeed} from "../Exchanges/feeds/AbstractMarketData";

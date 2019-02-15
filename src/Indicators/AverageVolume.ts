@@ -50,6 +50,26 @@ export default class AverageVolume extends AbstractIndicator {
         return this.lastVolume / this.value;
     }
 
+    /**
+     * Get the index of the candle with the highest volume.
+     * Index 0 means the latest/current candle. You can use this index in this.candleHistory
+     * inside your strategy.
+     * Returns -1 if no candles are available yet.
+     */
+    public getHighestVolumeCandleIndex() {
+        let max = 0, maxI = -1;
+        for (let i = 0; i < this.candleVolumes.length; i++)
+        {
+            if (this.candleVolumes[i] > max) {
+                max = this.candleVolumes[i];
+                maxI = i;
+            }
+        }
+        if (maxI === -1)
+            return maxI;
+        return this.candleVolumes.length - maxI - 1;
+    }
+
     public getAllValues() {
         return {
             averageVolume: this.value,

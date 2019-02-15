@@ -22,6 +22,7 @@ import AverageVolume from "../../Indicators/AverageVolume";
 import VolumeProfile from "../../Indicators/VolumeProfile";
 import PivotPoints from "../../Indicators/PivotPoints";
 import IchimokuClouds from "../../Indicators/IchimokuClouds";
+import Liquidator from "../../Indicators/Liquidator";
 
 
 export abstract class TechnicalAnalysis extends AbstractGenericStrategy {
@@ -187,6 +188,14 @@ export abstract class TechnicalAnalysis extends AbstractGenericStrategy {
     public getIchimokuClouds(name: string): IchimokuClouds {
         let indicator = this.getIndicator(name);
         if (indicator instanceof IchimokuClouds)
+            return indicator;
+        logger.error("Indicator with name %s has the wrong instance type in %s", name, this.className)
+        return null;
+    }
+
+    public getLiquidator(name: string): Liquidator {
+        let indicator = this.getIndicator(name);
+        if (indicator instanceof Liquidator)
             return indicator;
         logger.error("Indicator with name %s has the wrong instance type in %s", name, this.className)
         return null;

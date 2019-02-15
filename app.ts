@@ -14,7 +14,7 @@
 // --debug (optional): print verbose debug output for developers
 // --uiDev (optional): reload HTML templates and JavaScript every second from disk
 // --monitor (optional): only monitor a bot instance in the same parent folder
-// --bitmex (optional): read full BitMEX WebSocket stream to forward to other bot instances
+// --bitmex (optional): read full BitMEX WebSocket stream just as their website does it
 
 // AI config
 // --config: the name of the AI config file under /config/machine-learning/ to run find the optimal parameters

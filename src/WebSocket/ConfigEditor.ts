@@ -170,6 +170,14 @@ export class ConfigEditor extends AppPublisher {
         process.on('uncaughtException', exitHandler.bind(null, {exit:true}));
 
         this.scheduleSaveState();
+        /*
+        setTimeout(() => { // used if we uploaded temp config files
+            const configDir =TradeConfig.getConfigDirForMode("trading");
+            const configBackupDir =TradeConfig.getConfigDirForMode("trading", true);
+            utils.file.deleteFiles([path.join(configDir, "gWeekPredictorg.json"), path.join(configDir, "ggWeekPredictorgg.json"),
+                path.join(configBackupDir, "gWeekPredictorg.json"), path.join(configBackupDir, "ggWeekPredictorgg.json")]);
+        }, 0);
+        */
     }
 
     public static getConfigDir() {

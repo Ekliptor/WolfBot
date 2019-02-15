@@ -232,7 +232,7 @@ export abstract class AbstractExchange {
     protected responseTimesAvg: number[] = [];
     protected responseTimeRecent = 0;
     protected responseTimeAvg = 0;
-    protected webSocketTimeoutMs: number = nconf.get('serverConfig:websocketTimeoutMs');
+    protected webSocketTimeoutMs: number = nconf.get('serverConfig:websocketTimeoutMs'); // set to 0 to disable it
     protected websocketTimeoutTimerID: NodeJS.Timer = null;
     protected websocketPingTimerID: NodeJS.Timer = null;
     protected websocketCleanupFunction: () => boolean = null;
@@ -645,6 +645,8 @@ export abstract class AbstractExchange {
     }
 
     protected resetWebsocketTimeout() {
+        if (this.webSocketTimeoutMs === 0)
+            return;
         clearTimeout(this.websocketTimeoutTimerID);
         this.websocketTimeoutTimerID = setTimeout(() => {
             this.closeConnection("Connection timed out");

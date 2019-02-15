@@ -1282,7 +1282,9 @@
       "minVolumeSpike": "optional, default 1.1 - The min volume compared to the average volume of the last 'interval' candles to open a position.",
       "closePosition": "optional, default always - Only close a position if its profit/loss is in that defined state. Values: always|profit|loss",
       "trailingStopPerc": "optional, default 0.5% - The trailing stop percentage that will be placed once the computed profit target of the strategy has been reached.",
-      "time": "optional, default 0 = immediately - The time in seconds until the stop gets executed after the trailing stop has been reached."
+      "time": "optional, default 0 = immediately - The time in seconds until the stop gets executed after the trailing stop has been reached.",
+      "feed": "optional, default BitmexMarketData - The exchange feed to use to get liquidations from. Values: BitmexMarketData",
+      "currencyPairs": "optional, default [\"USD_BTC\"] - The currency pairs to subscribe to for liquidation data."
     },
     "VolumeProfileControl": {
       "desc": "Strategy that waits until the current price is away a certain percentage from the highest Volume Profile bar and then opens a position under the assumption the price will diverge back to that price level again.<br>This is a medium/fast trading strategy designed for 5min to 30min candles in consolidating (not trending) markets.<br>This strategy only opens positions. You need a stop-loss and/or take profit strategy.",

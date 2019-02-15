@@ -823,6 +823,7 @@ export default class BitMEX extends AbstractContractExchange {
             return null; // this function will get called again after a short timeout
         }
     }
+
     protected verifyPositionSize(currencyPair: Currency.CurrencyPair, amount: number) {
         // TODO sometimes order doesn't get fully executed and just disappears. why? for example order 1.2 BTC -> position 0.3 BTC
         // query positions after order and verify if amount matches? also for close orders

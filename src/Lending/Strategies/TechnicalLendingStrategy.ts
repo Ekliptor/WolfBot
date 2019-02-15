@@ -19,6 +19,7 @@ import AverageVolume from "../../Indicators/AverageVolume";
 import VolumeProfile from "../../Indicators/VolumeProfile";
 import PivotPoints from "../../Indicators/PivotPoints";
 import IchimokuClouds from "../../Indicators/IchimokuClouds";
+import Liquidator from "../../Indicators/Liquidator";
 
 export interface TechnicalLendingStrategyAction extends LendingStrategyAction {
     // TODO remove and only use TechnicalStrategAction? so far identical
@@ -137,6 +138,7 @@ export abstract class TechnicalLendingStrategy extends AbstractLendingStrategy i
     public getVolumeProfile: (name: string) => VolumeProfile;
     public getPivotPoints: (name: string) => PivotPoints;
     public getIchimokuClouds: (name: string) => IchimokuClouds;
+    public getLiquidator: (name: string) => Liquidator;
     public allIndicatorsReady: () => boolean;
     public getXMinuteMA: (minutes: number, period: number, depth: number) => Promise<number>;
     public computeCustomIndicator: (name: string, computeResult: Promise<number>) => Promise<number>;
