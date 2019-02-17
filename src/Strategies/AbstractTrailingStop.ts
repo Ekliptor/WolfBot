@@ -93,8 +93,8 @@ export abstract class AbstractTrailingStop extends /*AbstractStopStrategy*/Techn
 
     protected tick(trades: Trade.Trade[]) {
         return new Promise<void>((resolve, reject) => {
-            if (this.done)
-                return resolve();
+            //if (this.done) // some subclasses might set "done" after opening a position
+                //return resolve();
 
             if (this.strategyPosition !== "none") {
                 this.updateStop();

@@ -1077,6 +1077,13 @@ export default class TradeAdvisor extends AbstractAdvisor {
             return;
         if (nconf.get("arbitrage") || nconf.get("lending"))
             return logger.warn("Restoring strategy states from backtest is only supported in trading mode");
+        let exchange = this.exchanges.get(config.exchanges[0]);
+        if (!exchange)
+            logger.error("Echange %s to start backtest for warmup isn't loaded", config.exchanges[0]); // shouldn't happen
+        else if (exchange.supportsAutomaticImports() === false) {
+            logger.info("WolfBot doesn't support automatic trade history imports for %s (yet). Your bot will have to run for some time to collect enough live data before trading...", config.exchanges[0]);
+            return; // checked again in Backtester before import, but faster to abort here
+        }
         this.pendingBacktests.push(new PendingBacktest(currencyPair, minutes, strategies));
         if (!this.backtestRunning)
             this.startBacktest();
