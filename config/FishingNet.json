@@ -1,7 +1,7 @@
 {
     "data": [
         {
-            "exchanges": ["Bitfinex"],
+            "exchanges": ["BitMEX"],
             "marginTrading": true,
             "tradeTotalBtc": 100.0,
             "warmUpMin": 0,
@@ -20,6 +20,9 @@
                     "closePosition": "profit",
                     "trailingStopPerc": 0.5,
                     "time": 30,
+                    "short": 40,
+                    "long": 16,
+                    "signal": 9,
                     "feed": "BitmexMarketData",
                     "currencyPairs": ["USD_BTC"],
                     "pair": "USD_BTC",

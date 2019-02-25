@@ -174,6 +174,7 @@ export class CoinMarketCap {
             case "YYW":         return "YOYOW";
             //case "BSV":         return "BCHSV";
             case "TWOGIVE":     return "2GIVE";
+            case "GXS":        	return "GXC";
         }
         return label;
     }
@@ -190,6 +191,7 @@ export class CoinMarketCap {
             case "YOYOW":   return Currency.Currency.YYW;
             //case "BCHSV":   return Currency.Currency.BSV;
             case "2GIVE":   return Currency.Currency.TWOGIVE;
+            case "GXC":     return Currency.Currency.GXS;
             default:
                 let currency = Currency.Currency[currencyStr];
                 if (currency)

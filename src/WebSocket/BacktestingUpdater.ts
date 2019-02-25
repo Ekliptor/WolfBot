@@ -29,6 +29,7 @@ export interface BacktestInitData {
     lastToMs: number;
     configFiles: string[];
     selectedConfig: string;
+    startBalance: number;
     currencyImportMap: {
         //[exchangeName: string]: Currency.CurrencyPair[];
         [exchangeName: string]: string[]; // currency pairs converted to string
@@ -72,6 +73,8 @@ export interface BacktestRes {
 export class BacktestingUpdater extends AppPublisher {
     public readonly opcode = WebSocketOpcode.BACKTESTING;
     protected selectedConfig: string;
+    protected lastBacktestingConfig: string = "";
+    protected lastBacktestBalance: number = 1.0;
     protected backtestRunning = false;
     //protected backtestingSockets = new Map<string, WebSocket>(); // (socket id, socket) // to resume showing progress
     protected lastBacktestFromMs: number = 0;
@@ -92,7 +95,8 @@ export class BacktestingUpdater extends AppPublisher {
                     lastFromMs: this.lastBacktestFromMs,
                     lastToMs: this.lastBacktestToMs,
                     configFiles: configFiles,
-                    selectedConfig: this.selectedConfig,
+                    selectedConfig: this.lastBacktestingConfig ? this.lastBacktestingConfig : this.selectedConfig,
+                    startBalance: this.lastBacktestBalance,
                     currencyImportMap: this.getCurrencyPairImportMap()
                 }
             }
@@ -175,6 +179,7 @@ export class BacktestingUpdater extends AppPublisher {
             let nodeArgs = process.argv.slice(2)
             nodeArgs = utils.proc.addChildProcessArgument(nodeArgs, "--trader", "Backtester")
             let childConfig = path.basename(configFilename, ".json");
+            this.lastBacktestingConfig = childConfig;
             logger.info("Starting backtest for config %s", childConfig);
             nodeArgs = utils.proc.addChildProcessArgument(nodeArgs, "--config", childConfig)
             let env = Object.assign({}, process.env)
@@ -187,6 +192,7 @@ export class BacktestingUpdater extends AppPublisher {
             this.lastBacktestFromMs = data.start.from;
             this.lastBacktestToMs = data.start.to;
             env.START_BALANCE = data.start.startBalance;
+            this.lastBacktestBalance = data.start.startBalance;
             env.SLIPPAGE = data.start.slippage;
             env.TRADING_FEE = data.start.tradingFee;
             let options = {
@@ -273,6 +279,8 @@ export class BacktestingUpdater extends AppPublisher {
                 }
                 const range = tickUpdate.progress.end - data.start.from;
                 tickUpdate.progress.percent = Math.floor((tickUpdate.progress.current - data.start.from) / range * 100.0 * 100) / 100.0;
+                while (tickUpdate.progress.percent > 100.0) // TODO why does it get over 100% when crossing a year?
+                    tickUpdate.progress.percent -= 100.0;
                 this.publish(tickUpdate)/*.then((success) => {
                     if (success === false)
                 })*/

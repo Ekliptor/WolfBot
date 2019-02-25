@@ -20,7 +20,7 @@
               "action": "sell",
               "comp": ">",
               "position": "none",
-              "rate": 3750.9,
+              "rate": 4200.9,
               "reason": "middle high",
               "indicators": ["RSI"]
             }
@@ -1694,7 +1694,7 @@
     {
       "exchanges": ["Bitfinex"],
       "marginTrading": true,
-      "tradeTotalBtc": 0.0,
+      "tradeTotalBtc": 0.01,
       "notifyTrades": true,
       "strategies": {
         "PlanRunner": {

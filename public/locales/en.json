@@ -1280,6 +1280,7 @@
       "volumeRows": "The number of equally-sized price zones the price range is divided into.",
       "valueAreaPercent": "default 60% - The percentage of the total volume that shall make up the value area, meaning the price range where x% of the trades happen.",
       "minVolumeSpike": "optional, default 1.1 - The min volume compared to the average volume of the last 'interval' candles to open a position.",
+      "askBidRatioThreshold": "optional, default 1.0 - The required ratio of asks/bids within 5% of the current price in the orderbook. Short positions will only be opened when the ratio is greater than this setting and longs only when it is lower.",
       "closePosition": "optional, default always - Only close a position if its profit/loss is in that defined state. Values: always|profit|loss",
       "trailingStopPerc": "optional, default 0.5% - The trailing stop percentage that will be placed once the computed profit target of the strategy has been reached.",
       "time": "optional, default 0 = immediately - The time in seconds until the stop gets executed after the trailing stop has been reached.",

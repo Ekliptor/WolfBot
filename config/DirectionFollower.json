@@ -3,7 +3,7 @@
     {
       "exchanges": ["Bitfinex"],
       "marginTrading": true,
-      "tradeTotalBtc": 0.0,
+      "tradeTotalBtc": 0.01,
       "notifyTrades": true,
       "strategies": {
         "PlanRunner": {
@@ -38,19 +38,6 @@
           "high": 55,
           "enableLog": false
         },
-        "DirectionFollower": {
-          "interval": 14,
-          "adxTrend": 20,
-          "adxMaxTrend": 32,
-          "initialStop": true,
-          "accelerationFactor": 0.06,
-          "accelerationMax": 0.2,
-          "tradeDirection": "watch",
-          "candleSize": 240,
-          "pair": "USD_BTG",
-          "tradeStrategy": "RSIScalpOrderer",
-          "enableLog": true
-        },
         "RSIScalper": {
           "percentage": 20,
           "low": 25,
@@ -72,6 +59,7 @@
           "setback": 5.0,
           "setbackLong": 5.5,
           "time": 1800,
+          "closePosition": "profit",
           "setbackProfit": 2.7,
           "triggerProfit": 4.3,
           "timeProfit": 120,
@@ -102,7 +90,7 @@
         "TimeStop": {
           "minCandles": 48,
           "trailingStopPerc": 1.5,
-          "closePosition": "always",
+          "closePosition": "profit",
           "time": 30,
           "keepTrendOpen": false,
           "low": 25,

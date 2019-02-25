@@ -3262,6 +3262,7 @@ class Backtesting extends JsonEditor_1.JsonEditor {
         });
         index_1.App.initMultiSelect((optionEl, checked) => {
         });
+        $("#startBalance").val(init.startBalance);
         this.loadDatePickerLib(() => {
             const now = Date.now();
             const useLast = init.lastFromMs !== 0 && init.lastToMs !== 0;

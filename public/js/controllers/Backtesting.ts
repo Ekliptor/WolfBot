@@ -57,6 +57,7 @@ export class Backtesting extends JsonEditor {
         })
         App.initMultiSelect((optionEl, checked) => {
         });
+        $("#startBalance").val(init.startBalance);
 
         this.loadDatePickerLib(() => {
             const now = Date.now();
