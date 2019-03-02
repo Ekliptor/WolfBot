@@ -34,6 +34,7 @@ import "./src/Strategies/MACDLeverage";
 import "./src/Strategies/MakerFeeOrder";
 import "./src/Strategies/MarginCallBuyer";
 import "./src/Strategies/MarginPositionRecovery";
+import "./src/Strategies/MarketMakerOffset";
 import "./src/Strategies/MassOrderJumper";
 import "./src/Strategies/MFI";
 import "./src/Strategies/MomentumTurn";

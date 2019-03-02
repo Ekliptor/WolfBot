@@ -1325,6 +1325,17 @@
       "signal": "optional, default 9 - The number of candles for the signal line of the MACD line (short EMA - long EMA).",
       "feed": "optional, default BitmexMarketData - The exchange feed to use to get liquidations from. This is not available during backtesting, so results might differ. Values: BitmexMarketData",
       "currencyPairs": "optional, default [\"USD_BTC\"] - The currency pairs to subscribe to for liquidation data."
+    },
+    "MarketMakerOffset": {
+      "desc": "",
+      "makerMode": "",
+      "priceSpreadPerc": "",
+      "numOrdersPerSide": "",
+      "orderExpiryHours": "",
+      "idleMinutesOnLiquidation": "",
+      "removeOrderPairsOnLiquidation": "",
+      "feed": "",
+      "currencyPairs": ""
     }
   },
   "arbitrageStratDesc": {

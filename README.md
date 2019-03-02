@@ -28,6 +28,7 @@ Screenshots of the Trading UI:
 A more detailed list of all features: https://wolfbot.org/features/
 
 The list of supported exchanges: https://wolfbot.org/features/exchanges/
+Additionally WolfBot supports over 130 exchanges using [CCXT Library](https://github.com/ccxt/ccxt) (no WebSockets).
 
 The full strategy documentation: https://wolfbot.org/strategy-docs/
 

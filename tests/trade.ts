@@ -12,6 +12,7 @@ import BitMEX from "../src/Exchanges/BitMEX";
 import Deribit from "../src/Exchanges/Deribit";
 import {Currency} from "@ekliptor/bit-models";
 import {AbstractMarketData} from "../src/Exchanges/feeds/AbstractMarketData";
+import BxCo from "../src/Exchanges/BxCo";
 
 const logger = utils.logger
     , nconf = utils.nconf;
@@ -301,6 +302,27 @@ let testDeribit = async () => {
     })
 }
 
+let testBx = async () => {
+    let bx = new BxCo(nconf.get("serverConfig:apiKey:exchange:BxCo")[0])
+    let params = {}
+
+    let pair = new Currency.CurrencyPair(Currency.Currency.THB, Currency.Currency.BTC)
+    bx.subscribeToMarkets([pair]);
+    await utils.promiseDelay(800); // wait til we are connected
+
+    //bx.getTicker().then((test) => {
+    //bx.fetchOrderBook(pair, 10).then((test) => {
+    //bx.importHistory(pair, new Date(Date.now()-9*utils.constants.HOUR_IN_SECONDS*1000), new Date()).then((test) => {
+    //bx.buy(pair, 2500, 0.08, params).then((test) => {
+    //bx.cancelOrder(pair, 11054256).then((test) => {
+    //bx.getOpenOrders(pair).then((test) => {
+    bx.moveOrder(pair, 11054309, 2600, 0.088, params).then((test) => {
+        console.log(test)
+    }).catch((err) => {
+        logger.error("Error trading", err)
+    })
+}
+
 let testBitmexLiquidations = async () => {
     //let bitmex = new BitmexMarketData();
     let bitmex = AbstractMarketData.getInstance("BitmexMarketData");
@@ -319,7 +341,8 @@ Controller.loadServerConfig(() => {
         //testBittrex();
         //testBinance();
         //testBitmex();
-        testBitmexLiquidations();
+        //testBitmexLiquidations();
         //testDeribit();
+        testBx();
     })
 })

@@ -138,7 +138,7 @@ export default class Binance extends AbstractExchange implements ExternalTickerE
     public async getTicker(): Promise<Ticker.TickerMap> {
         let map = new Ticker.TickerMap()
         let fetchOps = [];
-        if (false && this.currencyPairs.length === 1) {
+        if (this.currencyPairs.length === 1) {
             let marketPair = this.currencies.getExchangePair(this.currencyPairs[0]);
             try {
                 let stats = await this.apiClient.dailyStats({symbol: marketPair});
