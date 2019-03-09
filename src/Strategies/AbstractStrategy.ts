@@ -12,27 +12,32 @@ import {OrderBook} from "../Trade/OrderBook";
 import {TradeInfo} from "../Trade/AbstractTrader";
 import {StrategyGroup} from "../Trade/StrategyGroup";
 import {MarginPosition} from "../structs/MarginPosition";
-import {AbstractGenericStrategy, GenericStrategyState, StrategyInfo} from "./AbstractGenericStrategy";
+import {AbstractGenericStrategy, GenericStrategyState, StrategyEvent, StrategyInfo} from "./AbstractGenericStrategy";
 import * as helper from "../utils/helper";
 import {TradePosition} from "../structs/TradePosition";
+import {PendingOrder} from "../Trade/AbstractOrderTracker";
 
 export type BuySellAction = "buy" | "sell";
-export type TradeAction = "buy" | "sell" | "close";
+export type TradeAction = "buy" | "sell" | "close" // actions that go out from the strategy and the Trader instances executes and sends back the event to the strategy
+    | "cancelOrder"/* | "order"*/ // this action only goes out from the strategy
+    // other non-trade action events
+    | "hold";
 export type StrategyOrder = "buy" | "sell" | "closeLong" | "closeShort";
 export type StrategyEmitOrder = "buy" | "sell" | "hold" | "close" | "buyClose" | "sellClose";
 export type StrategyPosition = "long" | "short" | "none";
 
 export class ScheduledTrade {
-    action: TradeAction;
-    weight: number;
-    reason: string;
-    fromClass: string; // the emitting strategy
-    exchange: Currency.Exchange; // the exchange to trade on
-    created: Date;
+    public action: TradeAction;
+    public weight: number;
+    public reason: string;
+    public fromClass: string; // the emitting strategy
+    public exchange: Currency.Exchange; // the exchange to trade on
+    public created: Date;
 
     // cached values from the emitting strategy
     getOrderAmount: (tradeTotalBtc: number, leverage: number) => number;
     getRate: (action: BuySellAction) => number;
+    getMoveOpenOrderSec: (pendingOrder: PendingOrder) => number;
     forceMakeOnly: () => boolean;
     isIgnoreTradeStrategy: () => boolean;
     isMainStrategy: () => boolean;
@@ -50,6 +55,7 @@ export class ScheduledTrade {
     public bindEmittingStrategyFunctions(strategy: AbstractStrategy) {
         this.getOrderAmount = strategy.getOrderAmount.bind(strategy);
         this.getRate = strategy.getRate.bind(strategy); // action will be passed on call
+        this.getMoveOpenOrderSec = strategy.getMoveOpenOrderSec.bind(strategy);
         this.forceMakeOnly = strategy.forceMakeOnly.bind(strategy);
         this.isIgnoreTradeStrategy = strategy.isIgnoreTradeStrategy.bind(strategy);
         this.isMainStrategy = strategy.isMainStrategy.bind(strategy);
@@ -61,6 +67,18 @@ export class ScheduledTrade {
         if (this.fromClass)
             from = " (from " + this.fromClass + ")";
         return utils.sprintf("%s: %s%s", this.action.toUpperCase(), this.reason, from);
+    }
+}
+
+export class ScheduledCancelOrder {
+    public pendingOrder: PendingOrder;
+    public reason: string;
+    public created: Date;
+
+    constructor(pendingOrder: PendingOrder, reason: string = "") {
+        this.pendingOrder = pendingOrder;
+        this.reason = reason;
+        this.created = new Date(); // only fallback value, better manually set marketTime
     }
 }
 
@@ -125,6 +143,7 @@ export abstract class AbstractStrategy extends AbstractGenericStrategy {
     protected pendingOrder: ScheduledTrade = null; // used if strategy A sends an order to strategy B
     protected lastTradeFromClass: string = ""; // the class emitting the last trade (can be another strategy, see AbstractOrderer)
     protected lastTradeState: GenericStrategyState = null; // the state when the last trade signal was emitted
+    protected lastCancelledOrder: PendingOrder = null;
 
     constructor(options) {
         super(options)
@@ -228,22 +247,30 @@ export abstract class AbstractStrategy extends AbstractGenericStrategy {
         return this.holdingCoins;
     }
 
-    public getProfitLoss(): number {
+    /**
+     * Return the profit/loss in base currency (USD, BTC,...) of the current open margin position or 0 if there is no open position.
+     * @param silent true will log a warning if there is no open position
+     */
+    public getProfitLoss(silent = false): number {
         if (this.position && this.position.isEmpty() === false && typeof this.position.pl === "number")
             return this.position.pl;
         if (this.tradePosition && this.tradePosition.isEmpty() === false)
             return this.tradePosition.getProfitLoss(this.avgMarketPrice);
-        if (this.strategyPosition !== "none" && this.lastSync && this.lastTradeTimePair && this.lastSync.getTime() > this.lastTradeTimePair.getTime())
+        if (silent === false && this.strategyPosition !== "none" && this.lastSync && this.lastTradeTimePair && this.lastSync.getTime() > this.lastTradeTimePair.getTime())
             logger.warn("No trading and margin position found to compute profit/loss for %s in %s", this.action.pair.toString(), this.className);
         return 0.0;
     }
 
-    public getProfitLossPercent(): number {
+    /**
+     * Return the profit/loss percentage of the current open margin position or 0% if there is no open position.
+     * @param silent true will log a warning if there is no open position
+     */
+    public getProfitLossPercent(silent = false): number {
         if (this.position && this.position.isEmpty() === false)
             return this.position.getProfitLossPercent(this.avgMarketPrice);
         if (this.tradePosition && this.tradePosition.isEmpty() === false)
             return this.tradePosition.getProfitLossPercent(this.avgMarketPrice);
-        if (this.strategyPosition !== "none" && this.lastSync && this.lastTradeTimePair && this.lastSync.getTime() > this.lastTradeTimePair.getTime())
+        if (silent === false && this.strategyPosition !== "none" && this.lastSync && this.lastTradeTimePair && this.lastSync.getTime() > this.lastTradeTimePair.getTime())
             logger.warn("No trading and margin position found to compute profit/loss percent for %s in %s", this.action.pair.toString(), this.className);
         return 0.0;
     }
@@ -307,6 +334,19 @@ export abstract class AbstractStrategy extends AbstractGenericStrategy {
         if (action === "close")
             return;
     }
+
+    /**
+     * This is called every time an order has been submitted to an exchange.
+     * The order might have already been executed at the time this function is called (with market orders).
+     * If the order is still pending it can be cancelled with emitCancelOrder().
+     * Also see onTrade()
+     * @param pendingOrder
+     */
+    /* // not needed because onTrade() returns the order after submission too
+    public onOrder(pendingOrder: PendingOrder): void {
+        // implement this to keep track of submitted orders. call super.onOrder() at the end to stay compatible in case we add more functionality later
+    }
+    */
 
     /**
      * Your balance with the exchange has just been synced. This happens every 2-5 minutes (see updateMarginPositionsSec and
@@ -396,6 +436,19 @@ export abstract class AbstractStrategy extends AbstractGenericStrategy {
     }
 
     /**
+     * Overwrite this to set a custom time in seconds after which an open order on the exchange shall be moved closer to
+     * the latest trade price.
+     * You can return:
+     * 0 = use the global default
+     * -1 = don't move the order, keep it at the same price indefinitely
+     * > 0 = the time in seconds after which the remaining amount of the order shall be moved
+     * @param pendingOrder The order to be moved.
+     */
+    public getMoveOpenOrderSec(pendingOrder: PendingOrder): number {
+        return 0;
+    }
+
+    /**
      * Return true so that OTHER strategies ignore trade events (buy, sell, close) from this strategy.
      * This means strategy values won't be reset. Useful if this strategy just follows the direction of the main strategy.
      * @returns {boolean}
@@ -463,6 +516,10 @@ export abstract class AbstractStrategy extends AbstractGenericStrategy {
 
     public getLastTradeState() {
         return this.lastTradeState;
+    }
+
+    public getLastCancelledOrder() {
+        return this.lastCancelledOrder;
     }
 
     /**
@@ -655,6 +712,10 @@ export abstract class AbstractStrategy extends AbstractGenericStrategy {
         }
     }
 
+    public emit(event: TradeAction | StrategyEvent, ...args: any[]) {
+        return super.emit(event, ...args);
+    }
+
     // ################################################################
     // ###################### PRIVATE FUNCTIONS #######################
 
@@ -809,6 +870,16 @@ export abstract class AbstractStrategy extends AbstractGenericStrategy {
     }
 
     /**
+     * Emit an event to cancel an order placed on an exchange. If the order hasn't ben filled yet it will be cancelled.
+     * @param pendingOrder
+     * @param reason
+     */
+    protected emitCancelOrder(pendingOrder: PendingOrder, reason: string) {
+        this.lastCancelledOrder = pendingOrder;
+        this.emit("cancelOrder", pendingOrder);
+    }
+
+    /**
      * Shorthand function to call emitBuy/emitSell/emitClose with a ScheduledTrade object as parameter.
      * @param {ScheduledTrade} scheduledTrade
      */
@@ -824,6 +895,12 @@ export abstract class AbstractStrategy extends AbstractGenericStrategy {
             case "close":
                 this.emitClose(scheduledTrade.weight, scheduledTrade.reason, scheduledTrade.fromClass, scheduledTrade.exchange);
                 return;
+            case "cancelOrder":
+                return; // not used for cancelling orders because it needs a PendingOrder object
+            case "hold":
+                return; // shouldn't happen, hold is deprecated
+            default:
+                utils.test.assertUnreachableCode(scheduledTrade.action);
         }
         //return utils.test.assertUnreachableCode(scheduledTrade.action)
         logger.error("Can not execute scheduled %s trade", scheduledTrade.action)

@@ -2,11 +2,19 @@ import * as utils from "@ekliptor/apputils";
 const logger = utils.logger
     , nconf = utils.nconf;
 import {Candle, Currency, Trade, Order, Funding} from "@ekliptor/bit-models";
-import {AbstractGenericStrategy, GenericStrategyState, StrategyInfo} from "../../Strategies/AbstractGenericStrategy";
+import {
+    AbstractGenericStrategy,
+    GenericStrategyState,
+    StrategyEvent,
+    StrategyInfo
+} from "../../Strategies/AbstractGenericStrategy";
 import {LendingConfig} from "../LendingConfig";
 import {LendingTradeInfo} from "../AbstractLendingTrader";
 import * as crypto from "crypto";
 import {CandleBatcher} from "../../Trade/Candles/CandleBatcher";
+import {OrderBook} from "../../Trade/OrderBook";
+import {TradeAction} from "../../Strategies/AbstractStrategy";
+
 
 export type LendingTradeAction = "place" | "cancel" | /*"taken" |*/ "takenAll";
 export type LendingStrategyOrder = "place";
@@ -198,6 +206,10 @@ export abstract class AbstractLendingStrategy extends AbstractGenericStrategy {
         return this.saveState/* || this.mainStrategy*/; // always save main strategy data
     }
 
+    public emit(event: LendingTradeAction | StrategyEvent, ...args: any[]) {
+        return super.emit(event, ...args);
+    }
+
     // ################################################################
     // ###################### PRIVATE FUNCTIONS #######################
 
@@ -241,4 +253,3 @@ export abstract class AbstractLendingStrategy extends AbstractGenericStrategy {
 
 // force loading dynamic imports for TypeScript
 import "./DEMA";
-import {OrderBook} from "../../Trade/OrderBook";

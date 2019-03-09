@@ -8,6 +8,7 @@ import {Currency, Trade, Candle, Order} from "@ekliptor/bit-models";
 import {TradeInfo} from "../Trade/AbstractTrader";
 import {AbstractTakeProfitStrategy} from "./AbstractTakeProfitStrategy";
 import {AbstractStopStrategy} from "./AbstractStopStrategy";
+import {PendingOrder} from "../Trade/AbstractOrderTracker";
 
 export  interface AbstractOrdererAction extends TechnicalStrategyAction {
     expiry: number; // default = 5 candles. execute the order after x candles if the threshold isn't reached. 0 = disabled
@@ -81,6 +82,12 @@ export abstract class AbstractOrderer extends TechnicalStrategy {
         if (this.lastPendingOrder && this.lastPendingOrder.getRate)
             return this.lastPendingOrder.getRate(action);
         return super.getRate(action);
+    }
+
+    public getMoveOpenOrderSec(pendingOrder: PendingOrder) {
+        if (this.lastPendingOrder && this.lastPendingOrder.getMoveOpenOrderSec)
+            return this.lastPendingOrder.getMoveOpenOrderSec(pendingOrder);
+        return super.getMoveOpenOrderSec(pendingOrder);
     }
 
     public forceMakeOnly() {

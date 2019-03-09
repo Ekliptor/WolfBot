@@ -23,6 +23,9 @@ export class RealTimeOrderTracker extends AbstractOrderTracker {
         // it would be nice if the push API orders would tell us when our own orders have been filled. but at least on poloniex we could only
         // guess that, but there is no orderID to be sure. So it's safer to call getOpenOrders()
 
+        if (this.skipTrackingOrder(pendingOrder) === true)
+            return;
+
         setTimeout(() => {
             this.resetOrderTimeout(pendingOrder);
             let rate = -1;

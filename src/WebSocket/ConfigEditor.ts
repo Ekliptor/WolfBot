@@ -342,7 +342,10 @@ export class ConfigEditor extends AppPublisher {
                     continue;
                 }
                 // for UI users we can only have 1 set of keys per instance
-                let currentKey = nconf.get("serverConfig:apiKey:exchange:" + exchangeName)[0];
+                let currentExchangeKeys = nconf.get("serverConfig:apiKey:exchange:" + exchangeName);
+                //if (Array.isArray(currentExchangeKeys) === false || currentExchangeKeys.length === 0) // already done when loading exchanges with values from serverConfig
+                    //currentExchangeKeys.push({});
+                let currentKey = currentExchangeKeys[0];
                 let props = Object.keys(data.saveKey[exchangeName]);
                 props.forEach((prop ) => {
                     if (currentKey[prop] === undefined)
@@ -494,7 +497,7 @@ export class ConfigEditor extends AppPublisher {
                 //processArgs[i] = "--max-old-space-size=1224"; // reduce max memory
             }
             let options = {
-                encoding: 'utf8',
+                //encoding: 'utf8',
                 //timeout: timeoutMs, // send killSignal after timeout ms
                 //maxBuffer: 500 * 1024 * 1024, // max bytes in stdout or stderr // 500 mb
                 killSignal: 'SIGTERM',

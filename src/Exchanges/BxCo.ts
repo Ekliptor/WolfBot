@@ -31,6 +31,9 @@ export default class BxCo extends CcxtExchange {
         });
     }
 
+    // some function overwrites to fix inconsistent API behaviour
+    // normally you should only implement the constructor and everything else should be handled by the CCXT parent class
+
     public async buy(currencyPair: Currency.CurrencyPair, rate: number, amount: number, params: OrderParameters = {}): Promise<OrderResult> {
         // their exchange wants amount in THB, not in cryptocurrency
         return super.buy(currencyPair, rate, amount * rate, params);

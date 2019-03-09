@@ -5,7 +5,7 @@ import {AbstractTrader, TradeInfo} from "./AbstractTrader";
 import {PortfolioTrader, LastTradeMap, MarketExposure, BotEvaluation} from "./PortfolioTrader";
 import {TradeConfig} from "../Trade/TradeConfig";
 import {OrderResult} from "../structs/OrderResult";
-import {AbstractExchange, ExchangeMap, OrderParameters} from "../Exchanges/AbstractExchange";
+import {AbstractExchange, CancelOrderResult, ExchangeMap, OrderParameters} from "../Exchanges/AbstractExchange";
 import {AbstractContractExchange} from "../Exchanges/AbstractContractExchange";
 import HistoryDataExchange from "../Exchanges/HistoryDataExchange";
 import {HistoryExchangeMap, HistoryDataExchangeOptions} from "../Exchanges/HistoryDataExchange";
@@ -320,12 +320,12 @@ export default class Backtester extends PortfolioTrader {
                             order.marginPosition = position.type === "long" ? "long" : "short";
                             order.date = this.marketTime;
                             this.addOrder(exchange, order);
-                            this.emitBuy(order, orderResult.resultingTrades.get(coinPair.toString()), {strategy: strategy, reason: reason, exchange: exchange});
+                            const pendingOrder = this.watchOrder(exchange, strategy, order, orderParameters, orderResult);
+                            this.emitBuy(order, orderResult.resultingTrades.get(coinPair.toString()), {strategy: strategy, reason: reason, exchange: exchange, pendingOrder: pendingOrder});
                             this.logBalances();
                             this.lastTrade.setLastTrade(exchange.getClassName(), coinPair.toString(), strategy.getMarketTime());
                             this.totalBuyTrades++;
                             this.marketExposure.addState(coinPair.toString(), new MarketExposure("enter", this.marketTime));
-                            this.watchOrder(exchange, strategy, order, orderParameters, orderResult);
                             resolve()
                         }).catch((err) => {
                             logger.error("Error on margin BUY %s in %s", coinPair.toString(), this.className, err);
@@ -374,12 +374,12 @@ export default class Backtester extends PortfolioTrader {
                             let order = Order.Order.getOrder(coinPair, exchange.getExchangeLabel(), buyAmountWithFees, rate, Trade.TradeType.BUY, orderResult.orderNumber.toString(), false)
                             order.date = this.marketTime;
                             this.addOrder(exchange, order);
-                            this.emitBuy(order, orderResult.resultingTrades.get(coinPair.toString()), {strategy: strategy, reason: reason, exchange: exchange});
+                            const pendingOrder = this.watchOrder(exchange, strategy, order, orderParameters, orderResult);
+                            this.emitBuy(order, orderResult.resultingTrades.get(coinPair.toString()), {strategy: strategy, reason: reason, exchange: exchange, pendingOrder: pendingOrder});
                             this.logBalances();
                             this.lastTrade.setLastTrade(exchange.getClassName(), coinPair.toString(), strategy.getMarketTime());
                             this.totalBuyTrades++;
                             this.marketExposure.addState(coinPair.toString(), new MarketExposure("enter", this.marketTime));
-                            this.watchOrder(exchange, strategy, order, orderParameters, orderResult);
                             resolve()
                         }).catch((err) => {
                             logger.error("Error on BUY %s in %s", coinPair.toString(), this.className, err);
@@ -458,12 +458,12 @@ export default class Backtester extends PortfolioTrader {
                             order.marginPosition = position.type === "long" ? "long" : "short";
                             order.date = this.marketTime;
                             this.addOrder(exchange, order);
-                            this.emitSell(order, orderResult.resultingTrades.get(coinPair.toString()), {strategy: strategy, reason: reason, exchange: exchange});
+                            const pendingOrder = this.watchOrder(exchange, strategy, order, orderParameters, orderResult);
+                            this.emitSell(order, orderResult.resultingTrades.get(coinPair.toString()), {strategy: strategy, reason: reason, exchange: exchange, pendingOrder: pendingOrder});
                             this.logBalances();
                             this.lastTrade.setLastTrade(exchange.getClassName(), coinPair.toString(), strategy.getMarketTime());
                             this.totalSellTrades++;
                             this.marketExposure.addState(coinPair.toString(), new MarketExposure(position.type === "short" ? "enter" : "exit", this.marketTime));
-                            this.watchOrder(exchange, strategy, order, orderParameters, orderResult);
                             resolve()
                         }).catch((err) => {
                             logger.error("Error on margin SELL %s in %s", coinPair.toString(), this.className, err);
@@ -515,12 +515,12 @@ export default class Backtester extends PortfolioTrader {
                             let order = Order.Order.getOrder(coinPair, exchange.getExchangeLabel(), sellAmount, rate, Trade.TradeType.SELL, orderResult.orderNumber.toString(), false)
                             order.date = this.marketTime;
                             this.addOrder(exchange, order);
-                            this.emitSell(order, orderResult.resultingTrades.get(coinPair.toString()), {strategy: strategy, reason: reason, exchange: exchange});
+                            const pendingOrder = this.watchOrder(exchange, strategy, order, orderParameters, orderResult);
+                            this.emitSell(order, orderResult.resultingTrades.get(coinPair.toString()), {strategy: strategy, reason: reason, exchange: exchange, pendingOrder: pendingOrder});
                             this.logBalances();
                             this.lastTrade.setLastTrade(exchange.getClassName(), coinPair.toString(), strategy.getMarketTime());
                             this.totalSellTrades++;
                             this.marketExposure.addState(coinPair.toString(), new MarketExposure("exit", this.marketTime));
-                            this.watchOrder(exchange, strategy, order, orderParameters, orderResult);
                             resolve()
                         }).catch((err) => {
                             logger.error("Error on SELL %s in %s", coinPair.toString(), this.className, err);
@@ -577,7 +577,8 @@ export default class Backtester extends PortfolioTrader {
                             order.date = this.marketTime;
                             order.closePosition = balance.type === "long" ? "long" : "short";
                             //this.addOrder(exchange, order); // we don't specify a price. close can either fail or get through at a variable price
-                            this.emitClose(order, orderResult.resultingTrades.get(coinPair.toString()), {strategy: strategy, pl: balance.pl, reason: reason, exchange: exchange});
+                            const pendingOrder = this.watchOrder(exchange, strategy, order, null, null);
+                            this.emitClose(order, orderResult.resultingTrades.get(coinPair.toString()), {strategy: strategy, pl: balance.pl, reason: reason, exchange: exchange, pendingOrder: pendingOrder});
                             this.logBalances();
                             if (!nconf.get('serverConfig:canTradeImmediatelyAfterClose'))
                                 this.lastTrade.setLastTrade(exchange.getClassName(), coinPair.toString(), strategy.getMarketTime());
@@ -592,6 +593,40 @@ export default class Backtester extends PortfolioTrader {
                 }
             }
             // else there is nothing to do
+
+            this.processTrades(orderOps, resolve)
+        })
+    }
+
+    protected cancelOrder(strategy: AbstractStrategy, reason: string, exchangeLabel: Currency.Exchange) {
+        return new Promise<void>((resolve, reject) => {
+            let orderOps = [];
+            const order = strategy.getLastCancelledOrder();
+            if (order === null) {
+                logger.warn("Order to cancel doesn't exist in strategy %s, reason: %s", strategy.getClassName(), reason);
+                return resolve();
+            }
+            if (!this.warmUpDone())
+                return resolve();
+            for (let ex of this.exchanges)
+            {
+                if (this.config.exchanges.indexOf(ex[0]) === -1)
+                    continue;
+                let exchange = ex[1];
+                if (this.skipExchange(exchange, exchangeLabel))
+                    continue;
+                orderOps.push(new Promise((resolve, reject) => {
+                    exchange.cancelOrder(order.order.currencyPair, order.order.orderID).then((cancelResult: CancelOrderResult) => {
+                        logger.info("%s CANCEL order from %s: %s", this.className, strategy.getClassName(), reason);
+                        logger.info("amount %s, rate %s", order.order.amount, order.order.rate);
+                        logger.info(JSON.stringify(cancelResult))
+                        resolve();
+                    }).catch((err) => {
+                        logger.error("Error on CANCEL order in %s", this.className, err);
+                        resolve(); // continue
+                    })
+                }))
+            }
 
             this.processTrades(orderOps, resolve)
         })
@@ -963,7 +998,10 @@ export default class Backtester extends PortfolioTrader {
 
     protected watchOrder(exchange: AbstractExchange, strategy: AbstractStrategy, order: Order.Order, orderParameters: OrderParameters, orderResult: OrderResult) {
         const pendingOrder = new PendingOrder(exchange, strategy, order, orderParameters, orderResult);
-        this.tracker.track(pendingOrder);
+        if (orderParameters !== null)
+            this.tracker.track(pendingOrder);
+        //this.emitOrder(pendingOrder);
+        return pendingOrder;
     }
 
     protected getTotalTradeBtc(existingMarginPosition: MarginPosition = null, action: TradeAction = null) {

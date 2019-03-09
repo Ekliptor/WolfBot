@@ -28,8 +28,11 @@ export default class NotificationController extends AbstractSubController {
 
     protected loadNotifiers() {
         let apiKeys = nconf.get("serverConfig:apiKey:notify")
+        const notifiers: string[] = [nconf.get("serverConfig:notificationMethod"), nconf.get("serverConfig:adminNotificationMethod")];
         for (let notify in apiKeys)
         {
+            if (notifiers.indexOf(notify) === -1)
+                continue;
             const modulePath = path.join(__dirname, "Notifications", notify);
             let notifierInstance = this.loadModule(modulePath, apiKeys[notify])
         }

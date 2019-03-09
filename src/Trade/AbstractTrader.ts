@@ -23,6 +23,7 @@ export interface TradeInfo {
     reason?: string; // the reason for this trade used for logging and notifications
     pl?: number; // the profit/loss for this trade. only set if this trade closed a position.
     exchange?: AbstractExchange; // the exchange this trade happened
+    pendingOrder?: PendingOrder; // the full order with exchange and strategy it came from
 }
 
 export interface BotTrade { // a trade by our bot, Trade.Trade is a trade by everyone
@@ -124,6 +125,7 @@ export abstract class AbstractTrader extends AbstractGenericTrader {
             case "buy":
             case "sell":
             case "close":
+            case "cancelOrder":
                 this.isTrading.set(pairStr, true);
                 setTimeout(() => {
                     this.isTrading.delete(pairStr); // just to be sure
@@ -184,6 +186,7 @@ export abstract class AbstractTrader extends AbstractGenericTrader {
     protected abstract buy(strategy: AbstractStrategy, reason: string, exchangeLabel: Currency.Exchange): Promise<void>;
     protected abstract sell(strategy: AbstractStrategy, reason: string, exchangeLabel: Currency.Exchange): Promise<void>;
     protected abstract close(strategy: AbstractStrategy, reason: string, exchangeLabel: Currency.Exchange): Promise<void>;
+    protected abstract cancelOrder(strategy: AbstractStrategy, reason: string, exchangeLabel: Currency.Exchange): Promise<void>;
 
     protected emitBuy(order: Order.Order, trades: Trade.Trade[], info?: TradeInfo) {
         this.logTrade(order, trades, info);
@@ -199,6 +202,12 @@ export abstract class AbstractTrader extends AbstractGenericTrader {
         this.logTrade(order, trades, info);
         this.emit("close", order, trades, info);
     }
+
+    /*
+    protected emitOrder(pendingOrder: PendingOrder) {
+        this.emit("order", pendingOrder);
+    }
+    */
 
     protected emitSyncPortfolio(currencyPair: Currency.CurrencyPair, coins: number, position: MarginPosition, exchangeLabel: Currency.Exchange) {
         if (!coins || this.config.marginTrading)
@@ -321,3 +330,4 @@ import "./PortfolioTrader";
 import "./RealTimeTrader";
 import "./TradeNotifier";
 import "../Lending/RealTimeLendingTrader";
+import {PendingOrder} from "./AbstractOrderTracker";

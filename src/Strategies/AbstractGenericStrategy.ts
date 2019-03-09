@@ -8,11 +8,6 @@ import {TrendDirection} from "../Indicators/AbstractIndicator";
 import {CandleBatcher} from "../Trade/Candles/CandleBatcher";
 import {DataPlotCollector, PlotMarkValues, PlotMark} from "../Indicators/DataPlotCollector";
 import * as crypto from "crypto";
-import * as _ from "lodash";
-import {OrderBook} from "../Trade/OrderBook";
-import {TradeInfo} from "../Trade/AbstractTrader";
-import {StrategyGroup} from "../Trade/StrategyGroup";
-import {MarginPosition} from "../structs/MarginPosition";
 import Notification from "../Notifications/Notification";
 import * as path from "path";
 import {AbstractNotification} from "../Notifications/AbstractNotification";
@@ -21,6 +16,8 @@ import {Trendlines} from "../Indicators/Trendline/Trendlines";
 import {FibonacciRetracement} from "../Indicators/Trendline/FibonacciRetracement";
 import {LendingConfig} from "../Lending/LendingConfig";
 
+
+export type StrategyEvent = "startCandleTick" | "doneCandleTick" | "startTick" | "doneTick" | "info";
 
 export interface InfoProperty {
     label: string;

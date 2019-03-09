@@ -1327,15 +1327,16 @@
       "currencyPairs": "optional, default [\"USD_BTC\"] - The currency pairs to subscribe to for liquidation data."
     },
     "MarketMakerOffset": {
-      "desc": "",
-      "makerMode": "",
-      "priceSpreadPerc": "",
-      "numOrdersPerSide": "",
-      "orderExpiryHours": "",
-      "idleMinutesOnLiquidation": "",
-      "removeOrderPairsOnLiquidation": "",
-      "feed": "",
-      "currencyPairs": ""
+      "desc": "Strategy that acts as a market maker by placing 2 corresponding buy/sell limit orders a certain percentage away from each other. You can configure a fixed percentage or place them as far away as possible within the orderbook (while staying closer to the last trade price than any other orders).<br>This strategy can also pause market making during quick price movements.<br>This strategy can also issue multiple open buy/sell order pairs - each one a configured percentage further apart.<br>You must run this strategy alone, meaning without any StopLoss, take-profit or trade strategy.",
+      "makerMode": "optional, default fixed - Fixed means we place orders at percent steps away from the last trade price. Book means orders get placed as far away as possible in the orderbook (going inwards towards the market price) to not ruin potential spread opportunities. Values: fixed|book",
+      "priceSpreadPerc": "optional, default 0.35% - How far away from the last trade price buy/sell orders shall be placed in 'fixed' mode. In 'book' mode this is the minumum spread the orderbook must have to place orders.",
+      "numOrdersPerSide": "optional, default 1 - The number of buy and sell orders with the same amount and same price distance that shall be placed. In 'book' mode there can only be 1 order on each side.",
+      "orderExpiryHours": "optional, default 24 (0 = disabled) - After how many hours orders that only had 1 side filled (buy or sell) shall be cancelled.",
+      "bollingerBandProtection": "optional, default true - Only place order pairs within Bollinger Bands to protect against volatile markets where it is more likely that only 1 order will get filled.",
+      "idleMinutesOnLiquidation": "optional, default 2min - Don't place orders for this time after a liquidation occurred.",
+      "removeOrderPairsOnLiquidation": "optional, default true - Remove open order pairs when a liquidation occurred.",
+      "feed": "optional, default BitmexMarketData - The exchange feed to use to get liquidations from. This is not available during backtesting, so results might differ. Values: BitmexMarketData",
+      "currencyPairs": "optional, default [\"USD_BTC\"] - The currency pairs to subscribe to for liquidation data."
     }
   },
   "arbitrageStratDesc": {

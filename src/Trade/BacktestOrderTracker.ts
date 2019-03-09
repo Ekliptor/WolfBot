@@ -25,6 +25,8 @@ export class BacktestOrderTracker extends AbstractOrderTracker {
 
         if (!pendingOrder.orderParameters.postOnly)
             return; // will get taken in backtester or expire. speed up backtesting
+        if (this.skipTrackingOrder(pendingOrder) === true)
+            return;
         this.pendingOrders.push(pendingOrder)
     }
 

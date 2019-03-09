@@ -52,8 +52,8 @@ export default class BollingerBands extends TechnicalStrategy {
         this.addInfoFunction("MAType", () => {
             return this.action.MAType;
         });
-        let bollinger = this.getBollinger("BollingerBands")
-        this.addInfoFunction("%b", () => {
+        const bollinger = this.getBollinger("BollingerBands");
+        this.addInfoFunction("percentB", () => {
             if (!this.candle)
                 return -1;
             return bollinger.getPercentB(this.candle.close);
@@ -79,7 +79,7 @@ export default class BollingerBands extends TechnicalStrategy {
     // ###################### PRIVATE FUNCTIONS #######################
 
     protected checkIndicators() {
-        let bollinger = this.getBollinger("BollingerBands")
+        const bollinger = this.getBollinger("BollingerBands");
         const value = bollinger.getPercentB(this.candle.close)
         // TODO check for this.action.thresholds.persistence, add a counter
 

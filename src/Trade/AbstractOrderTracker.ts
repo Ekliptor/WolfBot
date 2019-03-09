@@ -91,10 +91,19 @@ export abstract class AbstractOrderTracker {
 
     protected getTimeoutMs(pendingOrder: PendingOrder) {
         // also see getOrderTimeoutSec()
+        let timeoutSec = pendingOrder.strategy.getMoveOpenOrderSec(pendingOrder);
+        if (timeoutSec > 0)
+            return timeoutSec * 1000;
         if (pendingOrder.exchange.isContractExchange())
             return nconf.get("serverConfig:orderContractExchangeAdjustSec") * 1000
         if (pendingOrder.orderParameters.postOnly)
             return nconf.get('serverConfig:orderMakerAdjustSec') * 1000
         return (nconf.get('serverConfig:orderTimeoutSec')/nconf.get("serverConfig:orderAdjustBeforeTimeoutFactor")) * 1000
+    }
+
+    protected skipTrackingOrder(pendingOrder: PendingOrder) {
+        if (pendingOrder.strategy.getMoveOpenOrderSec(pendingOrder) === -1)
+            return true;
+        return false;
     }
 }

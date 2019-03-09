@@ -203,8 +203,8 @@ export class StrategyUpdater extends AppPublisher {
             if (strategy instanceof AbstractStrategy && strategy.isMainStrategy()) {
                 update.position = strategy.getStrategyPosition();
                 update.positionAmount = strategy.getPositionAmount();
-                update.pl = strategy.getProfitLoss();
-                update.plPercent = strategy.getProfitLossPercent();
+                update.pl = strategy.getProfitLoss(true);
+                update.plPercent = strategy.getProfitLossPercent(true);
             }
             update.strategies[strategy.getClassName()] = info;
             this.publish(update);

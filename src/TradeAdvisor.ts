@@ -25,6 +25,7 @@ import {ArbitrageConfig} from "./Arbitrage/ArbitrageConfig";
 import {AbstractArbitrageStrategy} from "./Arbitrage/Strategies/AbstractArbitrageStrategy";
 import {TradeBook} from "./Trade/TradeBook";
 import ExchangeController from "./ExchangeController";
+import {PendingOrder} from "./Trade/AbstractOrderTracker";
 
 
 export class GenericStrategyMap<T extends AbstractGenericStrategy> extends Map<ConfigCurrencyPair, T[]> {
@@ -154,7 +155,7 @@ export class ExchangeCurrencyPairMap extends Map<string, Currency.CurrencyPair[]
     }
 }
 
-export type StrategyActionName = "buy" | "sell" | "close" | "hold";
+export type StrategyActionName = "buy" | "sell" | "close" | "hold" | "cancelOrder";
 export interface StrategyAction {
     action: StrategyActionName;
     weight: number;
@@ -765,7 +766,14 @@ export default class TradeAdvisor extends AbstractAdvisor {
                     this.actionHeap.get(pairStr).insert({action: actionName, weight: weight, reason: reason, exchange: exchange, strategy: strategy})
                 }
             })
-        })
+        });
+
+        const orderActions: StrategyActionName[] = ["cancelOrder"];
+        orderActions.forEach((actionName) => {
+            strategy.on(actionName, (pendingOrder: PendingOrder, reason: string) => {
+                this.trader.get(config.configNr).callAction(actionName, strategy, reason, pendingOrder.exchange.getExchangeLabel());
+            });
+        });
 
         // we count waiting results per currency pair
         // if we are connected to multiple exchanges our strategy will trigger once it reaches it's trigger on 1 exchange
@@ -886,7 +894,7 @@ export default class TradeAdvisor extends AbstractAdvisor {
                     {
                         const configCurrencyPair = strategyList[0];
                         const configNr = parseInt(configCurrencyPair.split("-")[0]);
-                        strategyList[1].forEach((strategyInstance) => {
+                        strategyList[1].forEach((strategyInstance: AbstractStrategy) => {
                             if (!this.isInterestedStrategy(strategyInstance, order.currencyPair, configNr, traders[i]))
                                 return;
                             if (tradingConfigCurrencyPair === null)
@@ -900,7 +908,19 @@ export default class TradeAdvisor extends AbstractAdvisor {
                     this.tradeBook.logTrade(order, trades, info, tradingConfigCurrencyPair);
                 })
             }
-        })
+        });
+
+        /*
+        const orderActions: TradeAction[] = ["order"];
+        orderActions.forEach((action) => {
+            for (let i = 0; i < traders.length; i++)
+            {
+                traders[i].on(action, (pendingOrder: PendingOrder) => {
+
+                });
+            }
+        });
+        */
 
         // sync portfolio
         for (let i = 0; i < traders.length; i++)

@@ -108,7 +108,8 @@ export default class RealTimeTrader extends PortfolioTrader {
                             let order = Order.Order.getOrder(coinPair, exchange.getExchangeLabel(), buyAmount, rate, Trade.TradeType.BUY, "", true)
                             order.leverage = exchange.getMaxLeverage();
                             //order.marginPosition = position.type === "long" ? "long" : "short"; // needed for simulating refunds
-                            this.emitBuy(order, [], {strategy: strategy, reason: reason, exchange: exchange});
+                            const pendingOrder = this.watchOrder(exchange, strategy, order, orderParameters, null);
+                            this.emitBuy(order, [], {strategy: strategy, reason: reason, exchange: exchange, pendingOrder: pendingOrder});
                             this.lastTrade.setLastTrade(exchange.getClassName(), coinPair.toString());
                             this.totalBuyTrades++;
                             setTimeout(resolve, RealTimeTrader.REALTIME_SIMULATION_TRADE_DELAY_SEC*1000);
@@ -123,10 +124,10 @@ export default class RealTimeTrader extends PortfolioTrader {
                             let order = Order.Order.getOrder(coinPair, exchange.getExchangeLabel(), buyAmount, rate, Trade.TradeType.BUY, orderResult.orderNumber.toString(), true)
                             order.leverage = exchange.getMaxLeverage();
                             this.addOrder(exchange, order);
-                            this.emitBuy(order, orderResult.resultingTrades.get(coinPair.toString()), {strategy: strategy, reason: reason, exchange: exchange});
+                            const pendingOrder = this.watchOrder(exchange, strategy, order, orderParameters, orderResult);
+                            this.emitBuy(order, orderResult.resultingTrades.get(coinPair.toString()), {strategy: strategy, reason: reason, exchange: exchange, pendingOrder: pendingOrder});
                             this.lastTrade.setLastTrade(exchange.getClassName(), coinPair.toString());
                             this.totalBuyTrades++;
-                            this.watchOrder(exchange, strategy, order, orderParameters, orderResult);
                             resolve()
                         }).catch((err) => {
                             logger.error("Error on margin BUY %s (rate %s, amount %s) in %s", coinPair.toString(), rate, buyAmount, this.className, err);
@@ -171,7 +172,8 @@ export default class RealTimeTrader extends PortfolioTrader {
                             logger.info("%s BUY simulation trade with %s from %s: %s", this.className, coinPair.toString(), strategy.getClassName(), reason);
                             logger.info("rate %s, amount %s", rate, buyAmount);
                             let order = Order.Order.getOrder(coinPair, exchange.getExchangeLabel(), buyAmount, rate, Trade.TradeType.BUY, "", false)
-                            this.emitBuy(order, [], {strategy: strategy, reason: reason, exchange: exchange});
+                            const pendingOrder = this.watchOrder(exchange, strategy, order, orderParameters, null);
+                            this.emitBuy(order, [], {strategy: strategy, reason: reason, exchange: exchange, pendingOrder: pendingOrder});
                             this.lastTrade.setLastTrade(exchange.getClassName(), coinPair.toString());
                             this.totalBuyTrades++;
                             setTimeout(resolve, RealTimeTrader.REALTIME_SIMULATION_TRADE_DELAY_SEC*1000);
@@ -185,10 +187,10 @@ export default class RealTimeTrader extends PortfolioTrader {
                             logger.info(JSON.stringify(orderResult))
                             let order = Order.Order.getOrder(coinPair, exchange.getExchangeLabel(), buyAmount, rate, Trade.TradeType.BUY, orderResult.orderNumber.toString(), false)
                             this.addOrder(exchange, order);
-                            this.emitBuy(order, orderResult.resultingTrades.get(coinPair.toString()), {strategy: strategy, reason: reason, exchange: exchange});
+                            const pendingOrder = this.watchOrder(exchange, strategy, order, orderParameters, orderResult);
+                            this.emitBuy(order, orderResult.resultingTrades.get(coinPair.toString()), {strategy: strategy, reason: reason, exchange: exchange, pendingOrder: pendingOrder});
                             this.lastTrade.setLastTrade(exchange.getClassName(), coinPair.toString());
                             this.totalBuyTrades++;
-                            this.watchOrder(exchange, strategy, order, orderParameters, orderResult);
                             resolve()
                         }).catch((err) => {
                             logger.error("Error on BUY %s (rate %s, amount %s) in %s", coinPair.toString(), rate, buyAmount, this.className, err);
@@ -248,7 +250,8 @@ export default class RealTimeTrader extends PortfolioTrader {
                             let order = Order.Order.getOrder(coinPair, exchange.getExchangeLabel(), sellAmount, rate, Trade.TradeType.SELL, "", true)
                             order.leverage = exchange.getMaxLeverage();
                             //order.marginPosition = position.type === "long" ? "long" : "short";
-                            this.emitSell(order, [], {strategy: strategy, reason: reason, exchange: exchange});
+                            const pendingOrder = this.watchOrder(exchange, strategy, order, orderParameters, null);
+                            this.emitSell(order, [], {strategy: strategy, reason: reason, exchange: exchange, pendingOrder: pendingOrder});
                             this.lastTrade.setLastTrade(exchange.getClassName(), coinPair.toString());
                             this.totalSellTrades++;
                             setTimeout(resolve, RealTimeTrader.REALTIME_SIMULATION_TRADE_DELAY_SEC*1000);
@@ -263,10 +266,10 @@ export default class RealTimeTrader extends PortfolioTrader {
                             let order = Order.Order.getOrder(coinPair, exchange.getExchangeLabel(), sellAmount, rate, Trade.TradeType.SELL, orderResult.orderNumber.toString(), true)
                             order.leverage = exchange.getMaxLeverage();
                             this.addOrder(exchange, order);
-                            this.emitSell(order, orderResult.resultingTrades.get(coinPair.toString()), {strategy: strategy, reason: reason, exchange: exchange});
+                            const pendingOrder = this.watchOrder(exchange, strategy, order, orderParameters, orderResult);
+                            this.emitSell(order, orderResult.resultingTrades.get(coinPair.toString()), {strategy: strategy, reason: reason, exchange: exchange, pendingOrder: pendingOrder});
                             this.lastTrade.setLastTrade(exchange.getClassName(), coinPair.toString());
                             this.totalSellTrades++;
-                            this.watchOrder(exchange, strategy, order, orderParameters, orderResult);
                             resolve()
                         }).catch((err) => {
                             logger.error("Error on margin SELL %s (rate %s, amount %s) in %s", coinPair.toString(), rate, sellAmount, this.className, err);
@@ -315,7 +318,8 @@ export default class RealTimeTrader extends PortfolioTrader {
                             logger.info("%s SELL simulation trade with %s from %s: %s", this.className, coinPair.toString(), strategy.getClassName(), reason);
                             logger.info("rate %s, amount %s", rate, sellAmount);
                             let order = Order.Order.getOrder(coinPair, exchange.getExchangeLabel(), sellAmount, rate, Trade.TradeType.SELL, "", false)
-                            this.emitSell(order, [], {strategy: strategy, reason: reason, exchange: exchange});
+                            const pendingOrder = this.watchOrder(exchange, strategy, order, orderParameters, null);
+                            this.emitSell(order, [], {strategy: strategy, reason: reason, exchange: exchange, pendingOrder: pendingOrder});
                             this.lastTrade.setLastTrade(exchange.getClassName(), coinPair.toString());
                             this.totalSellTrades++;
                             setTimeout(resolve, RealTimeTrader.REALTIME_SIMULATION_TRADE_DELAY_SEC*1000);
@@ -329,10 +333,10 @@ export default class RealTimeTrader extends PortfolioTrader {
                             logger.info(JSON.stringify(orderResult))
                             let order = Order.Order.getOrder(coinPair, exchange.getExchangeLabel(), sellAmount, rate, Trade.TradeType.SELL, orderResult.orderNumber.toString(), false)
                             this.addOrder(exchange, order);
-                            this.emitSell(order, orderResult.resultingTrades.get(coinPair.toString()), {strategy: strategy, reason: reason, exchange: exchange});
+                            const pendingOrder = this.watchOrder(exchange, strategy, order, orderParameters, orderResult);
+                            this.emitSell(order, orderResult.resultingTrades.get(coinPair.toString()), {strategy: strategy, reason: reason, exchange: exchange, pendingOrder: pendingOrder});
                             this.lastTrade.setLastTrade(exchange.getClassName(), coinPair.toString());
                             this.totalSellTrades++;
-                            this.watchOrder(exchange, strategy, order, orderParameters, orderResult);
                             resolve()
                         }).catch((err) => {
                             logger.error("Error on SELL %s (rate %s, amount %s) in %s", coinPair.toString(), rate, sellAmount, this.className, err);
@@ -373,7 +377,8 @@ export default class RealTimeTrader extends PortfolioTrader {
                             logger.info("%s margin CLOSE simulation trade with %s from %s: %s", this.className, coinPair.toString(), strategy.getClassName(), reason);
                             logger.info("amount %s, rate %s, profit/loss %s", balance.amount, this.marketRates.get(coinPair.toString()), balance.pl);
                             let order = Order.Order.getOrder(coinPair, exchange.getExchangeLabel(), balance.amount, 0, Trade.TradeType.CLOSE, "", true)
-                            this.emitClose(order, [], {strategy: strategy, pl: balance.pl, reason: reason, exchange: exchange});
+                            const pendingOrder = this.watchOrder(exchange, strategy, order, null, null);
+                            this.emitClose(order, [], {strategy: strategy, pl: balance.pl, reason: reason, exchange: exchange, pendingOrder: pendingOrder});
                             if (!nconf.get('serverConfig:canTradeImmediatelyAfterClose'))
                                 this.lastTrade.setLastTrade(exchange.getClassName(), coinPair.toString());
                             this.countMarginTrade(balance);
@@ -395,7 +400,8 @@ export default class RealTimeTrader extends PortfolioTrader {
                             let order = Order.Order.getOrder(coinPair, exchange.getExchangeLabel(), balance.amount, 0, Trade.TradeType.CLOSE, orderResult.orderNumber.toString(), true)
                             order.closePosition = balance.type === "long" ? "long" : "short";
                             //this.addOrder(exchange, order); // we don't specify a price. close can either fail or get through at a variable price
-                            this.emitClose(order, orderResult.resultingTrades.get(coinPair.toString()), {strategy: strategy, pl: balance.pl, reason: reason, exchange: exchange});
+                            const pendingOrder = this.watchOrder(exchange, strategy, order, null, null);
+                            this.emitClose(order, orderResult.resultingTrades.get(coinPair.toString()), {strategy: strategy, pl: balance.pl, reason: reason, exchange: exchange, pendingOrder: pendingOrder});
                             if (!nconf.get('serverConfig:canTradeImmediatelyAfterClose'))
                                 this.lastTrade.setLastTrade(exchange.getClassName(), coinPair.toString());
                             this.countMarginTrade(balance);
@@ -409,6 +415,49 @@ export default class RealTimeTrader extends PortfolioTrader {
                 }
             }
             // else there is nothing to do
+
+            this.processTrades(orderOps, resolve)
+        })
+    }
+
+    protected cancelOrder(strategy: AbstractStrategy, reason: string, exchangeLabel: Currency.Exchange) {
+        return new Promise<void>((resolve, reject) => {
+            let orderOps = [];
+            const order = strategy.getLastCancelledOrder();
+            if (order === null) {
+                logger.warn("Order to cancel doesn't exist in strategy %s, reason: %s", strategy.getClassName(), reason);
+                return resolve();
+            }
+            if (!this.warmUpDone())
+                return resolve();
+            for (let ex of this.exchanges)
+            {
+                if (this.config.exchanges.indexOf(ex[0]) === -1)
+                    continue;
+                let exchange = ex[1];
+                if (this.skipExchange(exchange, exchangeLabel))
+                    continue;
+                if (this.tradeMode === RealTimeTradeMode.SIMULATION) { // simulation should work even if we don't have coins on the exchange
+                    orderOps.push(new Promise((resolve, reject) => {
+                        logger.info("%s CANCEL order simulation from %s: %s", this.className, strategy.getClassName(), reason);
+                        logger.info("amount %s, rate %s", order.order.amount, order.order.rate);
+                        setTimeout(resolve, RealTimeTrader.REALTIME_SIMULATION_TRADE_DELAY_SEC*1000);
+                    }))
+                    continue;
+                }
+                orderOps.push(new Promise((resolve, reject) => {
+                    exchange.cancelOrder(order.order.currencyPair, order.order.orderID).then((cancelResult: CancelOrderResult) => {
+                        logger.info("%s CANCEL order from %s: %s", this.className, strategy.getClassName(), reason);
+                        logger.info("amount %s, rate %s", order.order.amount, order.order.rate);
+                        logger.info(JSON.stringify(cancelResult))
+                        resolve();
+                    }).catch((err) => {
+                        logger.error("Error on CANCEL order in %s", this.className, err);
+                        resolve(); // continue
+                        this.retryFailedAction(this.cancelOrder, strategy, reason, exchange, err);
+                    })
+                }))
+            }
 
             this.processTrades(orderOps, resolve)
         })
@@ -584,9 +633,20 @@ export default class RealTimeTrader extends PortfolioTrader {
         return super.skipTrade(action, exchange, strategy, amountBtc);
     }
 
+    /**
+     * Instruct the trader to watch the buy/sell/close order and move it if it doesn't get filled in time.
+     * @param exchange
+     * @param strategy
+     * @param order
+     * @param orderParameters the order parameters or null for a close order
+     * @param orderResult
+     */
     protected watchOrder(exchange: AbstractExchange, strategy: AbstractStrategy, order: Order.Order, orderParameters: OrderParameters, orderResult: OrderResult) {
         const pendingOrder = new PendingOrder(exchange, strategy, order, orderParameters, orderResult);
-        this.tracker.track(pendingOrder);
+        if (orderParameters !== null && this.tradeMode !== RealTimeTradeMode.SIMULATION)
+            this.tracker.track(pendingOrder);
+        //this.emitOrder(pendingOrder);
+        return pendingOrder;
     }
 
     protected isStarting() {

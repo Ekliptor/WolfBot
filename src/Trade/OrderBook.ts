@@ -350,6 +350,20 @@ export class OrderBook<T extends DatabaseOrderBookEntry> { // T is MarketOrder.M
     }
 
     /**
+     * Get the current spread (ask - bid) rate of the orderbook.
+     */
+    public getSpread() {
+        return Math.abs(this.getAsk() - this.getBid()); // should already be positive
+    }
+
+    /**
+     * Get the current spread relative to the last trade price: (ask - bid) / last * 100
+     */
+    public getSpreadPercentage() {
+        return this.getSpread() / this.getLast() * 100;
+    }
+
+    /**
      * Get an array of amount/rate pairs of bids in the market (we can sell it, <= market price).
      * If there are not enough entries in the order book the sum of all amounts will be less than specified in the "amount" parameter.
      * @param amount the amount we want to buy

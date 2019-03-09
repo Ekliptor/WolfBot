@@ -128,7 +128,7 @@ export default class SARStop extends AbstractStopStrategy {
 
     protected candleTick(candle: Candle.Candle): Promise<void> {
         return new Promise<void>((resolve, reject) => {
-            super.candleTick(candle).then(() => {
+            super.candleTick(candle).then(() => { // call parent function to update indicator values before executing code in this class
                 resolve()
             }).catch((err) => {
                 reject(err)
