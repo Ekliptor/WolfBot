@@ -11,14 +11,14 @@ export function sendMessageToParent(message: any, exitOnError = false) {
                 checkedParent = true;
                 let type = message.type ? message.type : "unknown";
                 logger.verbose("NodeJS is not running as a child process. Skipped sending '%s' message to parent.", type)
-                if (exitOnError === true)
+                if (exitOnError === true && process.env.IS_CHILD)
                     process.exit(0);
             }
             return setTimeout(resolve.bind(this), 0);
         }
         process.send(message, undefined, undefined, (err) => {
             if (err) {
-                if (exitOnError === true)
+                if (exitOnError === true && process.env.IS_CHILD)
                     process.exit(0);
                 return reject({txt: "Error sending message to parent process", err: err})
             }

@@ -61,7 +61,7 @@ export default class Backtester extends PortfolioTrader {
                     helper.sendMessageToParent({
                         type: 'startImport', // TODO send import progress
                         exchange: exchange.getClassName()
-                    }, nconf.get("serverConfig:premium") === true);
+                    }, /*nconf.get("serverConfig:premium") === true*/true);
                 }
                 TradeHistory.getAvailablePeriods(db.get(), history.exchange, history.currencyPair).then((periods) => {
                     if (this.tradeImportStarted === true) {
@@ -70,7 +70,7 @@ export default class Backtester extends PortfolioTrader {
                         helper.sendMessageToParent({
                             type: 'errorImport',
                             exchange: exchange.getClassName()
-                        }, nconf.get("serverConfig:premium") === true);
+                        }, true);
                         this.exitBacktest();
                         return;
                     }
@@ -143,7 +143,7 @@ export default class Backtester extends PortfolioTrader {
             if (this.config.marginTrading === true && this.containsTakeProfitPartialStrategies() === true) {
                 helper.sendMessageToParent({
                     type: 'profitPartialWarning'
-                }, nconf.get("serverConfig:premium") === true);
+                }, true);
             }
 
             let tradeResult: BotEvaluation;
@@ -162,7 +162,7 @@ export default class Backtester extends PortfolioTrader {
                         type: 'result',
                         result: tradeResult,
                         file: file
-                    }, nconf.get("serverConfig:premium") === true);
+                    }, true);
                 }
                 else
                     console.log(tradeResult)
@@ -204,7 +204,7 @@ export default class Backtester extends PortfolioTrader {
                 data: {
                     timeMs: this.marketTime.getTime()
                 }
-            }, nconf.get("serverConfig:premium") === true);
+            }, true);
         }
     }
 
@@ -221,7 +221,7 @@ export default class Backtester extends PortfolioTrader {
                     data: {
                         percent: 0.0 // TODO add progress from exchange
                     }
-                }, nconf.get("serverConfig:premium") === true);
+                }, true);
             }, nconf.get("serverConfig:importTickIntervalMs"));
             let importDone = () => {
                 clearInterval(timer);
@@ -230,7 +230,7 @@ export default class Backtester extends PortfolioTrader {
                     data: {
                         percent: 100.0
                     }
-                }, nconf.get("serverConfig:premium") === true);
+                }, true);
             }
             exchangeController.loadSingleExchange(exchangeName).then((ex) => {
                 exchange = ex;
@@ -242,7 +242,7 @@ export default class Backtester extends PortfolioTrader {
                     helper.sendMessageToParent({
                         type: 'autoImportNotSupported',
                         data: {}
-                    }, nconf.get("serverConfig:premium") === true);
+                    }, true);
                     logger.warn("%s doesn't support automatic imports", exchange.getClassName())
                     return Promise.resolve()
                 }

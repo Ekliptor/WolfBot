@@ -111,7 +111,9 @@ let checkAuth = (apiKey, res) => {
     if (!apiKey || keys[apiKey] !== true) {
         let output = {
             error: true,
-            errorTxt: 'Invalid api key. Please add a parameter "apiKey" to your GET/POST request.'
+            errorTxt: 'Invalid api key. Please add a parameter "apiKey" to your GET/POST request.',
+            key: apiKey,
+            //keyCount: Object.keys(keys).length
         }
         res.end(JSON.stringify(output))
         return false

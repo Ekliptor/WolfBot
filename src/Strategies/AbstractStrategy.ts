@@ -82,6 +82,11 @@ export class ScheduledCancelOrder {
     }
 }
 
+export interface CoinBalance {
+    holdingCoins: number;
+    position: MarginPosition;
+}
+
 export interface StrategyAction {
     // undefined for dynamic strategies. might be changed after trade by AbstractStopStrategy
     order: StrategyOrder;
@@ -113,6 +118,7 @@ export abstract class AbstractStrategy extends AbstractGenericStrategy {
     protected holdingCoins = 0.0;
     protected entryPrice: number = -1; // the price we bought/sold - currently only set in child classes
     protected lastSync: Date = null;
+    protected previousBalance: CoinBalance = null; // balance on previous sync (a few minutes ago)
     protected _done = false; // for orders that only trigger once
     protected runOnce = false; // don't reset "done" state
     protected lastRun = new Date(0); // run again with runOnce == true after a certain amount of time
@@ -381,6 +387,7 @@ export abstract class AbstractStrategy extends AbstractGenericStrategy {
             this.entryPrice = this.avgMarketPrice;
         }
         // TODO volume-weighted entryPrice. useful for TakeProfit if we increase our position size after opening
+        this.previousBalance = this.getBalance();
 
         this.lastSync = this.getMarketTime();
         if (this.closedPositions && this.strategyPosition !== "none") {
@@ -678,6 +685,7 @@ export abstract class AbstractStrategy extends AbstractGenericStrategy {
         state.positionOpenTicks = this.positionOpenTicks;
         state.holdingCoins = this.holdingCoins;
         state.position = this.position;
+        state.previousBalance = this.previousBalance;
         state.pendingOrder = this.pendingOrder;
         return state;
     }
@@ -704,6 +712,12 @@ export abstract class AbstractStrategy extends AbstractGenericStrategy {
             this.holdingCoins = state.holdingCoins;
         if (typeof state.position === "object" && state.position) // null is also an object
             this.position = Object.assign(new MarginPosition(state.position.leverage), state.position);
+        if (typeof state.previousBalance === "object" && state.previousBalance) {
+            this.previousBalance = {
+                holdingCoins: state.previousBalance.holdingCoins,
+                position: Object.assign(new MarginPosition(state.previousBalance.position.leverage), state.previousBalance.position)
+            }
+        }
         if (state.pendingOrder) {
             let prev = state.pendingOrder;
             this.pendingOrder = new ScheduledTrade(prev.action, prev.weight, prev.reason, prev.fromClass, prev.exchange);
@@ -1117,6 +1131,25 @@ export abstract class AbstractStrategy extends AbstractGenericStrategy {
             return profitPercent >= minPercent;
         }
         return false;
+    }
+
+    protected balanceChanged(previous: CoinBalance = null) {
+        if (previous === null)
+            previous = this.previousBalance;
+        if (this.position && previous.position) {
+            if (this.position.equals(previous) === false)
+                return true;
+        }
+        else if ((!this.position && previous.position) ||(this.position && !previous.position))
+            return true;
+        return this.holdingCoins !== previous.holdingCoins;
+    }
+
+    protected getBalance(): CoinBalance {
+        return {
+            position: this.position,
+            holdingCoins: this.holdingCoins
+        }
     }
 
     protected getLastPrice() {

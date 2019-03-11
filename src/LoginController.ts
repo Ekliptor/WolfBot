@@ -9,6 +9,7 @@ import * as helper from "./utils/helper";
 import {AbstractNotification} from "./Notifications/AbstractNotification";
 import Notification from "./Notifications/Notification";
 import {LoginData, LoginUpdateRes} from "./WebSocket/LoginUpdater";
+import * as config from "../configLocal";
 
 
 export interface NodeConfigFile {
@@ -86,6 +87,14 @@ export class LoginController extends AbstractSubController {
                 if (this.tokenGenerated === false) {
                     nconf.set("serverConfig:userToken", this.getUserToken());
                     this.tokenGenerated = true;
+                }
+
+                // ensure there is at least 1 API key
+                if (!helper.getFirstApiKey()) {
+                    if (Object.keys(config.root.apiKeys).length !== 0)
+                        nconf.set("apiKeys", config.root.apiKeys);
+                    else
+                        this.generateApiKey();
                 }
                 return resolve();
             }

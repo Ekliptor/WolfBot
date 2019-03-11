@@ -140,8 +140,21 @@ export class MarginPosition {
         return profitLoss;
     }
 
+    /**
+     * Returns true if we have an open margin position
+     */
     public isEmpty() {
         return this.amount === 0.0;
+    }
+
+    /**
+     * Returns true if the amount of the other margin position is different.
+     * @param o the other position to check against
+     */
+    public equals(o: any) {
+        if (o instanceof MarginPosition === false)
+            return false;
+        return this.amount === o.amount;
     }
 }
 
