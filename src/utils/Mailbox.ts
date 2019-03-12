@@ -9,6 +9,7 @@ export class MailboxAccount {
     public host: string = ""; // leave empty to automatically set by testing known subdomains
     public port: number = 993;
     public tls: boolean = true;
+    public rejectSelfSignedCertificate = true;
     constructor(email: string, password: string) {
         this.email = email;
         this.password = password;
@@ -144,9 +145,16 @@ export class Mailbox {
                 host: host,
                 port: this.account.port,
                 tls: this.account.tls,
+                tlsOptions: {},
                 authTimeout: Mailbox.AUTH_TIMEOUT_MS
             }
         };
+        if (this.account.rejectSelfSignedCertificate === false) {
+            config.imap.tlsOptions = {
+                //secureProtocol: 'SSLv3_method',
+                rejectUnauthorized: false
+            }
+        }
         this.connection = await imaps.connect(config);
     }
 
