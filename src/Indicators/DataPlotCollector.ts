@@ -49,6 +49,8 @@ export class DataPlotCollector {
 
     public sync(candle: Candle.Candle, avgMarketPrice: number) {
         this.marketTime = candle.start;
+        if (this.marketTime && this.marketTime.getTime() > Date.now())
+            this.marketTime = new Date(); // shouldn't happen // TODO why?
         this.avgMarketPrice = avgMarketPrice;
     }
 

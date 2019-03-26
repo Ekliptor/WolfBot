@@ -164,7 +164,7 @@ export default class OrderbookHeatmap extends AbstractIndicator {
             if (!this.orderBook)
                 return resolve(); // shouldn't happen
             if (this.previousCandle && this.previousCandle.start.getTime() === candle.start.getTime())
-                return;
+                return resolve();
             this.previousCandle = candle;
             this.computeCandleOrderbookHeat();
         })
@@ -216,7 +216,8 @@ export default class OrderbookHeatmap extends AbstractIndicator {
 
     public unserialize(state: any) {
         super.unserialize(state);
-        this.previousCandle = Candle.Candle.copy([state.previousCandle])[0];
+        if (state.previousCandle)
+            this.previousCandle = Candle.Candle.copy([state.previousCandle])[0];
         this.lastSnapshot = state.lastSnapshot;
         this.minuteSnapshots = OrderbookFullSnapshot.unserialize(state.minuteSnapshots);
         this.candleSnapshots = OrderbookFullSnapshot.unserialize(state.candleSnapshots);

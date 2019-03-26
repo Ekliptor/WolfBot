@@ -130,6 +130,12 @@ export class LiquidatorParams implements IntervalIndicatorParams {
         return pairs;
     }
 }
+export class MarketDepthParams implements IndicatorParams {
+    pair: Currency.CurrencyPair;
+    depthInterval: number = 6; // number of candles to keep data
+    minUpdateIntervalMin: number = 30; // the minimum update interval in minutes (to prevent DDos)
+    enableLog: boolean;
+}
 
 export type TrendDirection = Candle.TrendDirection; // moved, keep it as alias
 
@@ -318,6 +324,23 @@ export abstract class AbstractIndicator extends DataPlotCollector {
         return data;
     }
 
+    protected addDataAny<T>(data: T[], add: T, maxDataPoints: number = AbstractIndicator.MAX_DATAPOINTS_DEFAULT, keepMore: boolean = true) {
+        data.push(add)
+        // internally TA-LIB needs more data to compute a valid result for many indicators. so keep a lot more than our longest interval
+        const max = keepMore === true ? maxDataPoints * AbstractIndicator.KEEP_OLD_DATA_FACTOR : maxDataPoints;
+        if (data.length > max)
+            data.shift();
+        return data;
+    }
+
+    protected removeDataAny<T>(data: T[], maxLen: number) {
+        if (maxLen <= 0)
+            return data; // unlimited
+        while (data.length > maxLen)
+            data.shift();
+        return data;
+    }
+
     protected removeLatestDataAny<T>(data: T[]) {
         if (data.length !== 0)
             data.splice(-1, 1);
@@ -384,13 +407,16 @@ import "./EhlerTrendline";
 import "./EMA";
 import "./GannSwing";
 import "./IchimokuClouds";
+import "./Kairi";
 import "./KAMA";
 import "./Liquidator";
 import "./MACD";
+import "./MarketDepth";
 import "./MayerMultiple";
 import "./MFI";
 import "./NVTSignal";
 import "./OBV";
+import "./OpenInterest";
 import "./OrderbookHeatmap";
 import "./PivotPoints";
 import "./RSI";
