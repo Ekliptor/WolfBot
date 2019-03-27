@@ -119,7 +119,11 @@ export class DeribitCurrencies implements Currency.ExchangeCurrencies {
 }
 
 export default class Deribit extends AbstractContractExchange {
-    protected deribitContractType = 'BTC-PERPETUAL'; // ETH on testnet. coming soon?
+    protected static contractTypes = new Map<string, string>([ // (currency pair, contract type)
+        ["BTC", "BTC-PERPETUAL"],
+        ["ETH", "ETH-PERPETUAL"]
+    ]);
+    protected deribitContractType = 'BTC-PERPETUAL';
 
     protected currencies: DeribitCurrencies;
     protected websocket: DeribitApi = null;
@@ -505,7 +509,7 @@ export default class Deribit extends AbstractContractExchange {
             })
 
             //this.websocket.hook('trade', ['BTC-28SEP18','BTC-28DEC18'], (err) => {
-            this.websocket.hook('trade', [this.deribitContractType, 'index'], (data) => {
+            this.websocket.hook('trade', [...this.getSubscribedContractTypes(), 'index'], (data) => {
                 this.resetWebsocketTimeout();
                 this.localSeqNr++;
                 if (data.tradeId) {
@@ -545,7 +549,7 @@ export default class Deribit extends AbstractContractExchange {
                 else
                     logger.warn("Received unknown %s trade data: %s", this.className, data);
             });
-            this.websocket.hook('order_book', [this.deribitContractType], (data) => {
+            this.websocket.hook('order_book', this.getSubscribedContractTypes(), (data) => {
                 this.resetWebsocketTimeout();
                 this.localSeqNr++;
                 if (typeof data.state !== "string")
@@ -648,7 +652,24 @@ export default class Deribit extends AbstractContractExchange {
     }
 
     protected getContractForCurrencyPair(currencyPair: Currency.CurrencyPair) {
-        return this.deribitContractType; // TODO improve if deribit adds more currencies
+        const pairStr = Currency.getCurrencyLabel(currencyPair.to);
+        let type = Deribit.contractTypes.get(pairStr);
+        if (type === undefined) {
+            logger.error("Unable to get %s contract type for %s - returning default", this.className, currencyPair.toString());
+            return this.deribitContractType;
+        }
+        return type;
+    }
+
+    protected getSubscribedContractTypes(): string[] {
+        let types = [];
+        for (let i = 0; i < this.currencyPairs.length; i++)
+        {
+            let type = this.getContractForCurrencyPair(this.currencyPairs[i]);
+            if (types.indexOf(type) === -1) // check shouldn't be needed
+                types.push(type);
+        }
+        return types;
     }
 
     protected privateReq(method: string, params: ExRequestParams): Promise<ExResponse> {
