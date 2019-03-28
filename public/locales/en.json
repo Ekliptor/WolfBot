@@ -1068,6 +1068,7 @@
       "profit": "The target profit in percent. Once your open position reaches this profit it will be closed.",
       "time": "optional, default 0 - After the price falls below your profit target again start a countdown of x seconds before closing the position. The countdown gets reset if the price moves above our profit target before the counter reaches 0 seconds.",
       "reduceTimeByVolatility": "optional, default true - Reduce the stop time during high volatility market moments (by a divisor between 1 and 2 computed from Bollinger Bandwidth).",
+      "trailingStopPerc": "trailingStopPerc: number; // optional, default 0.0% (0 = trade immediately) - The trailing stop percentage that will be placed once the computed profit target of the strategy has been reached.",
       "keepTrendOpen": "optional, default true - Don't close if the last candle moved in our direction (only applicable with 'time' and 'candleSize' being set).",
       "forceMaker": "optional, default false - Only place a maker order (not paying the higher taker fee). Order will get adjusted in case the price moves away from it.",
       "minRate": "optional, default 0 (disabled) - Only take profit once this market rate has been reached. Price must be above it for long positions and below it for short positions.",
@@ -1080,6 +1081,7 @@
       "profit": "The target profit in percent. Once your open position reaches this profit it will be closed.",
       "time": "optional, default 0 - After the price falls below your profit target again start a countdown of x seconds before closing the position. The countdown gets reset if the price moves above our profit target before the counter reaches 0 seconds.",
       "reduceTimeByVolatility": "optional, default true - Reduce the stop time during high volatility market moments (by a divisor between 1 and 2 computed from Bollinger Bandwidth).",
+      "trailingStopPerc": "trailingStopPerc: number; // optional, default 0.0% (0 = trade immediately) - The trailing stop percentage that will be placed once the computed profit target of the strategy has been reached.",
       "keepTrendOpen": "optional, default true - Don't close if the last candle moved in our direction (only applicable with 'time' and 'candleSize' being set).",
       "forceMaker": "optional, default false - Only place a maker order (not paying the higher taker fee). Order will get adjusted in case the price moves away from it.",
       "minRate": "optional, default 0 (disabled) - Only take profit once this market rate has been reached. Price must be above it for long positions and below it for short positions.",
@@ -1275,6 +1277,8 @@
     },
     "WeekPredictor": {
       "desc": "Strategy that follows the weekly trend of the market. This strategy crawls various data feeds (including fundamentals) additionally to doing some Technical Analyisis. Therefore backtesting is not available for this strategy. You may still run it in paper trading mode if you are interested in its results without investing any money.<br>It works well on 1h candles and closes positions only if they are in profit. Consider adding a stop-loss strategy.<br>This strategy is optimized for the top 20 coins by market cap using USD as base currency and should not be used for smaller coins.",
+      "tradeMode": "optional, default both - If this strategy shall open long and/or short position. In watch mode it will only display market information and send notifications (if enabled). Values: long|short|both|watch",
+      "trailingCloseMode": "optional, default profit. Close an existing position by placing a trailing stop with trailingStopPerc if the global market orderbooks turn against it. Values: always|never|profit|loss",
       "priceReachedPercent": "optional, default 0.1% - How close the price must be to the reference rate to be considered reached.",
       "interval": "optional, default 48 - The number of candles to compute the volume profile and average volume from. Also the number of data points to keep in history.",
       "volumeRows": "The number of equally-sized price zones the price range is divided into.",
@@ -1337,6 +1341,14 @@
       "removeOrderPairsOnLiquidation": "optional, default true - Remove open order pairs when a liquidation occurred.",
       "feed": "optional, default BitmexMarketData - The exchange feed to use to get liquidations from. This is not available during backtesting, so results might differ. Values: BitmexMarketData",
       "currencyPairs": "optional, default [\"USD_BTC\"] - The currency pairs to subscribe to for liquidation data."
+    },
+    "TrailingStopReverseEntry": {
+      "desc": "Strategy that has pre-configured support/resistance lines. When the price crosses such a line we place a trailing stop to trade in the other direction (expecting a bounce back). This trade will only happen if the entry price (when the trailing stop gets executed) is still above resistance (resp. below support).<br>Works well with high leverage (10x - 20x) and RSI strategy for entry.<br>Works well on 1min candle size together with a trade strategy such as RSIOrderer or RSIScalpOrderer.<br>This strategy doesn't close positions. You must add a stop-loss and take profit strategy.",
+      "supportLines": "The price levels below we want to open long a position.",
+      "resistanceLines": "The price levels above we want to open short a position.",
+      "trailingStopGoLong": "optional, default 2% - Place a trailing stop to go long if price reverses up and is still below the support line.",
+      "trailingStopGoShort": "optional, default 2% - Place a trailing stop to go short if price reverses down and is still above the resistance line.",
+      "expirationPercent": "optional, default 4%. Only execute orders at price levels that are within x% of the set support/resistance lines."
     }
   },
   "arbitrageStratDesc": {
