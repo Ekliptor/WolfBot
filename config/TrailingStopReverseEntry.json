@@ -41,6 +41,7 @@
         },
         "TakeProfit": {
           "order": "closeLong",
+          "stop": 0.0,
           "profit": 1.1,
           "trailingStopPerc": 0.5,
           "time": 40,
