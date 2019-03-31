@@ -698,10 +698,14 @@ export abstract class AbstractStrategy extends AbstractGenericStrategy {
         super.unserialize(state);
         if (this.candles1min.length === 0)
             this.scheduleRestore1minCandlesFromMainStrategy();
-        this.entryPrice = state.entryPrice;
-        this.action.order = state.strategyOrder;
-        this.strategyPosition = state.strategyPosition;
-        this.positionOpenTicks = state.positionOpenTicks;
+        if (state.entryPrice > 0.0)
+            this.entryPrice = state.entryPrice;
+        if (state.strategyOrder)
+            this.action.order = state.strategyOrder;
+        if (state.strategyPosition)
+            this.strategyPosition = state.strategyPosition;
+        if (typeof state.positionOpenTicks === "number" && state.positionOpenTicks >= 0)
+            this.positionOpenTicks = state.positionOpenTicks;
         this.done = state.done;
         this.lastRun = state.lastRun;
         this.lastTrade = state.lastTrade;

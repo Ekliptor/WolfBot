@@ -29,12 +29,7 @@ export default class OneTimeOrder extends AbstractStrategy {
 
     constructor(options) {
         super(options)
-        if (this.action.comp !== "<" && this.action.comp !== ">") {
-            if (this.action.order === "buy")
-                this.action.comp = "<";
-            else
-                this.action.comp = ">";
-        }
+        this.setDefaultTradeAction();
         if (this.action.order !== "buy" && this.action.order !== "sell")
             throw new Error("Invalid order type: " + this.action.order)
         this.lastStop = this.action.stop;
@@ -55,6 +50,11 @@ export default class OneTimeOrder extends AbstractStrategy {
 
     public onConfigChanged() {
         super.onConfigChanged();
+        if (!this.action.order) {
+            this.warn(("Lost order action, resetting to 'buy'"));
+            this.action.order = "buy"; // TODO why did this happen?
+            this.setDefaultTradeAction();
+        }
     }
 
     // ################################################################
@@ -123,5 +123,14 @@ export default class OneTimeOrder extends AbstractStrategy {
 
     protected adjustStaticOrder() {
         // do nothing, don't change the order
+    }
+
+    protected setDefaultTradeAction() {
+        if (this.action.comp !== "<" && this.action.comp !== ">") {
+            if (this.action.order === "buy")
+                this.action.comp = "<";
+            else
+                this.action.comp = ">";
+        }
     }
 }

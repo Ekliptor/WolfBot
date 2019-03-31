@@ -310,7 +310,8 @@ export abstract class AbstractGenericStrategy extends EventEmitter {
         // note: if we add a new value it is undefined on first unserialize() call. then it will not be shown in getInfo()
         // use if (state.value) this.value = state.value; to avoid undefined problems during update
 
-        this.candleHistory = Candle.Candle.copy(state.candleHistory);
+        if (Array.isArray(state.candleHistory) === true)
+            this.candleHistory = Candle.Candle.copy(state.candleHistory);
         if (state.candles1min && state.candles1min.length !== 0)
             this.candles1min = Candle.Candle.copy(state.candles1min);
         this.candle = this.getCandleAt(0);

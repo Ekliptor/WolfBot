@@ -14,6 +14,7 @@ interface TakeProfitAction extends /*StrategyAction*/AbstractTakeProfitStrategyA
 
     time: number; // in seconds, optional. only close the position if the price doesn't reach a new high/low within this time
     reduceTimeByVolatility: boolean; // optional, default true. Reduce the stop time during high volatility market moments.
+    trailingStopPerc: number; // optional, default 0.0% (0 = trade immediately) - The trailing stop percentage that will be placed once the computed profit target of the strategy has been reached.
     keepTrendOpen: boolean; // optional, default true, Don't close if the last candle moved in our direction (only applicable with 'time' and 'candleSize' set).
     forceMaker: boolean; // optional, default true, force the order to be a maker order
     minRate: number; // optional // Only take profit once this market rate has been reached. Price must be above it for long positions and below it for short positions.
@@ -165,6 +166,13 @@ export default class TakeProfit extends AbstractTakeProfitStrategy {
     }
 
     protected closeLongPosition() {
+        if (this.action.trailingStopPerc > 0.0) {
+            this.log("placing trailing stop sell because price is high with profit", this.avgMarketPrice, "entry", this.entryPrice,
+                "stop", this.getStopSell(), "increase %", this.getPriceDiffPercent(this.getStopSell()));
+            this.updateStop(true);
+            this.done = true;
+            return;
+        }
         this.log("emitting sell because price is high with profit", this.avgMarketPrice, "entry", this.entryPrice,
             "stop", this.getStopSell(), "increase %", this.getPriceDiffPercent(this.getStopSell()));
         this.emitSellClose(Number.MAX_VALUE, "price high with profit");
@@ -172,6 +180,13 @@ export default class TakeProfit extends AbstractTakeProfitStrategy {
     }
 
     protected closeShortPosition() {
+        if (this.action.trailingStopPerc > 0.0) {
+            this.log("placing trailing stop buy because price is low with profit", this.avgMarketPrice, "entry", this.entryPrice,
+                "stop", this.getStopBuy(), "decrease %", this.getPriceDiffPercent(this.getStopBuy()));
+            this.updateStop(true);
+            this.done = true;
+            return;
+        }
         this.log("emitting buy because price is low with profit", this.avgMarketPrice, "entry", this.entryPrice,
             "stop", this.getStopBuy(), "decrease %", this.getPriceDiffPercent(this.getStopBuy()));
         this.emitBuyClose(Number.MAX_VALUE, "price low with profit");

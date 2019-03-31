@@ -8,6 +8,7 @@ import {TradeInfo} from "../Trade/AbstractTrader";
 import * as helper from "../utils/helper";
 
 interface StopLossTurnAction extends AbstractStopStrategyAction {
+    // TODO add a stopLong variable (so we have stopShort and stopLong) ?
     stop: number; // optional. A fixed stop price when to sell (< for long position) or buy (> for short position). If present takes precedence over 'setback'. Only 'setbackProfit' has a higher priority (if set).
     setback: number; // 1.3% // in % // The trailing stop percentage the price has to move against an open position for the stop to be triggered.
     // TODO dynamic stop depending on % difference of x candle high/low. or optimize it with our empirical test suite?
@@ -283,7 +284,7 @@ export default class StopLossTurn extends AbstractStopStrategy {
     }
 
     protected getStopSell() {
-        if (this.useProfitStop()) // if a profit trigger is set, is has higher prio than the fixed stop
+        if (this.useProfitStop() && this.action.setbackProfit > 0.0) // if a profit trigger is set, is has higher prio than the fixed stop
             return this.highestPrice - this.highestPrice / 100 * this.action.setbackProfit;
         if (this.action.stop)
             return this.action.stop;
@@ -293,7 +294,7 @@ export default class StopLossTurn extends AbstractStopStrategy {
     }
 
     protected getStopBuy() {
-        if (this.useProfitStop())
+        if (this.useProfitStop() && this.action.setbackProfit > 0.0)
             return this.lowestPrice + this.lowestPrice / 100 * this.action.setbackProfit;
         if (this.action.stop)
             return this.action.stop;

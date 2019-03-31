@@ -69,7 +69,12 @@ export default class TakeProfitPartial extends TakeProfit {
     protected closeLongPosition() {
         if (this.enabled) {
             if (this.strategyPosition === "none")
-                this.log("No open position to take profit from. Skipping SELL")
+                this.log("No open position to take profit from. Skipping SELL");
+            else if (this.action.trailingStopPerc > 0.0) {
+                this.log("placing trailing stop to close long position partially because price is high with profit", this.avgMarketPrice, "entry", this.entryPrice,
+                    "stop", this.getStopSell(), "increase %", this.getPriceDiffPercent(this.getStopSell()));
+                this.updateStop(true);
+            }
             else {
                 this.log("closing long position partially because price is high with profit", this.avgMarketPrice, "entry", this.entryPrice,
                     "stop", this.getStopSell(), "increase %", this.getPriceDiffPercent(this.getStopSell()));
@@ -82,7 +87,12 @@ export default class TakeProfitPartial extends TakeProfit {
     protected closeShortPosition() {
         if (this.enabled) {
             if (this.strategyPosition === "none")
-                this.log("No open position to take profit from. Skipping BUY")
+                this.log("No open position to take profit from. Skipping BUY");
+            else if (this.action.trailingStopPerc > 0.0) {
+                this.log("placing trailing stop to close short position partially because price is low with profit", this.avgMarketPrice, "entry", this.entryPrice,
+                    "stop", this.getStopBuy(), "decrease %", this.getPriceDiffPercent(this.getStopBuy()));
+                this.updateStop(true);
+            }
             else {
                 this.log("closing short position partially because price is low with profit", this.avgMarketPrice, "entry", this.entryPrice,
                     "stop", this.getStopBuy(), "decrease %", this.getPriceDiffPercent(this.getStopBuy()));
