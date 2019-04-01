@@ -1380,6 +1380,7 @@
   "installApp": "Install App",
   "pushoverKey": "Pushover User key",
   "secretOnce": "The API Secret is only beeing shown while entering it...",
+  "passphraseOnce": "The passphrase is only beeing shown while entering it...",
   "expiredMsg": "Your bot membership has expired. Live trading will no longer work. Please buy a new cloud bot instance to continue trading. This instance is scheduled for removal.",
   "expiringSoonMsg": "Your bot membership will expire on {{date}}. Please buy a new cloud bot instance if you wish to continue trading afterwards.",
   "beforeDiscount": "If you buy a new cloud bot before {{date}} you will get a {{percent}}% discount using this coupon: {{code}}",
@@ -1434,5 +1435,7 @@
   "fineTuneConfig": "After the restart is done you may fine-tune your bot configuration by adjusting some parameters in the 'Trading' tab.",
   "orBig": "OR",
   "newBig": "NEW",
-  "wizardFront": "Just go to the \"Configuration\" page and click on the button:"
+  "wizardFront": "Just go to the \"Configuration\" page and click on the button:",
+  "tradingTabsTxt": "Here you can select a \"Configuration\". You should copy existing configurations before modifying them (too keep changes after updates).<br>Afterwards you can go to the \"Trading\" tab to fine-tune your configuration.,",
+  "passphrase": "Passphrase"
 }

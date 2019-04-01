@@ -601,8 +601,10 @@ export class Config extends TableController {
         $("#exchangeLink").attr("href", this.exchangeLinks[exchangeName]);
         $("#apiKey").val(exchangeKey.key);
         $("#apiSecret").val(exchangeKey.secret);
+        $("#apiPassphrase").val(exchangeKey.secret || "");
         $("#apiKey2").val(exchangeKey.key2 || "");
         $("#apiSecret2").val(exchangeKey.secret2 || "");
+        $("#apiPassphrase2").val(exchangeKey.secret || "");
         if (exchangeKey.key2 === undefined) {
             $("#key2Panel").fadeOut("slow");
             $("#apiKey2, #apiSecret2").removeAttr("required");
@@ -610,6 +612,14 @@ export class Config extends TableController {
         else {
             $("#key2Panel").fadeIn("slow");
             $("#apiKey2, #apiSecret2").attr("required", "required");
+        }
+        if (exchangeKey.passphrase === undefined) {
+            $(".passphraseGroup").fadeOut("slow");
+            $("#apiPassphrase, #apiPassphrase2").removeAttr("required");
+        }
+        else {
+            $(".passphraseGroup").fadeIn("slow");
+            $("#apiPassphrase, #apiPassphrase2").attr("required", "required");
         }
     }
 
