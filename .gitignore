@@ -82,12 +82,18 @@ src/Social/Watcher
 config/social
 src/Arbitrage/Strategies/Leg.ts
 src/Strategies/MarketMakerOffset.ts
+src/Strategies/MarketMakerMartingale.ts
 src/Strategies/TradingViewSignal.ts
 src/Strategies/WeekPredictor.ts
 config/MarketMakerOffset.json
+config/MarketMakerMartingale.json
 config/TradingViewSignal.json
 config/WeekPredictor.json
 src/Exchanges/BitmexFix.ts
+src/Indicators/MarketDepth.ts
+config/BitmexWeek.json
+config/OkexWeek.json
+src/Browser
 
 public/js/libs/tv
 

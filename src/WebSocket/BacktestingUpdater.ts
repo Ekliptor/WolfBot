@@ -313,7 +313,7 @@ export class BacktestingUpdater extends AppPublisher {
                     success: false,
                     errorCode: "autoImportOtherExchange"
                 }
-                this.publish(startUpdate)
+                this.publish(strategyWarning)
                 break;
             }
             case 'errorImport':

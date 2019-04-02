@@ -127,6 +127,7 @@ export class TradeConfig extends AbstractConfig {
         for (let pairStr of markets)
         {
             let pair = TradeConfig.getCurrencyPair(pairStr)
+            // TODO parse pairs such as USD_BCHM19 (future contracts) and ensure exchange class can handle the difference on multiple contracts of the same currency
             if (pair === undefined)
                 throw new Error("Can not load config markets");
             this.markets.push(pair)

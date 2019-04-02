@@ -416,7 +416,7 @@ export class Controller extends AbstractController { // TODO implement graceful 
         proc.name = InstanceChecker.getOwnInstanceName();
         Process.setLastActive(db.get(), proc, (err) => {
             if (err)
-                logger.error("Error setting process active in database", err);
+                logger.warn("Error setting process active in database", err);
         })
     }
 

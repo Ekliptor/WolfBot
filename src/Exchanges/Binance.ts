@@ -319,6 +319,7 @@ export default class Binance extends AbstractExchange implements ExternalTickerE
     }
 
     public async buy(currencyPair: Currency.CurrencyPair, rate: number, amount: number, params: OrderParameters = {}): Promise<OrderResult> {
+        // TODO call CCXT library for buying/selling to always have the correct lot size?
         let outParams = await this.verifyTradeRequest(currencyPair, rate, amount, params)
         try {
             let buyParams = {

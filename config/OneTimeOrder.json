@@ -8,8 +8,10 @@
       "strategies": {
         "OneTimeOrder": {
           "order": "buy",
-          "stop": 0.00010240,
-          "pair": "BTC_BTS",
+          "comp": "",
+          "stop": 0.00020240,
+          "forceMaker": false,
+          "pair": "BTC_XRP",
           "enableLog": true
         }
       }

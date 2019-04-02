@@ -17,10 +17,10 @@
   dependencies:
     ejson "^2.1.2"
 
-"@okfe/okex-node@^0.0.48":
-  version "0.0.48"
-  resolved "https://registry.yarnpkg.com/@okfe/okex-node/-/okex-node-0.0.48.tgz#cf444d17b288dbb0f85b299cfb257f63b91730c9"
-  integrity sha512-DqY6u4dZGBptbYTOPFXP6nXbQxTKyDw48O9zrIMSTz8ZqhyTfkrtc6NE7EyfXMFxtmqh8gP1E2NEq9NIyFiugA==
+"@okfe/okex-node@^0.0.49":
+  version "0.0.49"
+  resolved "https://registry.yarnpkg.com/@okfe/okex-node/-/okex-node-0.0.49.tgz#8b91b650f178845fb2083ab58ee1a0fb68e66739"
+  integrity sha512-cIqWduacOVGqwaUkrY8v3SsYXbEa0qncI0fXzFJ93e6FlkUfFtdjP0mMPI6GW77gjfTEW6ooTMdu3yuvC2zGFQ==
   dependencies:
     axios "^0.18.0"
     crc-32 "^1.2.0"

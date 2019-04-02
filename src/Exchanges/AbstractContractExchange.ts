@@ -65,7 +65,7 @@ export abstract class AbstractContractExchange extends AbstractExchange {
             logger.error("Missing contract value for currency pair %s in %s", currencyPair.toString(), this.className)
             return 0.0;
         }
-        const baseValue = Math.abs(contractAmount) / contractValue / rate;
+        const baseValue = Math.abs(contractAmount) * contractValue / rate;
         if (baseValue < 0.0)
             return 0.0;
         return baseValue;

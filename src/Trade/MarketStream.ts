@@ -54,6 +54,7 @@ export class MarketStream extends AbstractMarketStream {
                 else if (action[0] === "o") { // order book
                     //console.log(seqNr, action)
                     // use Order.Order class
+                    // [..., rate, amount ]
                     // [ 'o', 1, '0.09520000', '8.74681417' ] // add
                     // [ 'o', 0, '0.10285241', '0.18471782' ] // remove, modify = remove + add?
                     let order = MarketOrder.MarketOrder.getOrder(currencyPair, exLabel, action[3], action[2]);

@@ -411,7 +411,7 @@ import "./Kairi";
 import "./KAMA";
 import "./Liquidator";
 import "./MACD";
-import "./MarketDepth";
+//import "./MarketDepth";
 import "./MayerMultiple";
 import "./MFI";
 import "./NVTSignal";

@@ -36,8 +36,10 @@ export interface ConfigEditorData {
 export interface ExchangeApiConfig {
     key: string;
     secret: string
+    passphrase: string;
     key2?: string;
     secret2?: string;
+    passphrase2?: string;
 }
 export interface ExchangeApiKeyMap {
     [exchangeName: string]: ExchangeApiConfig;
@@ -1204,24 +1206,30 @@ export class ConfigEditor extends AppPublisher {
         for (let exchangeName in keys)
         {
             let exchangeKeys = keys[exchangeName];
+            let hasPassphrase = false; // TODO add code to add passpharse if an exchange adds it later
             if (Array.isArray(exchangeKeys) === false || exchangeKeys.length === 0) {
                 logger.warn("Invalid exchange API config for %s", exchangeName, exchangeKeys);
                 userKeys[exchangeName] = { // we must return empty strings so that form inputs show up
                     key: "",
                     secret: "",
+                    passphrase: hasPassphrase ? "" : undefined,
                     //key2: Currency.TwoKeyExchanges.has(exchangeName) === true ? "" : undefined, // shouldn't happen. we start with empty strings as config
                     key2: undefined,
-                    secret2: ""
+                    secret2: "",
+                    passphrase2: hasPassphrase ? "" : undefined
                 };
                 continue;
             }
+            hasPassphrase = exchangeKeys[0].passphrase && exchangeKeys[0].passphrase != "";
             userKeys[exchangeName] = {
                 key: exchangeKeys[0].key,
                 //secret: exchangeKeys[0].secret, // don't display secrets on the client
                 secret: "",
+                passphrase: hasPassphrase ? "" : undefined,
                 key2: exchangeKeys[0].key2,
                 //secret2: exchangeKeys[0].secret2
-                secret2: ""
+                secret2: "",
+                passphrase2: hasPassphrase ? "" : undefined
             };
         }
         return userKeys;

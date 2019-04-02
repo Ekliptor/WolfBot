@@ -41,6 +41,7 @@ class ServerConfig {
             OKEX: [{
                 key: "",
                 secret: "",
+                passphrase: "",
                 marginNotification: 0.03,
                 proxy: DEFAULT_EXCHANGE_PROXY
             }],

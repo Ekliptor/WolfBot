@@ -45,11 +45,15 @@ export default class InstanceChecker extends AbstractSubController {
                     return resolve();
             }
 
-            this.checkInstances().then(() => {
-                resolve()
-            }).catch((err) => {
+            this.checkInstances().catch((err) => {
                 logger.error("Error checking bot instances", err)
-                resolve() // continue
+            }).then(() => {
+                return this.watchProcessesTerminating(InstanceChecker.getOwnInstanceName());
+            }).then(() => {
+                resolve();
+            }).catch((err) => {
+                logger.error("Error watching processes for termination", err)
+                resolve(); // continue
             })
         })
     }
@@ -166,6 +170,55 @@ export default class InstanceChecker extends AbstractSubController {
                         resolve()
                     })
                 })
+            })
+        })
+    }
+
+    public watchProcessesTerminating(botName: string) {
+        // some processes might not terminate (especially phantomjs, chrome!)
+        // ensure all processes are running one dir level above utils.appDir and are done when we are done with a loop in Controller
+        // the phantomJS process will look like this: /usr/local/lib/node_modules/phantomjs/lib/phantom/bin/phantomjs --phantom_args /path/to/node/app.js
+        // or in local module path if not installed globally
+        // try to install phantomjs before on your dist and then the location.js after npm install will point to your OS version of phantomjs
+
+        return new Promise<void>((resolve, reject) => {
+            if (!botName) // no next instance to check available
+                return resolve()
+            if (os.platform() === 'win32') {
+                logger.warn('Process monitoring not supported on windows. Skipped')
+                return resolve()
+            }
+
+            let bundleRoot = path.resolve(utils.appDir + '..' + path.sep + botName + path.sep)
+            let options = null
+            // don't return grep or express processes (websites)
+            // ensure it's a process started with silent flag (otherwise it's started manually)
+            // ows workerProcess.js doesn't have that flag. exclude _manual (in directory)
+            // we need maxProcessAge because we start WebInspector tasks and they run async
+            const maxProcessAge = utils.date.dateAdd(new Date(), 'minute', -1*nconf.get('serverConfig:maxProcessRuntimeMin') || 20); // why was this undefined?
+            const child = exec("ps aux | grep -v grep | grep '" + bundleRoot + "' | grep chrome | awk '{print $2}'", options, (err, stdout: string, stderr: string) => {
+                if (err)
+                    return reject(err)
+                let processIds = stdout.split("\n")
+                processIds.forEach((strPID) => {
+                    if (strPID == '')
+                        return
+                    const PID = parseInt(strPID)
+                    if (PID == process.pid)
+                        return
+                    utils.date.getElapsedUnixProcessTime(PID).then((elapsedTime) => {
+                        if (!elapsedTime || elapsedTime.getTime() >= maxProcessAge.getTime())
+                            return;
+                        logger.warn('Killing possibly stuck process: PID %s - started %s ago', PID, utils.test.getPassedTime(elapsedTime.getTime()));
+                        try {
+                            process.kill(PID, "SIGKILL")
+                        }
+                        catch (e) { // permission denied if we grep some wrong processes
+                            logger.error('Error killing process with PID %s', PID, e) // a phantomjs process of JD that closes slowly (if JD finishes last)
+                        }
+                    })
+                })
+                resolve()
             })
         })
     }

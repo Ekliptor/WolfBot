@@ -89,10 +89,11 @@ let buy = () => {
 
 let testOkex = async () => {
     let okex = new OKEX(nconf.get("serverConfig:apiKey:exchange:OKEX")[0])
-    let pair = new Currency.CurrencyPair(Currency.Currency.USD, Currency.Currency.BTC)
+    let pair = new Currency.CurrencyPair(Currency.Currency.USD, Currency.Currency.ETH)
     //console.log(okex.getCurrencies().getExchangePair(pair))
-    okex.subscribeToMarkets([pair])
-    const from = new Date("2017-07-14 00:00:00 GMT+0000")
+    okex.subscribeToMarkets([pair]);
+    await utils.promiseDelay(500);
+    const from = new Date("2019-03-31 06:00:00 GMT+0000")
 
     let orderParams = {
         //immediateOrCancel: true
@@ -105,7 +106,15 @@ let testOkex = async () => {
 
     //okex.marginBuy(pair, rate, (1*leverage)/rate, orderParams).then((ticker) => {
     //okex.closeMarginPosition(pair).then((ticker) => {
-    okex.getBalances().then((info) => {
+    //okex.getBalances().then((info) => {
+    //okex.getMarginAccountSummary().then((info) => {
+    //okex.fetchOrderBook(pair, 10).then((info) => {
+    //okex.importHistory(pair, from, new Date()).then((info) => {
+    //okex.marginSell(pair, 153.4, 0.02, orderParams).then((info) => {
+    //okex.marginCancelOrder(pair, "2583102058140672").then((info) => {
+    //okex.moveMarginOrder(pair, "2583238635623424", 150.0, 0.02, orderParams).then((info) => {
+    //okex.getAllMarginPositions().then((info) => {
+    okex.closeMarginPosition(pair).then((info) => {
         console.log(info)
     }).catch((err) => {
         console.error("API ERR", err)
@@ -334,7 +343,7 @@ let testBitmexLiquidations = async () => {
 Controller.loadServerConfig(() => {
     utils.file.touch(AbstractExchange.cookieFileName).then(() => {
         //buy()
-        //testOkex()
+        testOkex()
         //testKraken()
         //testBitfinex()
         //testPolo();
@@ -343,6 +352,6 @@ Controller.loadServerConfig(() => {
         //testBitmex();
         //testBitmexLiquidations();
         //testDeribit();
-        testBx();
+        //testBx();
     })
 })

@@ -31,8 +31,10 @@ export interface ExOptions {
 export interface ExApiKey {
     key: string;
     secret: string;
+    passphrase?: string; // OKEX, CoinbasePro
     key2?: string;
     secret2?: string;
+    passphrase2?: string;
     testnet?: boolean; // some exchanges (BitMEX) provide a testnet
 }
 
@@ -246,9 +248,13 @@ export abstract class AbstractExchange {
     constructor(options: ExOptions, useCandleMarketStream = false) {
         this.className = this.constructor.name;
         this.apiKey = {key: options.key, secret: options.secret}
+        if (options.passphrase)
+            this.apiKey.passphrase = options.passphrase;
         if (options.key2 && options.secret2) {
             this.apiKey.key2 = options.key2;
             this.apiKey.secret2 = options.secret2;
+            if (options.passphrase2)
+                this.apiKey.passphrase2 = options.passphrase2;
         }
         if (options.testnet === true)
             this.apiKey.testnet = true;
