@@ -386,6 +386,8 @@
   "realTimePaper": "RealTime (Paper)",
   "notifier": "Notifier",
   "configEditMsg": "To change the configuration file or the trader and to edit currency pairs, candleSize or exchanges you have to restart the app. All other changes will take effect immediately.",
+  "tradingConfigWhat": "What is a trading config?",
+  "tradingConfigDesc": "A trading config in WolfBot is an exchange, a currency pair and a set of strategies to run.<br>You can have multiple trading configurations in a single WolfBot instance.",
   "backtestingCfgChange": "A restart is only required to change the live trading config (showing under \"Strategies\"). You can edit your config and run backtests while live trading another config without restarts.",
   "strategyOverview": "Overview of strategies and their use-cases including guides how to use them",
   "syntaxErrorConf": "Syntax error in configuration file.",

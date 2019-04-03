@@ -158,6 +158,10 @@ export class Config extends TableController {
                 this.createJsonViewTimerID = setTimeout(() => {
                     this.$("#tabContent").empty();
                     this.setupTradingTab(this.fullData);
+                    this.$(".configQuestion").click((event) => {
+                        const panelBody = $(event.target).parent().find(".panel-body");
+                        panelBody.fadeToggle("slow");
+                    });
                 }, 100) as any;
                 break;
             case "tabTradingDev":
@@ -568,12 +572,15 @@ export class Config extends TableController {
             saveReq[exchangeName] = {
                 key: $("#apiKey").val(),
                 secret: $("#apiSecret").val(),
+                passphrase: $("#apiPassphrase").val() ? $("#apiPassphrase").val() : undefined,
                 key2: "",
-                secret2: ""
+                secret2: "",
+                passphrase2: undefined
             };
             if ($("#key2Panel").is(":visible") === true) {
                 saveReq[exchangeName].key2 = $("#apiKey2").val();
                 saveReq[exchangeName].secret2 = $("#apiSecret2").val();
+                saveReq[exchangeName].passphrase2 = $("#apiPassphrase2").val() ? $("#apiPassphrase2").val() : undefined;
             }
             this.send({
                 saveKey: saveReq

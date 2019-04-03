@@ -9012,7 +9012,7 @@ i.fa {
   min-height: 400px; }
 
 #copyConfigName {
-  min-width: 23em; }
+  min-width: 24em; }
 
 .dialogCtrls {
   min-height: 3em; }
@@ -9076,7 +9076,7 @@ i.fa {
   text-align: left;
   margin-bottom: 20px; }
 
-#startWizard .panel-heading {
+#startWizard .panel-heading, .configQuestion {
   cursor: pointer; }
 
 body.home .body.container-fluid {

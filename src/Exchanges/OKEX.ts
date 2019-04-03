@@ -106,11 +106,12 @@ export class OKEXCurrencies implements Currency.ExchangeCurrencies {
         summary.currentMargin = 1.0;
         const balances = this.exchange.getRawBalances();
         margins.forEach((margin) => {
+            const currencyPair = Currency.CurrencyPair.fromString(margin.pair);
             // TODO add total value etc...
             // in cross margin mode holding should only have 1 entry
             if (margin.holding.length === 0)
                 return; // no (previously) open positions in this market (for this contract time)
-            let accountBalance = balances ? balances.get(margin.pair) : null;
+            let accountBalance = balances ? balances.get(Currency.getCurrencyLabel(currencyPair.to)) : null;
             //summary.pl += margin.holding[0].buy_profit_real + margin.holding[0].sell_profit_real; // shows realized p/l, we want the unrealized, use UPL from future_userinfo
             // use combined value of all margin positions (for this currency pair)
             if (accountBalance)
@@ -143,6 +144,7 @@ export class OKEXCurrencies implements Currency.ExchangeCurrencies {
                      margin_mode: 'crossed' } ],
                 margin_mode: 'crossed' }
          */
+        const currencyPair = Currency.CurrencyPair.fromString(margin.pair);
         if (margin.holding.length === 0 || (margin.holding[0].long_qty == 0 && margin.holding[0].short_qty == 0))
             return null; // no position open
         let position = new MarginPosition(maxLeverage);
@@ -157,8 +159,9 @@ export class OKEXCurrencies implements Currency.ExchangeCurrencies {
         position.liquidationPrice = helper.parseFloatVal(margin.holding[0].liquidation_price.replaceAll(",", ""));
         // TODO this is in LTC or BTC, better always convert to base currency
         const balances = this.exchange.getRawBalances();
-        if (balances && balances.has(margin.pair) === true) {
-            const balance = balances.get(margin.pair);
+        const quoteCurrencyStr = Currency.getCurrencyLabel(currencyPair.to);
+        if (balances && balances.has(quoteCurrencyStr) === true) {
+            const balance = balances.get(quoteCurrencyStr);
             position.pl = helper.parseFloatVal(balance.unrealized_pnl.replaceAll(",", ""));
         }
         return position;
