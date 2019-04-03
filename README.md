@@ -18,7 +18,8 @@ It is written in TypeScript for NodeJS + MongoDB.
 * **Realtime**: Trades come in realtime via websocket connection from the exchange. Strategies can process (and react) on every single trade. Furthermore all indicators can be updated within the current (latest) candle as new data comes in.
 * **Backtesting**: Advanced automatic parameter optimization using:
     * the Cartesian product to try all permutations of given config parameters or
-    * a Genetic algorithm to find best config parameters within given parameter ranges 
+    * a genetic algorithm to find best config parameters within given parameter ranges 
+
 
 Screenshots of the Trading UI:
 
