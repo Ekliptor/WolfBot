@@ -16,6 +16,9 @@ It is written in TypeScript for NodeJS + MongoDB.
 * **Indicators**: Over 200 technical indicators (MACD, RSI, EMA,..), candlestick pattern recognition (Doji, Tri-Star,...) of 20+ most common patterns, Fibonacci Retracements (upwards & downwards), automatic trendline (support & resistance) detection
 * **Strategy events**: All strategies emit buy/sell events that can be forwarded to other strategies using different candle sizes before trade execution. This gives you the ability to easily configure your bot to “zoom in” on candlestick chart data (for example from 12h candles trendline to 1h MACD to 10min RSI).
 * **Realtime**: Trades come in realtime via websocket connection from the exchange. Strategies can process (and react) on every single trade. Furthermore all indicators can be updated within the current (latest) candle as new data comes in.
+* **Backtesting**: Advanced automatic parameter optimization using:
+    * the Cartesian product to try all permutations of given config parameters or
+    * a Genetic algorithm to find best config parameters within given parameter ranges 
 
 Screenshots of the Trading UI:
 
