@@ -781,6 +781,7 @@ export default class OKEX extends AbstractContractExchange {
             if (contract === undefined)
                 return reject({txt: "Instrument for currency pair doesn't exist", currencyPair: pairStr});
             this.authClient.futures().getPosition(contract.instrument_id).then((account) => {
+                account.pair = pairStr;
                 let position = this.currencies.getMarginPosition(account, this.getMaxLeverage());
                 if (!position)
                     return resolve(null);
