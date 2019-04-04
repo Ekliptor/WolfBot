@@ -85,6 +85,7 @@
           "enableLog": false
         },
         "WeekPredictor": {
+          "tradeMode": "watch",
           "priceReachedPercent": 0.5,
           "interval": 24,
           "minVolumeSpike": 1.1,
@@ -266,6 +267,7 @@
           "enableLog": false
         },
         "WeekPredictor": {
+          "tradeMode": "watch",
           "priceReachedPercent": 0.5,
           "interval": 24,
           "minVolumeSpike": 1.1,
@@ -880,6 +882,7 @@
           "enableLog": false
         },
         "WeekPredictor": {
+          "tradeMode": "watch",
           "priceReachedPercent": 0.5,
           "interval": 24,
           "volumeRows": 24,

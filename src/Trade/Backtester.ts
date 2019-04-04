@@ -20,6 +20,7 @@ import * as _ from "lodash";
 import {AbstractTakeProfitStrategy} from "../Strategies/AbstractTakeProfitStrategy";
 import {StrategyActionName} from "../TradeAdvisor";
 import ExchangeController from "../ExchangeController";
+import * as path from "path";
 
 class PendingOrdersBalanceMap extends Map<string, number> { // (orderID, base currency balance)
     constructor() {
@@ -52,7 +53,8 @@ export default class Backtester extends PortfolioTrader {
         }
         const start = process.env.START_TIME_MS ? new Date(parseInt(process.env.START_TIME_MS)) : utils.date.parseAsGmt0(nconf.get("serverConfig:backtest:from"))
         const end = process.env.END_TIME_MS ? new Date(parseInt(process.env.END_TIME_MS)) : utils.date.parseAsGmt0(nconf.get("serverConfig:backtest:to"))
-        let exchange = this.exchanges.get(this.config.exchanges[0])
+        let exchange = this.exchanges.get(this.config.exchanges[0]);
+
         // check if we have fully imported that range
         let history = new TradeHistory.TradeHistory(this.config.markets[0], exchange.getExchangeLabel(), start, end);
         TradeHistory.isAvailable(db.get(), history).then((available) => {
@@ -168,6 +170,7 @@ export default class Backtester extends PortfolioTrader {
                     console.log(tradeResult)
                 this.exitBacktest();
             }).catch((err) => {
+                this.cleanupBacktest();
                 logger.error("Error backtesting")
                 utils.test.dumpError(err, logger);
                 setTimeout(() => { // our log is async
@@ -260,9 +263,17 @@ export default class Backtester extends PortfolioTrader {
     }
 
     protected exitBacktest() {
+        this.cleanupBacktest();
         setTimeout(() => { // wait for message to parent
             process.exit(0)
         }, 1000)
+    }
+
+    protected cleanupBacktest() {
+        if (process.env.IS_CHILD/* && /\-bt/.test(this.config.name) === true*/) { // name doesn't contain -bt, but deleteFiles() won't throw an error if it doesn't exist
+            let filePath = path.join(TradeConfig.getConfigDir(), this.config.name + ".json");
+            utils.file.deleteFiles([filePath]);
+        }
     }
 
     protected buy(strategy: AbstractStrategy, reason: string, exchangeLabel: Currency.Exchange) {

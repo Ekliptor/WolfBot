@@ -28,6 +28,7 @@ export interface BacktestInitData {
     lastFromMs: number;
     lastToMs: number;
     configFiles: string[];
+    exchanges: string[];
     selectedConfig: string;
     startBalance: number;
     currencyImportMap: {
@@ -45,6 +46,7 @@ export interface BacktestResult {
 export interface BacktestReq {
     start?: {
         config: string;
+        exchange: string;
         from: number; // ms
         to: number;
         startBalance: number;
@@ -95,6 +97,7 @@ export class BacktestingUpdater extends AppPublisher {
                     lastFromMs: this.lastBacktestFromMs,
                     lastToMs: this.lastBacktestToMs,
                     configFiles: configFiles,
+                    exchanges: Array.from(Currency.ExchangeName.keys()),
                     selectedConfig: this.lastBacktestingConfig ? this.lastBacktestingConfig : this.selectedConfig,
                     startBalance: this.lastBacktestBalance,
                     currencyImportMap: this.getCurrencyPairImportMap()
@@ -134,6 +137,7 @@ export class BacktestingUpdater extends AppPublisher {
         this.backtestRunning = true;
 
         let filePath = path.join(TradeConfig.getConfigDirForMode("trading"), data.start.config);
+        let backtestFilePath: string;
         try {
             let fileText = await utils.file.readFile(filePath);
             let json = utils.parseJson(fileText);
@@ -141,6 +145,7 @@ export class BacktestingUpdater extends AppPublisher {
                 logger.error("Invalid JSON in config file: %s", filePath)
                 update.error = true;
                 update.errorCode = "invalidConfig";
+                this.backtestRunning = false;
                 this.send(clientSocket, update)
                 return
             }
@@ -148,20 +153,30 @@ export class BacktestingUpdater extends AppPublisher {
                 logger.error("Config for backtesting must contian exactly 1 trading pair: %s", filePath)
                 update.error = true;
                 update.errorCode = "exchangeMismatch";
+                this.backtestRunning = false;
                 this.send(clientSocket, update)
                 return;
             }
-            let tradeConfig = new TradeConfig(json.data[0], filePath)
-            await this.forkBacktestProcess(data.start.config, tradeConfig, data);
-            this.backtestRunning = false;
+            // we could also just rename the exchange temporarily in the file (exchanges are only loaded on startup for live trading)
+            // but this more clean
+            backtestFilePath = filePath.replace(/\.json$/, "-bt.json");
+            json.data[0].exchanges = [data.start.exchange];
+            //if (await utils.file.copyFile(filePath, backtestFilePath, true) === false) // better write it after setting the exchange
+                //throw new Error("Error copying backtest config file to" + backtestFilePath);
+            await fs.promises.writeFile(backtestFilePath, utils.stringifyBeautiful(json), {encoding: "utf8"});
+            const backtestConfigName = data.start.config.replace(/\.json$/, "-bt.json");
+            let tradeConfig = new TradeConfig(json.data[0], backtestFilePath)
+            await this.forkBacktestProcess(backtestConfigName, tradeConfig, data);
         }
         catch (err) {
             logger.error("Error during backtest", err);
             update.error = true;
             update.errorCode = "backetestError";
             this.send(clientSocket, update)
-            this.backtestRunning = false;
         }
+        this.backtestRunning = false;
+        if (backtestFilePath)
+            utils.file.deleteFiles([backtestFilePath]);
     }
 
     protected forkBacktestProcess(configFilename: string, tradeConfig: TradeConfig, data: BacktestReq) {
@@ -187,6 +202,7 @@ export class BacktestingUpdater extends AppPublisher {
                 nodeArgs.push("--child") // for easy filtering with grep command
             env.IS_CHILD = true
             env.PARENT_PROCESS_ID = process.pid;
+            env.EXCHANGE = data.start.exchange;
             env.START_TIME_MS = data.start.from; // TODO pack data into a message and send it via JSON
             env.END_TIME_MS = data.start.to;
             this.lastBacktestFromMs = data.start.from;

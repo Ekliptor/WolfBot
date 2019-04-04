@@ -3260,6 +3260,11 @@ class Backtesting extends JsonEditor_1.JsonEditor {
             let title = conf.substr(1).replace(/\.json$/, "");
             this.$("#configs").append(this.getSelectOption(conf, title, "/" + init.selectedConfig + ".json" === conf));
         });
+        let firstEx = true;
+        init.exchanges.forEach((exchangeName) => {
+            $("#exchanges").append(this.getSelectOption(exchangeName, exchangeName, firstEx));
+            firstEx = false;
+        });
         index_1.App.initMultiSelect((optionEl, checked) => {
         });
         $("#startBalance").val(init.startBalance);
@@ -3382,6 +3387,7 @@ class Backtesting extends JsonEditor_1.JsonEditor {
             this.send({
                 start: {
                     config: this.$("#configs").val(),
+                    exchange: this.$("#exchanges").val(),
                     from: from.getTime(),
                     to: to.getTime(),
                     startBalance: this.$("#startBalance").val(),
