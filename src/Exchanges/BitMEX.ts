@@ -440,7 +440,7 @@ export default class BitMEX extends AbstractContractExchange {
                     outParams.execInst = "AllOrNone"
                 }
                 if (outParams.ordType == "Limit") {
-                    outParams.price = rate
+                    outParams.price = this.toTickSize(currencyPair, rate);
                 }
 
                 return this.privateReq("POST /order", outParams)
@@ -880,7 +880,7 @@ export default class BitMEX extends AbstractContractExchange {
             */
             outParams.match_price = params.matchBestPrice ? 1 : 0;
             if (params.matchBestPrice)
-                outParams.price = this.orderBook.get(currencyPair.toString()).getLast(); // avoid error 20018 invalid price on fast moving markets
+                outParams.price = this.toTickSize(currencyPair, this.orderBook.get(currencyPair.toString()).getLast()); // avoid error 20018 invalid price on fast moving markets
             resolve(outParams)
         })
     }
@@ -897,6 +897,14 @@ export default class BitMEX extends AbstractContractExchange {
             }
             resolve(json)
         })
+    }
+
+    protected toTickSize(currencyPair: Currency.CurrencyPair, rate: number) {
+        if (currencyPair.to === Currency.Currency.BTC)
+            return utils.calc.roundTo(rate, 0.5);
+        else if (currencyPair.to === Currency.Currency.ETH)
+            return utils.calc.roundTo(rate, 0.05);
+        return utils.calc.roundTo(rate, 1.0);
     }
 
     protected getFetchPairs() {
