@@ -14,7 +14,10 @@
         },
         "StopLossTurn": {
           "order": "closeLong",
+          "stop": 0.0,
+          "stopLong": 0.0,
           "setback": 1.6,
+          "setbackLong": 1.6,
           "time": 3600,
           "candleSize": 42,
           "pair": "BTC_ETH",
