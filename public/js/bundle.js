@@ -4412,11 +4412,21 @@ class Home extends AbstractController_1.AbstractController {
     }
     loadTopStrategies() {
         $.get(Home.STRATEGY_TOPLIST_URL, undefined, (data) => {
+            let listHtml = "";
+            for (let i = 0; i < data.data.length; i++) {
+                let curStrategyHtml = AppF.escapeOutput(data.data[i].name);
+                if (data.data[i].docLink) {
+                    curStrategyHtml = AppF.translate(pageData.html.misc.newWindowLink, {
+                        id: "topStrat-" + i,
+                        href: data.data[i].docLink,
+                        title: data.data[i].name
+                    });
+                }
+                listHtml += AppF.translate(pageData.html.home.stratEntry, { strat: curStrategyHtml }, true);
+            }
             let topStrategies = AppF.translate(pageData.html.home.topStrategies, {
-                strat1: data.data[0].name,
-                strat2: data.data[1].name,
-                strat3: data.data[2].name
-            });
+                strategies: listHtml
+            }, true);
             $("#strategyToplistBody").html(topStrategies);
         });
     }

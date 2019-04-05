@@ -8,12 +8,14 @@ import {TradeInfo} from "../Trade/AbstractTrader";
 import * as helper from "../utils/helper";
 
 interface StopLossTurnAction extends AbstractStopStrategyAction {
-    // TODO add a stopLong variable (so we have stopShort and stopLong) ?
     stop: number; // optional. A fixed stop price when to sell (< for long position) or buy (> for short position). If present takes precedence over 'setback'. Only 'setbackProfit' has a higher priority (if set).
+    stopLong: number; // optional, default 0 (use 'setback' setting or 'setbackLong' setting). Place a different fixed stop rate for long positions.
+
     setback: number; // 1.3% // in % // The trailing stop percentage the price has to move against an open position for the stop to be triggered.
     // TODO dynamic stop depending on % difference of x candle high/low. or optimize it with our empirical test suite?
     setbackLong: number; // 2.5% // optional a higher setback for long positions. default = 0 = setback for both. setbackProfit takes precedence
     // TODO add setback bonus + depending on current volume (or set stop to min 24h high/low by collecting candle closes)
+
     // TODO add an option to immediately open a position in the other direction?
     // TODO spike not sell %: option not to trigger the stop if the price spiked x% from lowest/highest price
     // TODO different setback for closeLong and closeShort
@@ -65,6 +67,8 @@ export default class StopLossTurn extends AbstractStopStrategy {
         super(options)
         if (!this.action.stop)
             this.action.stop = 0.0;
+        if (!this.action.stopLong)
+            this.action.stopLong = 0.0;
         if (!this.action.setbackLong)
             this.action.setbackLong = 0.0;
         if (!this.action.time)
@@ -130,7 +134,7 @@ export default class StopLossTurn extends AbstractStopStrategy {
                 return resolve();
             if (this.tradeTick >= nconf.get('serverConfig:tradeTickLog')) {
                 this.tradeTick -= nconf.get('serverConfig:tradeTickLog');
-                this.logStopValues(true);
+                this.logStopValues(false); // too spammy
             }
             let log = false;
             if (!this.action.candleSize || this.highestPrice === 0) { // first init exception
@@ -201,7 +205,7 @@ export default class StopLossTurn extends AbstractStopStrategy {
                 }
             }
             if (log)
-                this.logStopValues();
+                this.logStopValues(true);
             super.candleTick(candle).then(() => {
                 resolve()
             }).catch((err) => {
@@ -286,7 +290,9 @@ export default class StopLossTurn extends AbstractStopStrategy {
     protected getStopSell() {
         if (this.useProfitStop() && this.action.setbackProfit > 0.0) // if a profit trigger is set, is has higher prio than the fixed stop
             return this.highestPrice - this.highestPrice / 100 * this.action.setbackProfit;
-        if (this.action.stop)
+        if (this.action.stopLong > 0.0)
+            return this.action.stopLong;
+        if (this.action.stop > 0.0)
             return this.action.stop;
         if (this.action.setbackLong)
             return this.highestPrice - this.highestPrice / 100 * this.action.setbackLong;
@@ -296,7 +302,7 @@ export default class StopLossTurn extends AbstractStopStrategy {
     protected getStopBuy() {
         if (this.useProfitStop() && this.action.setbackProfit > 0.0)
             return this.lowestPrice + this.lowestPrice / 100 * this.action.setbackProfit;
-        if (this.action.stop)
+        if (this.action.stop > 0.0)
             return this.action.stop;
         return this.lowestPrice + this.lowestPrice / 100 * this.action.setback;
     }
