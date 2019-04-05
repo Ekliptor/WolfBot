@@ -1439,5 +1439,6 @@
   "newBig": "NEW",
   "wizardFront": "Just go to the \"Configuration\" page and click on the button:",
   "tradingTabsTxt": "Here you can select a \"Configuration\". You should copy existing configurations before modifying them (too keep changes after updates).<br>Afterwards you can go to the \"Trading\" tab to fine-tune your configuration.,",
-  "passphrase": "Passphrase"
+  "passphrase": "Passphrase",
+  "weekProfitableStrat": "Most profitable strategy this week"
 }

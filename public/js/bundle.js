@@ -4382,6 +4382,7 @@ exports.Config = Config;
 
 Object.defineProperty(exports, "__esModule", { value: true });
 const AbstractController_1 = __webpack_require__(/*! ./base/AbstractController */ "./public/js/controllers/base/AbstractController.ts");
+const $ = __webpack_require__(/*! jquery */ "jquery");
 class Home extends AbstractController_1.AbstractController {
     constructor(socket) {
         super(socket);
@@ -4396,6 +4397,7 @@ class Home extends AbstractController_1.AbstractController {
             let status = AppF.translate(pageData.html.home.main);
             setTimeout(() => {
                 this.addClickListeners();
+                this.loadTopStrategies();
             }, 0);
             resolve(status);
         });
@@ -4408,7 +4410,18 @@ class Home extends AbstractController_1.AbstractController {
             panelBody.fadeToggle("slow");
         });
     }
+    loadTopStrategies() {
+        $.get(Home.STRATEGY_TOPLIST_URL, undefined, (data) => {
+            let topStrategies = AppF.translate(pageData.html.home.topStrategies, {
+                strat1: data.data[0].name,
+                strat2: data.data[1].name,
+                strat3: data.data[2].name
+            });
+            $("#strategyToplistBody").html(topStrategies);
+        });
+    }
 }
+Home.STRATEGY_TOPLIST_URL = "https://wolfbot.org/wp-json/tradebot/v1/popular-strategies";
 exports.Home = Home;
 
 
