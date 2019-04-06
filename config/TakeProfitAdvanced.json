@@ -1,0 +1,47 @@
+{
+    "data": [
+        {
+            "exchanges": ["OKEX"],
+            "marginTrading": true,
+            "tradeTotalBtc": 100.0,
+            "notifyTrades": true,
+            "warmUpMin": 0,
+            "strategies": {
+                "TakeProfit": {
+                    "order": "closeLong",
+                    "stop": 0.0,
+                    "profit": 1.2,
+                    "trailingStopPerc": 0.0,
+                    "time": 300,
+                    "reduceTimeByVolatility": false,
+                    "keepTrendOpen": true,
+                    "minRate": 0.0,
+                    "candleSize": 5,
+                    "pair": "USD_BTC",
+                    "enableLog": false
+                },
+                "TakeProfitStochRSI": {
+                    "percentage": 50,
+                    "low": 11,
+                    "high": 87,
+                    "interval": 25,
+                    "closeRateFactor": 0.9992,
+                    "time": 300,
+                    "keepTrendOpen": false,
+                    "alwaysIncreaseStop": true,
+                    "ensureProfit": true,
+                    "candleSize": 60,
+                    "orderStrategy": "TriggerOrder",
+                    "minOpenTicks": 12,
+                    "pair": "USD_BTC",
+                    "enableLog": true
+                },
+                "TriggerOrder": {
+                    "candleSize": 1,
+                    "pair": "USD_BTC",
+                    "enableLog": true
+                }
+            }
+        }
+    ]
+}
