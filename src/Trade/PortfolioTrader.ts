@@ -638,7 +638,7 @@ export abstract class PortfolioTrader extends AbstractTrader {
                     logger.error("Can not sync portfolio for %s. %s currencies not loaded", pos[0], exchange.getClassName())
                     continue; // happens on startup
                 }
-                let coins = coinBalance[pair.to] // from is BTC
+                let coins = coinBalance[pair.to] || 0.0; // from is BTC
                 if (isBacktest === true) // otherwise we get the actual profit/loss value from the exchange
                     marginPos.computePl(this.marketRates.get(pair.toString()));
                 this.emitSyncExchangePortfolio(exchange.getClassName(), pair, coins, marginPos);
@@ -652,7 +652,7 @@ export abstract class PortfolioTrader extends AbstractTrader {
             if (!coinBalance) // possible on startup
                 logger.error("Unable to get %s %s coins to sync porftfolio", exchange.getClassName(), pairStr)
             else
-                coins = coinBalance[pair.to] // from is BTC
+                coins = coinBalance[pair.to] || 0.0; // from is BTC
             this.emitSyncExchangePortfolio(exchange.getClassName(), pair, coins, emptyPosition)
         }
     }

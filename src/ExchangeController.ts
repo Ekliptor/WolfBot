@@ -240,9 +240,9 @@ export default class ExchangeController extends AbstractSubController {
         let exchanges = Array.from(Currency.ExchangeName.keys());
         exchanges.forEach((exchange) => {
             let exchangeConf = nconf.get("serverConfig:apiKey:exchange:" + exchange);
-            if (exchangeConf)
+            if (exchangeConf && Array.isArray(exchangeConf) === true)
                 return;
-            logger.error("Exchange %s api key config is missing, restoring defaults", exchange);
+            logger.error("Exchange %s api key config is missing or invalid, restoring defaults", exchange);
             nconf.set("serverConfig:apiKey:exchange:" + exchange, emptyConfig.apiKey.exchange[exchange]);
         });
     }

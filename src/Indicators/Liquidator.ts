@@ -47,6 +47,8 @@ export default class Liquidator extends AbstractIndicator {
         if (nconf.get("trader") === "Backtester") // TODO store liquidations in DB and make them available for customers during backtesting
             throw new Error(utils.sprintf("%s indicator is not available during backtesting because it depends on real-time data feeds.", this.className));
 
+        if (!this.params.feed)
+            return; // disabled
         this.feed = AbstractMarketData.getInstance(this.params.feed);
         if (this.feed === null)
             return;
@@ -85,7 +87,7 @@ export default class Liquidator extends AbstractIndicator {
             if (this.liquidations.length < this.params.interval)
                 return resolve(); // not enough data yet
 
-            if (this.liquidations.length > this.params.interval)
+            while (this.liquidations.length > this.params.interval)
                 this.liquidations.shift();
             resolve();
         })

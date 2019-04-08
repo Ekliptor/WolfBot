@@ -115,8 +115,9 @@ export abstract class ServerSocketPublisher {
                         clients.push(client[0]);
                 }
             }
-            this.serverSocket.broadcastTo(ServerSocket.stringify(this.opcode, data, "JSON"), clients, options).then(() => {
-                return this.serverSocket.broadcastTo(ServerSocket.stringify(this.opcode, data, "EJSON"), clientsEJSON, options);
+            // don't stringify any data if there are no clients to broadcast to
+            this.serverSocket.broadcastTo(clients.length !== 0 ? ServerSocket.stringify(this.opcode, data, "JSON") : "", clients, options).then(() => {
+                return this.serverSocket.broadcastTo(clientsEJSON.length !== 0 ? ServerSocket.stringify(this.opcode, data, "EJSON") : "", clientsEJSON, options);
             }).then(() => {
                 resolve();
             })

@@ -491,6 +491,7 @@ export abstract class AbstractGenericStrategy extends EventEmitter {
         this.candleHistory.unshift(candle);
         if (this.candleHistory.length > nconf.get("serverConfig:keepCandles"))
             this.candleHistory.pop();
+        this.removeTradesFromCandles(this.candleHistory, nconf.get("serverConfig:keepTradesOnCandles"));
     }
 
     protected addData(values: number[], next: number, maxDataPoints: number) {
@@ -517,6 +518,15 @@ export abstract class AbstractGenericStrategy extends EventEmitter {
                 return infos[i];
         }
         return null;
+    }
+
+    protected removeTradesFromCandles(candles: Candle.Candle[], maxCandlesWithTrades: number) {
+        for (let i = maxCandlesWithTrades; i < candles.length; i++) // remove raw trades from older candles to save memory
+        {
+            if (candles[i].tradeData === undefined)
+                break; // already removed from here on
+            delete candles[i].tradeData;
+        }
     }
 
     protected loadNotifier() {

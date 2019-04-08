@@ -261,6 +261,7 @@ export abstract class TechnicalStrategy extends AbstractStrategy implements Tech
             if (this.candles.length !== 0 && isNew === false)
                 this.candles.splice(-1, 1);
             this.addCandle(candle);
+            this.removeTradesFromCandles(this.candles, nconf.get("serverConfig:keepTradesOnCandles"));
             //if (this.candle === null)
                 this.candle = candle; // a lot of strategies use it in checkIndicators() // always set it for now
             // TODO this means secondLastRSI etc.. values are from the last tick instead of the last candle. strategies using this setting should be modified

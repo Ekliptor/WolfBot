@@ -159,6 +159,7 @@ export abstract class TechnicalLendingStrategy extends AbstractLendingStrategy i
     protected candleTick(candle: Candle.Candle): Promise<void> {
         return new Promise<void>((resolve, reject) => {
             this.addCandle(candle);
+            this.removeTradesFromCandles(this.candles, nconf.get("serverConfig:keepTradesOnCandles"));
 
             let candleCalcOps = []
             for (let ind of this.indicators)

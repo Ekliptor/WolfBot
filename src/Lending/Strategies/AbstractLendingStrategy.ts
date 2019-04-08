@@ -113,6 +113,7 @@ export abstract class AbstractLendingStrategy extends AbstractGenericStrategy {
             this.candles1min.unshift(candle);
             if (this.candles1min.length > nconf.get("serverConfig:keepCandles1min"))
                 this.candles1min.pop();
+            this.removeTradesFromCandles(this.candles1min, nconf.get("serverConfig:keepTradesOnCandles1min"));
         }).catch((err) => {
             logger.error("Error in 1min candle tick of %s", this.className, err)
         })

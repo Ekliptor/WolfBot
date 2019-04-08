@@ -78,7 +78,7 @@ export default class TakeProfit extends AbstractTakeProfitStrategy {
                     return resolve();
                 if (this.tradeTick >= nconf.get('serverConfig:tradeTickLog')) {
                     this.tradeTick -= nconf.get('serverConfig:tradeTickLog');
-                    this.logStopValues(true);
+                    this.logStopValues(false);
                 }
                 let log = false;
                 //if (this.entryPrice === -1) // causes buggy/late reset
@@ -128,7 +128,7 @@ export default class TakeProfit extends AbstractTakeProfitStrategy {
                 log = true;
             }
             if (log)
-                this.logStopValues();
+                this.logStopValues(true);
             super.candleTick(candle).then(() => {
                 resolve()
             }).catch((err) => {

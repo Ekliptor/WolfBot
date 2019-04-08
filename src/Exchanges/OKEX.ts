@@ -149,13 +149,18 @@ export class OKEXCurrencies implements Currency.ExchangeCurrencies {
             return null; // no position open
         let position = new MarginPosition(maxLeverage);
         if (margin.holding[0].long_qty != 0) {
-            position.amount = margin.holding[0].long_qty;
+            //position.amount = margin.holding[0].long_qty; // we can only close available amount, so use this. the difference is the amount allocated to open orders
+            position.amount = margin.holding[0].long_avail_qty;
             position.type = "long";
         }
         else {
-            position.amount = margin.holding[0].short_qty;
+            //position.amount = margin.holding[0].short_qty;
+            position.amount = margin.holding[0].short_avail_qty;
             position.type = "short";
         }
+        if (typeof position.amount === "string")
+            position.amount = parseInt(position.amount);
+        position.contracts = position.amount; // amount gets converted after
         position.liquidationPrice = helper.parseFloatVal(margin.holding[0].liquidation_price.replaceAll(",", ""));
         // TODO this is in LTC or BTC, better always convert to base currency
         const balances = this.exchange.getRawBalances();
@@ -293,7 +298,7 @@ export default class OKEX extends AbstractContractExchange {
                 this.getOpenOrders(currencyPair).then((orders) => {
                     let cancelOps = [];
                     orders.orders.forEach((curOrder) => {
-                        cancelOps.push(this.cancelOrder(currencyPair, curOrder.orderNumber))
+                        cancelOps.push(this.marginCancelOrder(currencyPair, curOrder.orderNumber))
                     })
                     return Promise.all(cancelOps)
                 }).then((cancelResults) => {
@@ -799,13 +804,27 @@ export default class OKEX extends AbstractContractExchange {
         return new Promise<OrderResult>(async (resolve, reject) => {
             // we don't know if we have to close long or short (or both, though our bot currently doesn't open contradicting positions)
             // get our position for this currency pair first
+            // TODO close all open close-orders so we really close everything even when the user placed manual orders
             await this.loadContractTypes();
             const pairStr = currencyPair.toString();
             let contract = this.contractTypes.get(pairStr);
             if (contract === undefined)
                 return reject({txt: "Instrument for currency pair doesn't exist", currencyPair: pairStr});
             let firstPosition: MarginPosition;
+            let openOrdersToCancel: OpenOrders;
             this.verifyExchangeRequest(currencyPair).then((currencyPairStr) => {
+                return this.getOpenOrders(currencyPair);
+            }).then((orders) => {
+                orders.orders = orders.orders.filter(o => o.rawType === 3 || o.rawType === 4); // get close-orders
+                openOrdersToCancel = orders;
+                let cancelOps = [];
+                openOrdersToCancel.orders.forEach((o) => {
+                    cancelOps.push(this.marginCancelOrder(currencyPair, o.orderNumber));
+                });
+                return Promise.all(cancelOps).catch((err) => {
+                    logger.error("Error cancelling %s margin close-order before closing position. Position might not be closed completely", this.className, err);
+                });
+            }).then((cancelResultArr) => {
                 return this.getMarginPosition(currencyPair);
             }).then((position) => {
                 if (!position)
@@ -816,10 +835,11 @@ export default class OKEX extends AbstractContractExchange {
                     return Promise.reject({txt: "Orderbook not found to find rate to close margin position", exchange: this.getClassName(), pair: currencyPair.toString()})
                 const lastRate = orderBook.getLast();
                 const offset = nconf.get("serverConfig:closeRatePercentOffset");
-                const closeRate = position.type === "short" ? lastRate + lastRate/100*offset : lastRate - lastRate/100*offset;
+                const closeRate = Math.abs(position.type === "short" ? lastRate + lastRate/100*offset : lastRate - lastRate/100*offset);
                 let orderParams: any = {
                     price: closeRate,
-                    size: this.getContractAmount(currencyPair, closeRate, Math.abs(position.amount)),
+                    //size: this.getContractAmount(currencyPair, closeRate, Math.abs(position.amount)),
+                    size: Math.abs(position.contracts),
                     order_type: 0, // 0: Normal limit order (Unfilled and 0 represent normal limit order) 1: Post only 2: Fill Or Kill 3: Immediatel Or Cancel
                     leverage: this.maxLeverage,
                     match_price: 1, // must now be 1 with v3 API - also safer to close sooner

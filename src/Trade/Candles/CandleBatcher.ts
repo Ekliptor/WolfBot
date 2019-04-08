@@ -41,7 +41,7 @@ export class CandleBatcher<T extends TradeBase> extends CandleStream<T> {
         for (let i = 0; i < this.minuteCandles.length; i++)
         {
             if (i === 0) // props get modified on the 1st
-                minuteCandles.push(_.cloneDeep(this.minuteCandles[0]));
+                minuteCandles.push(CandleBatcher.cloneCandle(this.minuteCandles[0]));
             else
                 minuteCandles.push(this.minuteCandles[i]);
         }
@@ -68,10 +68,10 @@ export class CandleBatcher<T extends TradeBase> extends CandleStream<T> {
      */
     public static batchCandles(smallCandles: Candle.Candle[], interval: number = 0, copyCandles = true): Candle.Candle {
         if (copyCandles)
-            smallCandles = _.cloneDeep(smallCandles); // ensure we don't modify any data of candles being used outside of this class
+            smallCandles = CandleBatcher.cloneCandles(smallCandles); // ensure we don't modify any data of candles being used outside of this class
         if (!interval)
             interval = smallCandles[0].interval*smallCandles.length; // assume all candles are the same size
-        const first = _.cloneDeep(smallCandles.shift()); // always copy the first one because properties get modified
+        const first = CandleBatcher.cloneCandle(smallCandles.shift()); // always copy the first one because properties get modified
         first.vwp = first.vwp * first.volume;
 
         let candle = _.reduce<Candle.Candle, Candle.Candle>(
@@ -132,5 +132,22 @@ export class CandleBatcher<T extends TradeBase> extends CandleStream<T> {
 
     protected calculate() {
         return CandleBatcher.batchCandles(this.minuteCandles, this.interval,false);
+    }
+
+    protected static cloneCandles(candles: Candle.Candle[]): Candle.Candle[] {
+        let clones = [];
+        for (let i = 0; i < candles.length; i++)
+            clones.push(CandleBatcher.cloneCandle(candles[i]));
+        return clones;
+    }
+
+    protected static cloneCandle(candle: Candle.Candle): Candle.Candle {
+        //return _.cloneDeep(candle); // only copy root properties to save memory. especially trade objects on candle
+        let tradeData = candle.tradeData;
+        delete candle.tradeData;
+        let copy: Candle.Candle = Object.assign(new Candle.Candle(candle.currencyPair), candle);
+        candle.tradeData = tradeData;
+        copy.tradeData = tradeData;
+        return copy;
     }
 }
