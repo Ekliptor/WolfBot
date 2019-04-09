@@ -7,6 +7,22 @@
             "notifyTrades": true,
             "warmUpMin": 0,
             "strategies": {
+                "TradingViewSignal": {
+                    "email": "",
+                    "password": "",
+                    "host": "",
+                    "port": 0,
+                    "tls": true,
+                    "checkMailSec": 120,
+                    "tradeDirection": "both",
+                    "buyWords": "buy",
+                    "sellWords": "sell",
+                    "forceMaker": false,
+                    "pair": "USD_BTC",
+                    "candleSize": 1,
+                    "tradeStrategy": "",
+                    "enableLog": true
+                },
                 "TakeProfit": {
                     "order": "closeLong",
                     "stop": 0.0,
