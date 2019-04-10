@@ -569,6 +569,8 @@
     "exchanges": "Here you have to select the exchange you want to trade on. For arbitrage you must choose 2 exchanges.",
     "marginTrading": "Do you want to do margin (leveraged) trading on this exchange? This setting must be enabled for futures trading.",
     "tradeTotalBtc": "Enter the total amount you want to trade in your base currency (USD when trading USD_BTC, BTC when trading BTC_ETH,...). If you enable margin trading this amount will be leveraged (multiplied).",
+    "updateIndicatorsOnTrade": "If enabled all technical indicators will be updated on every trade that happens on the exchange. This means indicator values on the latest candle will always change. The default behaviour is to only update indicator values once the candle is complete.",
+    "flipPosition": "By enabling this WolfBot will trade with 2x \"tradeTotalBtc\" if there already is an open position. This means you can always switch between a long and short short position with a single trade.<br>This only applies to buy an sell signals (close signals will still close the position).",
     "maxLeverage": "The max leverage to use for margin trading to multiply 'tradeTotalBtc' with. This also applies to futures trading.",
     "warmUpMin": "How many minutes after start shall the bot start trading? Keep it to 0 (immediately) unless you want to wait for some external market events (news, crash,...). WolfBot will sync pre-existing positions positions on startup and initialize strategies with historical data, so increasing this value doesn't give WolfBot a better understanding of the market.",
     "notifyTrades": "Send push notifications of all trades to your smartphone."
@@ -1106,6 +1108,9 @@
       "ensureProfit": "optional, default true - Check if we still have profit after 'time' has passed. Otherwise don't close the position. Keep in mind that open positions are only being synced every few minutes.",
       "minOpenTicks": "optional, default 12 - How many ticks a position shall be open at least before it can be closed. If this strategy uses the same candle size as the main strategy. it's implicitly open at least 1 tick with value 0."
     },
+    "TakeProfitAdvanced": {
+      "desc": "This is an advanced take profit strategy set which closes a position fully if it is x% in profit and its profit doesn't increase anymore for 5 minutes (configurable).<br>Additionally it will close 50% of your position if the 1h StochRSI is at its low (for a short position) or at its high (for a long position) - all parameters configurable.<br>You can optionally add your TradingView.com email address so that WolfBot receives TradingView alerts to trade on them. This allows you to open positions or place additional stops."
+    },
     "TimeOrder": {
       "desc": "A simple strategy that buys or sells after a specified amount of time has passed. This is useful to place a manual order after the dip of a spike to buy more if you assume this is the start of a new trend. Also useful after a buy from spikes of VolumeSpikeDetector or PriceSpikeDetector.",
       "executeMin": "A countdown in minutes after which the buy/sell order will be executed.",
@@ -1125,7 +1130,7 @@
     },
     "TradingViewSignal": {
       "desc": "Strategy that buys or sells based on TradingView.com signals. Signals can be anything such as alerts from the CryptoScreener, alerts on a chart, indicator or buy/sell signals of a TradingView strategy - including your own Pine Script.<br>You should ensure that your signal messages include the words 'buy', 'sell' and 'close' to instruct WolfBot (using default settings, can be configured).<br>You can optionally specify a rate for a limit order in your TradingView alert message. To do this, you must include the text limit= - so a full alert could look like this: \"some text, buy, limit=3500.5\". Otherwise the rate of the last trade will be used.<br>To use a custom limit, this strategy must trade directly, meaning 'tradeStrategy' must not be set. Otherwise the tradeStrategy decides the limit price once its indicator(s) match the desired trade direction.",
-      "email": "The email address to check for TradingView alerts.",
+      "email": "The email address to check for TradingView alerts. TradingView alert emails must arrive in the INBOX folder of this account and be marked as \"unread\" for WolfBot to read them.<br>If you are using Gmail, please enable access for \"less secure apps\". See the TradingViewSignal strategy page on WolfBot.org for instructions.",
       "password": "The corresponding password of the email account.",
       "host": "optional, default automatic - The IMAP host of your email address.",
       "port": "optional, default automatic - The IMAP port of your email address.",
@@ -1134,7 +1139,7 @@
       "tradeDirection": "optional, default 'both' - The direction in which this strategy shall act on signals from TradingView. Values: up|down|both",
       "buyWords": "optional, default 'buy' - A list of words (case insensitive, separated by |) on which the strategy buys. It is recommended to fine-tune your alert messages first and only use this as fallback.",
       "sellWords": "optional, default 'sell' - A list of words (case insensitive, separated by |) on which the strategy sells. It is recommended to fine-tune your alert messages first and only use this as fallback.",
-      "closeWords": "optional, default 'close' - A list of words (case insensitive, separated by |) on which the strategy sells. If no close signals are used this strategy can still buy and (short) sell the same position without closing.",
+      "closeWords": "optional, default 'close' - A list of words (case insensitive, separated by |) on which the strategy sells. If no close signals are used this strategy can still buy and (short) sell the same position without closing.<br>A close signal will always close the whole position size (regardless of your trading amount configuration) using a market order.",
       "forceMaker": "optional. default false - Only place a maker order (not paying the higher taker fee)."
     },
     "Trendatron": {
