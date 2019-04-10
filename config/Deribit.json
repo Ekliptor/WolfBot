@@ -9,6 +9,7 @@
             "maxLeverage": 100,
             "warmUpMin": 0,
             "updateIndicatorsOnTrade": true,
+            "flipPosition": false,
             "strategies": {
                 "CCI": {
                     "low": -100,

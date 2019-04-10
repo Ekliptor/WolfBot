@@ -7,6 +7,8 @@
             "marginTrading": true,
             "tradeTotalBtc": 0.7,
             "warmUpMin": 0,
+            "updateIndicatorsOnTrade": false,
+            "flipPosition": false,
             "strategies": {
                 "CCI": {
                     "low": -100,
