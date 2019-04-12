@@ -1,7 +1,7 @@
 
 // https://github.com/santacruz123/deribit-ws-nodejs
 // https://github.com/deribit/deribit-api-js
-// TODO wait for v2 to mature and switch back to websockets https://github.com/askmike/deribit-v2-ws
+// wait for v2 to mature and switch back to websockets https://github.com/askmike/deribit-v2-ws
 
 
 // https://docs.deribit.com/
@@ -23,7 +23,7 @@ import {AbstractContractExchange} from "./AbstractContractExchange";
 import {OrderResult} from "../structs/OrderResult";
 import {MarginPosition, MarginPositionList} from "../structs/MarginPosition";
 import MarginAccountSummary from "../structs/MarginAccountSummary";
-import {default as DeribitApi} from "deribit-ws-nodejs";
+//import {default as DeribitApi} from "deribit-ws-nodejs";
 import * as db from "../database";
 import * as helper from "../utils/helper";
 import * as request from "request";
@@ -31,7 +31,8 @@ import * as request from "request";
 import EventStream from "../Trade/EventStream";
 import {MarketOrder, Ticker, Trade, TradeHistory, Currency} from "@ekliptor/bit-models";
 import {OrderBook} from "../Trade/OrderBook";
-import DeribitCcxt from "./DeribitCcxt";
+//import DeribitCcxt from "./DeribitCcxt";
+import * as deribit2 from "deribit-v2-ws";
 
 const logger = utils.logger
     , nconf = utils.nconf;
@@ -69,7 +70,27 @@ export class DeribitCurrencies implements Currency.ExchangeCurrencies {
         return new Currency.CurrencyPair(Currency.Currency.USD, Currency.Currency.BTC);
     }
     public toLocalTicker(exchangeTicker: any): Ticker.Ticker {
-        return null; // not used for Deribit
+        /**
+         * { timestamp: 1555050970616,
+              stats: { volume: 125196.028196, low: 159.28, high: 171.91 },
+              state: 'open',
+              settlement_price: 164.18,
+              open_interest: 21728805,
+              min_price: 161.91,
+              max_price: 168.52,
+              mark_price: 165.22,
+              last_price: 165.43,
+              instrument_name: 'ETH-PERPETUAL',
+              index_price: 164.32,
+              funding_8h: 0.001234,
+              current_funding: 0.004727,
+              best_bid_price: 165.18,
+              best_bid_amount: 8,
+              best_ask_price: 165.35,
+              best_ask_amount: 992 }
+         */
+        let ticker = new Ticker.Ticker(this.exchange.getExchangeLabel());
+        return ticker; // not used for deribit, done via ws
     }
 
     public computePseudoMargin(forcedLiquidation: number, localPair: Currency.CurrencyPair) {
@@ -86,46 +107,52 @@ export class DeribitCurrencies implements Currency.ExchangeCurrencies {
     }
     public toMarginAccountSummary(accAndPos: any) {
         let summary = new MarginAccountSummary();
-        summary.pl = accAndPos.account.futuresPNL;
+        accAndPos.accounts.forEach((acc) => {
+            summary.pl += acc.result.futures_session_upl;
+        });
         summary.currentMargin = 1.0;
-        accAndPos.pos.forEach((position) => {
-            if (position.kind !== "future")
-                return;
-            const liquidationPrice = position.estLiqPrice;
-            let currentMargin = this.computePseudoMargin(liquidationPrice, this.getLocalPair(position.instrument));
-            if (summary.currentMargin > currentMargin)
-                summary.currentMargin = currentMargin; // use the smallest value (mostly used for smartphone alerts)
-        })
+        accAndPos.positions.forEach((posGlobal) => {
+            posGlobal.result.forEach((position) => {
+                if (position.kind !== "future")
+                    return;
+                // TODO add netValue and more
+                const liquidationPrice = position.estimated_liquidation_price;
+                let currentMargin = this.computePseudoMargin(liquidationPrice, this.getLocalPair(position.instrument_name));
+                if (summary.currentMargin > currentMargin)
+                    summary.currentMargin = currentMargin; // use the smallest value (mostly used for smartphone alerts)
+            });
+        });
         return summary;
     }
     public getMarginPosition(margin: any, maxLeverage): MarginPosition {
         /**
-         * { instrument: 'BTC-PERPETUAL',
-            kind: 'future',
-            size: -3,
-            amount: -30,
-            averagePrice: 3259.494908669,
-            direction: 'sell',
-            sizeBtc: -0.007492807,
-            floatingPl: 0.000011939,
-            realizedPl: -3.74e-7,
-            estLiqPrice: -2.99,
-            markPrice: 4003.84,
-            indexPrice: 4008.19,
-            maintenanceMargin: 0.000043086,
-            initialMargin: 0.000103029,
-            settlementPrice: 4010.23,
-            delta: -0.007492807,
-            openOrderMargin: 0.110771556,
-            profitLoss: -0.001711073 }
+         * {
+              "average_price": 0,
+              "delta": 0,
+              "direction": "buy",
+              "estimated_liquidation_price": 0,
+              "floating_profit_loss": 0,
+              "index_price": 3555.86,
+              "initial_margin": 0,
+              "instrument_name": "BTC-PERPETUAL",
+              "kind": "future",
+              "maintenance_margin": 0,
+              "mark_price": 3556.62,
+              "open_orders_margin": 0.000165889,
+              "realized_profit_loss": 0,
+              "settlement_price": 3555.44,
+              "size": 0,
+              "size_currency": 0,
+              "total_profit_loss": 0
+          }
          */
-        if (margin.kind !== "future")
+        if (!margin || margin.kind !== "future")
             return null;
         let position = new MarginPosition(Math.min(10, maxLeverage));
-        position.amount = Math.abs(margin.amount);
+        position.amount = Math.abs(margin.size_currency); // base currency, better than size
         position.type = margin.direction === "sell" ? "short" : "long";
-        position.liquidationPrice = margin.estLiqPrice;
-        position.pl = margin.floatingPl;
+        position.liquidationPrice = margin.estimated_liquidation_price;
+        position.pl = margin.floating_profit_loss;
         return position;
     }
 }
@@ -138,10 +165,10 @@ export default class Deribit extends AbstractContractExchange {
     protected deribitContractType = 'BTC-PERPETUAL';
 
     protected currencies: DeribitCurrencies;
-    protected websocket: DeribitApi = null;
-    protected deribitCcxt: DeribitCcxt = null;
+    protected websocket: any = null;
+    //protected deribitCcxt: DeribitCcxt = null;
     protected orderbookShapshot: OrderBookUpdate<MarketOrder.MarketOrder> = null;
-    protected orderReject: (reason?: any) => void = null;
+    //protected orderReject: (reason?: any) => void = null;
 
     constructor(options: ExOptions) {
         super(options)
@@ -157,17 +184,20 @@ export default class Deribit extends AbstractContractExchange {
         this.maxLeverage = 1; // easier to configure with 1
         this.currencies = new DeribitCurrencies(this);
         this.webSocketTimeoutMs = nconf.get('serverConfig:websocketTimeoutMs')*3; // they don't send pings too often
+        /*
         this.deribitCcxt = new DeribitCcxt(options);
-        this.deribitCcxt.setOnPoll((currencyPair: Currency.CurrencyPair, actions: /*MarketAction[]*/any[], seqNr: number) => {
+        this.deribitCcxt.setOnPoll((currencyPair: Currency.CurrencyPair, actions: /*MarketAction[]***any[], seqNr: number) => {
             this.marketStream.write(currencyPair, actions, seqNr);
         });
+        */
+        this.createWebsocket();
 
         this.contractValues.set("BTC", 10);
-        this.contractValues.set("ETH", 10);
+        this.contractValues.set("ETH", 1);
     }
 
     public subscribeToMarkets(currencyPairs: Currency.CurrencyPair[]) {
-        this.deribitCcxt.subscribeToMarkets(currencyPairs);
+        //this.deribitCcxt.subscribeToMarkets(currencyPairs);
         return super.subscribeToMarkets(currencyPairs);
     }
 
@@ -195,54 +225,76 @@ export default class Deribit extends AbstractContractExchange {
 
     public getBalances() {
         return new Promise<Currency.LocalCurrencyList>((resolve, reject) => {
-            this.websocket.action("account").then((account) => {
+            this.getRawAccounts().then((accounts: any[]) => {
                 /**
-                 * { equity: 9.999945589,
-                      maintenanceMargin: 0.000052637,
-                      initialMargin: 0.000112135,
-                      availableFunds: 9.999833454,
-                      balance: 9.999996165,
-                      marginBalance: 9.99994559,
-                      SUPL: -0.00005031,
-                      SRPL: -2.7e-7,
-                      PNL: -0.00005031,
-                      optionsPNL: 0,
-                      optionsSUPL: 0,
-                      optionsSRPL: 0,
-                      optionsD: 0,
-                      optionsG: 0,
-                      optionsV: 0,
-                      optionsTh: 0,
-                      futuresPNL: -0.00005031,
-                      futuresSUPL: -0.00005031,
-                      futuresSRPL: -2.7e-7,
-                      deltaTotal: -0.0092,
-                      sessionFunding: 0,
-                      depositAddress: '2N2sq9oA9rnvwHwKS3U1kwF8BsbHkSEQ5ZE' }
+                 * { jsonrpc: '2.0',
+                      id: 1555052157422,
+                      result:
+                       { username: 'Ekliptor',
+                         type: 'main',
+                         total_pl: 1.30666385,
+                         tfa_enabled: false,
+                         system_name: 'Ekliptor',
+                         session_upl: -0.0118869,
+                         session_rpl: 0.00001111,
+                         session_funding: -0.00039103,
+                         portfolio_margining_enabled: false,
+                         options_vega: 0,
+                         options_theta: 0,
+                         options_session_upl: 0,
+                         options_session_rpl: 0,
+                         options_pl: 0,
+                         options_gamma: 0,
+                         options_delta: 0,
+                         margin_balance: 11.72927255,
+                         maintenance_margin: 0.01832508,
+                         initial_margin: 0.03151381,
+                         id: 3591,
+                         futures_session_upl: -0.0118869,
+                         futures_session_rpl: 0.00001111,
+                         futures_pl: 1.30666385,
+                         equity: 11.72927255,
+                         email: 'danielw.home@yandex.com',
+                         deposit_address: '2N2sq9oA9rnvwHwKS3U1kwF8BsbHkSEQ5ZE',
+                         delta_total: 3.1032,
+                         currency: 'BTC',
+                         balance: 11.74114833,
+                         available_withdrawal_funds: 11.69775874,
+                         available_funds: 11.69775874 },
+                      usIn: 1555052160810576,
+                      usOut: 1555052160811058,
+                      usDiff: 482,
+                      testnet: true,
+                      requestedAt: 1555052160791,
+                      receivedAt: 1555052160820 }
                  */
                 let balances = {}
-                balances["BTC"] = account.equity;
+                accounts.forEach((account) => {
+                    balances[this.currencies.getLocalName(account.result.currency)] = account.result.equity;
+                });
                 resolve(Currency.fromExchangeList(balances, this.currencies))
+            }).catch((err) => {
+                reject({txt: "Error getting balances", err: err});
             })
         })
     }
 
     public getMarginAccountSummary() {
         return new Promise<MarginAccountSummary>((resolve, reject) => {
-            this.websocket.action("account").then(async (account) => {
-                let positions = await this.websocket.action("positions");
-                resolve(this.currencies.toMarginAccountSummary({account: account, pos: positions}));
+            // Deribit has 2 different margin accounts for BTC & ETH (different collateral etc..) so this call doesn't make a lot of sense here
+            this.getRawAccounts().then(async (accounts) => {
+                let positions = await this.getRawPositions();
+                resolve(this.currencies.toMarginAccountSummary({accounts: accounts, positions: positions}));
+            }).catch((err) => {
+                reject({txt: "Error getting margin account summary", err: err});
             });
         })
     }
 
     public fetchOrderBook(currencyPair: Currency.CurrencyPair, depth: number) {
-        /*
         return new Promise<OrderBookUpdate<MarketOrder.MarketOrder>>((resolve, reject) => {
             resolve(this.orderbookShapshot)
         })
-         */
-        return this.deribitCcxt.fetchOrderBook(currencyPair, depth);
     }
 
     public importHistory(currencyPair: Currency.CurrencyPair, start: Date, end: Date) {
@@ -251,25 +303,36 @@ export default class Deribit extends AbstractContractExchange {
             let tradeCount = 0;
             let lastTrade: Trade.Trade = null;
             let currentMs = start.getTime();
+            const endMs = end.getTime();
             logger.verbose("Starting %s trades import", this.className);
             let importNext = () => {
-                this.websocket.action("getlasttrades", {
-                    //sort: "asc", // deprecated, always from old to new
-                    instrument: this.getContractForCurrencyPair(currencyPair),
-                    count: 1000, // max
-                    startTimestamp: currentMs,
-                    //endTimestamp: end.getTime(), // allow going beyong a little
-                    includeOld: true
-                }).then((history) => {
+                this.websocket.request("public/get_last_trades_by_instrument_and_time", {
+                    instrument_name: this.getContractForCurrencyPair(currencyPair),
+                    start_timestamp: currentMs,
+                    end_timestamp: endMs,
+                    count: 100, // max
+                    include_old: true,
+                    sorting: "asc"
+                }).then((data) => {
+                    if (!data.result) {
+                        logger.error("Error importing %s %s trade history", this.className, currencyPair.toString());
+                        return resolve();
+                    }
+                    const history = data.result.trades;
+                    /**
+                     * { trade_seq: 74027,
+                          trade_id: 'ETH-184404',
+                          timestamp: 1555046750057,
+                          tick_direction: 1,
+                          price: 163.65,
+                          instrument_name: 'ETH-PERPETUAL',
+                          index_price: 163.45,
+                          direction: 'sell',
+                          amount: 10 }
+                     */
                     let trades = [];
                     history.forEach((dTrade) => {
-                        let tradeObj = new Trade.Trade();
-                        tradeObj.date = new Date(dTrade.timeStamp);
-                        tradeObj.type = dTrade.direction === "buy" ? Trade.TradeType.BUY : Trade.TradeType.SELL;
-                        tradeObj.amount = dTrade.amount;
-                        tradeObj.rate = dTrade.price;
-                        tradeObj.tradeID = dTrade.tradeId;
-                        tradeObj = Trade.Trade.verifyNewTrade(tradeObj, currencyPair, this.getExchangeLabel(), this.getFee());
+                        let tradeObj = this.fromRawTrade(dTrade, currencyPair);
                         trades.push(tradeObj);
                     });
                     tradeCount += trades.length;
@@ -281,7 +344,7 @@ export default class Deribit extends AbstractContractExchange {
                             currentMs = lastTrade.date.getTime();
                         }
                         logger.verbose("%s %s import at %s with %s trades", this.className, currencyPair.toString(), utils.getUnixTimeStr(true, lastTrade.date), tradeCount)
-                        if (currentMs < end.getTime())
+                        if (currentMs < end.getTime() && data.result.has_more === true)
                             setTimeout(importNext.bind(this), 500);
                         else {
                             logger.info("Import of %s %s history has finished. Imported %s trades", this.className, currencyPair.toString(), tradeCount)
@@ -317,16 +380,29 @@ export default class Deribit extends AbstractContractExchange {
 
     public getOpenOrders(currencyPair: Currency.CurrencyPair) {
         return new Promise<OpenOrders>((resolve, reject) => {
-            this.websocket.action("getopenorders", {
-                instrument: this.getContractForCurrencyPair(currencyPair)
-            }).then((exOrders) => {
+            this.websocket.request("private/get_open_orders_by_currency", {
+                currency: this.currencies.getExchangeName(Currency.getCurrencyLabel(currencyPair.to)),
+                kind: "future",
+                type: "all"
+            }).then((data) => {
+                if (!data || !data.result)
+                    return Promise.reject({txt: "Error trading", res: data});
                 let orders = new OpenOrders(currencyPair, this.className);
-                exOrders.forEach((o) => {
+                data.result.forEach((o) => {
                     let type: "buy" | "sell" = o.direction === "buy" ? "buy" : "sell";
-                    let orderObj: OpenOrder = {orderNumber: o.orderId, type: type, rate: o.price, amount: o.amount, total: o.price*o.amount, leverage: this.maxLeverage}
+                    let orderObj: OpenOrder = {
+                        orderNumber: o.order_id,
+                        type: type,
+                        rate: o.price,
+                        amount: o.amount,
+                        total: o.price*o.amount,
+                        leverage: this.maxLeverage
+                    }
                     orders.addOrder(orderObj);
                 });
                 resolve(orders);
+            }).catch((err) => {
+                reject(err);
             });
         })
     }
@@ -338,53 +414,46 @@ export default class Deribit extends AbstractContractExchange {
     }
 
     public marginBuy(currencyPair: Currency.CurrencyPair, rate: number, amount: number, params: MarginOrderParameters) {
-        /*
         return new Promise<OrderResult>((resolve, reject) => {
             this.verifyTradeRequest(currencyPair, rate, amount, params).then((outParams) => {
                 return this.marginOrder(currencyPair, rate, amount, "buy", outParams);
             }).then((result) => {
-                resolve(result);
+                resolve(result)
             }).catch((err) => {
-                reject(err)
+                reject(err);
             });
         })
-         */
-        return this.deribitCcxt.buy(currencyPair, rate, amount, params);
     }
 
     public marginSell(currencyPair: Currency.CurrencyPair, rate: number, amount: number, params: MarginOrderParameters) {
-        /*
         return new Promise<OrderResult>((resolve, reject) => {
-            amount = Math.abs(amount);
             this.verifyTradeRequest(currencyPair, rate, amount, params).then((outParams) => {
                 return this.marginOrder(currencyPair, rate, amount, "sell", outParams);
             }).then((result) => {
-                resolve(result);
+                resolve(result)
             }).catch((err) => {
-                reject(err)
+                reject(err);
             });
         })
-         */
-        return this.deribitCcxt.sell(currencyPair, rate, amount, params);
     }
 
     public marginCancelOrder(currencyPair: Currency.CurrencyPair, orderNumber: number | string) {
-        /*
         return new Promise<CancelOrderResult>((resolve, reject) => {
-            this.orderReject = reject;
-            this.websocket.action("cancel", {orderId: orderNumber}).then((result) => {
-                // can be cancelled multiple times. always same response
-                this.orderReject = null;
-                resolve({exchangeName: this.className, orderNumber: orderNumber, cancelled: result.order && result.order.orderId > 0})
+            this.websocket.request("private/cancel", {order_id: orderNumber}).then((data) => {
+                if (!data || !data.result) {
+                    if (data && data.error && data.error.code === 11044) // not_open_order = already cancelled
+                        return resolve({exchangeName: this.className, orderNumber: orderNumber, cancelled: true});
+                    return reject({txt: "Error cancelling order", res: data});
+                }
+                resolve({exchangeName: this.className, orderNumber: orderNumber, cancelled: data.result.order_id != ""})
             });
         })
-         */
-        return this.deribitCcxt.cancelOrder(currencyPair, orderNumber);
     }
 
     public moveMarginOrder(currencyPair: Currency.CurrencyPair, orderNumber: number | string, rate: number, amount: number, params: MarginOrderParameters) {
         return new Promise<OrderResult>((resolve, reject) => {
             // Deribit doesn't have a "move order" function. so we have to cancel the order and place it again
+            // TODO API v2 now has /private/edit
             amount = Math.abs(amount);
             this.getOpenOrders(currencyPair).then((orders) => {
                 if (orders.isOpenOrder(orderNumber) === true) {
@@ -410,31 +479,46 @@ export default class Deribit extends AbstractContractExchange {
 
     public getAllMarginPositions() {
         return new Promise<MarginPositionList>((resolve, reject) => {
-            this.orderReject = reject;
-            this.websocket.action("positions").then((result) => {
-                this.orderReject = null;
+            this.getRawPositions().then((datAllCurrencies) => {
                 let list = new MarginPositionList();
-                result.forEach((pos) => {
-                    const pair = this.currencies.getLocalPair(pos.instrument);
-                    let position = this.currencies.getMarginPosition(pos, this.getMaxLeverage());
-                    if (position) {
-                        const ticker = this.ticker.get(pair.toString());
-                        if (ticker)
-                            position.pl *= ticker.last;
-                        list.set(pair.toString(), position);
-                    }
+                datAllCurrencies.forEach((data) => {
+                    data.result.forEach((pos) => {
+                        const pair = this.currencies.getLocalPair(pos.instrument_name);
+                        let position = this.currencies.getMarginPosition(pos, this.getMaxLeverage());
+                        if (position) {
+                            /*
+                            const ticker = this.ticker.get(pair.toString());
+                            if (ticker)
+                                position.pl *= ticker.last;
+                             */
+                            list.set(pair.toString(), position);
+                        }
+                    });
                 });
                 resolve(list);
+            }).catch((err) => {
+                reject(err);
             });
         })
     }
 
     public getMarginPosition(currencyPair: Currency.CurrencyPair) {
         return new Promise<MarginPosition>((resolve, reject) => {
-            // they only offer an API call to get all positions
-            this.getAllMarginPositions().then((positions) => {
-                resolve(positions.get(currencyPair.toString()));
+            let timerID = setTimeout(() => { // fix for not returning anything if there is no position
+                resolve(null);
+            }, /*this.webSocketTimeoutMs*/5000);
+
+            this.websocket.request("private/get_position", {
+                instrument_name: this.getContractForCurrencyPair(currencyPair),
+                kind: "future"
+            }).then((data) => {
+                clearTimeout(timerID);
+                if (!data || !data.result)
+                    return Promise.reject({txt: "Error getting margin position", res: data});
+                let position = this.currencies.getMarginPosition(data.result, this.getMaxLeverage());
+                resolve(position);
             }).catch((err) => {
+                clearTimeout(timerID);
                 reject(err)
             })
         })
@@ -442,26 +526,30 @@ export default class Deribit extends AbstractContractExchange {
 
     public closeMarginPosition(currencyPair: Currency.CurrencyPair) {
         return new Promise<OrderResult>((resolve, reject) => {
-            // they don't offer a close API call. get the position and issue a market buy/sell
-            this.getMarginPosition(currencyPair).then((position) => {
-                if (!position) {
-                    let result = new OrderResult("Position already closed");
-                    result.success = true;
-                    return Promise.resolve(result);
+            this.websocket.request("private/close_position", {
+                instrument_name: this.getContractForCurrencyPair(currencyPair),
+                type: "market",
+                //price: 123
+            }).then(async (data) => {
+                let result = new OrderResult();
+                if (!data || !data.result) {
+                    if (data.error && data.error.code === 11094) { // internal_server_error happens when it doesn't exist -> wtf
+                        let openPos = await this.getMarginPosition(currencyPair);
+                        if (!openPos) {
+                            result.success = true;
+                            result.message = "already closed";
+                            return resolve(result);
+                        }
+                    }
+                    return Promise.reject({txt: "Error closing margin position", res: data});
                 }
-                let orderParams: MarginOrderParameters = {matchBestPrice: true}; // use market order, rate doesn't matter
-                let rate = this.orderBook.get(currencyPair.toString()).getLast();
-                if (rate <= 0.0)
-                    rate = 1.0; // shouldn't happen, ignored either way
-                if (position.type === "long")
-                    return this.marginSell(currencyPair, rate, position.amount, orderParams);
-                else
-                    return this.marginBuy(currencyPair, rate, position.amount, orderParams);
-            }).then((result) => {
+                result.success = data.result.order && data.result.order.order_id ? true : false;
+                if (data.result.order.order_id)
+                    result.orderNumber = data.result.order.order_id;
                 resolve(result);
             }).catch((err) => {
                 reject(err)
-            })
+            });
         })
     }
 
@@ -470,47 +558,41 @@ export default class Deribit extends AbstractContractExchange {
 
     protected marginOrder(currencyPair: Currency.CurrencyPair, rate: number, amount: number, side: "buy" | "sell", outParams: ExRequestParams) {
         return new Promise<OrderResult>((resolve, reject) => {
-            this.orderReject = reject; // when passing invalid params, deribit API only fires the error in the constructor
-            this.websocket.action(side, outParams).then((result) => {
+            //this.orderReject = reject; // when passing invalid params, deribit API only fires the error in the constructor
+            this.websocket.request("private/" + side, outParams).then((data) => {
+                if (!data || !data.result)
+                    return reject({txt: "Error trading", res: data});
                 /**
                  * { order:
-                           { orderId: 2007403797,
-                             type: 'limit',
-                             instrument: 'BTC-PERPETUAL',
-                             direction: 'buy',
-                             price: 3100,
-                             label: '',
-                             amount: 10,
-                             quantity: 1,
-                             filledQuantity: 0,
-                             filledAmount: 0,
-                             avgPrice: 0,
-                             commission: 0,
-                             created: 1544759965013,
-                             lastUpdate: 1544759965013,
-                             state: 'open',
-                             postOnly: false,
-                             api: true,
-                             max_show: 1,
-                             maxShowAmount: 10,
-                             adv: false },
-                          trades: [] }
+                      { time_in_force: 'good_til_cancelled',
+                        reduce_only: false,
+                        profit_loss: 0,
+                        price: 120,
+                        post_only: false,
+                        order_type: 'limit',
+                        order_state: 'open',
+                        order_id: 'ETH-115960694',
+                        max_show: 4,
+                        last_update_timestamp: 1555054694632,
+                        label: '',
+                        is_liquidation: false,
+                        instrument_name: 'ETH-PERPETUAL',
+                        filled_amount: 0,
+                        direction: 'buy',
+                        creation_timestamp: 1555054694632,
+                        commission: 0,
+                        average_price: 0,
+                        api: true,
+                        amount: 4 } }
                  */
-                this.orderReject = null;
                 let orderResult = new OrderResult();
-                if (result.order && result.order.orderId > 0) {
+                if (data.result && data.result.order && data.result.order.order_id) {
                     orderResult.success = true;
-                    orderResult.orderNumber = result.order.orderId;
-                    if (Array.isArray(result.trades) === true) {
+                    orderResult.orderNumber = data.result.order.order_id;
+                    if (Array.isArray(data.result.trades) === true) {
                         let trades = [];
-                        result.trades.forEach((trade) => {
-                            let tradeObj = new Trade.Trade();
-                            tradeObj.date = new Date(); // no timestamp provided from server
-                            tradeObj.type = Trade.TradeType.BUY;
-                            tradeObj.amount = trade.quantity;
-                            tradeObj.rate = trade.price;
-                            tradeObj.tradeID = trade.tradeSeq;
-                            tradeObj = Trade.Trade.verifyNewTrade(tradeObj, currencyPair, this.getExchangeLabel(), this.getFee());
+                        data.result.trades.forEach((trade) => {
+                            let tradeObj = this.fromRawTrade(trade, currencyPair);
                             trades.push(tradeObj);
                         });
                         orderResult.resultingTrades.set(currencyPair.toString(), trades);
@@ -519,82 +601,84 @@ export default class Deribit extends AbstractContractExchange {
                 else
                     orderResult.success = false;
                 resolve(orderResult)
+            }).catch((err) => {
+                reject(err);
             });
         })
     }
 
-    protected createApiWebsocketConnection(): DeribitApi {
-        const marketEventStreamMap = new Map<string, EventStream<any>>(); // (exchange currency name, stream instance)
+    protected createApiWebsocketConnection(): any {
         this.localSeqNr = 0; // keep counting upwards
-        if (this.websocket === null)
-            this.createWebsocket();
-        this.websocket.connected.then(() => {
-            this.updateOrderBooks(false); // we get it through the WebSocket connection
-            this.currencyPairs.forEach((pair) => {
-                let marketPair = this.currencies.getExchangePair(pair);
-                // every market has their own sequence numbers on poloniex. we have to ensure they are piped in order
-                let marketEventStream = new EventStream<any>(this.className + "-Market-" + marketPair, this.maxPendingMarketEvents);
-                this.openMarketRelays.push(marketEventStream);
-                marketEventStreamMap.set(pair.toString(), marketEventStream); // use local pairs here
-                marketEventStream.on("value", (value, seqNr) => {
-                    //this.marketStream.write(pair, value, seqNr); // currently not used in favor of CCXT
-                });
+        //if (this.websocket === null)
+            //this.createWebsocket();
+        this.updateOrderBooks(false); // we get it through the WebSocket connection
+        this.createApiWebsocketConnectionDelayed();
 
-                this.orderBook.get(pair.toString()).setSnapshot([], this.localSeqNr, false); // we receive an implicit snapshot with the first response
+        return this.websocket;
+    }
 
-                let tickerObj = new Ticker.Ticker(this.exchangeLabel);
-                tickerObj.indexValue = 0.0; // updated below on trades feed
-                tickerObj.currencyPair = pair;
-                this.ticker.set(pair.toString(), tickerObj);
-            })
+    protected async createApiWebsocketConnectionDelayed(): Promise<void> {
+        const marketEventStreamMap = new Map<string, EventStream<any>>(); // (exchange currency name, stream instance)
+        await utils.promiseDelay(2500); // TODO wait til their API has a "connected" event
+        this.currencyPairs.forEach((pair) => {
+            let marketPair = this.currencies.getExchangePair(pair);
+            // every market has their own sequence numbers on poloniex. we have to ensure they are piped in order
+            let marketEventStream = new EventStream<any>(this.className + "-Market-" + marketPair, this.maxPendingMarketEvents);
+            this.openMarketRelays.push(marketEventStream);
+            marketEventStreamMap.set(pair.toString(), marketEventStream); // use local pairs here
+            marketEventStream.on("value", (value, seqNr) => {
+                this.marketStream.write(pair, value, seqNr); // currently not used in favor of CCXT
+            });
 
-            //this.websocket.hook('trade', ['BTC-28SEP18','BTC-28DEC18'], (err) => {
-            this.websocket.hook('trade', [...this.getSubscribedContractTypes(), 'index'], (data) => {
+            this.orderBook.get(pair.toString()).setSnapshot([], this.localSeqNr, false); // we receive an implicit snapshot with the first response
+
+            let tickerObj = new Ticker.Ticker(this.exchangeLabel);
+            tickerObj.indexValue = 0.0; // updated below on trades feed
+            tickerObj.currencyPair = pair;
+            this.ticker.set(pair.toString(), tickerObj);
+
+            const tradesFeed = utils.sprintf("trades.%s.100ms", this.getContractForCurrencyPair(pair));
+            this.websocket.subscribe("public", tradesFeed, (data: any[]) => {
                 this.resetWebsocketTimeout();
                 this.localSeqNr++;
-                if (data.tradeId) {
-                    const currencyPair = this.currencies.getLocalPair(data.instrument);
-                    let marketEventStream = marketEventStreamMap.get(currencyPair.toString());
-                    if (!marketEventStream) {
-                        logger.error("Received %s trade update for currency pair %s we didn't subscribe to: ", currencyPair, this.className, data);
-                        return;
-                    }
-                    let trades = [];
+                let trades = [];
+                data.forEach((trade) => {
+                    //let tradeObj = this.fromRawTrade(trade, pair);
                     // for trades: [tid, price, amount, time, type, amountbtc] - all strings, type = ask|bid, amountbtc mostly null
                     // to: [ 't', '25969600', 0, '0.09718515', '0.53288249', 1496175981 ]
                     // type 1 = buy, 0 = sell
-                    //let timestamp = Math.floor(this.getLocalTimestampMs(date) / 1000);
-                    /**
-                     * { quantity: 500,
-                          amount: 5000,
-                          tradeId: 2671769,
-                          instrument: 'BTC-PERPETUAL',
-                          timeStamp: 1544746026802,
-                          price: 3241,
-                          direction: 'sell',
-                          orderId: 0,
-                          matchingId: 0,
-                          tradeSeq: 631228,
-                          tickDirection: 2,
-                          indexPrice: 3248.79,
-                          state: 'closed',
-                          label: '',
-                          me: '' }
-                     */
-                    trades.push(["t", data.tradeId, data.direction == "sell" ? 0 : 1, data.price, data.amount, data.timeStamp])
-                    marketEventStream.add(this.localSeqNr, trades);
-                    if (data.indexPrice)
-                        this.ticker.get(currencyPair.toString()).indexValue = data.indexPrice;
-                }
-                else
-                    logger.warn("Received unknown %s trade data: %s", this.className, data);
+                    trades.push(["t", trade.trade_id.replace(/[^-9]+/i, ""), trade.direction == "sell" ? 0 : 1, trade.price, trade.amount, trade.timestamp]);
+                });
+                marketEventStream.add(this.localSeqNr, trades);
+            }).then((data) => {
+                //console.log("INIT TRADES", data)
+            }).catch((err) => {
+                logger.error("Error subscribing to %s %s trades", this.className, pair.toString(), err);
             });
-            this.websocket.hook('order_book', this.getSubscribedContractTypes(), (data) => {
+
+            const tickerFeed = utils.sprintf("ticker.%s.100ms", this.getContractForCurrencyPair(pair));
+            this.websocket.subscribe("public", tickerFeed, (data: any) => {
+                let ticker = this.ticker.get(pair.toString());
+                if (!ticker) {
+                    logger.warn("Received %s ticker update for currency pair %s we didn't subscribe to", this.className, pair.toString());
+                    return;
+                }
+                ticker.last = data.last_price;
+                ticker.highestBid = data.best_bid_price;
+                ticker.lowestAsk = data.best_ask_price;
+                ticker.low24hr = data.stats.low;
+                ticker.high24hr = data.stats.high;
+                ticker.isFrozen = data.state !== "open";
+                ticker.indexValue = data.index_price;
+            });
+
+            const orderbookFeed = utils.sprintf("book.%s.none.20.100ms", this.getContractForCurrencyPair(pair));
+            this.websocket.subscribe("public", orderbookFeed, (data: any) => {
                 this.resetWebsocketTimeout();
                 this.localSeqNr++;
-                if (typeof data.state !== "string")
-                    return; // not needed, we get updates with the new book
-                const currencyPair = this.currencies.getLocalPair(data.instrument);
+
+                //const currencyPair = this.currencies.getLocalPair(data.instrument_name);
+                const currencyPair = pair;
                 let marketEventStream = marketEventStreamMap.get(currencyPair.toString());
                 if (!marketEventStream) {
                     logger.error("Received %s orderbook update for currency pair %s we didn't subscribe to: ", currencyPair, this.className, data);
@@ -605,32 +689,20 @@ export default class Deribit extends AbstractContractExchange {
                     const exchangeOrders = data[side];
                     //const sideNr = side === "bids" ? 1 : 0;
                     exchangeOrders.forEach((order) => {
-                        /**
-                         * { quantity: 244,
-                           amount: 2440,
-                           price: 3271,
-                           cm: 244,
-                           cm_amount: 2440 }
-                         */
+                        // [price, amount]
                         //orders.push(["o", 1, order[0], order[2]]); // 1 for add
-                        this.orderbookShapshot[side].push(MarketOrder.MarketOrder.getOrder(currencyPair, this.getExchangeLabel(), order.amount, order.price));
+                        this.orderbookShapshot[side].push(MarketOrder.MarketOrder.getOrder(currencyPair, this.getExchangeLabel(), order[1], order[0]));
                     });
                 });
-                //marketEventStream.add(this.localSeqNr, orders);
                 this.orderBook.get(currencyPair.toString()).replaceSnapshot(this.orderbookShapshot["bids"].concat(this.orderbookShapshot["asks"]), this.localSeqNr);
-                const tickerObj = this.ticker.get(currencyPair.toString());
-                tickerObj.last = data.last;
-                tickerObj.lowestAsk = data.low;
-                tickerObj.highestBid = data.high;
-                // data.mark ?
             });
         });
-        return this.websocket;
     }
 
     protected closeApiWebsocketConnection() {
         try {
-            this.websocket.disconnect();
+            if (typeof this.websocket.disconnect === "function") // doesn't exist yet in v2
+                this.websocket.disconnect();
         }
         catch (err) {
             logger.error("Error disconnecting %s websocket connection", this.className, err);
@@ -639,33 +711,15 @@ export default class Deribit extends AbstractContractExchange {
         this.websocket = null;
     }
 
-    protected createWebsocket() {
-        this.websocket = new DeribitApi({
-            key: this.apiKey.key,
-            secret: this.apiKey.secret,
-            testnet: this.apiKey.testnet === true,
-            message: (msg) => {
-                if (msg && ((Array.isArray(msg) === true && msg.length !== 0) || Object.keys(msg).length !== 0))
-                    logger.verbose("%s message: ", this.className, msg);
-            },
-            error: (err) => {
-                logger.error("%s error: %s", this.className, err);
-                if (this.orderReject !== null) {
-                    this.orderReject(err);
-                    this.orderReject = null;
-                }
-                const errorMsg = err ? err.toString() : "";
-                if (!errorMsg || (errorMsg.indexOf("authorization_required") === -1 && errorMsg.indexOf("invalid") === -1 && errorMsg.indexOf("order") === -1
-                    && errorMsg.indexOf("not_enough_funds") === -1))
-                    this.closeConnection("WebSocket error");
-            },
-
-            // see documentation for possible events // events not coming through here
-            /*
-            trade: (trade) => {
-                logger.verbose("%s trade: %s", this.className, trade);
-            }, */
-        });
+    protected async createWebsocket(): Promise<void> {
+        this.websocket = deribit2; // function
+        try {
+            await this.websocket.connect();
+            await this.websocket.authenticate(this.apiKey.key, this.apiKey.secret);
+        }
+        catch (err) {
+            logger.error("Error connecting to %s WebSocket", this.className, err);
+        }
     }
 
     protected verifyTradeRequest(currencyPair: Currency.CurrencyPair, rate: number, amount: number, params: OrderParameters = {}) {
@@ -678,11 +732,14 @@ export default class Deribit extends AbstractContractExchange {
                 return reject({txt: "Value is below the min trading value", exchange: this.className, value: rate*amount, minTradingValue: this.minTradingValue, permanent: true})
 
             let outParams: any = {
-                instrument: this.getContractForCurrencyPair(currencyPair),
-                quantity: this.getContractAmount(currencyPair, rate, amount),
+                instrument_name: this.getContractForCurrencyPair(currencyPair),
+                //amount: this.getContractAmount(currencyPair, rate, amount),
+                amount: this.toTickSize(currencyPair, Math.abs(amount)),
                 type: params.matchBestPrice === true ? "market" : "limit",
                 price: rate
             }
+            if (outParams.amount < 1)
+                outParams.amount = 1;
             if (params.fillOrKill === true)
                 outParams.time_in_force = "fill_or_kill";
             else if (params.immediateOrCancel === true)
@@ -690,6 +747,16 @@ export default class Deribit extends AbstractContractExchange {
             outParams.post_only = params.postOnly === true;
             resolve(outParams)
         })
+    }
+
+    protected toTickSize(currencyPair: Currency.CurrencyPair, rate: number) {
+        let contractValue = this.contractValues.get(Currency.getCurrencyLabel(currencyPair.to));
+        if (contractValue === undefined)
+            contractValue = 10; // shouln't happen
+        rate = utils.calc.roundTo(rate, 10);
+        if (rate < contractValue)
+            rate = 10;
+        return rate;
     }
 
     protected getContractForCurrencyPair(currencyPair: Currency.CurrencyPair) {
@@ -711,6 +778,39 @@ export default class Deribit extends AbstractContractExchange {
                 types.push(type);
         }
         return types;
+    }
+
+    protected fromRawTrade(rawTrade: any, currencyPair: Currency.CurrencyPair): Trade.Trade {
+        let tradeObj = new Trade.Trade();
+        tradeObj.date = new Date(rawTrade.timestamp ? rawTrade.timestamp : rawTrade.timeStamp);
+        tradeObj.type = rawTrade.direction === "buy" ? Trade.TradeType.BUY : Trade.TradeType.SELL;
+        tradeObj.amount = rawTrade.amount;
+        tradeObj.rate = rawTrade.price;
+        tradeObj.tradeID = rawTrade.trade_id ? rawTrade.trade_id.replace(/[^-9]+/i, "") : rawTrade.tradeId;
+        tradeObj = Trade.Trade.verifyNewTrade(tradeObj, currencyPair, this.getExchangeLabel(), this.getFee());
+        return tradeObj;
+    }
+
+    protected getRawAccounts(): Promise<any[]> {
+        let reqOps = [];
+        this.currencyPairs.forEach((pair) => {
+            reqOps.push(this.websocket.request("private/get_account_summary", {
+                currency: this.currencies.getExchangeName(Currency.getCurrencyLabel(pair.to)),
+                extended: true
+            }));
+        });
+        return Promise.all(reqOps);
+    }
+
+    protected getRawPositions(): Promise<any[]> {
+        let reqOps = [];
+        this.currencyPairs.forEach((pair) => {
+            reqOps.push(this.websocket.request("private/get_positions", {
+                currency: this.currencies.getExchangeName(Currency.getCurrencyLabel(pair.to)),
+                kind: "future"
+            }));
+        });
+        return Promise.all(reqOps);
     }
 
     protected privateReq(method: string, params: ExRequestParams): Promise<ExResponse> {
