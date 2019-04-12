@@ -30,13 +30,13 @@ export default class BitmexMarketData extends AbstractMarketData {
         super()
         this.currencies = new BitMEXCurrencies(this as any); // we only need it to convert currency pairs
         this.exchangeLabel = Currency.Exchange.BITMEX;
-        this.pushApiConnectionType = PushApiConnectionType.WEBSOCKET;
+        this.pushApiConnectionType = PushApiConnectionType.API_WEBSOCKET;
         this.webSocketTimeoutMs = 0; // disabled it. few data, but stable library handling reconnects automatically
         this.apiClient = new BitMEXClient({
             //testnet: this.apiKey.testnet === true,
             //apiKeyID: this.apiKey.key,
             //apiKeySecret: this.apiKey.secret,
-            maxTableLen: 10000,  // the maximum number of table elements to keep in memory (FIFO queue)
+            maxTableLen: 1000,  // the maximum number of table elements to keep in memory (FIFO queue)
             wsExtras: bitmexFix ? bitmexFix.getWebsocketExtras() : null
         });
     }
@@ -44,7 +44,7 @@ export default class BitmexMarketData extends AbstractMarketData {
     // ################################################################
     // ###################### PRIVATE FUNCTIONS #######################
 
-    protected createWebsocketConnection(): WebSocket {
+    protected createApiWebsocketConnection(): any {
         try {
             const bws = this.apiClient.socket/*(2)*/; // TODO proxy/options
 
@@ -98,6 +98,11 @@ export default class BitmexMarketData extends AbstractMarketData {
             logger.error("Exception on creating %s WebSocket connection", this.className, e)
             return null; // this function will get called again after a short timeout
         }
+    }
+
+    protected closeApiWebsocketConnection() {
+        const bws = this.apiClient.socket/*(2)*/;
+        bws.instance.close();
     }
 
     protected processLiquidations(data: any) {

@@ -27,11 +27,20 @@ const logger = utils.logger
     , nconf = utils.nconf;
 
 
+export interface CcxtBookPollCallback {
+    (currencyPair: Currency.CurrencyPair, actions: /*MarketAction[]*/any[], seqNr: number): void;
+}
+
 export class CcxtExchangeCurrencies implements Currency.ExchangeCurrencies/*, Currency.ExternalExchangeTicker*/ {
     protected exchange: AbstractExchange;
+    protected switchCurrencyPair = false; // switch USD_BTC to BTC_USD (some exchanges display it the opposite way)
 
     constructor(exchange: AbstractExchange) {
         this.exchange = exchange;
+    }
+
+    public setSwitchCurrencyPair(pairSwitch: boolean) {
+        this.switchCurrencyPair = pairSwitch;
     }
 
     public getExchangeName(localCurrencyName: string): string {
@@ -51,7 +60,9 @@ export class CcxtExchangeCurrencies implements Currency.ExchangeCurrencies/*, Cu
         let str2 = Currency.Currency[localPair.to]
         if (!str1 || !str2)
             return undefined;
-        if (str1 === "USD" || str1 === "THB")
+        //if (str1 === "USD" || str1 === "THB")
+            //return str2 + "/" + str1
+        if (this.switchCurrencyPair === true)
             return str2 + "/" + str1
         return str1 + "/" + str2 // THB/BTC - always separated by /
     }
@@ -63,7 +74,9 @@ export class CcxtExchangeCurrencies implements Currency.ExchangeCurrencies/*, Cu
         let cur2 = Currency.Currency[pairParts[1]]
         if (!cur1 || !cur2)
             return undefined;
-        if (cur1 == Currency.Currency.USD || cur1 == Currency.Currency.THB)
+        //if (cur1 == Currency.Currency.USD || cur1 == Currency.Currency.THB)
+            //return new Currency.CurrencyPair(cur1, cur2)
+        if (this.switchCurrencyPair === true)
             return new Currency.CurrencyPair(cur1, cur2)
         return new Currency.CurrencyPair(cur2, cur1) // pairs are reversed
     }
@@ -109,6 +122,9 @@ export class CcxtExchangeCurrencies implements Currency.ExchangeCurrencies/*, Cu
 
 export abstract class CcxtExchange extends AbstractExchange {
     protected apiClient: ccxt.Exchange;
+    protected currencies: CcxtExchangeCurrencies;
+    protected pollTrades: boolean = true;
+    protected pollCallbackFn: CcxtBookPollCallback;
 
     constructor(options: ExOptions) {
         super(options)
@@ -125,6 +141,16 @@ export abstract class CcxtExchange extends AbstractExchange {
         this.maxLeverage = 0.0; // no margin trading, currently for all CCXT exchanges
         this.currencies = new CcxtExchangeCurrencies(this); // might be overwritten by child class, but should be needed
         this.webSocketTimeoutMs = nconf.get('serverConfig:websocketTimeoutMs')*2; // small coin markets -> less updates
+    }
+
+    public setPollTrades(poll: boolean) {
+        this.pollTrades = poll;
+    }
+
+    public setOnPoll(callback: CcxtBookPollCallback) {
+        // use this to use CCXT exchange to fetch the orderbook
+        // can be passed on directly to MarketStream (same params)
+        this.pollCallbackFn = callback;
     }
 
     public async getTicker(): Promise<Ticker.TickerMap> {
@@ -260,6 +286,7 @@ export abstract class CcxtExchange extends AbstractExchange {
     public async buy(currencyPair: Currency.CurrencyPair, rate: number, amount: number, params: OrderParameters = {}): Promise<OrderResult> {
         let outParams = await this.verifyTradeRequest(currencyPair, rate, amount, params)
         try {
+            debugger
             let result = await this.apiClient.createOrder(outParams.pairStr as string, outParams.orderType as string, "buy", Math.abs(amount), outParams.rate as number);
             return OrderResult.fromJson(result, currencyPair, this)
         }
@@ -435,6 +462,8 @@ export abstract class CcxtExchange extends AbstractExchange {
     }
 
     protected startPolling(): void {
+        if (this.pollTrades === false)
+            return;
         let lastPollTimestamp = new Map<string, number>(); // (currency pair, timestamp)
         const startMs = (Date.now() - nconf.get("serverConfig:fetchTradesMinBack")*60*1000);
         this.currencyPairs.forEach((currencyPair) => {
@@ -466,7 +495,10 @@ export abstract class CcxtExchange extends AbstractExchange {
                 for (let i = 0; i < tradeResults.length; i++)
                 {
                     // trades are already in order
-                    this.marketStream.write(this.currencyPairs[i], tradeResults[i], this.localSeqNr);
+                    if (typeof this.pollCallbackFn === "function") // this class is used as a relay in another exchange class
+                        this.pollCallbackFn(this.currencyPairs[i], tradeResults[i], this.localSeqNr);
+                    else
+                        this.marketStream.write(this.currencyPairs[i], tradeResults[i], this.localSeqNr);
                 }
                 schedulePoll()
             }).catch((err) => {
@@ -477,6 +509,8 @@ export abstract class CcxtExchange extends AbstractExchange {
         let schedulePoll = () => {
             clearTimeout(this.httpPollTimerID); // be sure
             this.httpPollTimerID = setTimeout(() => {
+                if (this.pollTrades === false)
+                    return;
                 pollBook()
             }, this.httpPollIntervalSec * 1000)
         }
@@ -520,10 +554,33 @@ export abstract class CcxtExchange extends AbstractExchange {
         return this.proxy.length !== 0 ? this.proxy[utils.getRandomInt(0, this.proxy.length)] : undefined;
     }
 
+    protected getExchangeConfig(): any {
+        return {
+            /* // can be used for custom proxy per url
+            proxy(url: string) {
+                return 'https://example.com/?url=' + encodeURIComponent (url)
+            }
+            */
+            proxy: this.getProxyUrl(),
+            timeout: nconf.get("serverConfig:httpTimeoutMs"),
+            enableRateLimit: true,
+            apiKey: this.apiKey.key,
+            secret: this.apiKey.secret,
+        }
+    }
+
     protected verifyExchangeResponse(body: string | false, response: request.RequestResponse, method: string) {
         return new Promise<any>((resolve, reject) => {
             return reject({txt: "verifyExchangeResponse is not implemented", exchange: this.className})
         })
+    }
+
+    protected onExchangeReady() {
+        if (this.apiClient.fees) {
+            const fees = this.apiClient.fees as any;
+            if (fees.trading && fees.trading.percentage === true && typeof fees.trading.taker == "number" && fees.trading.taker > 0.0)
+                this.fee = fees.trading.taker;
+        }
     }
 
     protected formatInvalidExchangeApiResponse(err: any): any {

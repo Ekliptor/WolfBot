@@ -25,6 +25,7 @@ import * as helper from "../utils/helper";
 import {MarketOrder, Ticker, Trade, TradeHistory, Currency} from "@ekliptor/bit-models";
 import {default as BinanceAPI} from 'binance-api-node';
 import {ExternalTickerExchange} from "./ExternalTickerExchange";
+import BinanceCcxt from "./BinanceCcxt";
 
 const logger = utils.logger
     , nconf = utils.nconf;
@@ -113,6 +114,7 @@ export class BinanceCurrencies implements Currency.ExchangeCurrencies, Currency.
 export default class Binance extends AbstractExchange implements ExternalTickerExchange {
     protected apiClient: /*BinanceAPI*/any; // TODO wait for typings update
     protected lastTradePrice = new LastTradePriceMap();
+    protected binanceCCxt: BinanceCcxt; // this library updates binance LOT/tick sizes, so use it for buying/selling
 
     constructor(options: ExOptions) {
         super(options)
@@ -132,7 +134,9 @@ export default class Binance extends AbstractExchange implements ExternalTickerE
         this.apiClient = BinanceAPI({
             apiKey: this.apiKey.key,
             apiSecret: this.apiKey.secret
-        })
+        });
+        this.binanceCCxt = new BinanceCcxt(options);
+        this.binanceCCxt.setPollTrades(false);
     }
 
     public async getTicker(): Promise<Ticker.TickerMap> {
@@ -319,7 +323,8 @@ export default class Binance extends AbstractExchange implements ExternalTickerE
     }
 
     public async buy(currencyPair: Currency.CurrencyPair, rate: number, amount: number, params: OrderParameters = {}): Promise<OrderResult> {
-        // TODO call CCXT library for buying/selling to always have the correct lot size?
+        // call CCXT library for buying/selling to always have the correct lot size
+        /*
         let outParams = await this.verifyTradeRequest(currencyPair, rate, amount, params)
         try {
             let buyParams = {
@@ -336,9 +341,12 @@ export default class Binance extends AbstractExchange implements ExternalTickerE
         catch (err) {
             throw this.formatInvalidExchangeApiResponse(err);
         }
+         */
+        return this.binanceCCxt.buy(currencyPair, rate, amount, params);
     }
 
     public async sell(currencyPair: Currency.CurrencyPair, rate: number, amount: number, params: OrderParameters = {}): Promise<OrderResult> {
+        /*
         let outParams = await this.verifyTradeRequest(currencyPair, rate, amount, params)
         try {
             let result = await this.apiClient.order({
@@ -354,6 +362,8 @@ export default class Binance extends AbstractExchange implements ExternalTickerE
         catch (err) {
             throw this.formatInvalidExchangeApiResponse(err);
         }
+         */
+        return this.binanceCCxt.sell(currencyPair, rate, amount, params);
     }
 
     public async cancelOrder(currencyPair: Currency.CurrencyPair, orderNumber: number | string): Promise<CancelOrderResult> {

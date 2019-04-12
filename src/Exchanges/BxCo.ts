@@ -14,19 +14,11 @@ export default class BxCo extends CcxtExchange {
         this.exchangeLabel = Currency.Exchange.BXCO;
         this.minTradingValue = 0.001;
         this.fee = 0.0025;
-        this.apiClient = new ccxt.bxinth({
-            /* // can be used for custom proxy per url
-            proxy(url: string) {
-                return 'https://example.com/?url=' + encodeURIComponent (url)
-            }
-            */
-            proxy: this.getProxyUrl(),
-            timeout: nconf.get("serverConfig:httpTimeoutMs"),
-            enableRateLimit: true,
-            apiKey: this.apiKey.key,
-            secret: this.apiKey.secret
-        });
-        this.apiClient.loadMarkets().catch((err) => {
+        this.currencies.setSwitchCurrencyPair(true);
+        this.apiClient = new ccxt.bxinth(this.getExchangeConfig());
+        this.apiClient.loadMarkets().then(() => {
+            this.onExchangeReady();
+        }).catch((err) => {
             logger.error("Error loading %s markets", this.className, err);
         });
     }

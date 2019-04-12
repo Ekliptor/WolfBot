@@ -1,6 +1,3 @@
-
-// TODO implement official API with websockets https://github.com/coinbase/gdax-node
-
 import * as utils from "@ekliptor/apputils";
 const logger = utils.logger
     , nconf = utils.nconf;
@@ -11,16 +8,16 @@ import * as ccxt from "ccxt";
 import {OrderResult} from "../structs/OrderResult";
 
 
-export default class CoinbasePro extends CcxtExchange {
+export default class KuCoin extends CcxtExchange {
     constructor(options: ExOptions) {
         super(options);
-        this.exchangeLabel = Currency.Exchange.COINBASEPRO;
+        this.exchangeLabel = Currency.Exchange.KUCOIN;
         this.minTradingValue = 0.001;
-        this.fee = 0.0025;
+        this.fee = 0.001;
         this.currencies.setSwitchCurrencyPair(true);
         let config = this.getExchangeConfig();
         config.password = this.apiKey.passphrase;
-        this.apiClient = new ccxt.coinbasepro(config);
+        this.apiClient = new ccxt.kucoin(config);
         this.apiClient.loadMarkets().then(() => {
             this.onExchangeReady();
         }).catch((err) => {

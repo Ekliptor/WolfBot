@@ -110,7 +110,7 @@ export class BitMEXCurrencies implements Currency.ExchangeCurrencies {
         if (margin.currentQty === 0)
             return null;
 
-        let position = new MarginPosition(maxLeverage);
+        let position = new MarginPosition(Math.min(10, maxLeverage));
         if (margin.currentQty >= 0) {
             position.amount = margin.currentQty;
             position.type = "long";
@@ -179,7 +179,7 @@ export default class BitMEX extends AbstractContractExchange {
         this.restApiPath = "/api/v1"
         //this.pushApiUrl = ""; // for autobahn
         this.pushApiUrl = "wss://apiclient";
-        this.pushApiConnectionType = PushApiConnectionType.WEBSOCKET;
+        this.pushApiConnectionType = PushApiConnectionType.API_WEBSOCKET;
         this.dateTimezoneSuffix = "";
         this.serverTimezoneDiffMin = 0;
         this.exchangeLabel = Currency.Exchange.BITMEX;
@@ -197,7 +197,7 @@ export default class BitMEX extends AbstractContractExchange {
             testnet: this.apiKey.testnet === true,
             apiKeyID: this.apiKey.key,
             apiKeySecret: this.apiKey.secret,
-            maxTableLen: 10000,  // the maximum number of table elements to keep in memory (FIFO queue)
+            maxTableLen: 2000,  // the maximum number of table elements to keep in memory (FIFO queue)
             wsExtras: bitmexFix ? bitmexFix.getWebsocketExtras() : null
         });
         // TODO support for time-spread arbitrage, i.e. multiple contracts of the same currency pair
@@ -552,7 +552,7 @@ export default class BitMEX extends AbstractContractExchange {
             this.privateReq("GET /position", params).then((positions) => {
                 let position: MarginPosition;
                 if (Array.isArray(positions) === false || positions.length === 0)
-                    position = new MarginPosition(this.getMaxLeverage());
+                    position = new MarginPosition(Math.min(10, this.getMaxLeverage()));
                 else {
                     position = this.currencies.getMarginPosition(positions[0], this.getMaxLeverage());
                     if (position) {
@@ -679,7 +679,7 @@ export default class BitMEX extends AbstractContractExchange {
         return null;
     }
 
-    protected createWebsocketConnection(): WebSocket {
+    protected createApiWebsocketConnection(): any {
         try {
             const marketEventStreamMap = new Map<string, EventStream<any>>(); // (exchange currency name, stream instance)
 
@@ -822,6 +822,11 @@ export default class BitMEX extends AbstractContractExchange {
             logger.error("Exception on creating %s WebSocket connection", this.className, e)
             return null; // this function will get called again after a short timeout
         }
+    }
+
+    protected closeApiWebsocketConnection() {
+        const bws = this.apiClient.socket/*(2)*/;
+        bws.instance.close();
     }
 
     protected verifyPositionSize(currencyPair: Currency.CurrencyPair, amount: number) {

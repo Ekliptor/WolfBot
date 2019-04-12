@@ -32,9 +32,12 @@ export interface ExApiKey {
     key: string;
     secret: string;
     passphrase?: string; // OKEX, CoinbasePro
+    domain?: string; // Paetio open source exchange: https://demo.openware.com/
+
     key2?: string;
     secret2?: string;
     passphrase2?: string;
+    domain2?: string;
     testnet?: boolean; // some exchanges (BitMEX) provide a testnet
 }
 
@@ -250,11 +253,15 @@ export abstract class AbstractExchange {
         this.apiKey = {key: options.key, secret: options.secret}
         if (options.passphrase)
             this.apiKey.passphrase = options.passphrase;
+        if (options.domain)
+            this.apiKey.domain = options.domain;
         if (options.key2 && options.secret2) {
             this.apiKey.key2 = options.key2;
             this.apiKey.secret2 = options.secret2;
             if (options.passphrase2)
                 this.apiKey.passphrase2 = options.passphrase2;
+            if (options.domain2)
+                this.apiKey.domain2 = options.domain2;
         }
         if (options.testnet === true)
             this.apiKey.testnet = true;
@@ -842,13 +849,29 @@ export abstract class AbstractExchange {
 }
 
 // force loading dynamic imports for TypeScript
+import "./Bibox";
+import "./Binance";
+import "./BinanceCcxt";
 import "./Bitfinex";
+import "./BitForex";
+import "./BitMEX";
+import "./Bitstamp";
 import "./Bittrex";
+import "./BxCo";
+import "./CexIo";
+import "./Cobinhood";
 import "./CoinbasePro";
 import "./Deribit";
+import "./FCoin";
+import "./Gemini";
 import "./HistoryDataExchange";
+import "./HitBTC";
+import "./Huobi";
 import "./Kraken";
+import "./KuCoin";
+import "./Liquid";
+import "./Nova";
 import "./OKCoin";
 import "./OKEX";
 import "./Poloniex";
-import {ClientOptions} from "ws";
+import "./YoBit";

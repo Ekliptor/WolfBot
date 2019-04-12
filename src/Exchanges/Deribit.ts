@@ -1,6 +1,7 @@
 
 // https://github.com/santacruz123/deribit-ws-nodejs
 // https://github.com/deribit/deribit-api-js
+// TODO wait for v2 to mature and switch back to websockets https://github.com/askmike/deribit-v2-ws
 
 
 // https://docs.deribit.com/
@@ -30,6 +31,7 @@ import * as request from "request";
 import EventStream from "../Trade/EventStream";
 import {MarketOrder, Ticker, Trade, TradeHistory, Currency} from "@ekliptor/bit-models";
 import {OrderBook} from "../Trade/OrderBook";
+import DeribitCcxt from "./DeribitCcxt";
 
 const logger = utils.logger
     , nconf = utils.nconf;
@@ -50,11 +52,21 @@ export class DeribitCurrencies implements Currency.ExchangeCurrencies {
     }
 
     public getExchangePair(localPair: Currency.CurrencyPair): string {
-        return "BTC"; // only BTC futures for now
+        // present in Deribit and DeribitCcxt
+        let quoteCurrencyStr = Currency.getCurrencyLabel(localPair.to);
+        if (quoteCurrencyStr === "ETH")
+            return "ETH";
+        else if (quoteCurrencyStr === "BTC")
+            return "BTC";
+        return "BTC"; // fallback
     }
     public getLocalPair(exchangePair: string): Currency.CurrencyPair {
         // exchamgePair: 'BTC-PERPETUAL'
-        return new Currency.CurrencyPair(Currency.Currency.USD, Currency.Currency.BTC)
+        if (exchangePair === "ETH-PERPETUAL")
+            return new Currency.CurrencyPair(Currency.Currency.USD, Currency.Currency.ETH);
+        else if (exchangePair === "BTC-PERPETUAL")
+            return new Currency.CurrencyPair(Currency.Currency.USD, Currency.Currency.BTC);
+        return new Currency.CurrencyPair(Currency.Currency.USD, Currency.Currency.BTC);
     }
     public toLocalTicker(exchangeTicker: any): Ticker.Ticker {
         return null; // not used for Deribit
@@ -109,7 +121,7 @@ export class DeribitCurrencies implements Currency.ExchangeCurrencies {
          */
         if (margin.kind !== "future")
             return null;
-        let position = new MarginPosition(maxLeverage);
+        let position = new MarginPosition(Math.min(10, maxLeverage));
         position.amount = Math.abs(margin.amount);
         position.type = margin.direction === "sell" ? "short" : "long";
         position.liquidationPrice = margin.estLiqPrice;
@@ -127,6 +139,7 @@ export default class Deribit extends AbstractContractExchange {
 
     protected currencies: DeribitCurrencies;
     protected websocket: DeribitApi = null;
+    protected deribitCcxt: DeribitCcxt = null;
     protected orderbookShapshot: OrderBookUpdate<MarketOrder.MarketOrder> = null;
     protected orderReject: (reason?: any) => void = null;
 
@@ -134,19 +147,28 @@ export default class Deribit extends AbstractContractExchange {
         super(options)
         this.publicApiUrl = "https://deribit"; // we use API client, but URL can not be empty for parent class
         this.privateApiUrl = this.publicApiUrl;
-        this.pushApiUrl = "wss://deribit-api";
+        this.pushApiUrl = "wss://deribit-api"; // use HTTP polling for now
         this.pushApiConnectionType = PushApiConnectionType.API_WEBSOCKET;
         if (!options || !this.apiKey.key)
             return; // temp instance to check exchange type
-        this.createWebsocket();
         this.exchangeLabel = Currency.Exchange.DERIBIT;
         this.minTradingValue = 1.0; // min value is 1 contract, BTC contract fixed at 10$
         this.fee = 0.00002; // only for opening positions // https://www.deribit.com/main#/pages/information/fees
         this.maxLeverage = 1; // easier to configure with 1
         this.currencies = new DeribitCurrencies(this);
         this.webSocketTimeoutMs = nconf.get('serverConfig:websocketTimeoutMs')*3; // they don't send pings too often
+        this.deribitCcxt = new DeribitCcxt(options);
+        this.deribitCcxt.setOnPoll((currencyPair: Currency.CurrencyPair, actions: /*MarketAction[]*/any[], seqNr: number) => {
+            this.marketStream.write(currencyPair, actions, seqNr);
+        });
 
         this.contractValues.set("BTC", 10);
+        this.contractValues.set("ETH", 10);
+    }
+
+    public subscribeToMarkets(currencyPairs: Currency.CurrencyPair[]) {
+        this.deribitCcxt.subscribeToMarkets(currencyPairs);
+        return super.subscribeToMarkets(currencyPairs);
     }
 
     public repeatFailedTrade(error: any, currencyPair: Currency.CurrencyPair) {
@@ -215,9 +237,12 @@ export default class Deribit extends AbstractContractExchange {
     }
 
     public fetchOrderBook(currencyPair: Currency.CurrencyPair, depth: number) {
+        /*
         return new Promise<OrderBookUpdate<MarketOrder.MarketOrder>>((resolve, reject) => {
             resolve(this.orderbookShapshot)
         })
+         */
+        return this.deribitCcxt.fetchOrderBook(currencyPair, depth);
     }
 
     public importHistory(currencyPair: Currency.CurrencyPair, start: Date, end: Date) {
@@ -313,6 +338,7 @@ export default class Deribit extends AbstractContractExchange {
     }
 
     public marginBuy(currencyPair: Currency.CurrencyPair, rate: number, amount: number, params: MarginOrderParameters) {
+        /*
         return new Promise<OrderResult>((resolve, reject) => {
             this.verifyTradeRequest(currencyPair, rate, amount, params).then((outParams) => {
                 return this.marginOrder(currencyPair, rate, amount, "buy", outParams);
@@ -322,9 +348,12 @@ export default class Deribit extends AbstractContractExchange {
                 reject(err)
             });
         })
+         */
+        return this.deribitCcxt.buy(currencyPair, rate, amount, params);
     }
 
     public marginSell(currencyPair: Currency.CurrencyPair, rate: number, amount: number, params: MarginOrderParameters) {
+        /*
         return new Promise<OrderResult>((resolve, reject) => {
             amount = Math.abs(amount);
             this.verifyTradeRequest(currencyPair, rate, amount, params).then((outParams) => {
@@ -335,9 +364,12 @@ export default class Deribit extends AbstractContractExchange {
                 reject(err)
             });
         })
+         */
+        return this.deribitCcxt.sell(currencyPair, rate, amount, params);
     }
 
     public marginCancelOrder(currencyPair: Currency.CurrencyPair, orderNumber: number | string) {
+        /*
         return new Promise<CancelOrderResult>((resolve, reject) => {
             this.orderReject = reject;
             this.websocket.action("cancel", {orderId: orderNumber}).then((result) => {
@@ -346,6 +378,8 @@ export default class Deribit extends AbstractContractExchange {
                 resolve({exchangeName: this.className, orderNumber: orderNumber, cancelled: result.order && result.order.orderId > 0})
             });
         })
+         */
+        return this.deribitCcxt.cancelOrder(currencyPair, orderNumber);
     }
 
     public moveMarginOrder(currencyPair: Currency.CurrencyPair, orderNumber: number | string, rate: number, amount: number, params: MarginOrderParameters) {
@@ -383,8 +417,12 @@ export default class Deribit extends AbstractContractExchange {
                 result.forEach((pos) => {
                     const pair = this.currencies.getLocalPair(pos.instrument);
                     let position = this.currencies.getMarginPosition(pos, this.getMaxLeverage());
-                    if (position)
+                    if (position) {
+                        const ticker = this.ticker.get(pair.toString());
+                        if (ticker)
+                            position.pl *= ticker.last;
                         list.set(pair.toString(), position);
+                    }
                 });
                 resolve(list);
             });
@@ -488,6 +526,8 @@ export default class Deribit extends AbstractContractExchange {
     protected createApiWebsocketConnection(): DeribitApi {
         const marketEventStreamMap = new Map<string, EventStream<any>>(); // (exchange currency name, stream instance)
         this.localSeqNr = 0; // keep counting upwards
+        if (this.websocket === null)
+            this.createWebsocket();
         this.websocket.connected.then(() => {
             this.updateOrderBooks(false); // we get it through the WebSocket connection
             this.currencyPairs.forEach((pair) => {
@@ -497,7 +537,7 @@ export default class Deribit extends AbstractContractExchange {
                 this.openMarketRelays.push(marketEventStream);
                 marketEventStreamMap.set(pair.toString(), marketEventStream); // use local pairs here
                 marketEventStream.on("value", (value, seqNr) => {
-                    this.marketStream.write(pair, value, seqNr);
+                    //this.marketStream.write(pair, value, seqNr); // currently not used in favor of CCXT
                 });
 
                 this.orderBook.get(pair.toString()).setSnapshot([], this.localSeqNr, false); // we receive an implicit snapshot with the first response
@@ -595,7 +635,8 @@ export default class Deribit extends AbstractContractExchange {
         catch (err) {
             logger.error("Error disconnecting %s websocket connection", this.className, err);
         }
-        this.createWebsocket(); // API error when re-using it
+        //this.createWebsocket(); // API error when re-using it
+        this.websocket = null;
     }
 
     protected createWebsocket() {

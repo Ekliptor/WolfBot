@@ -147,7 +147,7 @@ export class OKEXCurrencies implements Currency.ExchangeCurrencies {
         const currencyPair = Currency.CurrencyPair.fromString(margin.pair);
         if (margin.holding.length === 0 || (margin.holding[0].long_qty == 0 && margin.holding[0].short_qty == 0))
             return null; // no position open
-        let position = new MarginPosition(maxLeverage);
+        let position = new MarginPosition(Math.min(10, maxLeverage));
         if (margin.holding[0].long_qty != 0) {
             //position.amount = margin.holding[0].long_qty; // we can only close available amount, so use this. the difference is the amount allocated to open orders
             position.amount = margin.holding[0].long_avail_qty;
