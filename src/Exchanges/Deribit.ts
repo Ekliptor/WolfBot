@@ -149,8 +149,11 @@ export class DeribitCurrencies implements Currency.ExchangeCurrencies {
         if (!margin || margin.kind !== "future")
             return null;
         let position = new MarginPosition(Math.min(10, maxLeverage));
-        position.amount = Math.abs(margin.size_currency); // base currency, better than size
         position.type = margin.direction === "sell" ? "short" : "long";
+        position.amount = Math.abs(margin.size_currency); // base currency, better than size
+        position.contracts = margin.size;
+        if (position.type === "short")
+            position.amount *= -1;
         position.liquidationPrice = margin.estimated_liquidation_price;
         position.pl = margin.floating_profit_loss;
         return position;
@@ -284,7 +287,8 @@ export default class Deribit extends AbstractContractExchange {
             // Deribit has 2 different margin accounts for BTC & ETH (different collateral etc..) so this call doesn't make a lot of sense here
             this.getRawAccounts().then(async (accounts) => {
                 let positions = await this.getRawPositions();
-                resolve(this.currencies.toMarginAccountSummary({accounts: accounts, positions: positions}));
+                let summary = this.currencies.toMarginAccountSummary({accounts: accounts, positions: positions});
+                resolve(summary);
             }).catch((err) => {
                 reject({txt: "Error getting margin account summary", err: err});
             });
@@ -486,12 +490,7 @@ export default class Deribit extends AbstractContractExchange {
                         const pair = this.currencies.getLocalPair(pos.instrument_name);
                         let position = this.currencies.getMarginPosition(pos, this.getMaxLeverage());
                         if (position) {
-                            /*
-                            const ticker = this.ticker.get(pair.toString());
-                            if (ticker)
-                                position.pl *= ticker.last;
-                             */
-                            list.set(pair.toString(), position);
+                            list.set(pair.toString(), this.computeMarginPosition(position, pair));
                         }
                     });
                 });
@@ -516,7 +515,7 @@ export default class Deribit extends AbstractContractExchange {
                 if (!data || !data.result)
                     return Promise.reject({txt: "Error getting margin position", res: data});
                 let position = this.currencies.getMarginPosition(data.result, this.getMaxLeverage());
-                resolve(position);
+                resolve(this.computeMarginPosition(position, currencyPair));
             }).catch((err) => {
                 clearTimeout(timerID);
                 reject(err)
@@ -534,7 +533,7 @@ export default class Deribit extends AbstractContractExchange {
                 let result = new OrderResult();
                 if (!data || !data.result) {
                     if (data.error && data.error.code === 11094) { // internal_server_error happens when it doesn't exist -> wtf
-                        let openPos = await this.getMarginPosition(currencyPair);
+                        let openPos = this.computeMarginPosition(await this.getMarginPosition(currencyPair), currencyPair);
                         if (!openPos) {
                             result.success = true;
                             result.message = "already closed";
@@ -736,8 +735,9 @@ export default class Deribit extends AbstractContractExchange {
                 //amount: this.getContractAmount(currencyPair, rate, amount),
                 amount: this.toTickSize(currencyPair, Math.abs(amount)),
                 type: params.matchBestPrice === true ? "market" : "limit",
-                price: rate
             }
+            if (params.matchBestPrice !== true)
+                outParams.price = rate;
             if (outParams.amount < 1)
                 outParams.amount = 1;
             if (params.fillOrKill === true)
@@ -755,7 +755,7 @@ export default class Deribit extends AbstractContractExchange {
             contractValue = 10; // shouln't happen
         rate = utils.calc.roundTo(rate, 10);
         if (rate < contractValue)
-            rate = 10;
+            rate = contractValue;
         return rate;
     }
 
@@ -811,6 +811,15 @@ export default class Deribit extends AbstractContractExchange {
             }));
         });
         return Promise.all(reqOps);
+    }
+
+    protected computeMarginPosition(position: MarginPosition, pair: Currency.CurrencyPair) {
+        if (position) {
+            const ticker = this.ticker.get(pair.toString());
+            if (ticker)
+                position.pl *= ticker.last;
+        }
+        return position;
     }
 
     protected privateReq(method: string, params: ExRequestParams): Promise<ExResponse> {
