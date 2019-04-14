@@ -751,8 +751,10 @@ export default class Deribit extends AbstractContractExchange {
 
     protected toTickSize(currencyPair: Currency.CurrencyPair, rate: number) {
         let contractValue = this.contractValues.get(Currency.getCurrencyLabel(currencyPair.to));
-        if (contractValue === undefined)
+        if (contractValue === undefined) {
             contractValue = 10; // shouln't happen
+            logger.warn("Unable to get %s contract value for pair %s", this.className, currencyPair.toString());
+        }
         rate = utils.calc.roundTo(rate, 10);
         if (rate < contractValue)
             rate = contractValue;

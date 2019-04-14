@@ -799,7 +799,8 @@ export class ConfigEditor extends AppPublisher {
                         maxLeverage: conf.maxLeverage ? parseFloat(conf.maxLeverage) : 1.0,
                         tradeDirection: conf.tradeDirection,
                         warmUpMin: conf.warmUpMin,
-                        updateIndicatorsOnTrade: conf.updateIndicatorsOnTrade
+                        updateIndicatorsOnTrade: conf.updateIndicatorsOnTrade,
+                        flipPosition: conf.flipPosition
                     }
                     if (configs.length > i)
                         configs[i].update(update)

@@ -96,7 +96,9 @@ export abstract class TechnicalStrategy extends AbstractStrategy implements Tech
         // can't come from mixin when we have to call super
         let state = super.serialize();
         // serialize candles for indicators
-        state.candles = Candle.Candle.copy(this.candles);
+        //state.candles = Candle.Candle.copy(this.candles);
+        //state.candles = Candle.Candle.copy(this.candles.slice(0, nconf.get("serverConfig:serializeCandles"))); // here we use push() instead of unshift()
+        state.candles = Candle.Candle.copy(this.candles.slice(-1 * nconf.get("serverConfig:serializeCandles")));
         state.lastTrend = this.lastTrend;
         state.indicators = {}
         for (let ind of this.indicators)

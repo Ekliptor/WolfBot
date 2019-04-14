@@ -125,12 +125,13 @@ export class LogPublisher extends AppPublisher {
             this.recentLogLines = this.recentLogLines.concat(lines);
         })
         */
-
-        this.advisor.getTraders().forEach((trader) => {
-            trader.on("log", (line) => {
-                this.addLogLine("t", line);
-            })
-        })
+        setTimeout(() => { // ensure traders are loaded
+            this.advisor.getTraders().forEach((trader) => {
+                trader.on("log", (line) => {
+                    this.addLogLine("t", line);
+                })
+            });
+        }, 1000)
     }
 
     protected addLogLine(type: LogType, line: string) {

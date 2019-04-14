@@ -1130,6 +1130,8 @@ export abstract class AbstractStrategy extends AbstractGenericStrategy {
             return false;
         if (minPercent == 0)
             return true;
+        if (this.position.leverage >= 10.0)
+            return true; // always assume enough % profit on highly leveraged exchanges
         const positionSizeBase = Math.abs(this.position.amount) * this.getLastPrice();
         if (positionSizeBase > 0.0) { // otherwise no ticker data or sth else went wrong
             const profitPercent = this.position.pl / positionSizeBase * 100.0;

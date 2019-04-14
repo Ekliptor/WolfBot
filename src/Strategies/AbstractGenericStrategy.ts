@@ -299,8 +299,10 @@ export abstract class AbstractGenericStrategy extends EventEmitter {
         return {
             // json gets too big with trade data data (> 500MB for 2 weeks)
             runningCandleSize: this.runningCandleSize,
-            candleHistory: Candle.Candle.copy(this.candleHistory), // TODO add parameter to remove oldest candles (checking candle start property)
-            candles1min: nconf.get("lending") === true || nconf.get("arbitrage") === true || this.isMainStrategy() === true ? Candle.Candle.copy(this.candles1min) : [],
+            //candleHistory: Candle.Candle.copy(this.candleHistory), // TODO add parameter to remove oldest candles (checking candle start property)
+            //candles1min: nconf.get("lending") === true || nconf.get("arbitrage") === true || this.isMainStrategy() === true ? Candle.Candle.copy(this.candles1min) : [],
+            candleHistory: Candle.Candle.copy(this.candleHistory.slice(0, nconf.get("serverConfig:serializeCandles"))),
+            candles1min: nconf.get("lending") === true || nconf.get("arbitrage") === true || this.isMainStrategy() === true ? Candle.Candle.copy(this.candles1min.slice(0, nconf.get("serverConfig:serializeCandles1min"))) : [],
             lastNotification: this.lastNotification
         }
     }

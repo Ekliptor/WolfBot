@@ -75,8 +75,8 @@ export abstract class ServerSocketPublisher {
     }
 
     public removeSubscriber(clientSocket: ClientSocketOnServer) {
-        this.subscribers.delete(clientSocket);
-        this.onClose(clientSocket);
+        if (this.subscribers.delete(clientSocket) === true)
+            this.onClose(clientSocket); // only if it existed
     }
 
     public skipPublishing() {
@@ -162,13 +162,14 @@ export class ServerSocket extends WebSocket.Server {
         this.receivers.set(publisher.opcode, publisher);
     }
 
-    public send(ws: WebSocket, data: any, options?: ServerSocketSendOptions) {
+    public send(ws: /*WebSocket*/ClientSocketOnServer, data: any, options?: ServerSocketSendOptions) {
         return new Promise<boolean>((resolve, reject) => {
             ws.send(data, options, (err) => {
                 if (err) {
-                    if ((err.message || "").indexOf("CLOSED") !== -1) {
+                    if (/(CLOSED|CLOSING)/i.test(err.message || "") === true) {
                         //delete err.stack; // don't print the stack of regular close messages to avoid spamming the log
                         logger.verbose("Error sending WebSocket data", err.message);
+                        this.removeWebsocketClientFromAllReceivers(ws);
                     }
                     else
                         logger.error("Error sending WebSocket data", err);
@@ -284,8 +285,7 @@ export class ServerSocket extends WebSocket.Server {
             })
             ws.on("close", (code, message) => {
                 logger.verbose("WebSocket connection closed with code %s: %s", code, message);
-                for (let receiver of this.receivers)
-                    receiver[1].removeSubscriber(ws);
+                this.removeWebsocketClientFromAllReceivers(ws);
                 this.listeningClients.delete(ws.id);
             })
             //ws.send("foo from server")
@@ -294,6 +294,11 @@ export class ServerSocket extends WebSocket.Server {
             //for (let receiver of this.receivers) // removed in favor of onSubscription()
                 //receiver[1].onConnection(ws, request);
         })
+    }
+
+    protected removeWebsocketClientFromAllReceivers(ws: ClientSocketOnServer) {
+        for (let receiver of this.receivers)
+            receiver[1].removeSubscriber(ws);
     }
 
     protected sendErrorAndClose(ws: ClientSocketOnServer, error: WebSocketError, options?: ServerSocketSendOptions) {
