@@ -13,6 +13,20 @@ import Deribit from "../src/Exchanges/Deribit";
 import {Currency} from "@ekliptor/bit-models";
 import {AbstractMarketData} from "../src/Exchanges/feeds/AbstractMarketData";
 import BxCo from "../src/Exchanges/BxCo";
+import CoinbasePro from "../src/Exchanges/CoinbasePro";
+import Bitstamp from "../src/Exchanges/Bitstamp";
+import CexIo from "../src/Exchanges/CexIo";
+import Cobinhood from "../src/Exchanges/Cobinhood";
+import Gemini from "../src/Exchanges/Gemini";
+import HitBTC from "../src/Exchanges/HitBTC";
+import Huobi from "../src/Exchanges/Huobi";
+import KuCoin from "../src/Exchanges/KuCoin";
+import Nova from "../src/Exchanges/Nova";
+import BitForex from "../src/Exchanges/BitForex";
+import Bibox from "../src/Exchanges/Bibox";
+import Liquid from "../src/Exchanges/Liquid";
+import YoBit from "../src/Exchanges/YoBit";
+import Peatio from "../src/Exchanges/Peatio";
 
 const logger = utils.logger
     , nconf = utils.nconf;
@@ -92,7 +106,8 @@ let testOkex = async () => {
     let pair = new Currency.CurrencyPair(Currency.Currency.USD, Currency.Currency.ETH)
     //console.log(okex.getCurrencies().getExchangePair(pair))
     okex.subscribeToMarkets([pair]);
-    await utils.promiseDelay(500);
+    await okex.fetchOrderBook(pair,10);
+    await utils.promiseDelay(1500);
     const from = new Date("2019-03-31 06:00:00 GMT+0000")
 
     let orderParams = {
@@ -264,22 +279,23 @@ let testBinance = () => {
     })
 }
 
-let testBitmex = () => {
+let testBitmex = async () => {
     let bitmex = new BitMEX(nconf.get("serverConfig:apiKey:exchange:BitMEX")[0])
     let params = {}
 
     //let pair =[Currency.Currency.BTC, Currency.Currency.ETH]
-    let pair = new Currency.CurrencyPair(Currency.Currency.BTC, Currency.Currency.USD)
+    let pair = new Currency.CurrencyPair(Currency.Currency.USD, Currency.Currency.ETH)
     bitmex.subscribeToMarkets([pair])
+    await utils.promiseDelay(500);
 
     //binance.buy(pair, 0.00004040, 30).then((balances) => {
     //binance.getOpenOrders(pair).then((balances) => {
-    bitmex.importHistory(pair, new Date(Date.now()-22*utils.constants.HOUR_IN_SECONDS*1000), new Date()).then((test) => {
+    //bitmex.importHistory(pair, new Date(Date.now()-22*utils.constants.HOUR_IN_SECONDS*1000), new Date()).then((test) => {
     //binance.sell(pair, 0.00000623, 350).then((balances) => {
     //bitmex.marginOrder(pair, 9000, 0.001).then((test) => {
     //bitmex.getBalances().then((balances) => {
     //bitmex.marginCancelOrder(pair, "955d5624-5442-8e8a-f4cb-bdc87786adf3").then((test) => {
-    //bitmex.marginBuy(pair, 9900, 0.001, params).then((test) => {
+    bitmex.marginBuy(pair, 123.44303, 12.3, params).then((test) => {
         //binance.moveOrder(pair, 25959783, 0.00000723, 360, params).then((balances) => {
         console.log(test)
     }).catch((err) => {
@@ -292,19 +308,20 @@ let testDeribit = async () => {
     let params = {}
 
     let pair = new Currency.CurrencyPair(Currency.Currency.USD, Currency.Currency.BTC)
+    await utils.promiseDelay(1000); // wait til we are connected
     deribit.subscribeToMarkets([pair]);
-    await utils.promiseDelay(1200); // wait til we are connected
+    await utils.promiseDelay(1000); // wait til we are connected
 
     //deribit.getBalances().then((test) => {
     //deribit.getMarginAccountSummary().then((test) => {
     //deribit.importHistory(pair, new Date(Date.now()-2*utils.constants.HOUR_IN_SECONDS*1000), new Date()).then((test) => {
     //deribit.getOpenOrders(pair).then((test) => {
-    deribit.marginBuy(pair, 3900, 4, params).then((test) => {
-    //deribit.moveMarginOrder(pair, 2028730532, 4999, 4, params).then((test) => {
-    //deribit.marginCancelOrder(pair, 1024236179).then((test) => {
-    //deribit.getAllMarginPositions().then((test) => {
+    //deribit.marginSell(pair, 180, 4.3234, params).then((test) => {
+    //deribit.moveMarginOrder(pair, 'ETH-115976086', 181, 5, params).then((test) => {
+    //deribit.marginCancelOrder(pair, 'ETH-115970335').then((test) => {
+    deribit.getAllMarginPositions().then((test) => {
+    //deribit.getMarginPosition(pair).then((test) => {
     //deribit.closeMarginPosition(pair).then((test) => {
-        //binance.moveOrder(pair, 25959783, 0.00000723, 360, params).then((balances) => {
         console.log(test)
     }).catch((err) => {
         logger.error("Error trading", err)
@@ -332,6 +349,50 @@ let testBx = async () => {
     })
 }
 
+let testCcxt = async () => {
+    let coinbase = new YoBit(nconf.get("serverConfig:apiKey:exchange:Bitstamp")[0])
+    let params = {}
+
+    let pair = new Currency.CurrencyPair(Currency.Currency.BTC, Currency.Currency.ETH)
+    coinbase.subscribeToMarkets([pair]);
+    await utils.promiseDelay(800); // wait til we are connected
+
+    //coinbase.getTicker().then((test) => {
+    coinbase.fetchOrderBook(pair, 10).then((test) => {
+    //coinbase.importHistory(pair, new Date(Date.now()-9*utils.constants.HOUR_IN_SECONDS*1000), new Date()).then((test) => {
+    //coinbase.buy(pair, 3500, 0.08, params).then((test) => {
+    //coinbase.sell(pair, 410, 0.08, params).then((test) => {
+    //coinbase.cancelOrder(pair, 11054256).then((test) => {
+    //coinbase.getOpenOrders(pair).then((test) => {
+    //bx.moveOrder(pair, 11054309, 2600, 0.088, params).then((test) => {
+        console.log(test)
+    }).catch((err) => {
+        logger.error("Error trading", err)
+    })
+}
+
+let testPaetio = async () => {
+    let pt = new Peatio(nconf.get("serverConfig:apiKey:exchange:Peatio")[0])
+    let params = {}
+
+    let pair = new Currency.CurrencyPair(Currency.Currency.USD, Currency.Currency.ETH)
+    pt.subscribeToMarkets([pair]);
+    await utils.promiseDelay(400); // wait til we are connected
+    return;
+
+    pt.getBalances().then((test) => {
+    //bx.fetchOrderBook(pair, 10).then((test) => {
+    //bx.importHistory(pair, new Date(Date.now()-9*utils.constants.HOUR_IN_SECONDS*1000), new Date()).then((test) => {
+    //bx.buy(pair, 2500, 0.08, params).then((test) => {
+    //pt.cancelOrder(pair, 11054256).then((test) => {
+    //bx.getOpenOrders(pair).then((test) => {
+    //pt.moveOrder(pair, 11054309, 2600, 0.088, params).then((test) => {
+        console.log(test)
+    }).catch((err) => {
+        logger.error("Error trading", err)
+    })
+}
+
 let testBitmexLiquidations = async () => {
     //let bitmex = new BitmexMarketData();
     let bitmex = AbstractMarketData.getInstance("BitmexMarketData");
@@ -343,7 +404,7 @@ let testBitmexLiquidations = async () => {
 Controller.loadServerConfig(() => {
     utils.file.touch(AbstractExchange.cookieFileName).then(() => {
         //buy()
-        testOkex()
+        //testOkex()
         //testKraken()
         //testBitfinex()
         //testPolo();
@@ -353,5 +414,7 @@ Controller.loadServerConfig(() => {
         //testBitmexLiquidations();
         //testDeribit();
         //testBx();
+        //testCcxt();
+        testPaetio();
     })
 })

@@ -720,8 +720,10 @@ export abstract class PortfolioTrader extends AbstractTrader {
             }
         }
 
-        if (this.config.flipPosition === true && strategy.getStrategyPosition() !== "none")
-            coinAmount *= 2.0;
+        if (this.config.flipPosition === true && strategy.getStrategyPosition() !== "none") {
+            if ((trade === "sell" && strategy.getStrategyPosition() === "long") || (trade === "buy" && strategy.getStrategyPosition() === "short"))
+                coinAmount *= 2.0;
+        }
 
         // if it's TakeProfit we have to ensure to not sell/close more coins than we hold
         //if (!(strategy instanceof AbstractTakeProfitStrategy)) {

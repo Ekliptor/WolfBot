@@ -95,10 +95,13 @@ export default class RealTimeTrader extends PortfolioTrader {
                         orderParameters = {postOnly: true}
                     }
                     else if (rate <= -1) {
-                        if (rate === -2)
+                        if (rate === -2) {
                             orderParameters.matchBestPrice = true;
+                            rate = orderBook.getLast() > 0.0 ? orderBook.getLast() : 1; // market order
+                        }
                         //rate = tickerData.last + tickerData.last / 100 * nconf.get('serverConfig:maxPriceDiffPercent')
-                        rate = orderBook.getLast() + orderBook.getLast() / 100 * nconf.get('serverConfig:maxPriceDiffPercent') // TODO or should we use bid/ask?
+                        else
+                            rate = orderBook.getLast() + orderBook.getLast() / 100 * nconf.get('serverConfig:maxPriceDiffPercent') // TODO or should we use bid/ask?
                     }
                     const buyAmount = this.getMaxCoinAmount(exchange, strategy, buyBtc / rate, "buy");
                     if (this.tradeMode === RealTimeTradeMode.SIMULATION) {
@@ -161,9 +164,12 @@ export default class RealTimeTrader extends PortfolioTrader {
                         orderParameters = {postOnly: true}
                     }
                     else if (rate <= -1) {
-                        if (rate === -2)
+                        if (rate === -2) {
                             orderParameters.matchBestPrice = true;
-                        rate = orderBook.getLast() + orderBook.getLast() / 100 * nconf.get('serverConfig:maxPriceDiffPercent')
+                            rate = orderBook.getLast() > 0.0 ? orderBook.getLast() : 1; // market order
+                        }
+                        else
+                            rate = orderBook.getLast() + orderBook.getLast() / 100 * nconf.get('serverConfig:maxPriceDiffPercent')
                     }
                     // TODO check actual tradable balance on exchange and store it in map in advance (for faster real time trading)
                     const buyAmount = this.getMaxCoinAmount(exchange, strategy, buyBtc / rate, "buy");
@@ -238,9 +244,12 @@ export default class RealTimeTrader extends PortfolioTrader {
                         orderParameters = {postOnly: true}
                     }
                     else if (rate <= -1) {
-                        if (rate === -2)
+                        if (rate === -2) {
                             orderParameters.matchBestPrice = true;
-                        rate = orderBook.getLast() - orderBook.getLast() / 100 * nconf.get('serverConfig:maxPriceDiffPercent')
+                            rate = orderBook.getLast() > 0.0 ? orderBook.getLast() : 1; // market order
+                        }
+                        else
+                            rate = orderBook.getLast() - orderBook.getLast() / 100 * nconf.get('serverConfig:maxPriceDiffPercent')
                     }
                     const sellAmount = this.getMaxCoinAmount(exchange, strategy, sellBtc / rate, "sell");
                     if (this.tradeMode === RealTimeTradeMode.SIMULATION) {
@@ -303,9 +312,12 @@ export default class RealTimeTrader extends PortfolioTrader {
                         orderParameters = {postOnly: true}
                     }
                     else if (rate <= -1) {
-                        if (rate === -2)
+                        if (rate === -2) {
                             orderParameters.matchBestPrice = true;
-                        rate = orderBook.getLast() - orderBook.getLast() / 100 * nconf.get('serverConfig:maxPriceDiffPercent')
+                            rate = orderBook.getLast() > 0.0 ? orderBook.getLast() : 1; // market order
+                        }
+                        else
+                            rate = orderBook.getLast() - orderBook.getLast() / 100 * nconf.get('serverConfig:maxPriceDiffPercent')
                     }
 
                     if (curBalance * orderBook.getLast() > this.getMaxSellBtc())

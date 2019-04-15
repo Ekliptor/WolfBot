@@ -93,6 +93,8 @@ src/Exchanges/BitmexFix.ts
 src/Indicators/MarketDepth.ts
 config/BitmexWeek.json
 config/OkexWeek.json
+config/BitmexWeekStops.json
+config/DeribitTradingViewImmediate.json
 src/Browser
 
 public/js/libs/tv

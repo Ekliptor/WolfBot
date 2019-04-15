@@ -196,6 +196,7 @@ export default class Deribit extends AbstractContractExchange {
         this.createWebsocket();
 
         this.contractValues.set("BTC", 10);
+        //this.contractValues.set("ETH", this.apiKey.testnet === true ? 1 : 10); // 1 on testnet - wtf?
         this.contractValues.set("ETH", 1);
     }
 
@@ -432,6 +433,7 @@ export default class Deribit extends AbstractContractExchange {
     public marginSell(currencyPair: Currency.CurrencyPair, rate: number, amount: number, params: MarginOrderParameters) {
         return new Promise<OrderResult>((resolve, reject) => {
             this.verifyTradeRequest(currencyPair, rate, amount, params).then((outParams) => {
+                console.log(outParams)
                 return this.marginOrder(currencyPair, rate, amount, "sell", outParams);
             }).then((result) => {
                 resolve(result)
@@ -559,8 +561,9 @@ export default class Deribit extends AbstractContractExchange {
         return new Promise<OrderResult>((resolve, reject) => {
             //this.orderReject = reject; // when passing invalid params, deribit API only fires the error in the constructor
             this.websocket.request("private/" + side, outParams).then((data) => {
-                if (!data || !data.result)
-                    return reject({txt: "Error trading", res: data});
+                if (!data || !data.result) {
+                    return reject({txt: "Error trading", res: data, permanent: data.error && data.error.code === 10009}); // not enough funds
+                }
                 /**
                  * { order:
                       { time_in_force: 'good_til_cancelled',
@@ -727,13 +730,17 @@ export default class Deribit extends AbstractContractExchange {
                 if (this.currencies.getExchangePair(currencyPair) === undefined)
                     return reject({txt: "Currency pair not supported by this exchange", exchange: this.className, pair: currencyPair, permanent: true});
             }
+            amount = Math.abs(amount);
+            if (/*params.matchBestPrice === true && */utils.calc.getDecimalCount(amount) > 7) { // supplied in base currency (converted) = contracts for Deribit
+                amount *= this.getLastRate(currencyPair);
+            }
             if (amount > 0 && rate * amount < this.minTradingValue)
                 return reject({txt: "Value is below the min trading value", exchange: this.className, value: rate*amount, minTradingValue: this.minTradingValue, permanent: true})
 
             let outParams: any = {
                 instrument_name: this.getContractForCurrencyPair(currencyPair),
                 //amount: this.getContractAmount(currencyPair, rate, amount),
-                amount: this.toTickSize(currencyPair, Math.abs(amount)),
+                amount: this.toTickSize(currencyPair, amount),
                 type: params.matchBestPrice === true ? "market" : "limit",
             }
             if (params.matchBestPrice !== true)
@@ -750,12 +757,13 @@ export default class Deribit extends AbstractContractExchange {
     }
 
     protected toTickSize(currencyPair: Currency.CurrencyPair, rate: number) {
+        // https://www.deribit.com/pages/docs/perpetual
         let contractValue = this.contractValues.get(Currency.getCurrencyLabel(currencyPair.to));
         if (contractValue === undefined) {
             contractValue = 10; // shouln't happen
             logger.warn("Unable to get %s contract value for pair %s", this.className, currencyPair.toString());
         }
-        rate = utils.calc.roundTo(rate, 10);
+        rate = utils.calc.roundTo(rate, contractValue);
         if (rate < contractValue)
             rate = contractValue;
         return rate;

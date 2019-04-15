@@ -73,10 +73,12 @@ export default class TriggerOrder extends AbstractTriggerOrder {
 
     public unserialize(state: any) {
         super.unserialize(state);
+        /* // always don't unserialize it because of close function and delayed position sync on startup
         this.plannedOrder = state.plannedOrder ? state.plannedOrder : null;
         if (state.countdownOrder)
             this.countdownOrder = state.countdownOrder;
         this.countdownStart = state.countdownStart ? state.countdownStart : null;
+         */
     }
 
     // ################################################################

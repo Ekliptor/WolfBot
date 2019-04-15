@@ -776,6 +776,18 @@ export abstract class AbstractExchange {
         return next
     }
 
+    protected getLastRate(currencyPair: Currency.CurrencyPair) {
+        const pairStr = currencyPair.toString();
+        let book = this.orderBook.get(pairStr);
+        if (book && book.getLast() > 0.0)
+            return book.getLast(); // prefer book price since it updates more frequently (on most exchanges)
+        let ticker = this.ticker.get(pairStr);
+        if (ticker && ticker.last > 0.0)
+            return ticker.last;
+        logger.warn("No last price available for %s %s", this.className, pairStr);
+        return -1;
+    }
+
     /*
     protected getServerDate() {
         let date = new Date();

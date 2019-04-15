@@ -17,6 +17,7 @@ config.config = {
     "serverDataDir": "./src/server/data/",
     "logfile": "logfile.log",
     "deleteOldLog": true,
+    "backupLastLog": true,
     "jsonLog": false,
     "apiKeys" : { // leeave empty to disable API keys (public access)
     },

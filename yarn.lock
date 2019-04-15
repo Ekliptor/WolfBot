@@ -2061,13 +2061,12 @@ deprecated@^0.0.1:
   resolved "https://registry.yarnpkg.com/deprecated/-/deprecated-0.0.1.tgz#f9c9af5464afa1e7a971458a8bdef2aa94d5bb19"
   integrity sha1-+cmvVGSvoeepcUWKi97yqpTVuxk=
 
-deribit-ws-nodejs@^1.0.0:
-  version "1.0.3"
-  resolved "https://registry.yarnpkg.com/deribit-ws-nodejs/-/deribit-ws-nodejs-1.0.3.tgz#10be2531137423a5fe4b6157ce26278a2165964d"
-  integrity sha512-tHyqL9rHTK6MoPNi0p9h+YyOGwVzhB+ws2g4nuGi1ZpCxpXn/xKxYbc2reTxoW7Veenit7mul3zhDPtrkym0dw==
+deribit-v2-ws@0.0.3:
+  version "0.0.3"
+  resolved "https://registry.yarnpkg.com/deribit-v2-ws/-/deribit-v2-ws-0.0.3.tgz#ca88891cd2bfb6b630d764fc4debcc69a8fbe47e"
+  integrity sha512-BcP/orqD0JZSqw7OBnJ7c0qbxlW1iDBzVf3n58OFtdwXTZz+3W4wZuvXz0swN5GhL96gCoMb0IoC0ZchyInzjw==
   dependencies:
-    debug "^4.1.0"
-    nodejs-websocket "^1.7.1"
+    ws "^6.2.0"
 
 detect-file@^1.0.0:
   version "1.0.0"
@@ -5262,11 +5261,6 @@ nodeify@^1.0.0:
     is-promise "~1.0.0"
     promise "~1.3.0"
 
-nodejs-websocket@^1.7.1:
-  version "1.7.2"
-  resolved "https://registry.yarnpkg.com/nodejs-websocket/-/nodejs-websocket-1.7.2.tgz#94abd1e248f57d4d1c663dec3831015c6dad98a6"
-  integrity sha512-PFX6ypJcCNDs7obRellR0DGTebfUhw1SXGKe2zpB+Ng1DQJhdzbzx1ob+AvJCLzy2TJF4r8cCDqMQqei1CZdPQ==
-
 nodemailer@^4.0.1:
   version "4.7.0"
   resolved "https://registry.yarnpkg.com/nodemailer/-/nodemailer-4.7.0.tgz#4420e06abfffd77d0618f184ea49047db84f4ad8"
@@ -7742,7 +7736,7 @@ ws@3.3.x, ws@^3.1.0:
     safe-buffer "~5.1.0"
     ultron "~1.1.0"
 
-"ws@>= 1.1.4", ws@^6.0.0, ws@^6.1.0, ws@^6.1.4:
+"ws@>= 1.1.4", ws@^6.0.0, ws@^6.1.0, ws@^6.1.4, ws@^6.2.0:
   version "6.2.1"
   resolved "https://registry.yarnpkg.com/ws/-/ws-6.2.1.tgz#442fdf0a47ed64f59b6a5d8ff130f4748ed524fb"
   integrity sha512-GIyAXC2cB7LjvpgMt9EKS2ldqr0MTrORaleiOno6TweZ6r3TKtoFQWay/2PceJ3RuBasOHzXNn5Lrw1X0bEjqA==

@@ -1,4 +1,3 @@
-// https://poloniex.com/support/api/
 
 import * as utils from "@ekliptor/apputils";
 const logger = utils.logger

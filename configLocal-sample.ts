@@ -85,7 +85,86 @@ class ServerConfig {
                 secret: "",
                 passphrase: "",
                 marginNotification: 0.5
-            }]
+            }],
+            Bitstamp: [{
+                key: "",
+                secret: "",
+                passphrase: "",
+                marginNotification: 0.5
+            }],
+            CexIo: [{
+                key: "",
+                secret: "",
+                passphrase: "",
+                marginNotification: 0.5
+            }],
+            Cobinhood: [{
+                key: "",
+                secret: "",
+                marginNotification: 0.5
+            }],
+            Gemini: [{
+                key: "",
+                secret: "",
+                marginNotification: 0.5
+            }],
+            HitBTC: [{
+                key: "",
+                secret: "",
+                marginNotification: 0.5
+            }],
+            Huobi: [{
+                key: "",
+                secret: "",
+                marginNotification: 0.5
+            }],
+            KuCoin: [{
+                key: "",
+                secret: "",
+                passphrase: "",
+                marginNotification: 0.5
+            }],
+            Nova: [{
+                key: "",
+                secret: "",
+                marginNotification: 0.5
+            }],
+            BitForex: [{
+                key: "",
+                secret: "",
+                marginNotification: 0.5
+            }],
+            FCoin: [{
+                key: "",
+                secret: "",
+                marginNotification: 0.5
+            }],
+            Bibox: [{
+                key: "",
+                secret: "",
+                marginNotification: 0.5
+            }],
+            BxCo: [{
+                key: "",
+                secret: "",
+                marginNotification: 0.5
+            }],
+            Liquid: [{
+                key: "",
+                secret: "",
+                marginNotification: 0.5
+            }],
+            YoBit: [{
+                key: "",
+                secret: "",
+                marginNotification: 0.5
+            }],
+            Peatio: [{
+                key: "",
+                secret: "",
+                domain: "",
+                marginNotification: 0.5
+            }],
         },
         notify: {
             Pushover: {
