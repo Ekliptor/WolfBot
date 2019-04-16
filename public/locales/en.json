@@ -573,7 +573,11 @@
     "flipPosition": "By enabling this WolfBot will trade with 2x \"tradeTotalBtc\" if there already is an open position. This means you can always switch between a long and short short position with a single trade.<br>This only applies to buy an sell signals (close signals will still close the position).",
     "maxLeverage": "The max leverage to use for margin trading to multiply 'tradeTotalBtc' with. This also applies to futures trading.",
     "warmUpMin": "How many minutes after start shall the bot start trading? Keep it to 0 (immediately) unless you want to wait for some external market events (news, crash,...). WolfBot will sync pre-existing positions positions on startup and initialize strategies with historical data, so increasing this value doesn't give WolfBot a better understanding of the market.",
-    "notifyTrades": "Send push notifications of all trades to your smartphone."
+    "notifyTrades": "Send push notifications of all trades to your smartphone.",
+    "exitTicks": "Close positions after x ticks. Might cause to exit the market at a loss.",
+    "longShortRatio": "Open a higher/lower amount on one side of arbitrage. Values > 1 mean long position will be bigger.",
+    "followExchange": "Follow prices of the 1st exchange. Only trade on the 2nd in the same direction (not arbitrage, instead following a major exchange).",
+    "maxTradeBalancePercentage": "Trade at most with x% of our available coins (some exchanges might add fees on top)."
   },
   "stratDesc": {
     "all": {
@@ -1331,12 +1335,27 @@
       "minVolumeSpikePosInc": "optional, default 1.1 - The min volume when increasing an existing position compared to the average volume of the last 'interval' candles to open a position.",
       "closePosition": "optional, default profit - Only close a position by placing the trailing stop if its profit/loss is in that defined state.",
       "trailingStopPerc": "optional, default 0.5% - The trailing stop percentage that will be placed once the computed profit target of the strategy has been reached.",
-      "time": "optional, default 30 = immediately - The time in seconds until the stop gets executed after the trailing stop has been reached.",
+      "time": "optional, default 30 (0 = immediately) - The time in seconds until the stop gets executed after the trailing stop has been reached.",
       "short": "optional, default 10 - The number of candles for the short EMA of the MACD indicator.",
       "long": "optional, default 26 - The number of candles for the long EMA of the MACD indicator.",
       "signal": "optional, default 9 - The number of candles for the signal line of the MACD line (short EMA - long EMA).",
       "feed": "optional, default BitmexMarketData - The exchange feed to use to get liquidations from. This is not available during backtesting, so results might differ. Values: BitmexMarketData",
       "currencyPairs": "optional, default [\"USD_BTC\"] - The currency pairs to subscribe to for liquidation data."
+    },
+    "FishingNet": {
+      "desc": "A Strategy that repeatedly buys/sells amounts in the same direction. It starts with small amounts and increases the size of the orders as the price goes down (thus dividing the total order size into chunks). If the market keeps moving against an existing position, our losses increase, but since we repeatedly increased our position size, our average buy price is close to the current price and it doesn't take long to get a profit at any point as soon as the market turns.<br>This strategy opens and closes positions but you may still add additional TakeProfit/StopLoss strategies.",
+      "fishingMode": "optional, default trend - In which direction shall this strategy open positions? 'trend' means the strategy will decide automatically based on the current MACD trend. Values: up|down|trend",
+      "percentage": "optional, default 10% - How many percent of the total trading balance shall be used for the first trade and on each trade to increase the position size.",
+      "maxPosIncreases": "optional, default 45 - How many times this strategy shall increase an existing position at most. Note that raising this value can cause your strategy to trade with more than your configured total trading balance.",
+      "minPriceChangeIncrease": "optional, default 1.0% - How much the price must move against an open position to increase its size.",
+      "tradingAmountIncreaseFactor": "optional, default 1.05 - The factor with which your trading amount will be increased on each trade after opening a position. So the total capital of trade n to increase an existing position will be: tradeTotalBtc * percentage * tradingAmountIncreaseFactor * n",
+      "profitPercent": "optional, default 1.1% - After the total position size reached this profit the position will no longer be increased. Instead a trailing stop with 'trailingStopPerc' will be placed.",
+      "closePosition": "optional, default profit - Only close a position by placing the trailing stop if its profit/loss is in that defined state.",
+      "trailingStopPerc": "optional, default 0.05% - The trailing stop percentage that will be placed once the computed profit target of the strategy has been reached.",
+      "time": "optional, default 0 (0 = immediately) - The time in seconds until the stop gets executed after the trailing stop has been reached.",
+      "short": "optional, default 10 - The number of candles for the short EMA of the MACD indicator.",
+      "long": "optional, default 26 - The number of candles for the long EMA of the MACD indicator.",
+      "signal": "optional, default 9 - The number of candles for the signal line of the MACD line (short EMA - long EMA)."
     },
     "MarketMakerOffset": {
       "desc": "Strategy that acts as a market maker by placing 2 corresponding buy/sell limit orders a certain percentage away from each other. You can configure a fixed percentage or place them as far away as possible within the orderbook (while staying closer to the last trade price than any other orders).<br>This strategy can also pause market making during quick price movements.<br>This strategy can also issue multiple open buy/sell order pairs - each one a configured percentage further apart.<br>You must run this strategy alone, meaning without any StopLoss, take-profit or trade strategy.",
@@ -1370,7 +1389,8 @@
       "desc": "Arbitrage strategy using limit orders with 1 leg \"standing\" on the current price rate of the higher-volume exchange. Thereby offering liquidity to the lower-volume exchange by copying the orderbook.<br>Also see MarketMakerOffset strategy for a similar way of market making while only being connected to 1 exchange.",
       "copySide": "default \"both\" - Which side of the orderbook shall be mirrored.",
       "priceAddPercent": "default 0.05% - The percentage the prices on the market we make shall differ from the leg exchange we mirror the orderbook from. This is our profit. Therefore this value must be higher than your trading fees on both exchanges combined plus the maximum possible rounding up loss depending on each exchange's minimum trade tick size (see bookDepthPerSide).",
-      "bookDepthPerSide": "default 20 - The price-depth of bids and asks that shall be mirrored. It is measured in the base currency, so depending on the minimum trade tick size of each exchange the actual number of orders might be different on both exchanges. Yet they both with go the same price-depth into the bids and asks."
+      "bookDepthPerSide": "default 20 - The price-depth of bids and asks that shall be mirrored. It is measured in the base currency, so depending on the minimum trade tick size of each exchange the actual number of orders might be different on both exchanges. Yet they both with go the same price-depth into the bids and asks.<br>Keep in mind that increasing this value will increase the number of trade API requests to the smaller exchange, so be sure your request limit is sufficiently high.",
+      "minDelayAdjustOrdersMs": "default 300 ms - The minimum delay in milliseconds before updating orders."
     }
   },
   "lendingStratDesc": {
