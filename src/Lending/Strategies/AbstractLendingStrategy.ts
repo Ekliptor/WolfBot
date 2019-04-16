@@ -173,6 +173,7 @@ export abstract class AbstractLendingStrategy extends AbstractGenericStrategy {
             name: this.className,
             avgMarketPrice: this.avgMarketPrice.toFixed(8) + " " + this.getCurrencyStr(),
             pair: this.getCurrencyStr(),
+            stateMessage: this.stateMessage,
             minLendingRate: this.getRate(),
             lastTakenAllFunds: this.lastTakenAllFunds
         }

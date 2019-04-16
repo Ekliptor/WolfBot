@@ -165,6 +165,11 @@ class ServerConfig {
                 domain: "",
                 marginNotification: 0.5
             }],
+            LoggerEx: [{
+                key: "",
+                secret: "",
+                marginNotification: 0.5
+            }],
         },
         notify: {
             Pushover: {

@@ -27,7 +27,7 @@ import {Currency, Ticker, Trade, TradeHistory, MarketOrder} from "@ekliptor/bit-
  * An exchange that only logs all trades.
  * The purpose of this class is to test strategies in live mode and use it for arbitrage ideas.
  */
-export default class LoggerExchange extends AbstractExchange {
+export default class LoggerEx extends AbstractExchange {
     //protected marketStream: CandleMarketStream;
 
     protected lastOrderNr: number = 0;

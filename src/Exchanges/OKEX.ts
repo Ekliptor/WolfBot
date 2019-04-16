@@ -168,6 +168,9 @@ export class OKEXCurrencies implements Currency.ExchangeCurrencies {
         if (balances && balances.has(quoteCurrencyStr) === true) {
             const balance = balances.get(quoteCurrencyStr);
             position.pl = helper.parseFloatVal(balance.unrealized_pnl.replaceAll(",", ""));
+            let rate = this.exchange.getLastRate(currencyPair);
+            if (rate > 0.0)
+                position.pl *= rate;
         }
         return position;
     }

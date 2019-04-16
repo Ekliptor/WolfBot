@@ -61,7 +61,7 @@ export default class TriggerOrder extends AbstractTriggerOrder {
 
     public serialize() {
         let state = super.serialize();
-        if (this.countdownOrder && this.countdownOrder.verifyCloseFn)
+        if (this.countdownOrder && typeof this.countdownOrder.verifyCloseFn === "function")
             this.log("Skipped serializing order for restart because verifyClose function can't be serialized"); // TODO serialize with toString() only works without context
         else {
             state.plannedOrder = this.plannedOrder;

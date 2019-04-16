@@ -629,7 +629,8 @@ export abstract class AbstractStrategy extends AbstractGenericStrategy {
         let info: any = {
             name: this.className,
             avgMarketPrice: this.avgMarketPrice.toFixed(8) + " " + baseCurrency,
-            pair: this.getCurrencyStr()
+            pair: this.getCurrencyStr(),
+            stateMessage: this.stateMessage
         }
         if (this.action.order)
             info.order = this.action.order;
@@ -664,7 +665,8 @@ export abstract class AbstractStrategy extends AbstractGenericStrategy {
         })
         this.infoFunctions.forEach((fn) => {
             info[fn.label] = fn.propertyFn();
-        })
+        });
+        // TODO add tradeState: string per strategy and show messages here such as "skipped going long because indicator X is below Y"
         return info;
     }
 

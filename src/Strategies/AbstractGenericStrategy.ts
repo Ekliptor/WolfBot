@@ -66,6 +66,8 @@ export abstract class AbstractGenericStrategy extends EventEmitter {
     protected tradeTick = 0; // counter for debugging and print logs every x trades. gets reset
     protected candleTicks = 0; // counts the number of candle ticks received. NEVER gets reset
     protected logMap = new Map<string, number>(); // (sha1, timestamp)
+    protected loggingState: boolean = false; // does this strategy call logState() to display state messages?
+    protected stateMessage: string = "";
     protected saveState = false; // should we save the state after backtesting?
     protected notifier: AbstractNotification;
     protected notificationPauseMin: number = nconf.get('serverConfig:notificationPauseMin'); // can be changed in subclasses
@@ -303,7 +305,8 @@ export abstract class AbstractGenericStrategy extends EventEmitter {
             //candles1min: nconf.get("lending") === true || nconf.get("arbitrage") === true || this.isMainStrategy() === true ? Candle.Candle.copy(this.candles1min) : [],
             candleHistory: Candle.Candle.copy(this.candleHistory.slice(0, nconf.get("serverConfig:serializeCandles"))),
             candles1min: nconf.get("lending") === true || nconf.get("arbitrage") === true || this.isMainStrategy() === true ? Candle.Candle.copy(this.candles1min.slice(0, nconf.get("serverConfig:serializeCandles1min"))) : [],
-            lastNotification: this.lastNotification
+            lastNotification: this.lastNotification,
+            stateMessage: this.stateMessage
         }
     }
 
@@ -320,6 +323,8 @@ export abstract class AbstractGenericStrategy extends EventEmitter {
         if (this.candle)
             this.candleTrend = this.candle.trend;
         this.lastNotification = state.lastNotification;
+        if (state.stateMessage)
+            this.stateMessage = state.stateMessage;
         // TODO return true/false depending on if required information was available (important in subclasses with custom serialized data)
         this.updateIndicatorCandles();
     }
@@ -437,12 +442,16 @@ export abstract class AbstractGenericStrategy extends EventEmitter {
      * Use utils.sprintf() to format strings.
      */
     protected log(...args) {
+        if (this.loggingState === false)
+            this.updateStateFromLogMessage(...args);
         if (!this.action.enableLog)
             return;
         logger.info("%s %s:", this.className, this.getCurrencyStr(), ...args)
     }
 
     protected logOnce(...args) {
+        if (this.loggingState === false)
+            this.updateStateFromLogMessage(...args);
         if (!this.action.enableLog)
             return;
         const now = Date.now();
@@ -465,14 +474,36 @@ export abstract class AbstractGenericStrategy extends EventEmitter {
     }
 
     /**
+     * Log a message and update this strategy's current state with it.
+     * This will also prevent further regular log messages to update the strategy state message.
+     * If you use this function frequently, you should set "this.loggingState = true" right in the constructor to completely
+     * manage the state message manually.
+     * @param args
+     */
+    protected logState(...args) {
+        this.loggingState = true;
+        this.updateStateFromLogMessage(...args);
+        this.log(...args);
+    }
+
+    /**
      * Log arguments as warning
      * @param args the arguments to log. You can't use %s, but arguments will be formatted as string.
      * Use utils.sprintf() to format strings.
      */
     protected warn(...args) {
+        if (this.loggingState === false)
+            this.updateStateFromLogMessage(...args);
         if (!this.action.enableLog)
             return;
         logger.warn("%s %s:", this.className, this.getCurrencyStr(), ...args)
+    }
+
+    protected updateStateFromLogMessage(...args) {
+        if (args.length > 1)
+            this.stateMessage = args.join(" ");
+        else if (args.length !== 0)
+            this.stateMessage = args[0];
     }
 
     protected resetValues(): void {
