@@ -31,13 +31,6 @@ import * as crypto from "crypto";
 const logger = utils.logger
     , nconf = utils.nconf;
 
-
-class LastTradePriceMap extends Map<string, number> { // (local currency string, price)
-    constructor() {
-        super()
-    }
-}
-
 export class PeatioCurrencies implements Currency.ExchangeCurrencies {
     protected exchange: AbstractExchange;
 
@@ -46,10 +39,10 @@ export class PeatioCurrencies implements Currency.ExchangeCurrencies {
     }
 
     public getExchangeName(localCurrencyName: string): string {
-        return localCurrencyName
+        return localCurrencyName.toLowerCase()
     }
     public getLocalName(exchangeCurrencyName: string): string {
-        return exchangeCurrencyName
+        return exchangeCurrencyName.toUpperCase()
     }
 
     public getExchangePair(localPair: Currency.CurrencyPair): string {
@@ -94,7 +87,6 @@ export class PeatioCurrencies implements Currency.ExchangeCurrencies {
 export default class Peatio extends AbstractExchange {
     protected static readonly PING_INTERVAL_MS = 15000;
     //protected apiClient: any;
-    protected lastTradePrice = new LastTradePriceMap();
 
     constructor(options: ExOptions) {
         super(options)
@@ -104,20 +96,15 @@ export default class Peatio extends AbstractExchange {
         //this.pushApiUrl = wsDomain + "api/v2/ranger/public/?stream=global.tickers"; // wss://demo.openware.com/api/v2/ranger/public/?stream=global.tickers
         this.pushApiUrl = wsDomain + "api/v2/ranger/private/?stream=ethusd.trades&stream=ethusd.update&stream=global.tickers&stream=order&stream=trade";
         // wss://demo.openware.com/api/v2/ranger/private/?stream=ethusd.trades&stream=ethusd.update&stream=global.tickers&stream=order&stream=trade
-        /**
-         * Sec-WebSocket-Extensions: permessage-deflate; client_max_window_bits
-         Sec-WebSocket-Key: ep6G9KSaYjBmsKcE1nYStA==
-         Sec-WebSocket-Version: 13
-         */
         this.pushApiConnectionType = PushApiConnectionType.WEBSOCKET;
         this.httpKeepConnectionsAlive = true;
         this.dateTimezoneSuffix = "";
         this.exchangeLabel = Currency.Exchange.PEATIO;
-        this.minTradingValue = 0.001; // TODO fees and trading value
+        this.minTradingValue = 0.001; // TODO fees and trading value. supply via options in constructor?
         this.fee = 0.001;
         this.maxLeverage = 0.0; // no margin trading
         this.currencies = new PeatioCurrencies(this);
-        this.webSocketTimeoutMs = nconf.get('serverConfig:websocketTimeoutMs')*2; // small coin markets -> less updates
+        this.webSocketTimeoutMs = nconf.get('serverConfig:websocketTimeoutMs')*3; // small coin markets -> less updates
     }
 
     public async getTicker(): Promise<Ticker.TickerMap> {
@@ -406,12 +393,19 @@ export default class Peatio extends AbstractExchange {
 
         conn.onmessage = (e) => {
             console.log("MSG", e.data)
+            let processed = false;
             let json = utils.parseJson(e.data);
-            if (json["global.tickers"])
+            if (json["global.tickers"]) {
                 this.processTickerMessage(json["global.tickers"]);
-            else if (json["success"])
+                processed = true;
+            }
+            if (processed === false)
+                processed = this.processOrderbookMessage(json);
+            if (json["success"]) {
                 logger.verbose("Received success WebSocket message from %s", this.className);
-            else
+                processed = true;
+            }
+            if (processed === false)
                 logger.warn("Received unknown %s WebSocket message", this.className, json);
         }
 
@@ -520,6 +514,27 @@ export default class Peatio extends AbstractExchange {
         });
     }
 
+    protected processOrderbookMessage(json: any): boolean {
+        let found = false;
+        this.currencyPairs.forEach((pair) => {
+            let exchangePair = this.currencies.getExchangePair(pair);
+            const key = exchangePair + ".update";
+            if (!json[key])
+                return;
+            ["asks", "bids"].forEach((side) => {
+                json[key][side].forEach((rawOrder) => {
+                    console.log("ORDER", rawOrder)
+                });
+            });
+        });
+        return found;
+    }
+
+    protected processTradeMessage(json: any): boolean {
+        let found = false;
+        return found;
+    }
+
     protected fromRawTrade(rawTrade: any, currencyPair: Currency.CurrencyPair) {
         let tradeObj = new Trade.Trade();
         tradeObj.tradeID = rawTrade.aggId ? rawTrade.aggId : rawTrade.tradeId;
@@ -567,13 +582,13 @@ export default class Peatio extends AbstractExchange {
     }
 
     protected getAuthHeaders() {
-        const nonce = Math.floor(Date.now() / 1000);
+        const nonce = Date.now();
         const sign = crypto.createHmac('SHA256', this.apiKey.secret);
         sign.update(nonce + this.apiKey.key);
         return {
             headers: {
                 "X-Auth-Apikey": this.apiKey.key,
-                "X-Auth-Nonce": nonce,
+                "X-Auth-Nonce": nonce.toString(),
                 "X-Auth-Signature": sign.digest('hex'),
                 //"Content-Type": "application/json" // shouldn't be needed. actually a HTTP response header
             }

@@ -1365,6 +1365,12 @@
       "spreadEntry": "How many % the market spread between the 2 exchanges has to be to open positions on both of them.",
       "spreadTarget": "Targeted profit in %. This takes trading fees into account. See the 'tradingFees' setting.<br>Positions will be closed according to this equation: spreadExit = spreadEntry - 4*fees - spreadTarget -> will usually negative, meaning prices flipped",
       "trailingSpreadStop": "After reaching spreadTarget, place a trailing stop to exit the market. Set this to 0 to exit immediately,"
+    },
+    "Leg": {
+      "desc": "Arbitrage strategy using limit orders with 1 leg \"standing\" on the current price rate of the higher-volume exchange. Thereby offering liquidity to the lower-volume exchange by copying the orderbook.<br>Also see MarketMakerOffset strategy for a similar way of market making while only being connected to 1 exchange.",
+      "copySide": "default \"both\" - Which side of the orderbook shall be mirrored.",
+      "priceAddPercent": "default 0.05% - The percentage the prices on the market we make shall differ from the leg exchange we mirror the orderbook from. This is our profit. Therefore this value must be higher than your trading fees on both exchanges combined plus the maximum possible rounding up loss depending on each exchange's minimum trade tick size (see bookDepthPerSide).",
+      "bookDepthPerSide": "default 20 - The price-depth of bids and asks that shall be mirrored. It is measured in the base currency, so depending on the minimum trade tick size of each exchange the actual number of orders might be different on both exchanges. Yet they both with go the same price-depth into the bids and asks."
     }
   },
   "lendingStratDesc": {

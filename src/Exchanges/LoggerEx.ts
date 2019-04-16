@@ -36,7 +36,7 @@ export default class LoggerEx extends AbstractExchange {
         super({key: "", secret: ""}, false)
         this.publicApiUrl = "";
         this.privateApiUrl = "";
-        //this.pushApiUrl = ""; // for autobahn
+        //this.pushApiUrl = "";
         this.pushApiUrl = "";
         this.pushApiConnectionType = PushApiConnectionType.WEBSOCKET;
         this.dateTimezoneSuffix = " GMT+0000";
@@ -48,6 +48,7 @@ export default class LoggerEx extends AbstractExchange {
         //this.currencies = new LoggerExchangeCurrencies(this); // not needed since we don't send any requests
 
         this.className = options.exchangeName;
+        // TODO add prices and orderbook through a crawl-option from another exchange
     }
 
     public getTicker() {
