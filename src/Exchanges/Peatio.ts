@@ -86,7 +86,10 @@ export class PeatioCurrencies implements Currency.ExchangeCurrencies {
 
 export default class Peatio extends AbstractExchange {
     protected static readonly PING_INTERVAL_MS = 15000;
+    protected currencies: PeatioCurrencies;
+    protected orderbookSnapshot = new OrderBookUpdate<MarketOrder.MarketOrder>(Date.now(), false);
     //protected apiClient: any;
+    protected lastTradeID: number = -1;
 
     constructor(options: ExOptions) {
         super(options)
@@ -115,27 +118,24 @@ export default class Peatio extends AbstractExchange {
 
     public async getBalances(): Promise<Currency.LocalCurrencyList> {
         // GET https://demo.openware.com/api/v2/peatio/account/balances
-        let options = this.getHttpOptions(this.getAuthHeaders());
-        this.get(this.privateApiUrl + "api/v2/peatio/account/balances", (body, res) => {
-            console.log(res.statusCode, body)
-            let balances = {}
-        }, options);
-        return;
-
-        try {
-            let balances = {}
-            let accountInfo = await this.apiClient.accountInfo({useServerTime: true});
-            accountInfo.balances.forEach((balance) => {
-                let currencyStr = this.currencies.getLocalName(balance.asset)
-                if (!currencyStr)
-                    return; // not supported currency
-                balances[currencyStr] = helper.parseFloatVal(balance.free)
-            })
-            return Currency.fromExchangeList(balances, this.currencies);
-        }
-        catch (err) {
-            throw this.formatInvalidExchangeApiResponse(err);
-        }
+        return new Promise<Currency.LocalCurrencyList>((resolve, reject) => {
+            let options = this.getHttpOptions(this.getAuthHeaders());
+            this.get(this.privateApiUrl + "api/v2/peatio/account/balances", (body, res) => {
+                let json = utils.parseJson(body);
+                if (body === false || json === null)
+                    return reject({txt: "Invalid response for exchange balances", err: res});
+                let balances = {}
+                json.forEach((balance) => { // {"currency":"eth","balance":"0.0","locked":"0.0"}
+                    if (!balance.currency)
+                        return;
+                    let currencyStr = this.currencies.getLocalName(balance.currency);
+                    if (!currencyStr)
+                        return;
+                    balances[currencyStr] = helper.parseFloatVal(balance.balance);
+                });
+                resolve(balances);
+            }, options);
+        })
     }
 
     public getMarginAccountSummary() {
@@ -146,25 +146,9 @@ export default class Peatio extends AbstractExchange {
 
     public async fetchOrderBook(currencyPair: Currency.CurrencyPair, depth: number): Promise<OrderBookUpdate<MarketOrder.MarketOrder>> {
         // we get the book via websocket and return it here
-        try {
-            const pairStr = this.currencies.getExchangePair(currencyPair)
-            let orderBook = await this.apiClient.book({symbol: pairStr}); // "depth" param not supported
-            let orders = new OrderBookUpdate<MarketOrder.MarketOrder>(orderBook.lastUpdateId, false);
-            ["asks", "bids"].forEach((prop) => {
-                orderBook[prop].forEach((o) => {
-                    // { price: '0.05411500', quantity: '5.55000000' }
-                    const amount = helper.parseFloatVal(o.quantity);
-                    const price = helper.parseFloatVal(o.price);
-                    let order = MarketOrder.MarketOrder.getOrder(currencyPair, this.getExchangeLabel(), amount, price)
-                    order.date = new Date(); // no data provided, set to now
-                    orders[prop].push(order)
-                })
-            })
-            return orders;
-        }
-        catch (err) {
-            throw this.formatInvalidExchangeApiResponse(err);
-        }
+        return new Promise<OrderBookUpdate<MarketOrder.MarketOrder>>((resolve, reject) => {
+            resolve(this.orderbookSnapshot)
+        })
     }
 
     public importHistory(currencyPair: Currency.CurrencyPair, start: Date, end: Date) {
@@ -174,122 +158,62 @@ export default class Peatio extends AbstractExchange {
     }
 
     public async buy(currencyPair: Currency.CurrencyPair, rate: number, amount: number, params: OrderParameters = {}): Promise<OrderResult> {
-        // call CCXT library for buying/selling to always have the correct lot size
-        /*
-        let outParams = await this.verifyTradeRequest(currencyPair, rate, amount, params)
-        try {
-            let buyParams = {
-                useServerTime: true,
-                symbol: outParams.pairStr,
-                side: "BUY",
-                quantity: this.getMaxTradeDecimals(amount, currencyPair, true),
-                price: this.getMaxTradeDecimals(outParams.rate as number, currencyPair),
-                type: outParams.orderType
-            }
-            let result = await this.apiClient.order(buyParams);
-            return OrderResult.fromJson(result, currencyPair, this)
-        }
-        catch (err) {
-            throw this.formatInvalidExchangeApiResponse(err);
-        }
-         */
-        return this.binanceCCxt.buy(currencyPair, rate, amount, params);
+        return this.submitOrder(currencyPair, rate, amount, params, "buy");
     }
 
     public async sell(currencyPair: Currency.CurrencyPair, rate: number, amount: number, params: OrderParameters = {}): Promise<OrderResult> {
-        /*
-        let outParams = await this.verifyTradeRequest(currencyPair, rate, amount, params)
-        try {
-            let result = await this.apiClient.order({
-                useServerTime: true,
-                symbol: outParams.pairStr,
-                side: "SELL",
-                quantity: this.getMaxTradeDecimals(amount, currencyPair, true),
-                price: this.getMaxTradeDecimals(outParams.rate as number, currencyPair),
-                type: outParams.orderType
-            });
-            return OrderResult.fromJson(result, currencyPair, this)
-        }
-        catch (err) {
-            throw this.formatInvalidExchangeApiResponse(err);
-        }
-         */
-        return this.binanceCCxt.sell(currencyPair, rate, amount, params);
+        return this.submitOrder(currencyPair, rate, amount, params, "sell");
     }
 
     public cancelOrder(currencyPair: Currency.CurrencyPair, orderNumber: number | string): Promise<CancelOrderResult> {
         return new Promise<CancelOrderResult>((resolve, reject) => {
             let options = this.getHttpOptions(this.getAuthHeaders());
-            const orderUrl = this.privateApiUrl + utils.sprintf("peatio/market/orders/%s/cancel", orderNumber);
+            const orderUrl = this.privateApiUrl + utils.sprintf("api/v2/peatio/market/orders/%s/cancel", orderNumber);
             this.post(orderUrl, {}, (body, res) => {
-                console.log(body)
+                let json = utils.parseJson(body);
+                if (body === false || json === null)
+                    return reject({txt: "Invalid response cancelling order", err: res});
+                // just returns the order
+                const cancelResult = {exchangeName: this.className, orderNumber: orderNumber, cancelled: json.state === "wait" || json.state === "cancel"};
+                resolve(cancelResult);
             }, options);
         })
     }
-        /*const marketPair = this.currencies.getExchangePair(currencyPair);
-        const successResult = {exchangeName: this.className, orderNumber: orderNumber, cancelled: true};
-        try {
-            let result = await this.apiClient.cancelOrder({
-                useServerTime: true,
-                symbol: marketPair,
-                orderId: orderNumber
-            });
-            return successResult;
-        }
-        catch (err) {
-            if (err && err.toString().indexOf("UNKNOWN_ORDER") !== -1)
-                return successResult; // already cancelled or filled
-            throw this.formatInvalidExchangeApiResponse(err);
-        }
-    }*/
 
     public async getOpenOrders(currencyPair: Currency.CurrencyPair): Promise<OpenOrders> {
-        const marketPair = this.currencies.getExchangePair(currencyPair);
-        try {
-            let result = await this.apiClient.openOrders({
-                useServerTime: true,
-                symbol: marketPair
-            });
-            let orders = new OpenOrders(currencyPair, this.className);
-            result.forEach((o) => {
-                /**
-                 * { symbol: 'TRXBTC',
-                    orderId: 25958249,
-                    clientOrderId: 'jhn1e3pr0sx6trWQHNU8RN',
-                    price: '0.00000623',
-                    origQty: '350.00000000',
-                    executedQty: '0.00000000',
-                    status: 'NEW',
-                    timeInForce: 'GTC',
-                    type: 'LIMIT',
-                    side: 'SELL',
-                    stopPrice: '0.00000000',
-                    icebergQty: '0.00000000',
-                    time: 1517420761511,
-                    isWorking: true }
-                 */
-                let orderObj = {
-                    orderNumber: o.orderId,
-                    type: (o.side === "BUY" ? "buy": "sell") as any, // TODO why do we need this cast?
-                    rate: parseFloat(o.price),
-                    amount: parseFloat(o.origQty) - parseFloat(o.executedQty), // return the remaining amount
-                    total: 0,
-                    leverage: 1
-                }
-                orderObj.total = orderObj.rate * orderObj.amount;
-                orders.addOrder(orderObj)
-            })
-            return orders;
-        }
-        catch (err) {
-            throw this.formatInvalidExchangeApiResponse(err);
-        }
+        return new Promise<OpenOrders>((resolve, reject) => {
+            const marketPair = this.currencies.getExchangePair(currencyPair);
+            let options = this.getHttpOptions(this.getAuthHeaders());
+            const orderUrl = this.privateApiUrl + utils.sprintf("api/v2/peatio/market/orders?market=%s&state=wait", marketPair);
+            this.get(orderUrl, (body, res) => {
+                // [{"id":8,"side":"buy","ord_type":"limit","price":"101.0","avg_price":"0.0","state":"wait","market":"ethusd","created_at":"2019-04-21T14:11:42+02:00","updated_at":"2019-04-21T14:11:42+02:00","origin_volume":"2.3",
+                //  "remaining_volume":"2.3","executed_volume":"0.0","trades_count":0}, ... ]
+                let json = utils.parseJson(body);
+                if (body === false || json === null)
+                    return reject({txt: "Invalid response for open orders", err: res});
+                // just returns the order
+                let orders = new OpenOrders(currencyPair, this.className);
+                json.forEach((o) => {
+                    let orderObj = {
+                        orderNumber: o.id,
+                        type: (o.side === "buy" ? "buy": "sell") as any,
+                        rate: parseFloat(o.price),
+                        amount: parseFloat(o.remaining_volume), // return the remaining amount
+                        total: 0,
+                        leverage: 1
+                    }
+                    orderObj.total = orderObj.rate * orderObj.amount;
+                    orders.addOrder(orderObj);
+                });
+                resolve(orders);
+            }, options);
+        });
     }
 
     public async moveOrder(currencyPair: Currency.CurrencyPair, orderNumber: number | string, rate: number, amount: number, params: OrderParameters): Promise<OrderResult> {
         // no API call for it. cancel the order and place it again
-        let outParams = await this.verifyTradeRequest(currencyPair, rate, amount, params);
         try {
+            let outParams = await this.verifyTradeRequest(currencyPair, rate, amount, params);
             let orders = await this.getOpenOrders(currencyPair);
             if (!orders.isOpenOrder(orderNumber))
                 return OrderResult.fromJson({message: "Order already filled"}, currencyPair, this);
@@ -299,7 +223,7 @@ export default class Peatio extends AbstractExchange {
                 throw this.formatInvalidExchangeApiResponse(cancelResult);
 
             // now place the (modified) order again
-            if (Math.abs(amount) < 0.01) // remaining amount too low: erro -1013 LOT SIZE
+            if (Math.abs(amount) < 0.01) // also checked in verifyTradeRequest()
                 return OrderResult.fromJson({message: "Order already filled (remaining amount too low)"}, currencyPair, this);
             let orderResult: OrderResult;
             if (order.type === "buy")
@@ -386,17 +310,28 @@ export default class Peatio extends AbstractExchange {
         let conn: WebSocket = new WebSocket(this.pushApiUrl, wsOptions);
         conn.onopen = (e) => {
             logger.info("WebSocket connection to %s established", this.className);
-            this.scheduleWebsocketPing(() => { // TODO arke calls this? get '/barong/identity/ping'
+            this.scheduleWebsocketPing(() => { // TODO arke bot calls this? get '/barong/identity/ping'
                 conn.send(JSON.stringify({}));
             }, Peatio.PING_INTERVAL_MS);
         }
 
         conn.onmessage = (e) => {
-            console.log("MSG", e.data)
+            //console.log("MSG", e.data)
+            this.localSeqNr++;
+            this.resetWebsocketTimeout();
             let processed = false;
             let json = utils.parseJson(e.data);
             if (json["global.tickers"]) {
                 this.processTickerMessage(json["global.tickers"]);
+                processed = true;
+            }
+            if (json["order"]) {
+                // {"order":{"id":5,"at":1555840562,"market":"ethusd","kind":"bid","price":"100.0","state":"pending","remaining_volume":"2.22","origin_volume":"2.22"}}
+                //logger.verbose("Received single order from %s", this.className); // we only process the full book
+                processed = true;
+            }
+            if (json["trade"]) {
+                this.processTradeMessage(json["trade"]);
                 processed = true;
             }
             if (processed === false)
@@ -422,90 +357,14 @@ export default class Peatio extends AbstractExchange {
         }
 
         return conn;
-        let subscribePairs = []
-        this.currencyPairs.forEach((pair) => {
-            let marketPair = this.currencies.getExchangePair(pair);
-            subscribePairs.push(marketPair)
-        })
-        let fetchOrderbookSnapshot = () => {
-            // in case our websocket stream starts before we got the snapshot, old updates before the snapshot will be ignored by seq nr
-            this.updateOrderBooks(true).then(() => {
-                logger.verbose("%s %s order book snapshots ready", this.orderBook.size, this.className)
-            }).catch((err) => {
-                logger.error("Error polling %s order book snapshots", this.className, err)
-                setTimeout(fetchOrderbookSnapshot.bind(this), 5000); // retry
-            })
-        }
-        fetchOrderbookSnapshot();
-
-        try {
-            let cleanDepth = this.apiClient.ws.depth(subscribePairs, (depth) => {
-                this.localSeqNr = depth.updateId; // use ids from server
-                const localPair = this.currencies.getLocalPair(depth.symbol);
-
-                let orderModifications = [];
-                ["bidDepth", "askDepth"].forEach((prop) => {
-                    depth[prop].forEach((o) => {
-                        // { price: '0.11031700', quantity: '31.71000000' }
-                        // quantity can be 0 which means remove the entry from orderbook
-                        // otherwise always remove the max amount and add the new quantity
-                        orderModifications.push(["o", 0, o.price, Number.MAX_VALUE]) // remove the max amount from bids/asks
-                        orderModifications.push(["o", 1, o.price, o.quantity])
-                    })
-                });
-                this.marketStream.write(localPair, orderModifications, this.localSeqNr);
-            })
-            let cleanTrades = this.apiClient.ws.trades(subscribePairs, (trade) => {
-                /**
-                 * { eventType: 'aggTrade',
-                      eventTime: 1517423771624,
-                      symbol: 'TRXBTC',
-                      price: '0.00000536',
-                      quantity: '3800.00000000',
-                      maker: true,
-                      tradeId: 9821793 }
-                 */
-                this.resetWebsocketTimeout();
-                const localPair = this.currencies.getLocalPair(trade.symbol);
-                let tradeObj = this.fromRawTrade(trade, localPair);
-                this.marketStream.write(localPair, [tradeObj], this.localSeqNr); // TODO increment localSeqNr? seqNr only used for orderbook either way
-            })
-            this.websocketCleanupFunction = () => {
-                try {
-                    cleanDepth(); // clean is sync
-                }
-                catch (err) {
-                    logger.error("Error cleaning up %s orderbook websocket connection", this.className)
-                }
-                try {
-                    cleanTrades();
-                }
-                catch (err) {
-                    logger.error("Error cleaning up %s trade websocket connection", this.className)
-                }
-                return true;
-            }
-        }
-        catch (err) {
-            // unable to catch this crash on connect. we could try to see if we have a connection via ping, but that's an ugly workaround
-            // see https://github.com/HyperCubeProject/binance-api-node/issues/24 - fixed since v0.6.0
-            /**
-             * 2018-02-01 02:21:55 - warn: Uncaught Exception
-             2018-02-01 02:21:55 - warn:  Error: getaddrinfo ENOTFOUND stream.binance.com stream.binance.com:9443
-             at errnoException (dns.js:55:10)
-             at GetAddrInfoReqWrap.onlookup [as oncomplete] (dns.js:97:26)
-             */
-            logger.error("Error opening %s websocket connection", this.className, err)
-            this.closeConnection("Unable to connect")
-            return null;
-        }
-        return this.apiClient.ws;
     }
 
     protected processTickerMessage(json: any) {
         //let currencyPair = this.currencies.getLocalPair(json)
         this.currencyPairs.forEach((pair) => {
             let exchangePair = this.currencies.getExchangePair(pair);
+            if (!exchangePair || json[exchangePair] === undefined)
+                return;
             let tickerObj = this.currencies.toLocalTicker(json[exchangePair]);
             if (!tickerObj)
                 return;
@@ -515,43 +374,65 @@ export default class Peatio extends AbstractExchange {
     }
 
     protected processOrderbookMessage(json: any): boolean {
-        let found = false;
+        let found = false; // TODO it mostly sends ethusd, but fth is never sent
         this.currencyPairs.forEach((pair) => {
             let exchangePair = this.currencies.getExchangePair(pair);
             const key = exchangePair + ".update";
             if (!json[key])
                 return;
+            found = true;
+            //let orderModifications = [];
+            this.orderbookSnapshot = new OrderBookUpdate<MarketOrder.MarketOrder>(Date.now(), false);
             ["asks", "bids"].forEach((side) => {
                 json[key][side].forEach((rawOrder) => {
-                    console.log("ORDER", rawOrder)
+                    // [ '101.0', '2.3' ] <- [price, amount]
+                    // quantity can be 0 which means remove the entry from orderbook
+                    // otherwise always remove the max amount and add the new quantity
+                    if (Array.isArray(rawOrder) === false || rawOrder.length !== 2)
+                        return logger.error("Received invalid orderbook update from %s:", this.className, rawOrder);
+                    //orderModifications.push(["o", 0, rawOrder[0], Number.MAX_VALUE]) // remove the max amount from bids/asks
+                    //orderModifications.push(["o", 1, rawOrder[0], rawOrder[1]])
+                    this.orderbookSnapshot[side].push(MarketOrder.MarketOrder.getOrder(pair, this.getExchangeLabel(), rawOrder[1], rawOrder[0]));
                 });
             });
+            this.orderBook.get(pair.toString()).replaceSnapshot(this.orderbookSnapshot["bids"].concat(this.orderbookSnapshot["asks"]), this.localSeqNr);
+            //this.marketStream.write(pair, orderModifications, this.localSeqNr);
         });
+        if (found === false) { // they send updates for other books we didn't subscribe to as well
+            for (let key in json)
+            {
+                if (key.match("\.update$") !== null) {
+                    found = true;
+                    break;
+                }
+            }
+        }
         return found;
     }
 
     protected processTradeMessage(json: any): boolean {
-        let found = false;
-        return found;
+        // {"trade":{"id":3,"kind":"ask","at":1555849043,"price":"101.0","volume":"0.1","ask_id":10,"bid_id":9,"market":"fthusd"}}
+        let currencyPair = this.currencies.getLocalPair(json.market);
+        if (!currencyPair) {
+            logger.warn("Received %s trade for unknown currency pair %s", this.className, json.market);
+            return false;
+        }
+        if (this.lastTradeID === json.id)
+            return; // they send trades multiple times
+        this.lastTradeID = json.id;
+        let tradeObj = this.fromRawTrade(json, currencyPair);
+        this.marketStream.write(currencyPair, [tradeObj], this.localSeqNr);
+        return true; // found
     }
 
     protected fromRawTrade(rawTrade: any, currencyPair: Currency.CurrencyPair) {
         let tradeObj = new Trade.Trade();
-        tradeObj.tradeID = rawTrade.aggId ? rawTrade.aggId : rawTrade.tradeId;
-        tradeObj.date = new Date(rawTrade.timestamp ? rawTrade.timestamp : rawTrade.eventTime); // from ms
-        tradeObj.amount = rawTrade.quantity;
-        //tradeObj.type = rawTrade.isBuyerMaker == true ? Trade.TradeType.BUY : Trade.TradeType.SELL; // TODO correct?
-        tradeObj.type = Trade.TradeType.BUY; // start with buy, updated below
+        tradeObj.tradeID = rawTrade.id;
+        tradeObj.date = new Date(rawTrade.at * 1000); // from sec
+        tradeObj.amount = rawTrade.volume;
+        tradeObj.type = rawTrade.kind === "ask" ? Trade.TradeType.SELL : Trade.TradeType.BUY;
         tradeObj.rate = rawTrade.price;
         tradeObj = Trade.Trade.verifyNewTrade(tradeObj, currencyPair, this.getExchangeLabel(), this.getFee())
-
-        // their API doesn't provide if it's a buy or sell trade. so we store the last trade price locally and compare it
-        // technically not correct, but close enough (and probably how they display it on their website too)
-        const currencyStr = currencyPair.toString();
-        let lastPrice = this.lastTradePrice.get(currencyStr)
-        if (lastPrice && lastPrice > tradeObj.rate)
-            tradeObj.type = Trade.TradeType.SELL; // price went down = sell
-        this.lastTradePrice.set(currencyStr, tradeObj.rate);
         return tradeObj;
     }
 
@@ -595,12 +476,49 @@ export default class Peatio extends AbstractExchange {
         }
     }
 
+    protected submitOrder(currencyPair: Currency.CurrencyPair, rate: number, amount: number, params: OrderParameters, side: "buy" | "sell"): Promise<OrderResult> {
+        return new Promise<OrderResult>((resolve, reject) => {
+            this.verifyTradeRequest(currencyPair, rate, amount, params).then((outParams) => {
+                let options = this.getHttpOptions(this.getAuthHeaders());
+                outParams.side = side;
+                this.post(this.privateApiUrl + "api/v2/peatio/market/orders", outParams, (body, res) => {
+                    console.log(body)
+                    let json = utils.parseJson(body);
+                    if (body === false || json === null)
+                        return reject({txt: "Invalid order response", err: res});
+                    /**
+                     * {"id":5,
+                     * "side":"buy",
+                     * "ord_type":"limit",
+                     * "price":"100.0",
+                     * "avg_price":"0.0",
+                     * "state":"pending",
+                     * "market":"ethusd",
+                     * "created_at":"2019-04-21T11:56:02+02:00",
+                     * "updated_at":"2019-04-21T11:56:02+02:00",
+                     * "origin_volume":"2.22",
+                     * "remaining_volume":"2.22",
+                     * "executed_volume":"0.0",
+                     * "trades_count":0}
+                     */
+                    if (Array.isArray(json.errors) === true && json.errors.length !== 0)
+                        return Promise.reject(json.errors); // {"errors":["market.account.insufficient_balance"]}
+
+                    let orderResult = OrderResult.fromJson(json, currencyPair, this);
+                    resolve(orderResult)
+                }, options);
+            }).catch((err) => {
+                throw this.formatInvalidExchangeApiResponse(err);
+            })
+        })
+    }
+
     protected formatInvalidExchangeApiResponse(err: any): any {
         if (err) {
             let permanent = true; // TODO check for below min trading balance etc..
             return {
                 txt: "Invalid API response",
-                err: err ? JSON.stringify(err) : err, // as err object it's often not passed along
+                err: err && typeof err.toString === "function" ? err.toString() : JSON.stringify(err), // as err object it's often not passed along
                 permanent: permanent
             };
         }
