@@ -457,8 +457,10 @@ export class ConfigEditor extends AppPublisher {
         }
     }
 
-    public restart(forceDefaults = false) {
-        const configFile = this.getFirstFileForMode(this.selectedTradingMode);
+    public restart(forceDefaults = false, resetMode = false) {
+        const configFile = this.getFirstFileForMode(resetMode ? "trading" : this.selectedTradingMode);
+        if (resetMode)
+            this.selectedTradingMode = "trading"; // just to be sure
         if (forceDefaults === true) {
             const paramsFile = path.join(/*utils.appDir, */nconf.get("lastParamsFile")); // use working dir
             fs.unlink(paramsFile, (err) => {

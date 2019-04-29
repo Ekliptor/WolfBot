@@ -21,6 +21,12 @@ interface SpreadAction extends ArbitrageStrategyAction {
  * If the price is x% higher/lower than avg on exchanges:
  * 1. buy at the cheaper exchange and (short) sell at the expensive exchange
  * 2. close positions after price difference moves x% closer
+ *
+ * // TODO limit + market order arbitrage
+ * so when the price get more then 1% , it market buy on one and market sell on another . with a limit order 0.1% into the book
+ ie , if  the price is $5000 on deribit  then bitmex is $5050 ....
+ it will  limit buy any thing on deribit up to $5005  and market sell the same ammount  down to $5045
+ need to place in the money limit order , because if it was a wick a there may not not enter a trade ... and you dont want to eat too much slipage with  market order
  */
 export default class Spread extends AbstractArbitrageStrategy {
     protected action: SpreadAction;

@@ -375,18 +375,16 @@ let testPaetio = async () => {
     let pt = new Peatio(nconf.get("serverConfig:apiKey:exchange:Peatio")[0])
     let params = {}
 
-    let pair = new Currency.CurrencyPair(Currency.Currency.USD, Currency.Currency.ETH)
+    let pair = new Currency.CurrencyPair(Currency.Currency.USD, Currency.Currency.FTH)
     pt.subscribeToMarkets([pair]);
     await utils.promiseDelay(400); // wait til we are connected
-    return;
 
-    pt.getBalances().then((test) => {
-    //bx.fetchOrderBook(pair, 10).then((test) => {
-    //bx.importHistory(pair, new Date(Date.now()-9*utils.constants.HOUR_IN_SECONDS*1000), new Date()).then((test) => {
-    //bx.buy(pair, 2500, 0.08, params).then((test) => {
-    //pt.cancelOrder(pair, 11054256).then((test) => {
-    //bx.getOpenOrders(pair).then((test) => {
-    //pt.moveOrder(pair, 11054309, 2600, 0.088, params).then((test) => {
+    //pt.getBalances().then((test) => {
+    //pt.buy(pair, 101, 2.3, params).then((test) => {
+    //pt.sell(pair, 105, 0.1, params).then((test) => {
+    //pt.cancelOrder(pair, 13).then((test) => {
+    //pt.getOpenOrders(pair).then((test) => {
+    pt.moveOrder(pair, 9, 102, 3.3, params).then((test) => {
         console.log(test)
     }).catch((err) => {
         logger.error("Error trading", err)

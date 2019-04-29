@@ -15,18 +15,18 @@
                     "interval": 24,
                     "volumeRows": 24,
                     "valueAreaPercent": 60,
-                    "minVolumeSpike": 1.7,
-                    "minVolumeSpikePosInc": 1.1,
+                    "minVolumeSpike": 1.1,
+                    "minVolumeSpikePosInc": 0.9,
                     "closePosition": "profit",
                     "trailingStopPerc": 0.5,
                     "time": 30,
-                    "short": 40,
+                    "short": 10,
                     "long": 16,
                     "signal": 9,
                     "feed": "BitmexMarketData",
                     "currencyPairs": ["USD_BTC"],
                     "pair": "USD_BTC",
-                    "candleSize": 60,
+                    "candleSize": 30,
                     "tradeStrategy": "RSIScalpOrderer",
                     "enableLog": true
                 },
@@ -37,14 +37,6 @@
                     "candleSize": 5,
                     "pair": "USD_BTC",
                     "enableLog": true
-                },
-                "RSIScalper": {
-                    "percentage": 20,
-                    "low": 25,
-                    "high": 75,
-                    "candleSize": 10,
-                    "pair": "USD_BTC",
-                    "enableLog": false
                 },
                 "StopLossTurn": {
                     "order": "closeLong",

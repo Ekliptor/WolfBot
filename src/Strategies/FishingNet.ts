@@ -25,7 +25,7 @@ interface FishingNetAction extends AbstractTrailingStopAction {
 
     closePosition: ClosePositionState; // optional, default profit - Only close a position by placing the trailing stop if its profit/loss is in that defined state.
     trailingStopPerc: number; // optional, default 0.5% - The trailing stop percentage that will be placed once the computed profit target of the strategy has been reached.
-    time: number; // optional, default 30 = immediately - The time in seconds until the stop gets executed after the trailing stop has been reached.
+    time: number; // optional, default 30 (0 = immediately) - The time in seconds until the stop gets executed after the trailing stop has been reached.
 
     // optional, default MACD indicator params
     short: number; // 10
@@ -83,21 +83,21 @@ export default class FishingNet extends AbstractTrailingStop {
                 this.action.long = 26;
             if (!this.action.signal)
                 this.action.signal = 9;
-            if (!this.action.feed)
-                this.action.feed = "BitmexMarketData";
+            //if (!this.action.feed) // allow empty string = disabled
+                //this.action.feed = "BitmexMarketData";
             if (Array.isArray(this.action.currencyPairs) === false || this.action.currencyPairs.length === 0)
                 this.action.currencyPairs = ["USD_BTC"];
 
             this.addIndicator("VolumeProfile", "VolumeProfile", this.action);
             this.addIndicator("AverageVolume", "AverageVolume", this.action);
             this.addIndicator("MACD", "MACD", this.action);
-            if (nconf.get("trader") !== "Backtester") {
+            if (nconf.get("trader") !== "Backtester" && this.action.feed) {
                 this.addIndicator("Liquidator", "Liquidator", this.action);
             }
 
             const volumeProfile = this.getVolumeProfile("VolumeProfile");
             const averageVolume = this.getVolume("AverageVolume");
-            const liquidator = nconf.get("trader") !== "Backtester" ? this.getLiquidator("Liquidator") : null;
+            const liquidator = nconf.get("trader") !== "Backtester" && this.action.feed ? this.getLiquidator("Liquidator") : null;
             this.addInfo("positionIncreasedCount", "positionIncreasedCount");
             this.addInfo("lastIncreasedRate", "lastIncreasedRate");
             this.addInfoFunction("valueAreaHigh", () => {

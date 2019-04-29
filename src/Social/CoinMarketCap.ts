@@ -211,7 +211,7 @@ export class CoinMarketCap {
 
     protected isSupported(currency: Currency.Currency) {
         if (!currency || currency === Currency.Currency.PAC || currency === Currency.Currency.USD || currency === Currency.Currency.EUR ||
-            currency === Currency.Currency.JPY || currency === Currency.Currency.GBP)
+            currency === Currency.Currency.JPY || currency === Currency.Currency.GBP || currency === Currency.Currency.ALL)
             return false;
         return true;
     }

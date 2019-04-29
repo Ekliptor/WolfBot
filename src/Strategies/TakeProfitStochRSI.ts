@@ -102,7 +102,8 @@ export default class TakeProfitStochRSI extends AbstractTakeProfitStrategy {
     protected checkIndicators() {
         super.checkIndicators(); // not really needed (yet)
         let rsi = this.getStochRSI("StochRSI")
-        const value = rsi.getOutFastK(); // take the not smoothened value here
+        const value = rsi.getOutFastK(); // not smoothened
+        //const value = rsi.getOutFastD(); // smoothened
         const valueFormatted = Math.round(value * 100) / 100.0;
         this.secondLastRSI = this.lastRSI;
         if (this.strategyPosition === "none") {

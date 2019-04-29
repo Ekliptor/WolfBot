@@ -15,6 +15,9 @@ import {AbstractContractExchange} from "./Exchanges/AbstractContractExchange";
 import {LendingConfig} from "./Lending/LendingConfig";
 import {AbstractLendingExchange} from "./Exchanges/AbstractLendingExchange";
 import {ArbitrageConfig} from "./Arbitrage/ArbitrageConfig";
+import {AbstractNotification} from "./Notifications/AbstractNotification";
+import Notification from "./Notifications/Notification";
+import {CoinMarketCapApiStatus} from "./Social/CoinMarketCap";
 
 export default class ExchangeController extends AbstractSubController {
     protected static readonly WAIT_CONFIG_ONCE_MS = 3000
@@ -27,8 +30,11 @@ export default class ExchangeController extends AbstractSubController {
     protected exchangesIdle = false;
     protected configReady = false;
 
+    protected notifier: AbstractNotification;
+
     constructor(configFilename: string) {
         super()
+        this.notifier = AbstractNotification.getInstance(true);
         this.configFilename = configFilename.replace(/"*$/g, "").replace(/^"*/g, ""); // remove  possible "
         if (this.configFilename !== undefined && typeof this.configFilename !== "string") {
             // @ts-ignore
@@ -248,7 +254,7 @@ export default class ExchangeController extends AbstractSubController {
     }
 
     protected loadConfig() {
-        let filePath = path.join(ConfigEditor.getConfigDir(), this.configFilename)
+        let filePath = path.join(ConfigEditor.getConfigDir(), this.configFilename);
         let data = "";
         try {
             data = fs.readFileSync(filePath, {encoding: "utf8"});
@@ -263,6 +269,12 @@ export default class ExchangeController extends AbstractSubController {
                   at TradeAdvisor.loadConfig (/home/bitbrain2/nodejs/BitBrain2/src/TradeAdvisor.ts:427:23)\n
                   at TradeAdvisor.checkRestoreConfig.then (/home/bitbrain2/nodejs/BitBrain2/src/TradeAdvisor.ts:213:18)","errno":-2,"syscall":"open","code":"ENOENT","path":"/home/bitbrain2/nodejs/BitBrain2/Sensor1/config/Bitfinex.json"}
                  */
+                const filePathTrading = path.join(TradeConfig.getConfigDirForMode("trading"), this.configFilename);
+                if (fs.existsSync(filePathTrading) === true) {
+                    this.scheduleRestart(false, true);
+                    return;
+                }
+
                 logger.warn("Unable to load config file %s in %s - most likely wrong trading mode after restart. Retrying defaults", filePath, this.className);
                 const paramsFile = path.join(/*utils.appDir, */nconf.get("lastParamsFile")); // use working dir
                 fs.unlink(paramsFile, (err) => {
@@ -276,10 +288,7 @@ export default class ExchangeController extends AbstractSubController {
                     serverConfig.saveConfigLocal();
                 }
                 if (TradeConfig.isTradingMode() === false || this.getConfigFilename() !== "Noop") { // TODO always ensure this file exists
-                    setTimeout(async () => { // WebsocketController is loaded after exchanges
-                        let controller = await import("./Controller");
-                        controller.controller.restart(true);
-                    }, ExchangeController.WAIT_CONFIG_ONCE_MS + 600);
+                    this.scheduleRestart(true);
                     return;
                 }
             }
@@ -340,5 +349,30 @@ export default class ExchangeController extends AbstractSubController {
     protected setExchangesIdle(idle: boolean) {
         this.exchangesIdle = idle;
         nconf.set("serverConfig:exchangesIdle", idle);
+    }
+
+    protected scheduleRestart(forceDefaults: boolean, resetMode = false) {
+        const configPathTrading = TradeConfig.getConfigDirForMode("trading", true);
+        if (fs.existsSync(configPathTrading) === true) // if the backup dir doesn't exist this is the first install (or debugging)
+            this.notifyError("Config error");
+
+        setTimeout(async () => { // WebsocketController is loaded after exchanges
+            let controller = await import("./Controller");
+            controller.controller.restart(forceDefaults, resetMode);
+        }, ExchangeController.WAIT_CONFIG_ONCE_MS + 600);
+    }
+
+    protected notifyError(headline: string) {
+        //const pauseMs = nconf.get('serverConfig:notificationPauseMin') * utils.constants.MINUTE_IN_SECONDS * 1000;
+        //if (this.lastNotification && this.lastNotification.getTime() + pauseMs > Date.now()) // lastNotification per bot? we only monitor 1 instance per bot
+            //return;
+
+        let err = new Error();
+        let notification = new Notification(headline, err.stack.toString(), false);
+        this.notifier.send(notification).then(() => {
+        }).catch((err) => {
+            logger.error("Error sending %s notification", "ExchangeController", err)
+        });
+        //this.lastNotification = new Date();
     }
 }

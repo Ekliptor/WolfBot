@@ -7,10 +7,10 @@ import {TradeConfig} from "../Trade/TradeConfig";
 
 
 export class ArbitrageConfig extends TradeConfig {
-    //public readonly exitTicks: number = 0; // close positions after x ticks. might cause to exit the market at a loss
-    public readonly longShortRatio: number = 1.0; // open a higher/lower amount on one side of arbitrage. values > 1 mean long position will be bigger // TODO
-    public readonly followExchange: boolean = false; // follow prices of the 1st exchange. only trade on the 2nd in the same direction (not arbitrage, instead following a major exchange) // TODO
-    public readonly maxTradeBalancePercentage: number = 99.0; // trade at most with x% of our available coins (some exchanges might add fees on top)
+    //public readonly exitTicks: number = 0; // Close positions after x ticks. Might cause to exit the market at a loss.
+    public readonly longShortRatio: number = 1.0; // Open a higher/lower amount on one side of arbitrage. Values > 1 mean long position will be bigger. // TODO
+    public readonly followExchange: boolean = false; // Follow prices of the 1st exchange. Only trade on the 2nd in the same direction (not arbitrage, instead following a major exchange). // TODO
+    public readonly maxTradeBalancePercentage: number = 99.0; // Trade at most with x% of our available coins (some exchanges might add fees on top).
 
     // part of Strategy config
     //public readonly spreadEntry: number = 0.8; // how many % the market spread has to be to open positions

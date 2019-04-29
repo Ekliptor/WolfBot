@@ -18,7 +18,7 @@ var pageData = {
     },
     "version": "0.1.0",
     "removeDownloadFrameSec": 10,
-    "timezoneDiffMin": -120,
+    "timezoneDiffMin": -420,
     "maxLoadRetries": 10,
     "cookieLifeDays": 365,
     "cookiePath": "/",

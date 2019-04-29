@@ -213,6 +213,9 @@ export abstract class AbstractTrailingStop extends /*AbstractStopStrategy*/Techn
         return stopMs > 0 ? Math.floor(stopMs/1000) : 0;
     }
 
+    /**
+     * Return the current position state. Will return 'loss' if there is no position (to be on the safer side when closing).
+     */
     protected getPositionState(): ClosePositionState {
         let profit = false;
         if (this.position) // margin trading
