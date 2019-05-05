@@ -111,6 +111,13 @@ export default class TradeNotifier extends PortfolioTrader/*AbstractTrader*/ { /
         })
     }
 
+    protected cancelOrder(strategy: AbstractStrategy, reason: string, exchangeLabel: Currency.Exchange) {
+        return new Promise<void>((resolve, reject) => {
+            // no need to send notifications here
+            resolve();
+        })
+    }
+
     protected sendNotification(strategy: AbstractStrategy, headline: string, text: string, reason: string, marketPrice = 0.0, profitLoss = 0.0) {
         if ((nconf.get("trader") === "RealTimeTrader" && nconf.get("tradeMode") === 1 && reason.toLowerCase().indexOf("out of sync") !== -1)
             || this.config.tradeTotalBtc === 0.0 || this.pausedTrading) {

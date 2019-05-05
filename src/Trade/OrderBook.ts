@@ -580,6 +580,32 @@ export class OrderBook<T extends DatabaseOrderBookEntry> { // T is MarketOrder.M
         return amount;
     }
 
+    /**
+     * Return the single next buy order in the order book going down from rate.
+     * @param rate
+     */
+    public getNextBid(rate: number): OrderBookEntry {
+        let it = this.orders.lowerBound(this.getMarketOrder(rate)) // >= rate, go down
+        if (!it.data() || it.prev() == null)
+            return null;
+        let item;
+        let node: T = it.data();
+        return node;
+    }
+
+    /**
+     * Return the single next sell order in the order book going up from rate.
+     * @param rate
+     */
+    public getNextAsk(rate: number): OrderBookEntry {
+        let it = this.orders.upperBound(this.getMarketOrder(rate)) // > rate, go up
+        if (!it.data())
+            return null;
+        let item;
+        let node: T = it.data();
+        return node;
+    }
+
     public getOrderAmount(rate: number, numDecimals = 5) {
         const exp = Math.pow(10, numDecimals);
         rate = Math.floor(rate * exp) / exp; // to be sure the number of decimals match

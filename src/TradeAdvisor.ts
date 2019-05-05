@@ -571,28 +571,34 @@ export default class TradeAdvisor extends AbstractAdvisor {
                         // and we have to wait with connecting it until it is loaded
                         let timer = setInterval(() => {
                             let allReady = true;
+                            let first = true;
                             configExchanges.forEach((exchange) => {
                                 const exchangeInstance = this.exchanges.get(exchange);
                                 const pairStr = strategyInstance.getAction().pair.toString();
                                 const orderBook = exchangeInstance.getOrderBook().get(pairStr);
                                 if (!strategyInstance.isOrderBookReady()) {
-                                    if (orderBook)
-                                        strategyInstance.setOrderBook(orderBook);
+                                    if (orderBook) {
+                                        if (first === true) // use the 1st one when doing arbitrage (the bigger exchange) // TODO support multiple in arbitrage strategies
+                                            strategyInstance.setOrderBook(orderBook);
+                                    }
                                     else
                                         logger.warn("%s Order book of %s not ready", pairStr, exchange)
                                 }
 
                                 const ticker = exchangeInstance.getTickerMap();
                                 if (!strategyInstance.isTickerReady()) {
-                                    if (ticker && ticker.has(pairStr))
-                                        strategyInstance.setTicker(ticker.get(pairStr))
+                                    if (ticker && ticker.has(pairStr)) {
+                                        if (first === true) // use the 1st one when doing arbitrage (the bigger exchange)
+                                            strategyInstance.setTicker(ticker.get(pairStr))
+                                    }
                                     else
                                         logger.warn("%s Ticker of %s not ready", pairStr, exchange)
                                 }
 
                                 if (!orderBook || !ticker || !ticker.has(pairStr))
                                     allReady = false;
-                            })
+                                first = false;
+                            });
                             if (allReady) {
                                 //logger.info("All tickers and orderbooks are ready"); // logged once per strategy
                                 clearInterval(timer);

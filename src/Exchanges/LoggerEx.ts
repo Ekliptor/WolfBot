@@ -21,7 +21,12 @@ import * as request from "request";
 import * as db from "../database";
 import * as path from "path";
 import {Currency, Ticker, Trade, TradeHistory, MarketOrder} from "@ekliptor/bit-models";
+import {OrderBook} from "../Trade/OrderBook";
 
+interface LoggerExOptions extends ExOptions {
+    exchangeName?: string; // the exchange to emulate
+    balance?: number; // the amount of coins each currency shall have as balance
+}
 
 /**
  * An exchange that only logs all trades.
@@ -29,11 +34,16 @@ import {Currency, Ticker, Trade, TradeHistory, MarketOrder} from "@ekliptor/bit-
  */
 export default class LoggerEx extends AbstractExchange {
     //protected marketStream: CandleMarketStream;
+    protected options: LoggerExOptions = {};
 
     protected lastOrderNr: number = 0;
 
     constructor(options: ExOptions) {
-        super({key: "", secret: ""}, false)
+        super({key: "", secret: ""}, false);
+        if (options.exchangeName)
+            this.options.exchangeName = options.exchangeName;
+        if (options.balance)
+            this.options.balance = options.balance;
         this.publicApiUrl = "";
         this.privateApiUrl = "";
         //this.pushApiUrl = "";
@@ -47,15 +57,36 @@ export default class LoggerEx extends AbstractExchange {
         this.maxLeverage = 1.0
         //this.currencies = new LoggerExchangeCurrencies(this); // not needed since we don't send any requests
 
-        this.className = options.exchangeName;
+        if (this.options.exchangeName) {
+            this.className = this.options.exchangeName;
+            this.exchangeLabel = Currency.ExchangeName.get(this.className);
+        }
+
         // TODO add prices and orderbook through a crawl-option from another exchange
+    }
+
+    public subscribeToMarkets(currencyPairs: Currency.CurrencyPair[]) {
+        super.subscribeToMarkets(currencyPairs);
+        this.localSeqNr++;
+        this.currencyPairs.forEach((pair) => {
+            const pairStr = pair.toString();
+            let orderBook: OrderBook<MarketOrder.MarketOrder> = this.orderBook.get(pairStr);
+            orderBook.setSnapshot([], this.localSeqNr, true);
+        });
+        setTimeout(async () => {
+            this.ticker = await this.getTicker();
+        }, 0);
     }
 
     public getTicker() {
         return new Promise<Ticker.TickerMap>((resolve, reject) => {
-            logger.verbose("Fetching %s tickers", this.className);
+            //logger.verbose("Fetching %s tickers", this.className);
             let tickerMap = new Ticker.TickerMap();
-            reject(tickerMap)
+            this.currencyPairs.forEach((pair) => { // we must add pairs or else strategies will consider the ticker invalid
+                const pairStr = pair.toString();
+                tickerMap.set(pairStr, new Ticker.Ticker(this.exchangeLabel));
+            });
+            resolve(tickerMap)
         })
     }
 
@@ -63,6 +94,16 @@ export default class LoggerEx extends AbstractExchange {
         return new Promise<Currency.LocalCurrencyList>((resolve, reject) => {
             logger.verbose("Fetching %s balances", this.className);
             let balances = {}
+            if (this.options.balance) {
+                this.currencyPairs.forEach((pair) => {
+                    const pairFromStr = Currency.getCurrencyLabel(pair.from);
+                    const pairToStr = Currency.getCurrencyLabel(pair.to);
+                    // TODO keep track of simulated balance after trading
+                    // overwriting will filter duplicates
+                    balances[pairFromStr] = this.options.balance;
+                    balances[pairToStr] = this.options.balance;
+                });
+            }
             resolve(Currency.fromExchangeList(balances))
         })
     }
@@ -77,7 +118,7 @@ export default class LoggerEx extends AbstractExchange {
 
     public fetchOrderBook(currencyPair: Currency.CurrencyPair, depth: number) {
         return new Promise<OrderBookUpdate<MarketOrder.MarketOrder>>((resolve, reject) => {
-            logger.verbose("Fetching %s orderbook", this.className);
+            //logger.verbose("Fetching %s orderbook", this.className);
             resolve(new OrderBookUpdate<MarketOrder.MarketOrder>(++this.localSeqNr));
         })
     }

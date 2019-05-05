@@ -19,7 +19,7 @@ export enum RealTimeTradeMode {
 
 // ToDo resetValues button (for strategies)
 export default class RealTimeTrader extends PortfolioTrader {
-    public static readonly REALTIME_SIMULATION_TRADE_DELAY_SEC = 5;
+    public static readonly REALTIME_SIMULATION_TRADE_DELAY_SEC = 1;
     public static readonly RETRY_FAILED_TRADE_SEC = 10;
     // TODO investiage memory leak here (or in Bitfinex class) when exchange is down
 
@@ -635,11 +635,13 @@ export default class RealTimeTrader extends PortfolioTrader {
         let lastTrade = this.lastTrade.get(key)
         if (!lastTrade)
             return super.skipTrade(action, exchange, strategy, amountBtc); // we still have to check for other conditions in parent class
-        if (action !== "close" || !nconf.get('serverConfig:canAlwaysClose')) {
-            if (lastTrade.getTime() + nconf.get('serverConfig:holdMin') * utils.constants.MINUTE_IN_SECONDS * 1000 > Date.now()) {
-                const passed = utils.test.getPassedTime(lastTrade.getTime())
-                logger.info("Skipping %s trade in %s on %s for %s because we traded recently. last trade %s ago", action, this.className, exchangeName, currencyPair, passed)
-                return true;
+        if (nconf.get("arbitrage") === false) {
+            if (action !== "close" || !nconf.get('serverConfig:canAlwaysClose')) {
+                if (lastTrade.getTime() + nconf.get('serverConfig:holdMin') * utils.constants.MINUTE_IN_SECONDS * 1000 > Date.now()) {
+                    const passed = utils.test.getPassedTime(lastTrade.getTime())
+                    logger.info("Skipping %s trade in %s on %s for %s because we traded recently. last trade %s ago", action, this.className, exchangeName, currencyPair, passed)
+                    return true;
+                }
             }
         }
         return super.skipTrade(action, exchange, strategy, amountBtc);

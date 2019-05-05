@@ -120,6 +120,9 @@ export abstract class AbstractTrader extends AbstractGenericTrader {
 
         if (this.tradeNotifier instanceof AbstractTrader)
             this.tradeNotifier.callAction(action, strategy, reason, exchange); // TODO call this only if we actually executed the trade
+        let tradingTimeoutMs = nconf.get("serverConfig:orderTimeoutSec")*1000;
+        if (nconf.get("arbitrage") === true && tradingTimeoutMs > 1000)
+            tradingTimeoutMs = 1000; // be quicker here because we must be fast. missed order opportunities and exchange timeouts are an arbitrage risk
         switch (action)
         {
             case "buy":
@@ -129,7 +132,7 @@ export abstract class AbstractTrader extends AbstractGenericTrader {
                 this.isTrading.set(pairStr, true);
                 setTimeout(() => {
                     this.isTrading.delete(pairStr); // just to be sure
-                }, nconf.get("serverConfig:orderTimeoutSec")*1000)
+                }, tradingTimeoutMs)
                 // for non-margin trading there is not short-selling. so if we bought coins this "close" order can only mean sell
                 if (action === "close" && !this.config.marginTrading)
                     action = "sell";

@@ -1340,7 +1340,10 @@
       "long": "optional, default 26 - The number of candles for the long EMA of the MACD indicator.",
       "signal": "optional, default 9 - The number of candles for the signal line of the MACD line (short EMA - long EMA).",
       "feed": "optional, default BitmexMarketData - The exchange feed to use to get liquidations from. This is not available during backtesting, so results might differ. Values: BitmexMarketData",
-      "currencyPairs": "optional, default [\"USD_BTC\"] - The currency pairs to subscribe to for liquidation data."
+      "currencyPairs": "optional, default [\"USD_BTC\"] - The currency pairs to subscribe to for liquidation data.",
+      "supportLines": "The price levels where we want to open long a position. Leave empty to open at any price level.",
+      "resistanceLines": "The price levels where we want to open short a position. Leave empty to open at any price level.",
+      "expirationPercent": "optional, default 3% - Only execute orders at price levels that are within x% of the set support/resistance lines."
     },
     "FishingNet": {
       "desc": "A Strategy that repeatedly buys/sells amounts in the same direction. It starts with small amounts and increases the size of the orders as the price goes down (thus dividing the total order size into chunks). If the market keeps moving against an existing position, our losses increase, but since we repeatedly increased our position size, our average buy price is close to the current price and it doesn't take long to get a profit at any point as soon as the market turns.<br>This strategy opens and closes positions but you may still add additional TakeProfit/StopLoss strategies.",
@@ -1389,7 +1392,7 @@
       "desc": "Arbitrage strategy using limit orders with 1 leg \"standing\" on the current price rate of the higher-volume exchange. Thereby offering liquidity to the lower-volume exchange by copying the orderbook.<br>Also see MarketMakerOffset strategy for a similar way of market making while only being connected to 1 exchange.",
       "copySide": "default \"both\" - Which side of the orderbook shall be mirrored.",
       "priceAddPercent": "default 0.05% - The percentage the prices on the market we make shall differ from the leg exchange we mirror the orderbook from. This is our profit. Therefore this value must be higher than your trading fees on both exchanges combined plus the maximum possible rounding up loss depending on each exchange's minimum trade tick size (see bookDepthPerSide).",
-      "bookDepthPerSide": "default 20 - The price-depth of bids and asks that shall be mirrored. It is measured in the base currency, so depending on the minimum trade tick size of each exchange the actual number of orders might be different on both exchanges. Yet they both with go the same price-depth into the bids and asks.<br>Keep in mind that increasing this value will increase the number of trade API requests to the smaller exchange, so be sure your request limit is sufficiently high.",
+      "bookDepthPerSide": "default 20 - The price-depth of bids and asks that shall be mirrored. It is measured as the number of orderbook price-level entries, so depending on the minimum trade tick size of each exchange the actual number of orders might be different on both exchanges. Yet they both with go the same price-depth into the bids and asks.<br>Keep in mind that increasing this value will increase the number of trade API requests to the smaller exchange, so be sure your request limit is sufficiently high.",
       "minDelayAdjustOrdersMs": "default 300 ms - The minimum delay in milliseconds before updating orders."
     }
   },

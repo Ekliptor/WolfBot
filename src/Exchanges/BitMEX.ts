@@ -472,7 +472,7 @@ export default class BitMEX extends AbstractContractExchange {
                     if (result.error && result.error.message.toLowerCase().indexOf("not found") !== -1)
                         resolve({exchangeName: this.className, orderNumber: orderNumber, cancelled: true})
                     else
-                        reject({txt: "Can't cancel order", err: result.err})
+                        reject({txt: "Can't cancel order", err: result});
                 }
                 else
                     resolve({exchangeName: this.className, orderNumber: orderNumber, cancelled: result[0].ordStatus=="Canceled"})

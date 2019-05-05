@@ -1120,7 +1120,7 @@ export abstract class AbstractStrategy extends AbstractGenericStrategy {
         return false;
     }
 
-    protected hasProfitReal(minPercent = 0.1) {
+    protected hasProfitReal(minPercent = 0.01) {
         //if (nconf.get("trader") === "Backtester") // margin position profit is now available during backtesting
             //return this.hasProfit(this.entryPrice, minPercent);
 
@@ -1135,6 +1135,7 @@ export abstract class AbstractStrategy extends AbstractGenericStrategy {
         if (this.position.leverage >= 10.0)
             return true; // always assume enough % profit on highly leveraged exchanges
         const positionSizeBase = Math.abs(this.position.amount) * this.getLastPrice();
+        // TODO get average entry price from exchange API and use it here (where available)
         if (positionSizeBase > 0.0) { // otherwise no ticker data or sth else went wrong
             const profitPercent = this.position.pl / positionSizeBase * 100.0;
             return profitPercent >= minPercent;

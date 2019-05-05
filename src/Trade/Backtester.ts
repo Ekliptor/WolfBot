@@ -937,11 +937,13 @@ export default class Backtester extends PortfolioTrader {
         let lastTrade = this.lastTrade.get(key);
         if (!lastTrade)
             return super.skipTrade(action, exchange, strategy, amountBtc); // we still have to check for other conditions in parent class
-        if (action !== "close" || !nconf.get('serverConfig:canAlwaysClose')) {
-            if (lastTrade.getTime() + nconf.get('serverConfig:holdMin') * utils.constants.MINUTE_IN_SECONDS * 1000 > strategy.getMarketTime().getTime()) {
-                const passed = utils.test.getPassedTime(lastTrade.getTime(), strategy.getMarketTime().getTime())
-                logger.info("Skipping %s trade in %s on %s for %s because we traded recently. last trade %s ago", action, this.className, exchangeName, currencyPair, passed)
-                return true;
+        if (nconf.get("arbitrage") === false) {
+            if (action !== "close" || !nconf.get('serverConfig:canAlwaysClose')) {
+                if (lastTrade.getTime() + nconf.get('serverConfig:holdMin') * utils.constants.MINUTE_IN_SECONDS * 1000 > strategy.getMarketTime().getTime()) {
+                    const passed = utils.test.getPassedTime(lastTrade.getTime(), strategy.getMarketTime().getTime())
+                    logger.info("Skipping %s trade in %s on %s for %s because we traded recently. last trade %s ago", action, this.className, exchangeName, currencyPair, passed)
+                    return true;
+                }
             }
         }
         return super.skipTrade(action, exchange, strategy, amountBtc);

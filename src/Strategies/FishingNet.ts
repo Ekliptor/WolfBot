@@ -2,11 +2,12 @@ import * as utils from "@ekliptor/apputils";
 const logger = utils.logger
     , nconf = utils.nconf;
 import {AbstractStrategy, StrategyAction, TradeAction} from "./AbstractStrategy";
-import {Currency, Order, Trade} from "@ekliptor/bit-models";
+import {Candle, Currency, Order, Trade} from "@ekliptor/bit-models";
 import {AbstractTrailingStop, AbstractTrailingStopAction} from "./AbstractTrailingStop";
 import {ClosePositionState} from "./AbstractStopStrategy";
 import {TradeInfo} from "../Trade/AbstractTrader";
 import {ExchangeFeed} from "../Exchanges/feeds/AbstractMarketData";
+import * as helper from "../utils/helper";
 
 type FishingMode = "up" | "down" | "trend";
 
@@ -35,6 +36,10 @@ interface FishingNetAction extends AbstractTrailingStopAction {
 
     feed: ExchangeFeed; // optional, default BitmexMarketData - The exchange feed to use to get liquidations from. This is not available during backtesting, so results might differ. Values: BitmexMarketData
     currencyPairs: string[]; // optional, default ["USD_BTC"] - The currency pairs to subscribe to for liquidation data.
+
+    supportLines: number[]; // The price levels where we want to open long a position. Leave empty to open at any price level.
+    resistanceLines: number[]; // The price levels where we want to open short a position. Leave empty to open at any price level.
+    expirationPercent: number; // default 3%. Only execute orders at price levels that are within x% of the set support/resistance lines.
 }
 
 /**
@@ -87,6 +92,12 @@ export default class FishingNet extends AbstractTrailingStop {
                 //this.action.feed = "BitmexMarketData";
             if (Array.isArray(this.action.currencyPairs) === false || this.action.currencyPairs.length === 0)
                 this.action.currencyPairs = ["USD_BTC"];
+            if (Array.isArray(this.action.supportLines) === false)
+                this.action.supportLines = [];
+            if (Array.isArray(this.action.resistanceLines) === false)
+                this.action.resistanceLines = [];
+            if (!this.action.expirationPercent)
+                this.action.expirationPercent = 3.0;
 
             this.addIndicator("VolumeProfile", "VolumeProfile", this.action);
             this.addIndicator("AverageVolume", "AverageVolume", this.action);
@@ -266,6 +277,8 @@ export default class FishingNet extends AbstractTrailingStop {
                 this.log("Insufficient volume (relative to avg) to go LONG " + this.getVolumeStr());
             else if (valueArea.isPriceWithinArea(this.avgMarketPrice) === false)
                 this.log("Skipped going LONG because price is outside of value area of volume profile");
+            else if (this.action.supportLines.length !== 0 && this.isLineBroken(this.candle, this.action.supportLines, "<") === false)
+                this.log("Skipped going LONG because price is above support lines");
             else
                 this.emitBuy(this.defaultWeight, utils.sprintf("Going LONG in uptrend market with candle volume: %s", this.getVolumeStr()));
         }
@@ -274,6 +287,8 @@ export default class FishingNet extends AbstractTrailingStop {
                 this.log("Insufficient volume (relative to avg) to go SHORT " + this.getVolumeStr());
             else if (valueArea.isPriceWithinArea(this.avgMarketPrice) === false)
                 this.log("Skipped going SHORT because price is outside of value area of volume profile");
+            else if (this.action.resistanceLines.length !== 0 && this.isLineBroken(this.candle, this.action.resistanceLines, ">") === false)
+                this.log("Skipped going SHORT because price is below resistance lines");
             else
                 this.emitSell(this.defaultWeight, utils.sprintf("Going SHORT in downtrend market with candle volume: %s", this.getVolumeStr()));
         }
@@ -324,6 +339,30 @@ export default class FishingNet extends AbstractTrailingStop {
                 this.emitSell(this.defaultWeight, utils.sprintf("Increasing %s position %s/%s times.", this.strategyPosition.toUpperCase(), this.positionIncreasedCount, this.action.maxPosIncreases));
                 break;
         }
+    }
+
+    protected isLineBroken(candle: Candle.Candle, lines: number[], comp: "<" | ">"): boolean {
+        for (let i = 0; i < lines.length; i++)
+        {
+            if (comp === "<") {
+                if (candle.close < lines[i] && this.isWithinRange(candle.close, lines[i])) {
+                    return true;
+                }
+                continue;
+            }
+            // comp === ">"
+            if (candle.close > lines[i] && this.isWithinRange(candle.close, lines[i])) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    protected isWithinRange(currentRate: number, orderRate: number) {
+        let percentDiff = Math.abs(helper.getDiffPercent(currentRate, orderRate));
+        if (percentDiff <= this.action.expirationPercent)
+            return true;
+        return false;
     }
 
     protected isUpwardsMarketTrend() {

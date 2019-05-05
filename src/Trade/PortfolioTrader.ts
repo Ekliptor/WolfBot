@@ -697,9 +697,9 @@ export abstract class PortfolioTrader extends AbstractTrader {
             if (this.config.marginTrading) {
                 // TODO exchange API calls to get max tradable leveraged balance. currently must assume to have enough collateral for configured amount
                 // we can't check our coinBalances because they are in a different wallet (not used as collateral)
-                //return coinAmount;
             }
             else {
+                const minBalance = nconf.get("arbitrage") === true ? nconf.get("serverConfig:arbitragePaperTradingBalance") : 0.0;
                 let buyBalances = PortfolioTrader.coinBalances.get(buyExchange.getClassName());
                 let sellBalances = PortfolioTrader.coinBalances.get(sellExchange.getClassName());
                 const maxTradeFactor = (this.config as ArbitrageConfig).maxTradeBalancePercentage / 100.0;
@@ -708,16 +708,20 @@ export abstract class PortfolioTrader extends AbstractTrader {
                 let curBuyBalance = buyBalances[coinPair.from] // check our base capital (USD, BTC,...) to see how many coins we can buy max
                 if (curBuyBalance === undefined)
                     curBuyBalance = 0.0;
+                if (curBuyBalance < minBalance)
+                    curBuyBalance = minBalance;
                 let maxBuyCoins = curBuyBalance / buyRate; // how many coins we can buy with our base balance
                 if (coinAmount > maxBuyCoins)
                     coinAmount = maxBuyCoins * maxTradeFactor;
                 let curSellBalance = sellBalances[coinPair.to]
                 if (curSellBalance === undefined)
                     curSellBalance = 0.0;
+                if (curSellBalance < minBalance)
+                    curSellBalance = minBalance;
                 if (coinAmount > curSellBalance)
-                    return curSellBalance * maxTradeFactor; // no short selling, we can trade with at most the coins we have to sell on one exchange
-                //return coinAmount;
+                    coinAmount = curSellBalance * maxTradeFactor; // no short selling, we can trade with at most the coins we have to sell on one exchange
             }
+            return coinAmount; // the checks below are for trading, not arbitrage
         }
 
         if (this.config.flipPosition === true && strategy.getStrategyPosition() !== "none") {
