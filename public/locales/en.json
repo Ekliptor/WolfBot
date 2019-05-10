@@ -1345,7 +1345,7 @@
       "resistanceLines": "The price levels where we want to open short a position. Leave empty to open at any price level.",
       "expirationPercent": "optional, default 3% - Only execute orders at price levels that are within x% of the set support/resistance lines."
     },
-    "FishingNet": {
+    "FishingStraight": {
       "desc": "A Strategy that repeatedly buys/sells amounts in the same direction. It starts with small amounts and increases the size of the orders as the price goes down (thus dividing the total order size into chunks). If the market keeps moving against an existing position, our losses increase, but since we repeatedly increased our position size, our average buy price is close to the current price and it doesn't take long to get a profit at any point as soon as the market turns.<br>This strategy opens and closes positions but you may still add additional TakeProfit/StopLoss strategies.",
       "fishingMode": "optional, default trend - In which direction shall this strategy open positions? 'trend' means the strategy will decide automatically based on the current MACD trend. Values: up|down|trend",
       "percentage": "optional, default 10% - How many percent of the total trading balance shall be used for the first trade and on each trade to increase the position size.",
@@ -1390,9 +1390,11 @@
     },
     "Leg": {
       "desc": "Arbitrage strategy using limit orders with 1 leg \"standing\" on the current price rate of the higher-volume exchange. Thereby offering liquidity to the lower-volume exchange by copying the orderbook.<br>Also see MarketMakerOffset strategy for a similar way of market making while only being connected to 1 exchange.",
-      "copySide": "default \"both\" - Which side of the orderbook shall be mirrored.",
+      "copySide": "default \"bids\" - Which side of the orderbook shall be mirrored. Values: bids|asks",
       "priceAddPercent": "default 0.05% - The percentage the prices on the market we make shall differ from the leg exchange we mirror the orderbook from. This is our profit. Therefore this value must be higher than your trading fees on both exchanges combined plus the maximum possible rounding up loss depending on each exchange's minimum trade tick size (see bookDepthPerSide).",
       "bookDepthPerSide": "default 20 - The price-depth of bids and asks that shall be mirrored. It is measured as the number of orderbook price-level entries, so depending on the minimum trade tick size of each exchange the actual number of orders might be different on both exchanges. Yet they both with go the same price-depth into the bids and asks.<br>Keep in mind that increasing this value will increase the number of trade API requests to the smaller exchange, so be sure your request limit is sufficiently high.",
+      "maxAmountPerOrder": "optional, default tradeTotalBtc - The max amount in base currency of a single order. The actual amount will be min(maxAmountPerOrder, amount on leg exchange). This value can't be higher than tradeTotalBtc.",
+      "maxTotalExposure": "optional, default 500.000 - Max amount in base currency of all open orders combined.",
       "minDelayAdjustOrdersMs": "default 300 ms - The minimum delay in milliseconds before updating orders."
     }
   },
@@ -1475,5 +1477,15 @@
   "wizardFront": "Just go to the \"Configuration\" page and click on the button:",
   "tradingTabsTxt": "Here you can select a \"Configuration\". You should copy existing configurations before modifying them (too keep changes after updates).<br>Afterwards you can go to the \"Trading\" tab to fine-tune your configuration.,",
   "passphrase": "Passphrase",
-  "weekProfitableStrat": "Most profitable strategy this week"
+  "weekProfitableStrat": "Most profitable strategy this week",
+  "candleSize": "Candle size",
+  "candleSizeMin": "Candle size (in minutes)",
+  "candleSizeTxt": "Here you can set a candle size other than the default pre-configured one for the main strategy.<br>Choosing lower values will generally result in more trades (and the bot will start trading sooner because it doesn't have to collect that much data).",
+  "default": "default",
+  "min": "min",
+  "editConfig": "Edit config",
+  "errorLoadingStratConfig": "Error loading strategy configuration.",
+  "pairChangeConfigPage": "Please go to the configuration page to change the trading pair.",
+  "errorSaveStratConfig": "Error saving strategy configuration.",
+  "restartChanges": "A bot restart is required for your changes to take effect."
 }

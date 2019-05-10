@@ -284,11 +284,13 @@ export default class BitMEX extends AbstractContractExchange {
             this.privateReq("GET /user/margin", params).then((margin) => {
                 //console.log(margin)
                 let account = new MarginAccountSummary()
-                account.currentMargin  = 1.0 - margin.marginUsedPcnt
-                account.pl = BitMEX.satoshi2BTC(margin.unrealisedProfit)
                 account.netValue = account.totalValue = BitMEX.satoshi2BTC(margin.availableMargin)
+                if (account.netValue === 0)
+                    account.currentMargin = 1.0; // no balance, don't notify "low margin"
+                else
+                    account.currentMargin = 1.0 - margin.marginUsedPcnt
+                account.pl = BitMEX.satoshi2BTC(margin.unrealisedProfit)
                 resolve(account)
-
             }).catch((err) => {
                 reject(err)
             })

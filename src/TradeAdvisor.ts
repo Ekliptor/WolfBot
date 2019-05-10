@@ -155,7 +155,7 @@ export class ExchangeCurrencyPairMap extends Map<string, Currency.CurrencyPair[]
     }
 }
 
-export type StrategyActionName = "buy" | "sell" | "close" | "hold" | "cancelOrder";
+export type StrategyActionName = "buy" | "sell" | "close" | "hold" | "cancelOrder" | "cancelAllOrders";
 export interface StrategyAction {
     action: StrategyActionName;
     weight: number;
@@ -778,6 +778,12 @@ export default class TradeAdvisor extends AbstractAdvisor {
         orderActions.forEach((actionName) => {
             strategy.on(actionName, (pendingOrder: PendingOrder, reason: string) => {
                 this.trader.get(config.configNr).callAction(actionName, strategy, reason, pendingOrder.exchange.getExchangeLabel());
+            });
+        });
+        const batchOderActions: StrategyActionName[] = ["cancelAllOrders"];
+        batchOderActions.forEach((actionName) => {
+            strategy.on(actionName, (reason: string, exchange: Currency.Exchange) => {
+                this.trader.get(config.configNr).callAction(actionName, strategy, reason, exchange);
             });
         });
 

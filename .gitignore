@@ -98,6 +98,7 @@ config/BitmexWeekStops.json
 config/DeribitTradingViewImmediate.json
 config/FishingStraight.json
 config/arbitrage/Leg.json
+config/arbitrage/LegDouble.json
 src/Browser
 
 public/js/libs/tv

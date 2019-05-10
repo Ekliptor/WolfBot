@@ -643,6 +643,34 @@ export default class Backtester extends PortfolioTrader {
         })
     }
 
+    protected cancelAllOrders(strategy: AbstractStrategy, reason: string, exchangeLabel: Currency.Exchange) {
+        return new Promise<void>((resolve, reject) => {
+            let orderOps = [];
+            if (!this.warmUpDone())
+                return resolve();
+            for (let ex of this.exchanges)
+            {
+                if (this.config.exchanges.indexOf(ex[0]) === -1)
+                    continue;
+                let exchange = ex[1];
+                if (this.skipExchange(exchange, exchangeLabel))
+                    continue;
+                orderOps.push(new Promise((resolve, reject) => {
+                    exchange.cancelAllOrders(strategy.getAction().pair).then((cancelResult: CancelOrderResult) => {
+                        logger.info("%s CANCEL order from %s: %s", this.className, strategy.getClassName(), reason);
+                        logger.info(JSON.stringify(cancelResult))
+                        resolve();
+                    }).catch((err) => {
+                        logger.error("Error on CANCEL order in %s", this.className, err);
+                        resolve(); // continue
+                    })
+                }))
+            }
+
+            this.processTrades(orderOps, resolve)
+        })
+    }
+
     protected processTrades(orderOps: Promise<void>[], resolve) {
         if (process.env.IS_CHILD && PortfolioTrader.marginPositions.getMarginPositionCount() === 0) {
             let startBaseEquivalent = this.startBaseBalance + this.startCoinBalance * this.startCoinRate

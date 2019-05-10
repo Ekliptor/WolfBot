@@ -13,8 +13,8 @@ import {AbstractStrategy, StrategyPosition} from "../Strategies/AbstractStrategy
 import {LendingAdvisor} from "../Lending/LendingAdvisor";
 import {AbstractGenericStrategy} from "../Strategies/AbstractGenericStrategy";
 import {AbstractAdvisor, BacktestWarmupState} from "../AbstractAdvisor";
-import {AbstractConfig} from "../Trade/AbstractConfig";
 import {Currency} from "@ekliptor/bit-models";
+import {ConfigEditor} from "./ConfigEditor";
 
 export interface StrategyMeta {
     importLabel: string;
@@ -164,6 +164,10 @@ export class StrategyUpdater extends AppPublisher {
                 logger.error("Unable to get config nr %s and currency pair %s", data.closePos, data.pair);
             // TODO immediately sync positions? shouldn't be needed since we receive a close event from the exchange
         }
+        else if (typeof data.getStrategyConfig === "string" && data.configNr > 0)
+            this.sendStrategyConfig(clientSocket, data);
+        else if (typeof data.updateStrategyConfig === "string" && data.configNr > 0)
+            this.updateStrategyConfig(clientSocket, data);
     }
 
     protected publishStrategyUpdates() {
@@ -229,5 +233,54 @@ export class StrategyUpdater extends AppPublisher {
                 return "importFailed";
         }
         return utils.test.assertUnreachableCode(state);
+    }
+
+    protected async sendStrategyConfig(clientSocket: ClientSocketOnServer, data: any) {
+        try {
+            let configObj = await ConfigEditor.getStrategyConfig(data.configNr, data.getStrategyConfig);
+            this.send(clientSocket, {strategyConfig: utils.stringifyBeautiful(configObj)});
+        }
+        catch (err) {
+            logger.error("Error loading strategy config", err);
+            this.send(clientSocket, {error: true, errorCode: "errorLoadingStratConfig"});
+        }
+    }
+
+    protected async updateStrategyConfig(clientSocket: ClientSocketOnServer, data: any) {
+        const configFileName = ConfigEditor.getActiveConfig(); // we can only see & modify the active config on the strategy page
+        let configObj = utils.parseJson(data.strategyConfig);
+        if (configObj == null) { // validate JSON
+            this.send(clientSocket, {stratConfError: "syntaxErrorConf"})
+            return;
+        }
+        let oldConfigObj = await ConfigEditor.getStrategyConfig(data.configNr, data.updateStrategyConfig);
+        if (!configObj.pair || configObj.pair !== oldConfigObj.pair) {
+            this.send(clientSocket, {/*error: true, */stratConfError: "pairChangeConfigPage"}); // don't set error flag here because we display it on the dialog
+            return;
+        }
+        let fullConfig = await ConfigEditor.getConfigData(0); // load for all configs to save it below
+        if (!fullConfig || Array.isArray(fullConfig) === false) {
+            logger.error("Error loading full config %s-%s to save strategy config modification", data.configNr, data.updateStrategyConfig);
+            this.send(clientSocket, {stratConfError: "errorSaveStratConfig"});
+            return;
+        }
+        if (fullConfig.length < data.configNr) {
+            logger.error("Config %s is too short, only %s trading pairs", data.updateStrategyConfig, fullConfig.length);
+            this.send(clientSocket, {stratConfError: "errorSaveStratConfig"});
+            return;
+        }
+        const i = data.configNr - 1;
+        fullConfig[i].strategies[data.updateStrategyConfig] = configObj;
+        let configDataOut = utils.stringifyBeautiful({
+            data: fullConfig
+        });
+        let result = await ConfigEditor.getInstance().saveConfigUpdate(configFileName, configDataOut);
+        if (result.saved === false) {
+            this.send(clientSocket, {stratConfError: "errorSaveStratConfig"});
+            return;
+        }
+        this.send(clientSocket, {savedStratConf: true}); // must be separated messages to be processed properly
+        if (result.restart === true)
+            this.send(clientSocket, {error: true, errorCode: "restartChanges"});
     }
 }

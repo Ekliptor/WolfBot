@@ -39,10 +39,24 @@ export class PeatioCurrencies implements Currency.ExchangeCurrencies {
     }
 
     public getExchangeName(localCurrencyName: string): string {
-        return localCurrencyName.toLowerCase()
+        let exchangeName = localCurrencyName.toLowerCase();
+        if (nconf.get("arbitrage") === true) { // for development
+            if (exchangeName === "usdt")
+                exchangeName = "usd";
+            else if (exchangeName === "eth")
+                exchangeName = "fth";
+        }
+        return exchangeName;
     }
     public getLocalName(exchangeCurrencyName: string): string {
-        return exchangeCurrencyName.toUpperCase()
+        let localName = exchangeCurrencyName.toUpperCase();
+        if (nconf.get("arbitrage") === true) { // for development
+            if (localName === "USD")
+                localName = "USDT";
+            else if (localName === "FTH")
+                localName = "ETH";
+        }
+        return localName;
     }
 
     public getExchangePair(localPair: Currency.CurrencyPair): string {
@@ -50,7 +64,7 @@ export class PeatioCurrencies implements Currency.ExchangeCurrencies {
         let str2 = Currency.Currency[localPair.to]
         if (!str1 || !str2)
             return undefined;
-        return (str2 + str1).toLowerCase(); // ethusd
+        return this.getExchangeName(str2) + this.getExchangeName(str1); // ethusd
     }
     public getLocalPair(exchangePair: string): Currency.CurrencyPair {
         // no currency pair separator, some currencies have 3 and some 4 chars
@@ -58,8 +72,10 @@ export class PeatioCurrencies implements Currency.ExchangeCurrencies {
         const max = Math.max(exchangePair.length, 5);
         for (let i = 3; i < max; i++)
         {
-            cur1 = Currency.Currency[exchangePair.substr(0, i).toUpperCase()]
-            cur2 = Currency.Currency[exchangePair.substr(i).toUpperCase()]
+            const curStr1 = this.getLocalName(exchangePair.substr(0, i));
+            const curStr2 = this.getLocalName(exchangePair.substr(i));
+            cur1 = Currency.Currency[curStr1]
+            cur2 = Currency.Currency[curStr2]
             if (cur1 && cur2)
                 break;
         }
@@ -133,7 +149,7 @@ export default class Peatio extends AbstractExchange {
                         return;
                     balances[currencyStr] = helper.parseFloatVal(balance.balance);
                 });
-                resolve(balances);
+                resolve(Currency.fromExchangeList(balances, this.currencies));
             }, options);
         })
     }
@@ -171,7 +187,7 @@ export default class Peatio extends AbstractExchange {
             const orderUrl = this.privateApiUrl + utils.sprintf("api/v2/peatio/market/orders/%s/cancel", orderNumber);
             this.post(orderUrl, {}, (body, res) => {
                 let json = utils.parseJson(body);
-                if (body === false || json === null)
+                if (body === false || json === null) // res.statusCode 403 most likely means rate limit hit
                     return reject({txt: "Invalid response cancelling order", err: res});
                 // just returns the order
                 const cancelResult = {exchangeName: this.className, orderNumber: orderNumber, cancelled: json.state === "wait" || json.state === "cancel"};
@@ -482,7 +498,6 @@ export default class Peatio extends AbstractExchange {
                 let options = this.getHttpOptions(this.getAuthHeaders());
                 outParams.side = side;
                 this.post(this.privateApiUrl + "api/v2/peatio/market/orders", outParams, (body, res) => {
-                    console.log(body)
                     let json = utils.parseJson(body);
                     if (body === false || json === null)
                         return reject({txt: "Invalid order response", err: res});

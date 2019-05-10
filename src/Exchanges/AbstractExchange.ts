@@ -197,6 +197,7 @@ export abstract class AbstractExchange {
     protected minTradingValue = 0.0001; // rate * amount // from poloniex
     protected minTradingValueMargin = 0.0001; // default is the same as minTradingValue
     protected apiKey: ExApiKey;
+    protected exchangeOptions: ExOptions;
     protected proxy: string[] = [];
     protected marginNotification: number = 0;
     protected publicApiUrl = "";
@@ -269,6 +270,7 @@ export abstract class AbstractExchange {
             this.proxy = options.proxy;
         if (options.marginNotification)
             this.marginNotification = parseFloat(options.marginNotification);
+        this.exchangeOptions = options;
 
         // instances stays the same throughout the session. on WebSocket reconnects just the underlying socket & EventStream gets replaced
         this.marketStream = useCandleMarketStream ? new CandleMarketStream(this) : new MarketStream(this);
@@ -313,6 +315,10 @@ export abstract class AbstractExchange {
 
     public getClassName() {
         return this.className;
+    }
+
+    public getExchangeOptions(): ExOptions {
+        return Object.assign({}, this.exchangeOptions);
     }
 
     public getMarginNotification() {
@@ -489,6 +495,23 @@ export abstract class AbstractExchange {
             return ticker.last;
         logger.warn("No last price available for %s %s", this.className, pairStr);
         return -1;
+    }
+
+    public async cancelAllOrders(currencyPair: Currency.CurrencyPair): Promise<CancelOrderResult> {
+        console.log("CANCEL ALL", currencyPair)
+        let cancelResult: CancelOrderResult = {exchangeName: this.className, cancelled: false, orderNumber: 0}
+        try {
+            let orders = await this.getOpenOrders(currencyPair);
+            let cancelOps = [];
+            orders.orders.forEach((order) => {
+                cancelOps.push(this.cancelOrder(currencyPair, order.orderNumber));
+            });
+            await Promise.all(cancelOps);
+        }
+        catch (err) {
+            logger.error("Error cancelling all open orders in %s", this.className, err);
+        }
+        return cancelResult;
     }
 
     // ################################################################

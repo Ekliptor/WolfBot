@@ -11,6 +11,8 @@ import {TradingViewDatafeed} from "../classes/WebSocket/TradingViewDatafeed";
 import {ConfigCurrencyPair} from "../../../src/Trade/TradeConfig";
 import {StrategyPosition} from "../../../src/Strategies/AbstractStrategy";
 import * as i18next from "i18next";
+import {AppClass} from "../index";
+//import {AceAjax} from "ace"; // namespace, not a module
 
 
 declare var pageData: PageData, appData: AppData;
@@ -22,6 +24,7 @@ export class Strategies extends AbstractController {
     protected showingChart: ConfigCurrencyPair = null;
     protected configCache: any[] = []; // TradeConfig[]
     protected showingImportState: string = "";
+    protected editor: AceAjax.Editor;
 
     constructor(socket: ClientSocket, feed: TradingViewDatafeed) {
         super(socket)
@@ -30,6 +33,8 @@ export class Strategies extends AbstractController {
 
     public onData(data: any) {
         // TODO ensure data is parsed with plain JSON or EJSON. add a flag or query
+        if (data.error)
+            return Hlp.showMsg(data.errorTxt ? data.errorTxt : AppF.tr(data.errorCode ? data.errorCode : 'unknownError'), 'danger');
         if (data.meta && data.meta.importLabel)
             setTimeout(this.showImportState.bind(this, data.meta), 100);
         if (data.full) {
@@ -91,6 +96,16 @@ export class Strategies extends AbstractController {
             })
             this.addTabClickHandlers(data.full);
             Hlp.updateTimestampsRepeating();
+            return;
+        }
+        else if (data.strategyConfig)
+            return this.onStrategyConfig(data.strategyConfig);
+        else if (data.stratConfError) {
+            $("#stratConfError").text(i18next.t(data.stratConfError));
+            return;
+        }
+        else if (data.savedStratConf) {
+            $("#modal-config-dialog").remove();
             return;
         }
         else if (!data.config)
@@ -213,6 +228,45 @@ export class Strategies extends AbstractController {
             const strategyName = button.attr("data-strategy");
             this.renderChart(config, strategyName);
         });
+        const idAddon =  + config.nr + "-" + strategyName;
+        this.$("#editConfigBtn-" + idAddon).unbind("click").click((event) => {
+            $("#modal-config-dialog").remove(); // only open 1 at a time
+            let editorHtml = AppF.translate(pageData.html.strategiesConfigPopup.editOverlay, {strategyName: strategyName});
+            $(AppClass.cfg.appSel).append(editorHtml);
+            this.editor = ace.edit("editor");
+            this.editor.$blockScrolling = Number.POSITIVE_INFINITY;
+            this.editor.setTheme("ace/theme/xcode");
+            this.editor.getSession().setMode("ace/mode/json");
+            this.editor.on("change", (e) => {
+                //if (!this.canEdit)
+                    //return;
+                $("#saveStratConfig").fadeIn("slow");
+            });
+            this.send({
+                getStrategyConfig: strategyName,
+                configNr: config.nr
+            });
+            setTimeout(() => {
+                $("#saveStratConfig").click((event) => {
+                    this.send({
+                        updateStrategyConfig: strategyName,
+                        configNr: config.nr,
+                        strategyConfig: this.editor.getValue()
+                    });
+                });
+                $("#cancelStratConfig").click((event) => {
+                    $("#modal-config-dialog").remove();
+                });
+            }, 100);
+        });
+    }
+
+    protected onStrategyConfig(strategyConfig: string) {
+        if (this.editor) {
+            if (typeof strategyConfig !== "string")
+                strategyConfig = JSON.stringify(strategyConfig); // shouldn't happen
+            this.editor.setValue(strategyConfig, -1);
+        }
     }
 
     protected showActiveChart(configNr: number, strategyName: string) {

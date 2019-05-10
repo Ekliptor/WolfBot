@@ -21,6 +21,7 @@ export interface ConfigRuntimeUpdate {
 export class TradeConfig extends AbstractConfig {
     //public readonly name: string = "";
     public readonly exchanges: string[] = null;
+    public readonly exchangeFeeds: string[] = null; // some of the specified exchanges can be used as read-only (no trades submitted). useful to debug arbitrage
     public readonly markets: Currency.CurrencyPair[] = [];
     public readonly marginTrading = true;
     public readonly tradeTotalBtc = 0.0; // will be leveraged 2.5 if marginTrading is enabled
@@ -48,6 +49,10 @@ export class TradeConfig extends AbstractConfig {
         }
         else
             this.exchanges = nconf.get("defaultExchanges")
+        if (Array.isArray(json.exchangeFeeds) === false)
+            this.exchangeFeeds = [];
+        else
+            this.exchangeFeeds = json.exchangeFeeds;
         this.loadMarkets(json.strategies)
         /*
         json.markets.forEach((market) => {

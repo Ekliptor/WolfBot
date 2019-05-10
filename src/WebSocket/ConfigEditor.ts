@@ -93,6 +93,7 @@ export interface ConfigRes extends ConfigData {
     exchangeLinks?: ExchangeLinkMap;
     exchangePairs?: ExchangePairMap;
     wizardStrategies?: string[];
+    wizardCandleSizes?: string[];
     notifications?: NotificationMethodMap;
     currencies?: DisplayCurrencyMap;
 
@@ -123,12 +124,18 @@ export interface ConfigReq extends ConfigData {
     wizardData?: WizardData;
 }
 
+export interface SaveConfigFileRes {
+    saved: boolean;
+    restart: boolean;
+}
+
 export class ConfigEditor extends AppPublisher {
     public readonly opcode = WebSocketOpcode.CONFIG;
 
     protected selectedTradingMode: BotTrade.TradingMode;
     protected selectedConfig: string;
-    protected readonly activeConfig: string; // config file changes require a restart
+    protected static activeConfig: string; // config file changes require a restart
+    protected static instance: ConfigEditor = null; // to access it from outside. readonly is not available for static members
     protected selectedTrader: string;
     protected savedState = false;
     protected selectedTab: ConfigTab = "tabGeneral";
@@ -139,9 +146,11 @@ export class ConfigEditor extends AppPublisher {
 
     constructor(serverSocket: ServerSocket, advisor: AbstractAdvisor) {
         super(serverSocket, advisor)
+        if (ConfigEditor.instance === null)
+            ConfigEditor.instance = this;
         this.selectedTradingMode = nconf.get("lending") === true ? "lending" : (nconf.get("arbitrage") == true ? "arbitrage" : "trading");
         this.selectedConfig = this.advisor.getConfigName();
-        this.activeConfig = this.selectedConfig;
+        ConfigEditor.activeConfig = this.selectedConfig;
         this.selectedTrader = this.getSelectedTrader();
         nconf.set("debugRestart", nconf.get("debug"));
         serverConfig.saveConfigLocal();
@@ -180,6 +189,14 @@ export class ConfigEditor extends AppPublisher {
                 path.join(configBackupDir, "gWeekPredictorg.json"), path.join(configBackupDir, "ggWeekPredictorgg.json")]);
         }, 0);
         */
+    }
+
+    public static getInstance() {
+        return ConfigEditor.instance;
+    }
+
+    public static getActiveConfig() {
+        return ConfigEditor.activeConfig;
     }
 
     public static getConfigDir() {
@@ -221,7 +238,7 @@ export class ConfigEditor extends AppPublisher {
                 social: nconf.get("social") ? true : false,
                 selectedTradingMode: this.selectedTradingMode,
                 selectedConfig: this.selectedConfig,
-                activeConfig: this.activeConfig,
+                activeConfig: ConfigEditor.activeConfig,
                 selectedTrader: this.selectedTrader,
                 configFileData: configFileData,
                 jsonEditorData: this.createEditorSchema(configFileData, this.selectedConfig),
@@ -238,6 +255,7 @@ export class ConfigEditor extends AppPublisher {
                 exchangeLinks: Currency.ExchangeLink.toObject(),
                 exchangePairs: Currency.ExchangeRecommendedPairs.toObject(),
                 wizardStrategies: nconf.get("serverConfig:wizardStrategies"),
+                wizardCandleSizes: nconf.get("serverConfig:wizardCandleSizes"),
                 notifications: this.getNotificationMethods()
             });
             this.setLastWorkingConfig();
@@ -517,6 +535,62 @@ export class ConfigEditor extends AppPublisher {
             process.exit(0)
         }).catch((err) => {
             logger.error("Error restarting bot", err)
+        })
+    }
+
+    /**
+     * Return the config as javascript object.
+     * @param configNr starting at 1. Use 0 to return the full config array for all trading pairs.
+     * @param configFile The config file to load. Defaults to the currently active file
+     * @return the JS object or null on failure
+     */
+    public static async getConfigData(configNr: number, configFileName: string = ""): Promise<any> {
+        if (!configFileName)
+            configFileName = ConfigEditor.activeConfig;
+        if (configFileName.substr(-5) !== ".json")
+            configFileName += ".json";
+        const configFile = path.join(ConfigEditor.getConfigDir(), configFileName);
+        if (!utils.file.isSafePath(configFile))
+            throw "Can not access path outside of app dir";
+        let configStr = await utils.file.readFile(configFile);
+        let configObj = utils.parseJson(configStr);
+        if (configObj === null || Array.isArray(configObj.data) === false || configObj.data.length < configNr)
+            return null;
+        if (configNr === 0)
+            return configObj.data;
+        let configForNr = configObj.data[configNr-1];
+        if (!configForNr || !configForNr.strategies)
+            return null;
+        return configForNr;
+    }
+
+    /**
+     * Return the strategy config as javascript object.
+     * @param configNr starting at 1
+     * @param strategyName
+     * @param configFile The config file to load. Defaults to the currently active file
+     * @return the JS object or null on failure
+     */
+    public static async getStrategyConfig(configNr: number, strategyName: string, configFileName: string = ""): Promise<any> {
+        let configForNr = await ConfigEditor.getConfigData(configNr, configFileName);
+        for (let name in configForNr.strategies)
+        {
+            if (name === strategyName)
+                return configForNr.strategies[name];
+        }
+        logger.warn("Strategy named %s (config nr %s) not found in config file %s", strategyName, configNr, configFileName);
+        return null;
+    }
+
+    public saveConfigUpdate(configName: string, data: string) {
+        return new Promise<SaveConfigFileRes>((resolve, reject) => {
+            this.saveConfigFile(configName, data).then(() => {
+                let requireRestrt = this.updateConfig(data);
+                resolve({saved: true, restart: requireRestrt});
+            }).catch((err) => {
+                logger.error("Error saving config", err)
+                resolve({saved: false, restart: false});
+            });
         })
     }
 
@@ -1393,7 +1467,7 @@ export class ConfigEditor extends AppPublisher {
 
     protected async addWizardConfig(wizardData: WizardData, clientSocket: ClientSocketOnServer): Promise<void> {
         this.selectedTradingMode = "trading"; // just to be sure
-        let wizard = new Wizard(this.activeConfig);
+        let wizard = new Wizard(ConfigEditor.activeConfig);
         let errorMsg = await wizard.addWizardConfig(wizardData);
         if (errorMsg) {
             this.send(clientSocket, {wizardErrorCode: errorMsg});

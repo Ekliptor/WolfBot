@@ -43,6 +43,7 @@ export abstract class AbstractTrader extends AbstractGenericTrader {
     protected static globalExchanges: ExchangeMap = new ExchangeMap() // (exchange name, instance), all exchanges (needed to save HTTP requests to deduplicate requests)
     protected start: number = 0;
     protected pausedOpeningPositions: boolean = nconf.get("serverConfig:pausedOpeningPositions");
+    protected simulatedExchanges = new Map<string, AbstractExchange>(); // (exchange name, dummy instance)
 
     protected marketRates = new Map<string, number>(); // (currency pair, rate)
 
@@ -64,6 +65,14 @@ export abstract class AbstractTrader extends AbstractGenericTrader {
         {
             if (!AbstractTrader.globalExchanges.has(exchange[0]))
                 AbstractTrader.globalExchanges.set(exchange[0], exchange[1])
+        }
+        for (let i = 0; i < this.config.exchangeFeeds.length; i++)
+        {
+            let exchangeName = this.config.exchangeFeeds[i];
+            let liveExchange = this.exchanges.get(exchangeName);
+            let exchangeOptions = liveExchange.getExchangeOptions();
+            exchangeOptions.exchangeName = liveExchange.getClassName();
+            this.simulatedExchanges.set(exchangeName, new LoggerEx(exchangeOptions));
         }
     }
 
@@ -129,7 +138,9 @@ export abstract class AbstractTrader extends AbstractGenericTrader {
             case "sell":
             case "close":
             case "cancelOrder":
-                this.isTrading.set(pairStr, true);
+            case "cancelAllOrders":
+                if (action !== "cancelOrder" && action !== "cancelAllOrders")
+                    this.isTrading.set(pairStr, true); // moving orders has to be fast for arbitrage, so allow cancelling multiple orders simultaneously
                 setTimeout(() => {
                     this.isTrading.delete(pairStr); // just to be sure
                 }, tradingTimeoutMs)
@@ -190,6 +201,7 @@ export abstract class AbstractTrader extends AbstractGenericTrader {
     protected abstract sell(strategy: AbstractStrategy, reason: string, exchangeLabel: Currency.Exchange): Promise<void>;
     protected abstract close(strategy: AbstractStrategy, reason: string, exchangeLabel: Currency.Exchange): Promise<void>;
     protected abstract cancelOrder(strategy: AbstractStrategy, reason: string, exchangeLabel: Currency.Exchange): Promise<void>;
+    protected abstract cancelAllOrders(strategy: AbstractStrategy, reason: string, exchangeLabel: Currency.Exchange): Promise<void>;
 
     protected emitBuy(order: Order.Order, trades: Trade.Trade[], info?: TradeInfo) {
         this.logTrade(order, trades, info);
@@ -334,3 +346,4 @@ import "./RealTimeTrader";
 import "./TradeNotifier";
 import "../Lending/RealTimeLendingTrader";
 import {PendingOrder} from "./AbstractOrderTracker";
+import LoggerEx from "../Exchanges/LoggerEx";

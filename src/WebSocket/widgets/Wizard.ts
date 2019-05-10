@@ -14,6 +14,7 @@ export interface WizardData {
     currencyPair: string;
     tradingCapital: number;
     strategy: string;
+    candleSize: string;
     configName: string;
     replace: boolean;
 }
@@ -72,14 +73,21 @@ export class Wizard {
     // ###################### PRIVATE FUNCTIONS #######################
 
     protected updateStrategyJson(strategyJson: any, wizardData: WizardData): any {
-        let first = strategyJson.data[0];
+        let first = strategyJson.data[0]; // the first config group (first trading pair + exchange)
         first.exchanges = [wizardData.exchange];
         first.tradeTotalBtc = wizardData.tradingCapital;
         first.marginTrading = this.isFuturesExchange(wizardData.exchange);
+        let isFirstStrategy = true;
         for (let strategyName in first.strategies)
         {
             let data = first.strategies[strategyName];
+            // keys are iterated in order in nodejs and we always put our main strategy first
+            if (isFirstStrategy === true) {
+                if (wizardData.candleSize !== "default")
+                    data.candleSize = parseInt(wizardData.candleSize);
+            }
             data.pair = wizardData.currencyPair;
+            isFirstStrategy = false;
         }
         return {
             data: [first]

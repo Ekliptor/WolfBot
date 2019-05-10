@@ -11,6 +11,7 @@ import {MarginPosition, MarginPositionList} from "../structs/MarginPosition";
 import {AbstractOrderTracker, PendingOrder} from "./AbstractOrderTracker";
 import {RealTimeOrderTracker} from "./RealTimeOrderTracker";
 import {Currency, Trade, Order} from "@ekliptor/bit-models";
+import {StrategyActionName} from "../TradeAdvisor";
 
 export enum RealTimeTradeMode {
     SIMULATION = 1,
@@ -53,6 +54,43 @@ export default class RealTimeTrader extends PortfolioTrader {
     // we have to call getAllMarginPositions() resp getBalances() on startup and every x minutes
     // (not before every action to do realtime trading faster)
 
+    public callAction(action: StrategyActionName, strategy: AbstractStrategy, reason = "", exchange: Currency.Exchange = Currency.Exchange.ALL): void {
+        const coinPair = strategy.getAction().pair;
+        let orderbooksReady = true;
+        if (this.config.marginTrading) {
+            for (let ex of this.exchanges)
+            {
+                if (this.config.exchanges.indexOf(ex[0]) === -1)
+                    continue;
+                let exchange = ex[1];
+                let orderBook = exchange.getOrderBook().get(coinPair.toString())
+                if (!orderBook) {
+                    orderbooksReady = false;
+                    logger.warn("Skipping trade because %s orderbook is not ready", exchange.getClassName());
+                    break;
+                }
+            }
+        }
+        else {
+            for (let balance of PortfolioTrader.coinBalances)
+            {
+                let exchange = this.exchanges.get(balance[0]);
+                let orderBook = exchange.getOrderBook().get(coinPair.toString())
+                if (!orderBook) {
+                    orderbooksReady = false;
+                    logger.warn("Skipping trade because %s orderbook is not ready", exchange.getClassName());
+                    break;
+                }
+
+            }
+        }
+        if (orderbooksReady === false) {
+            logger.warn("Skipping %s trade because orderbooks are not ready", action.toUpperCase());
+            return;
+        }
+        super.callAction(action, strategy, reason, exchange);
+    }
+
     // ################################################################
     // ###################### PRIVATE FUNCTIONS #######################
 
@@ -72,6 +110,8 @@ export default class RealTimeTrader extends PortfolioTrader {
                     if (this.config.exchanges.indexOf(ex[0]) === -1)
                         continue;
                     let exchange = ex[1];
+                    if (this.simulatedExchanges.has(ex[0]) === true)
+                        exchange = this.simulatedExchanges.get(ex[0]);
                     if (this.skipExchange(exchange, exchangeLabel))
                         continue;
                     if (!exchange.marginTradingSupport())
@@ -145,6 +185,8 @@ export default class RealTimeTrader extends PortfolioTrader {
                 for (let balance of PortfolioTrader.coinBalances)
                 {
                     let exchange = this.exchanges.get(balance[0]);
+                    if (this.simulatedExchanges.has(balance[0]) === true)
+                        exchange = this.simulatedExchanges.get(balance[0]);
                     if (this.skipExchange(exchange, exchangeLabel))
                         continue;
                     if (this.config.exchanges.indexOf(exchange.getClassName()) === -1)
@@ -225,6 +267,8 @@ export default class RealTimeTrader extends PortfolioTrader {
                     if (this.config.exchanges.indexOf(ex[0]) === -1)
                         continue;
                     let exchange = ex[1];
+                    if (this.simulatedExchanges.has(ex[0]) === true)
+                        exchange = this.simulatedExchanges.get(ex[0]);
                     if (this.skipExchange(exchange, exchangeLabel))
                         continue;
                     if (!exchange.marginTradingSupport())
@@ -293,6 +337,8 @@ export default class RealTimeTrader extends PortfolioTrader {
                 for (let balance of PortfolioTrader.coinBalances)
                 {
                     let exchange = this.exchanges.get(balance[0]);
+                    if (this.simulatedExchanges.has(balance[0]) === true)
+                        exchange = this.simulatedExchanges.get(balance[0]);
                     if (this.skipExchange(exchange, exchangeLabel))
                         continue;
                     if (this.config.exchanges.indexOf(exchange.getClassName()) === -1)
@@ -379,6 +425,8 @@ export default class RealTimeTrader extends PortfolioTrader {
                     if (this.config.exchanges.indexOf(pos[0]) === -1)
                         continue;
                     let exchange = this.exchanges.get(pos[0]);
+                    if (this.simulatedExchanges.has(pos[0]) === true)
+                        exchange = this.simulatedExchanges.get(pos[0]);
                     if (this.skipExchange(exchange, exchangeLabel))
                         continue;
                     if (this.skipTrade("close", exchange, strategy))
@@ -447,6 +495,8 @@ export default class RealTimeTrader extends PortfolioTrader {
                 if (this.config.exchanges.indexOf(ex[0]) === -1)
                     continue;
                 let exchange = ex[1];
+                if (this.simulatedExchanges.has(ex[0]) === true)
+                    exchange = this.simulatedExchanges.get(ex[0]);
                 if (this.skipExchange(exchange, exchangeLabel))
                     continue;
                 if (this.tradeMode === RealTimeTradeMode.SIMULATION) { // simulation should work even if we don't have coins on the exchange
@@ -461,6 +511,44 @@ export default class RealTimeTrader extends PortfolioTrader {
                     exchange.cancelOrder(order.order.currencyPair, order.order.orderID).then((cancelResult: CancelOrderResult) => {
                         logger.info("%s CANCEL order from %s: %s", this.className, strategy.getClassName(), reason);
                         logger.info("amount %s, rate %s", order.order.amount, order.order.rate);
+                        logger.info(JSON.stringify(cancelResult))
+                        resolve();
+                    }).catch((err) => {
+                        logger.error("Error on CANCEL order in %s", this.className, err);
+                        resolve(); // continue
+                        this.retryFailedAction(this.cancelOrder, strategy, reason, exchange, err);
+                    })
+                }))
+            }
+
+            this.processTrades(orderOps, resolve)
+        })
+    }
+
+    protected cancelAllOrders(strategy: AbstractStrategy, reason: string, exchangeLabel: Currency.Exchange) {
+        return new Promise<void>((resolve, reject) => {
+            let orderOps = [];
+            if (!this.warmUpDone())
+                return resolve();
+            for (let ex of this.exchanges)
+            {
+                if (this.config.exchanges.indexOf(ex[0]) === -1)
+                    continue;
+                let exchange = ex[1];
+                if (this.simulatedExchanges.has(ex[0]) === true)
+                    exchange = this.simulatedExchanges.get(ex[0]);
+                if (this.skipExchange(exchange, exchangeLabel))
+                    continue;
+                if (this.tradeMode === RealTimeTradeMode.SIMULATION) { // simulation should work even if we don't have coins on the exchange
+                    orderOps.push(new Promise((resolve, reject) => {
+                        logger.info("%s CANCEL ALL orders simulation from %s: %s", this.className, strategy.getClassName(), reason);
+                        setTimeout(resolve, RealTimeTrader.REALTIME_SIMULATION_TRADE_DELAY_SEC*1000);
+                    }))
+                    continue;
+                }
+                orderOps.push(new Promise((resolve, reject) => {
+                    exchange.cancelAllOrders(strategy.getAction().pair).then((cancelResult: CancelOrderResult) => {
+                        logger.info("%s CANCEL ALL orders from %s: %s", this.className, strategy.getClassName(), reason);
                         logger.info(JSON.stringify(cancelResult))
                         resolve();
                     }).catch((err) => {

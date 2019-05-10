@@ -485,7 +485,11 @@ export class Config extends TableController {
             $("#strategy").append(this.getSelectOption(strategy, strategy, firstStrategy))
             firstStrategy = false;
         });
-        App.initSingleMultiSelect("#strategy", (optionEl, checked) => {
+        $("#candleSize").append(this.getSelectOption("default", i18next.t("default"), true));
+        data.wizardCandleSizes.forEach((candleSize) => {
+            $("#candleSize").append(this.getSelectOption(candleSize, candleSize + i18next.t("min"), false));
+        });
+        App.initSingleMultiSelect("#strategy, #candleSize", (optionEl, checked) => {
             const id = optionEl.attr("id");
             if (id === "strategy") {
                 const strategySelected = optionEl.val();
@@ -503,6 +507,7 @@ export class Config extends TableController {
                     currencyPair: $("#currencyPair").val(),
                     tradingCapital: parseFloat($("#tradingCapital").val()),
                     strategy: $("#strategy").val(),
+                    candleSize: $("#candleSize").val(),
                     configName: $("#configName").val(),
                     replace: element.attr("id") === "startBotReplace"
                 }});

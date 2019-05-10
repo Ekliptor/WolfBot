@@ -16,10 +16,12 @@ import {AbstractGenericStrategy, GenericStrategyState, StrategyEvent, StrategyIn
 import * as helper from "../utils/helper";
 import {TradePosition} from "../structs/TradePosition";
 import {PendingOrder} from "../Trade/AbstractOrderTracker";
+import {SimpleOrder} from "../structs/MarketMakerOrders";
 
 export type BuySellAction = "buy" | "sell";
 export type TradeAction = "buy" | "sell" | "close" // actions that go out from the strategy and the Trader instances executes and sends back the event to the strategy
     | "cancelOrder"/* | "order"*/ // this action only goes out from the strategy
+    | "cancelAllOrders"
     // other non-trade action events
     | "hold";
 export type StrategyOrder = "buy" | "sell" | "closeLong" | "closeShort";
@@ -860,15 +862,15 @@ export abstract class AbstractStrategy extends AbstractGenericStrategy {
      * @param {number} weight
      * @param {string} reason
      */
-    protected emitBuyClose(weight: number, reason: string) {
+    protected emitBuyClose(weight: number, reason: string, fromClass = "", exchange: Currency.Exchange = Currency.Exchange.ALL) {
         if (!this.action.order) {
             logger.error("Order action must be defined to call emitBuyClose in %s", this.className);
             return;
         }
         if (this.action.order.indexOf("close") === -1)
-            this.emitBuy(weight, reason);
+            this.emitBuy(weight, reason, fromClass, exchange);
         else
-            this.emitClose(weight, reason);
+            this.emitClose(weight, reason, fromClass, exchange);
     }
 
     /**
@@ -878,16 +880,16 @@ export abstract class AbstractStrategy extends AbstractGenericStrategy {
      * @param {number} weight
      * @param {string} reason
      */
-    protected emitSellClose(weight: number, reason: string) {
+    protected emitSellClose(weight: number, reason: string, fromClass = "", exchange: Currency.Exchange = Currency.Exchange.ALL) {
         if (!this.action.order) {
             logger.error("Order action must be defined to call emitSellClose in %s", this.className);
             return;
         }
         //if (this.action.order === "sell") // BladeRunner has opposite meanings than StopLoss
         if (this.action.order.indexOf("close") === -1)
-            this.emitSell(weight, reason);
+            this.emitSell(weight, reason, fromClass, exchange);
         else
-            this.emitClose(weight, reason);
+            this.emitClose(weight, reason, fromClass, exchange);
     }
 
     /**
@@ -897,7 +899,17 @@ export abstract class AbstractStrategy extends AbstractGenericStrategy {
      */
     protected emitCancelOrder(pendingOrder: PendingOrder, reason: string) {
         this.lastCancelledOrder = pendingOrder;
-        this.emit("cancelOrder", pendingOrder);
+        this.emit("cancelOrder", pendingOrder, reason);
+    }
+
+    /**
+     * Emit an event to cancel all currently open orders.
+     * It is faster to keep track of order IDs in your strategy and cancel them directly (no API call to fetch needed) for fast trading.
+     * @param reason
+     * @param exchange
+     */
+    protected cancelAllOrders(reason: string, exchange: Currency.Exchange = Currency.Exchange.ALL) {
+        this.emit("cancelAllOrders", reason, exchange);
     }
 
     /**
@@ -917,6 +929,7 @@ export abstract class AbstractStrategy extends AbstractGenericStrategy {
                 this.emitClose(scheduledTrade.weight, scheduledTrade.reason, scheduledTrade.fromClass, scheduledTrade.exchange);
                 return;
             case "cancelOrder":
+            case "cancelAllOrders":
                 return; // not used for cancelling orders because it needs a PendingOrder object
             case "hold":
                 return; // shouldn't happen, hold is deprecated
@@ -1217,6 +1230,13 @@ export abstract class AbstractStrategy extends AbstractGenericStrategy {
                     this.action.order = "closeShort";
             }
         }
+    }
+
+    protected createSimpleOrder(order: Order.Order, info: TradeInfo) {
+        let simpleOrder = new SimpleOrder(order.rate, order.amount);
+        if (info && info.pendingOrder)
+            simpleOrder.pendingOrder = info.pendingOrder;
+        return simpleOrder;
     }
 
     protected isPossibleFuturesPair(pair: Currency.CurrencyPair) {

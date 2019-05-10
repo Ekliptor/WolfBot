@@ -32,6 +32,15 @@
             </div>
           </div>
         </div>
+        <div id="wizardCandleSize" class="row">
+          <div class="panel panel-primary">
+            <div class="panel-heading">{tr:candleSize}</div>
+            <div class="panel-body">
+              {tr:candleSizeMin}{tr:colon}<select id="candleSize" class="multiSel" name="candleSize"></select>
+              <div id="candleSizeText">{tr:candleSizeTxt}</div>
+            </div>
+          </div>
+        </div>
         <div id="wizardName" class="row">
           <div class="panel panel-primary">
             <div class="panel-heading">{tr:configName}</div>
@@ -43,7 +52,7 @@
         <div id="wizardSave" class="row top30">
           <button id="startBotReplace" class="btn btn-success" type="button" name="startBotReplace">{tr:startBotReplace}</button>
           <button id="startBotAdd" class="btn btn-success" type="button" name="startBotAdd">{tr:startBotAdd}</button>
-          <div id="wizardError" class="red top10">.</div>
+          <div id="wizardError" class="red top10"></div>
         </div>
       </div>
     </div>

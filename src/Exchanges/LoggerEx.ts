@@ -40,8 +40,6 @@ export default class LoggerEx extends AbstractExchange {
 
     constructor(options: ExOptions) {
         super({key: "", secret: ""}, false);
-        if (options.exchangeName)
-            this.options.exchangeName = options.exchangeName;
         if (options.balance)
             this.options.balance = options.balance;
         this.publicApiUrl = "";
@@ -57,8 +55,8 @@ export default class LoggerEx extends AbstractExchange {
         this.maxLeverage = 1.0
         //this.currencies = new LoggerExchangeCurrencies(this); // not needed since we don't send any requests
 
-        if (this.options.exchangeName) {
-            this.className = this.options.exchangeName;
+        if (options.exchangeName) {
+            this.className = options.exchangeName;
             this.exchangeLabel = Currency.ExchangeName.get(this.className);
         }
 

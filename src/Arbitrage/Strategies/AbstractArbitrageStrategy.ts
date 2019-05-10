@@ -53,6 +53,7 @@ export abstract class AbstractArbitrageStrategy extends AbstractStrategy {
 
     protected exchangeCandles: ExchangeCandles[] = []; // history starting at pos 0 with most recent candle
     protected exchangeCandleMap = new ExchangeCandleMap(); // map where we collect current candles
+    protected static cancelledAllOrders = new Map<string, Date>(); // (currency pair, time) - cancel orders on startup to ensure there are no conflicting orders
 
     constructor(options) {
         super(options)
@@ -268,6 +269,18 @@ export abstract class AbstractArbitrageStrategy extends AbstractStrategy {
 
     protected getExchangeCandles(exchange: Currency.Exchange): Candle.Candle[] {
         return this.candleHistory.filter(c => c.exchange === exchange);
+    }
+
+    protected scheduleCancelAllOrders() {
+        setTimeout(() => {
+            setTimeout(() => {
+                const pairStr = this.action.pair.toString();
+                if (AbstractArbitrageStrategy.cancelledAllOrders.has(pairStr) === true)
+                    return;
+                AbstractArbitrageStrategy.cancelledAllOrders.set(pairStr, new Date());
+                this.cancelAllOrders("cancelling all orders for startup");
+            }, this.config.warmUpMin*utils.constants.MINUTE_IN_SECONDS*1000); // config object not ready on init
+        }, 4000);
     }
 
     protected resetValues(): void {

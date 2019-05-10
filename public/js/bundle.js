@@ -4005,7 +4005,11 @@ class Config extends TableController_1.TableController {
             $("#strategy").append(this.getSelectOption(strategy, strategy, firstStrategy));
             firstStrategy = false;
         });
-        index_1.App.initSingleMultiSelect("#strategy", (optionEl, checked) => {
+        $("#candleSize").append(this.getSelectOption("default", i18next.t("default"), true));
+        data.wizardCandleSizes.forEach((candleSize) => {
+            $("#candleSize").append(this.getSelectOption(candleSize, candleSize + i18next.t("min"), false));
+        });
+        index_1.App.initSingleMultiSelect("#strategy, #candleSize", (optionEl, checked) => {
             const id = optionEl.attr("id");
             if (id === "strategy") {
                 const strategySelected = optionEl.val();
@@ -4022,6 +4026,7 @@ class Config extends TableController_1.TableController {
                     currencyPair: $("#currencyPair").val(),
                     tradingCapital: parseFloat($("#tradingCapital").val()),
                     strategy: $("#strategy").val(),
+                    candleSize: $("#candleSize").val(),
                     configName: $("#configName").val(),
                     replace: element.attr("id") === "startBotReplace"
                 }
@@ -4925,6 +4930,7 @@ const AbstractController_1 = __webpack_require__(/*! ./base/AbstractController *
 const $ = __webpack_require__(/*! jquery */ "jquery");
 const TradingView = __webpack_require__(/*! ../libs/tv/charting_library.min */ "./public/js/libs/tv/charting_library.min.js");
 const i18next = __webpack_require__(/*! i18next */ "i18next");
+const index_1 = __webpack_require__(/*! ../index */ "./public/js/index.ts");
 class Strategies extends AbstractController_1.AbstractController {
     constructor(socket, feed) {
         super(socket);
@@ -4936,6 +4942,8 @@ class Strategies extends AbstractController_1.AbstractController {
     }
     onData(data) {
         // TODO ensure data is parsed with plain JSON or EJSON. add a flag or query
+        if (data.error)
+            return Hlp.showMsg(data.errorTxt ? data.errorTxt : AppF.tr(data.errorCode ? data.errorCode : 'unknownError'), 'danger');
         if (data.meta && data.meta.importLabel)
             setTimeout(this.showImportState.bind(this, data.meta), 100);
         if (data.full) {
@@ -4996,6 +5004,16 @@ class Strategies extends AbstractController_1.AbstractController {
             });
             this.addTabClickHandlers(data.full);
             Hlp.updateTimestampsRepeating();
+            return;
+        }
+        else if (data.strategyConfig)
+            return this.onStrategyConfig(data.strategyConfig);
+        else if (data.stratConfError) {
+            $("#stratConfError").text(i18next.t(data.stratConfError));
+            return;
+        }
+        else if (data.savedStratConf) {
+            $("#modal-config-dialog").remove();
             return;
         }
         else if (!data.config)
@@ -5107,6 +5125,44 @@ class Strategies extends AbstractController_1.AbstractController {
             const strategyName = button.attr("data-strategy");
             this.renderChart(config, strategyName);
         });
+        const idAddon = +config.nr + "-" + strategyName;
+        this.$("#editConfigBtn-" + idAddon).unbind("click").click((event) => {
+            $("#modal-config-dialog").remove(); // only open 1 at a time
+            let editorHtml = AppF.translate(pageData.html.strategiesConfigPopup.editOverlay, { strategyName: strategyName });
+            $(index_1.AppClass.cfg.appSel).append(editorHtml);
+            this.editor = ace.edit("editor");
+            this.editor.$blockScrolling = Number.POSITIVE_INFINITY;
+            this.editor.setTheme("ace/theme/xcode");
+            this.editor.getSession().setMode("ace/mode/json");
+            this.editor.on("change", (e) => {
+                //if (!this.canEdit)
+                //return;
+                $("#saveStratConfig").fadeIn("slow");
+            });
+            this.send({
+                getStrategyConfig: strategyName,
+                configNr: config.nr
+            });
+            setTimeout(() => {
+                $("#saveStratConfig").click((event) => {
+                    this.send({
+                        updateStrategyConfig: strategyName,
+                        configNr: config.nr,
+                        strategyConfig: this.editor.getValue()
+                    });
+                });
+                $("#cancelStratConfig").click((event) => {
+                    $("#modal-config-dialog").remove();
+                });
+            }, 100);
+        });
+    }
+    onStrategyConfig(strategyConfig) {
+        if (this.editor) {
+            if (typeof strategyConfig !== "string")
+                strategyConfig = JSON.stringify(strategyConfig); // shouldn't happen
+            this.editor.setValue(strategyConfig, -1);
+        }
     }
     showActiveChart(configNr, strategyName) {
         const i = configNr - 1;

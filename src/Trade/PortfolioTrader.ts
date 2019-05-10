@@ -522,18 +522,25 @@ export abstract class PortfolioTrader extends AbstractTrader {
         //if (orderOps.length === 0)
             //logger.warn("No orders have been defined in %s", this.className)
         // TODO static map to postpone them a few sec to avoid IP ban in realtime trader?
+        const arbitrage = nconf.get("arbitrage") === true;
+        if (arbitrage === true)
+            resolve();
         Promise.all(orderOps).then(() => {
-            if (orderOps.length !== 0) { // if we did any trades we have to update our portfolio
+            if (orderOps.length !== 0 && arbitrage === false) {
+                // if we did any trades we have to update our portfolio. for arbitrage we must finish trades quickly
+                // and there is no need to update our portfolio after every trade we place
                 return this.updatePortfolio()
             }
             return Promise.resolve();
         }).then(() => {
             // TODO move this resolve call to RealTimeOrderTracker? strategy gets callback to early with postOnly orders
             // for this we need to bundle references to all orders on PendingOrders and call resolve() once they are all filled
-            resolve();
+            if (arbitrage === false)
+                resolve();
         }).catch((err) => {
             logger.error("Error processing trades", err)
-            resolve(); // continue
+            if (arbitrage === false)
+                resolve(); // continue
         })
     }
 
