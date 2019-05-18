@@ -81,7 +81,6 @@ export default class RealTimeTrader extends PortfolioTrader {
                     logger.warn("Skipping trade because %s orderbook is not ready", exchange.getClassName());
                     break;
                 }
-
             }
         }
         if (orderbooksReady === false) {
