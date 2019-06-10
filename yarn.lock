@@ -4986,7 +4986,7 @@ mute-stream@0.0.5:
   resolved "https://registry.yarnpkg.com/mute-stream/-/mute-stream-0.0.5.tgz#8fbfabb0a98a253d3184331f9e8deb7372fac6c0"
   integrity sha1-j7+rsKmKJT0xhDMfno3rc3L6xsA=
 
-nan@^2.10.0, nan@^2.11.0:
+nan@^2.11.0, nan@^2.13.2:
   version "2.14.0"
   resolved "https://registry.yarnpkg.com/nan/-/nan-2.14.0.tgz#7818f722027b2459a86f0295d434d1fc2336c52c"
   integrity sha512-INOFj37C7k3AfaNTtX8RhsTw7qRy7eLET14cROi9+5HAVbbHuIWUHEauBv5qT4Av2tWasiTY1Jw6puUNqRJXQg==
@@ -6832,12 +6832,12 @@ taffydb@2.6.2:
   resolved "https://registry.yarnpkg.com/taffydb/-/taffydb-2.6.2.tgz#7cbcb64b5a141b6a2efc2c5d2c67b4e150b2a268"
   integrity sha1-fLy2S1oUG2ou/CxdLGe04VCyomg=
 
-talib@1.0.6:
-  version "1.0.6"
-  resolved "https://registry.yarnpkg.com/talib/-/talib-1.0.6.tgz#72dbf988177ea843173b83f7289155d54edbf5cd"
-  integrity sha512-/6HB+gWU/ejUBOm4qa01TBeANfZhfCaxT3bZPYOCybVR/B/fJUdSv00C8bRIGJKjD+sVt/3/CeiaulnmwmshUg==
+talib@1.1.2:
+  version "1.1.2"
+  resolved "https://registry.yarnpkg.com/talib/-/talib-1.1.2.tgz#d4b02d63e26261b386056f1569bb1e04af32bf47"
+  integrity sha512-uoUTUAhG8pti+VuQg7wrhFnebxdf35Bm/KmSh1WSyQVZbghKF8hXCaDTgVBAGH9kxZq4Cy1yZ6VCI0BfqJAtaA==
   dependencies:
-    nan "^2.10.0"
+    nan "^2.13.2"
 
 tap@^0.7.1:
   version "0.7.1"

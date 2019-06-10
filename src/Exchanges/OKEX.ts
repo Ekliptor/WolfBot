@@ -235,8 +235,8 @@ export class FutureContractTypeMap extends Map<string, string> { // (currency, c
 
 export default class OKEX extends AbstractContractExchange {
     // also update contract value below
-    protected static readonly FETCH_CURRENCIES = ["BTC", "LTC", "ETH", "ETC", "BCH", "XRP", "EOS", "BSV"]
-    protected static readonly FETCH_PAIRS = ["USD_BTC", "USD_LTC", "USD_ETH", "USD_ETC", "USD_BCH", "USD_XRP", "USD_EOS", "USD_BSV"];
+    protected static readonly FETCH_CURRENCIES = ["BTC", "LTC", "ETH", "ETC", "BCH", "XRP", "TRX", "EOS", "BSV"]
+    protected static readonly FETCH_PAIRS = ["USD_BTC", "USD_LTC", "USD_ETH", "USD_ETC", "USD_BCH", "USD_XRP", "USD_TRX", "USD_EOS", "USD_BSV"];
     protected static readonly RELOAD_CONTRACT_TYPES_H = 8;
     //protected futureContractType: string = nconf.get("serverConfig:futureContractType");
     protected futureContractType = new FutureContractTypeMap();
@@ -278,6 +278,7 @@ export default class OKEX extends AbstractContractExchange {
         this.contractValues.set("ETC", 10);
         this.contractValues.set("BCH", 10);
         this.contractValues.set("XRP", 10);
+        this.contractValues.set("TRX", 10);
         this.contractValues.set("EOS", 10);
         this.contractValues.set("BSV", 10);
         this.loadContractTypes();

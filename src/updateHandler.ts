@@ -1,6 +1,7 @@
 import * as utils from "@ekliptor/apputils";
 import {serverConfig} from "@ekliptor/bit-models";
 import * as path from "path";
+import * as fs from "fs";
 const DEST_DIR = path.join(utils.appDir, '..', 'deploy') + path.sep
 
 const argv = require('minimist')(process.argv.slice(2));
@@ -76,6 +77,7 @@ export function runUpdater(callback) {
                 bundle: bundle
             }
             await prepareConfigBackup(); // updater will overwrite config. restore it afterwards
+            await removeFilesBeforeUpdate();
             updater.installUpdate(installOptions, (err) => {
                 if (err)
                     logger.error('Error installing update', err)
@@ -96,4 +98,18 @@ async function prepareConfigBackup() {
     await AbstractAdvisor.backupOriginalConfig(); // TODO add force overwrite parameter to create backups if the user modified original sample configs (which maybe he shouldn't?)
     nconf.set("serverConfig:user:restoreCfg", true);
     await serverConfig.saveConfigLocal();
+}
+
+async function removeFilesBeforeUpdate() {
+    /*
+    let removeOp = new Promise((resolve, reject) => {
+        let talibPath = path.join(utils.appDir, "node_modules", "talib"); // must be recompiled after updating nodejs version // TODO detect nodejs version update or remove later
+        utils.file.removeFolder(talibPath, (err) => {
+            if (err)
+                logger.error("Error removing files before update", err);
+            resolve();
+        });
+    });
+    await removeOp;
+     */
 }
