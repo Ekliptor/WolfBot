@@ -4889,7 +4889,7 @@ class Status extends AbstractController_1.AbstractController {
                 this.$("#botEvaluation, #stateForm").addClass("hidden");
             else {
                 this.$("#botEvaluation").html(JSON.stringify(data.evaluation, null, 4));
-                this.$("#usernameRow, #tokenRow, #statusRow").addClass("hidden");
+                this.$("#usernameRow, #tokenRow, #statusRow, #botIDRow").addClass("hidden");
             }
             this.removeAsyncLoadingIcon();
             Hlp.updateTimestampsRepeating();

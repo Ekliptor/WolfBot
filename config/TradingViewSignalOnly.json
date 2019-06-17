@@ -1,0 +1,30 @@
+{
+    "data": [
+        {
+            "exchanges": ["OKEX"],
+            "marginTrading": true,
+            "tradeTotalBtc": 150.0,
+            "warmUpMin": 0,
+            "updateIndicatorsOnTrade": false,
+            "flipPosition": true,
+            "strategies": {
+                "TradingViewSignal": {
+                    "email": "",
+                    "password": "",
+                    "host": "",
+                    "port": 0,
+                    "tls": true,
+                    "checkMailSec": 120,
+                    "tradeDirection": "both",
+                    "buyWords": "buy",
+                    "sellWords": "sell",
+                    "forceMaker": false,
+                    "pair": "USD_BTC",
+                    "candleSize": 1,
+                    "tradeStrategy": "RSIScalpOrderer",
+                    "enableLog": true
+                }
+            }
+        }
+    ]
+}

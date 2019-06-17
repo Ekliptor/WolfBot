@@ -71,6 +71,8 @@ export abstract class AbstractNotification {
             notification.text += utils.sprintf("\nHost: %s, User: %s", os.hostname(), (userInfo ? userInfo.username : "unknown"));
             forceAdmin = true;
         }
+        if (!notification.text)
+            notification.text = "empty text"; // some services (Pushover) can't send empty messages
         return this.sendNotification(notification, forceAdmin);
     }
 

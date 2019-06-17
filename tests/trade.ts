@@ -102,6 +102,7 @@ let buy = () => {
 }
 
 let testOkex = async () => {
+    nconf.set("exchangeParams", ["perpetual"]);
     let okex = new OKEX(nconf.get("serverConfig:apiKey:exchange:OKEX")[0])
     let pair = new Currency.CurrencyPair(Currency.Currency.USD, Currency.Currency.ETH)
     //console.log(okex.getCurrencies().getExchangePair(pair))
@@ -119,17 +120,17 @@ let testOkex = async () => {
     const leverage = 20;
     const rate = 3445.95;
 
-    //okex.marginBuy(pair, rate, (1*leverage)/rate, orderParams).then((ticker) => {
+    //okex.marginBuy(pair, rate, (1*leverage)/rate, orderParams).then((info) => {
     //okex.closeMarginPosition(pair).then((ticker) => {
     //okex.getBalances().then((info) => {
     //okex.getMarginAccountSummary().then((info) => {
     //okex.fetchOrderBook(pair, 10).then((info) => {
     //okex.importHistory(pair, from, new Date()).then((info) => {
     //okex.marginSell(pair, 153.4, 0.02, orderParams).then((info) => {
-    //okex.marginCancelOrder(pair, "2583102058140672").then((info) => {
+    okex.marginCancelOrder(pair, "66-5-6fc67b96d-0").then((info) => {
     //okex.moveMarginOrder(pair, "2583238635623424", 150.0, 0.02, orderParams).then((info) => {
     //okex.getAllMarginPositions().then((info) => {
-    okex.closeMarginPosition(pair).then((info) => {
+    //okex.closeMarginPosition(pair).then((info) => {
         console.log(info)
     }).catch((err) => {
         console.error("API ERR", err)
@@ -402,7 +403,7 @@ let testBitmexLiquidations = async () => {
 Controller.loadServerConfig(() => {
     utils.file.touch(AbstractExchange.cookieFileName).then(() => {
         //buy()
-        //testOkex()
+        testOkex()
         //testKraken()
         //testBitfinex()
         //testPolo();
@@ -413,6 +414,6 @@ Controller.loadServerConfig(() => {
         //testDeribit();
         //testBx();
         //testCcxt();
-        testPaetio();
+        //testPaetio();
     })
 })

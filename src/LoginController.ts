@@ -63,6 +63,14 @@ export class LoginController extends AbstractSubController {
         return LoginController.instance;
     }
 
+    public static getDisplayBotID(): string {
+        let instance = LoginController.getInstance();
+        return "WID" + crypto.createHash('sha512')
+            .update(JSON.stringify({n: instance.getNodeConfig().id, pa: utils.appDir, k: nconf.get("serverConfig:premiumIdSeed")}), 'utf8')
+            .digest('base64')
+            .substr(2, 10);
+    }
+
     public isLoginValid() {
         if (nconf.get("serverConfig:premium") === false)
             return true;
@@ -73,6 +81,10 @@ export class LoginController extends AbstractSubController {
         if (nconf.get("serverConfig:premium") === false)
             return true;
         return this.subscriptionValid;
+    }
+
+    public getNodeConfig() {
+        return this.nodeConfig;
     }
 
     public getSubscription() {

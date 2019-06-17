@@ -54,6 +54,7 @@ config.config = {
     "traders": ["realTime", "realTimePaper", "notifier"],
 
     "maxEventListeners": 120,
+    "exchangeParams": [],
 
     // web UI config (similar to express app config)
     "host": "localhost",

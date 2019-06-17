@@ -26,6 +26,7 @@ export interface StatusUpdate {
     nodeVersion: string;
     username: string;
     subscriptionValid: boolean;
+    botID: string;
     //currencies: string[];
     currencies: string;
     evaluation: BotEvaluation;
@@ -79,6 +80,7 @@ export class StatusUpdater extends AppPublisher {
                 nodeVersion: process.version,
                 username: nconf.get("serverConfig:premium") === true ? nconf.get("serverConfig:username") : "",
                 subscriptionValid: nconf.get("serverConfig:premium") === true && nconf.get("serverConfig:loggedIn") === true,
+                botID: this.getBotDisplayID(),
                 currencies: this.advisor.getCandleCurrencies().toString().replaceAll(",", ", "),
                 // TODO better evaluation display for premium bot
                 evaluation: !nconf.get("serverConfig:premium") && portfolioTrader && portfolioTrader.warmUpDone(false) ? portfolioTrader.evaluateTrades() : null
@@ -109,6 +111,12 @@ export class StatusUpdater extends AppPublisher {
         }
         else
             logger.warn("Received unknown message in %s", this.className, data)
+    }
+
+    protected getBotDisplayID() {
+        if (nconf.get("serverConfig:premium") !== true)
+            return "";
+        return LoginController.getDisplayBotID();
     }
 
     protected getBotDirName() {

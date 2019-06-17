@@ -16,6 +16,7 @@ export interface ConfigRuntimeUpdate {
     warmUpMin: number;
     updateIndicatorsOnTrade: boolean;
     flipPosition: boolean;
+    exchangeParams: string[];
 }
 
 export class TradeConfig extends AbstractConfig {
@@ -30,6 +31,9 @@ export class TradeConfig extends AbstractConfig {
     public readonly warmUpMin: number = 0;
     public readonly updateIndicatorsOnTrade: boolean = false;
     public readonly flipPosition: boolean = false;
+    // additional params for exchanges. since we only create 1 instance per exchange these are merged globally (and not per config instance)
+    // requires a restart to take affect
+    public readonly exchangeParams: string[] = [];
     public readonly notifyTrades: boolean = false;
     //public readonly strategies: any; // not stored here. strategies have their own instances
     //public readonly configNr: number = 0;
@@ -71,6 +75,10 @@ export class TradeConfig extends AbstractConfig {
             this.updateIndicatorsOnTrade = json.updateIndicatorsOnTrade;
         if (typeof json.flipPosition === "boolean")
             this.flipPosition = json.flipPosition;
+        if (Array.isArray(json.exchangeParams) === true && json.exchangeParams.length !== 0 && typeof json.exchangeParams[0] === "string") {
+            this.exchangeParams = json.exchangeParams;
+            this.addExchangeParams();
+        }
         if (typeof json.notifyTrades === "boolean")
             this.notifyTrades = json.notifyTrades;
     }
@@ -178,5 +186,19 @@ export class TradeConfig extends AbstractConfig {
 
     public static isTradingMode() {
         return !nconf.get("ai") && !nconf.get("lending") && !nconf.get("arbitrage") && !nconf.get("social");
+    }
+
+    // ################################################################
+    // ###################### PRIVATE FUNCTIONS #######################
+
+    protected addExchangeParams() {
+        if (this.exchangeParams.length === 0)
+            return;
+        let existing: string[] = nconf.get("exchangeParams");
+        this.exchangeParams.forEach((param) => {
+            if (existing.indexOf(param) === -1)
+                existing.push(param);
+        });
+        nconf.set("exchangeParams", existing);
     }
 }

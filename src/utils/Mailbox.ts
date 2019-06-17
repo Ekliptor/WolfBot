@@ -17,6 +17,7 @@ export class MailboxAccount {
 }
 
 export class IncomingMail {
+    public readonly uuid: number;
     public from: string;
     public to: string;
     public subject: string;
@@ -26,6 +27,10 @@ export class IncomingMail {
         [name: string]: string[];
     }
     public message: string;
+
+    constructor(uuid: number) {
+        this.uuid = uuid;
+    }
 }
 
 export class MailFetchCriteria {
@@ -40,7 +45,8 @@ export class Mailbox {
     // (mail host, subdomain)
     public static readonly SUBDOMAIN_MAP = new Map<string, string>([
         ["gmail.com", "imap.gmail.com"],
-        ["yandex.com", "imap.yandex.com"]
+        ["yandex.com", "imap.yandex.com"],
+        ["wolfbot.org", "mail.wolfbot.org"]
     ]);
 
     protected account: MailboxAccount;
@@ -66,12 +72,14 @@ export class Mailbox {
         if (knownMailDomain !== undefined) {
             try {
                 await this.tryConnectToHost(knownMailDomain);
-                if (this.connection !== null)
-                    return;
+                //if (this.connection !== null) // always fail for known mailboxes (don't try alternative subdomains)
+                    //return;
             }
             catch (err) {
                 logger.warn("Error connecting to known mailbox on %s", knownMailDomain, err); // continue with defaults below
             }
+            if (this.connection === null)
+                throw new Error("Failed to connect to known mailbox of account: " + this.account.email);
         }
         for (let i = 0; i < Mailbox.IMAP_SUBDOMAINS.length; i++)
         {
@@ -110,7 +118,7 @@ export class Mailbox {
             };
             let results = await this.connection.search(criteria.searchCriteria, fetchOptions);
             results.forEach((result) => {
-                let mail = new IncomingMail();
+                let mail = new IncomingMail(result.attributes.uid);
                 result.parts.forEach((mailPart) => {
                     if (mailPart.which === "HEADER")
                         this.readMailHeader(mail, mailPart);
@@ -134,6 +142,20 @@ export class Mailbox {
         return mails;
     }
 
+    /**
+     * Adds a flag to the specified message.
+     * @param messageUUID SEEN|ANSWERED|FLAGGED|DELETED|DRAFT
+     * @param flag
+     */
+    public async addMessageFlags(messageUUID: string, flag: string | string[]): Promise<void> {
+        try {
+            await this.connection.addFlags(messageUUID, flag);
+        }
+        catch (err) {
+            logger.error("Error adding email flags %s to message UUID %s", flag, messageUUID, err);
+        }
+    }
+
     // ################################################################
     // ###################### PRIVATE FUNCTIONS #######################
 
@@ -146,7 +168,12 @@ export class Mailbox {
                 port: this.account.port,
                 tls: this.account.tls,
                 tlsOptions: {},
-                authTimeout: Mailbox.AUTH_TIMEOUT_MS
+                keepalive: true,
+                authTimeout: Mailbox.AUTH_TIMEOUT_MS,
+                /*connTimeout: 3*Mailbox.AUTH_TIMEOUT_MS,
+                debug(msg) {
+                    logger.verbose("Mailbox: %s", msg);
+                }*/
             }
         };
         if (this.account.rejectSelfSignedCertificate === false) {

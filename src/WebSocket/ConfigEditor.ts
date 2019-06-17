@@ -876,7 +876,8 @@ export class ConfigEditor extends AppPublisher {
                         tradeDirection: conf.tradeDirection,
                         warmUpMin: conf.warmUpMin,
                         updateIndicatorsOnTrade: conf.updateIndicatorsOnTrade,
-                        flipPosition: conf.flipPosition
+                        flipPosition: conf.flipPosition,
+                        exchangeParams: conf.exchangeParams
                     }
                     if (configs.length > i)
                         configs[i].update(update)

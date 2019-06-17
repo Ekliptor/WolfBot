@@ -1487,5 +1487,6 @@
   "errorLoadingStratConfig": "Error loading strategy configuration.",
   "pairChangeConfigPage": "Please go to the configuration page to change the trading pair.",
   "errorSaveStratConfig": "Error saving strategy configuration.",
-  "restartChanges": "A bot restart is required for your changes to take effect."
+  "restartChanges": "A bot restart is required for your changes to take effect.",
+  "botID": "Bot ID"
 }

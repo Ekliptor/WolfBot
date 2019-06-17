@@ -44,6 +44,7 @@ export default class ExchangeController extends AbstractSubController {
             return; // updater instance...
         if (this.configFilename.substr(-5) !== ".json")
             this.configFilename += ".json";
+        nconf.set("exchangeParams", []); // reset on startup
         this.ensureAllExchangesPresent();
         this.loadConfig();
         // TODO "quickstart" for live trading

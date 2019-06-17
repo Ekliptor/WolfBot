@@ -24,6 +24,8 @@ import * as okexApi from "@okfe/okex-node";
 
 const OKEX_TIMEZONE_SUFFIX = " GMT+0800";
 
+type OkexWebsocketChannel = "futures" | "swap";
+
 export class OKEXCurrencies implements Currency.ExchangeCurrencies {
     protected exchange: /*AbstractExchange*/OKEX;
 
@@ -148,15 +150,20 @@ export class OKEXCurrencies implements Currency.ExchangeCurrencies {
         if (margin.holding.length === 0 || (margin.holding[0].long_qty == 0 && margin.holding[0].short_qty == 0))
             return null; // no position open
         let position = new MarginPosition(Math.min(10, maxLeverage));
-        if (margin.holding[0].long_qty != 0) {
-            //position.amount = margin.holding[0].long_qty; // we can only close available amount, so use this. the difference is the amount allocated to open orders
-            position.amount = margin.holding[0].long_avail_qty;
-            position.type = "long";
+        if (OKEX.isPerpetual() === true) {
+            position.amount = margin.holding[0].avail_position; // contracts
+            position.type = margin.holding[0].side === "short" ? "short" : "long";
         }
         else {
-            //position.amount = margin.holding[0].short_qty;
-            position.amount = margin.holding[0].short_avail_qty;
-            position.type = "short";
+            if (margin.holding[0].long_qty != 0) {
+                //position.amount = margin.holding[0].long_qty; // we can only close available amount, so use this. the difference is the amount allocated to open orders
+                position.amount = margin.holding[0].long_avail_qty;
+                position.type = "long";
+            } else {
+                //position.amount = margin.holding[0].short_qty;
+                position.amount = margin.holding[0].short_avail_qty;
+                position.type = "short";
+            }
         }
         if (typeof position.amount === "string")
             position.amount = parseInt(position.amount);
@@ -167,7 +174,8 @@ export class OKEXCurrencies implements Currency.ExchangeCurrencies {
         const quoteCurrencyStr = Currency.getCurrencyLabel(currencyPair.to);
         if (balances && balances.has(quoteCurrencyStr) === true) {
             const balance = balances.get(quoteCurrencyStr);
-            position.pl = helper.parseFloatVal(balance.unrealized_pnl.replaceAll(",", ""));
+            let profitLoss = balance.unrealized_pnl === undefined ? balance.info.unrealized_pnl : balance.unrealized_pnl; // swap has the info object
+            position.pl = helper.parseFloatVal(profitLoss.replaceAll(",", ""));
             let rate = this.exchange.getLastRate(currencyPair);
             if (rate > 0.0)
                 position.pl *= rate;
@@ -184,8 +192,8 @@ class OKEXInstrument {
     public quote_currency: string; // USD
     public tick_size: number; // 0.01
     public contract_val: number; // 100
-    public listing: Date; // 2019-03-22
-    public delivery: Date; // 2019-04-05
+    public listing: Date = null; // 2019-03-22 // null for perpetual
+    public delivery: Date = null; // 2019-04-05 // null for perpetual
     public trade_increment: number; // 1
     public alias: OkexContractAlias;
 
@@ -196,12 +204,25 @@ class OKEXInstrument {
             this.tick_size = parseFloat(this.tick_size || "0");
         if (typeof this.contract_val === "string")
             this.contract_val = parseFloat(this.contract_val || "100");
-        if (typeof this.listing === "string")
-            this.listing = new Date(this.listing + OKEX_TIMEZONE_SUFFIX);
-        if (typeof this.delivery === "string")
-            this.delivery = new Date(this.delivery + OKEX_TIMEZONE_SUFFIX);
+        if (OKEX.isPerpetual() === false) {
+            if (typeof this.listing === "string")
+                this.listing = new Date(this.getDateStrForParsing(this.listing));
+            if (typeof this.delivery === "string")
+                this.delivery = new Date(this.getDateStrForParsing(this.delivery));
+        }
+        else {
+            this.listing = null;
+            this.delivery = null;
+        }
         if (typeof this.trade_increment === "string")
             this.trade_increment = parseFloat(this.trade_increment || "1");
+    }
+    protected getDateStrForParsing(date: string) {
+        if (!date)
+            return "";
+        if (date.indexOf("Z") !== -1)
+            return date; // already with timeszone
+        return date + OKEX_TIMEZONE_SUFFIX;
     }
 }
 
@@ -238,12 +259,14 @@ export default class OKEX extends AbstractContractExchange {
     protected static readonly FETCH_CURRENCIES = ["BTC", "LTC", "ETH", "ETC", "BCH", "XRP", "TRX", "EOS", "BSV"]
     protected static readonly FETCH_PAIRS = ["USD_BTC", "USD_LTC", "USD_ETH", "USD_ETC", "USD_BCH", "USD_XRP", "USD_TRX", "USD_EOS", "USD_BSV"];
     protected static readonly RELOAD_CONTRACT_TYPES_H = 8;
+    protected static isPerpetualContract: boolean;
     //protected futureContractType: string = nconf.get("serverConfig:futureContractType");
     protected futureContractType = new FutureContractTypeMap();
     protected contractTypes = new OKEXContracts();
     protected wssClient: okexApi.V3WebsocketClient;
     protected pClient: /*okexApi.PublicClient*/any; // TODO wait for typings
     protected authClient: /*okexApi.AuthenticatedClient*/any;
+    protected websocketChannelType: OkexWebsocketChannel;
 
     protected currencies: OKEXCurrencies;
     protected rawBalances = new Map<string, any>(); // (currency pair, balance) // needed for margin profit
@@ -286,6 +309,14 @@ export default class OKEX extends AbstractContractExchange {
 
     public getRawBalances() {
         return this.rawBalances;
+    }
+
+    public static isPerpetual(): boolean {
+        if (OKEX.isPerpetualContract !== undefined)
+            return OKEX.isPerpetualContract;
+        let params: string[] = nconf.get("exchangeParams");
+        OKEX.isPerpetualContract = params.indexOf("perpetual") !== -1;
+        return OKEX.isPerpetualContract;
     }
 
     public repeatFailedTrade(error: any, currencyPair: Currency.CurrencyPair) {
@@ -350,7 +381,7 @@ export default class OKEX extends AbstractContractExchange {
                         logger.warn("No instrument ID available for pair %s in %s", fetchPair, this.className);
                         return;
                     }
-                    reqOps.push(this.pClient.futures().getTicker(instrument.instrument_id));
+                    reqOps.push(this.getClientMarket().getTicker(instrument.instrument_id));
                 });
                 return Promise.all(reqOps);
             }).then((tickers) => {
@@ -383,7 +414,7 @@ export default class OKEX extends AbstractContractExchange {
                         logger.warn("No instrument ID available for pair %s in %s", fetchPair, this.className);
                         return;
                     }
-                    reqOps.push(this.pClient.futures().getIndex(instrument.instrument_id));
+                    reqOps.push(this.getClientMarket().getIndex(instrument.instrument_id));
                 });
                 return Promise.all(reqOps);
             }).then((tickers) => {
@@ -430,14 +461,54 @@ export default class OKEX extends AbstractContractExchange {
             });
             */
             let reqOps = []
-            const fetchCurrencies = this.getFetchCurrencies();
-            fetchCurrencies.forEach((fetchCurrency) => { // fetch all pairs and return a map
-                reqOps.push(this.authClient.futures().getAccounts(fetchCurrency));
-                //this.authClient.futures().getAccounts(instrument_id)
-            });
-            Promise.all(reqOps).then((accountArr) => {
-                /** getAccounts()
-                 * { equity: '0.00000041',
+            if (OKEX.isPerpetual() === true) {
+                const fethPairs = this.getFetchPairs();
+                let fetchPairsLocal: Currency.CurrencyPair[] = [];
+                fethPairs.forEach((fetchPair) => { // fetch all pairs and return a map
+                    fetchPairsLocal.push(this.currencies.getLocalPair(fetchPair));
+                    let contract = this.contractTypes.get(fetchPairsLocal[fetchPairsLocal.length-1].toString());
+                    reqOps.push(this.getClientMarket(true).getAccount(contract.instrument_id));
+                });
+                Promise.all(reqOps).then((accountArr) => {
+                    /** getAccount()
+                     * {
+                        info: {
+                          equity: '0.0000',
+                          fixed_balance: '0.0000',
+                          instrument_id: 'BTC-USD-SWAP',
+                          maint_margin_ratio: '0.0050',
+                          margin: '0.0000',
+                          margin_frozen: '0.0000',
+                          margin_mode: 'crossed',
+                          margin_ratio: '10000',
+                          realized_pnl: '0.0000',
+                          timestamp: '2019-06-16T06:01:44.548Z',
+                          total_avail_balance: '0.0000',
+                          unrealized_pnl: '0.0000'
+                        }
+                      }
+                     */
+                    let balances = {}
+                    for (let i = 0; i < fetchPairsLocal.length; i++)
+                    {
+                        const currencyStr = Currency.getCurrencyLabel(fetchPairsLocal[i].to); // BTC, ETH,...
+                        this.rawBalances.set(currencyStr, accountArr[i]);
+                        balances[currencyStr] = helper.parseFloatVal(accountArr[i].total_avail_balance); // is this total?
+                    }
+                    resolve(Currency.fromExchangeList(balances, this.currencies))
+                }).catch((err) => {
+                    reject(err)
+                });
+            }
+            else {
+                const fetchCurrencies = this.getFetchCurrencies();
+                fetchCurrencies.forEach((fetchCurrency) => { // fetch all pairs and return a map
+                    reqOps.push(this.getClientMarket(true).getAccounts(fetchCurrency));
+                    //this.getClientMarket(true).getAccounts(instrument_id)
+                });
+                Promise.all(reqOps).then((accountArr) => {
+                    /** getAccounts()
+                     * { equity: '0.00000041',
                         margin: '0',
                         realized_pnl: '0',
                         unrealized_pnl: '0',
@@ -446,18 +517,19 @@ export default class OKEX extends AbstractContractExchange {
                         total_avail_balance: '0.00000041',
                         margin_frozen: '0',
                         margin_for_unfilled: '0' }
-                 */
-                let balances = {}
-                for (let i = 0; i < fetchCurrencies.length; i++)
-                {
-                    const currencyStr = fetchCurrencies[i];
-                    this.rawBalances.set(currencyStr, accountArr[i]);
-                    balances[currencyStr] = helper.parseFloatVal(accountArr[i].total_avail_balance); // is this total?
-                }
-                resolve(Currency.fromExchangeList(balances, this.currencies))
-            }).catch((err) => {
-                reject(err)
-            });
+                     */
+                    let balances = {}
+                    for (let i = 0; i < fetchCurrencies.length; i++)
+                    {
+                        const currencyStr = fetchCurrencies[i];
+                        this.rawBalances.set(currencyStr, accountArr[i]);
+                        balances[currencyStr] = helper.parseFloatVal(accountArr[i].total_avail_balance); // is this total?
+                    }
+                    resolve(Currency.fromExchangeList(balances, this.currencies))
+                }).catch((err) => {
+                    reject(err)
+                });
+            }
         })
     }
 
@@ -468,7 +540,7 @@ export default class OKEX extends AbstractContractExchange {
             this.loadContractTypes().then(() => {
                 fetchPairs.forEach((fetchPair) => { // fetch all pairs and return a map
                     let contract = this.contractTypes.get(fetchPair);
-                    reqOps.push(this.authClient.futures().getPosition(contract.instrument_id));
+                    reqOps.push(this.getClientMarket(true).getPosition(contract.instrument_id));
                 });
                 return Promise.all(reqOps);
             }).then((positions: any[]) => {
@@ -504,15 +576,18 @@ export default class OKEX extends AbstractContractExchange {
     public fetchOrderBook(currencyPair: Currency.CurrencyPair, depth: number) {
         return new Promise<OrderBookUpdate<MarketOrder.MarketOrder>>((resolve, reject) => {
             const pairStr = currencyPair.toString();
+            let orders = new OrderBookUpdate<MarketOrder.MarketOrder>(Date.now(), false);
+            if (typeof this.getClientMarket().getBook !== "function") // only available via websocket for swap
+                return resolve(orders);
+
             this.loadContractTypes().then(() => {
                 const instrument = this.contractTypes.get(pairStr);
                 if (instrument === undefined)
                     return Promise.reject({txt: "Instrument for currency pair doesn't exist", currencyPair: pairStr});
-                return this.pClient.futures().getBook(instrument.instrument_id, {size: 200});
+                return this.getClientMarket().getBook(instrument.instrument_id, {size: 200});
             }).then((book) => {
                 // https://www.okex.com/docs/en/#futures-data
                 // [ 142.452, 22, 0, 1 ], -> [price, size of price ( == amount??), number liquidation orders, number orders]
-                let orders = new OrderBookUpdate<MarketOrder.MarketOrder>(Date.now(), false);
                 ["asks", "bids"].forEach((prop) => {
                     book[prop].forEach((o) => {
                         orders[prop].push(MarketOrder.MarketOrder.getOrder(currencyPair, this.getExchangeLabel(), o[1], o[0]))
@@ -540,7 +615,7 @@ export default class OKEX extends AbstractContractExchange {
                 let lastTrade = null;
                 let importNext = () => {
                     // TODO this api call doesn't give lots of history. find a better one?
-                    this.pClient.futures().getTrades(instrument.instrument_id, {
+                    this.getClientMarket().getTrades(instrument.instrument_id, {
                         from: currentPage,
                         to: currentPage+1,
                         limit: stepCount
@@ -608,7 +683,7 @@ export default class OKEX extends AbstractContractExchange {
                 if (instrument === undefined)
                     return Promise.reject({txt: "Instrument for currency pair doesn't exist", currencyPair: pairStr});
                 // Order Status （-1 canceled; 0: pending, 1: partially filled, 2: fully filled, 6: open (pending partially + fully filled), 7: completed (canceled + fully filled))
-                return this.authClient.futures().getOrders(instrument.instrument_id, {status: 6});
+                return this.getClientMarket(true).getOrders(instrument.instrument_id, {status: 6});
             }).then((rawOrders) => {
                 let orders = new OpenOrders(currencyPair, this.className);
                 // Type (1: open long 2: open short 3: close long 4: close short)
@@ -651,7 +726,7 @@ export default class OKEX extends AbstractContractExchange {
             this.verifyTradeRequest(currencyPair, rate, amount, params).then((orderParams) => {
                 orderParams.instrument_id = instrument.instrument_id;
                 orderParams.type = 1;
-                return this.authClient.futures().postOrder(orderParams);
+                return this.getClientMarket(true).postOrder(orderParams);
             }).then((result) => {
                 this.verifyPositionSize(currencyPair, amount)
                 resolve(OrderResult.fromJson(result, currencyPair, this))
@@ -671,7 +746,7 @@ export default class OKEX extends AbstractContractExchange {
             this.verifyTradeRequest(currencyPair, rate, amount, params).then((orderParams) => {
                 orderParams.instrument_id = instrument.instrument_id;
                 orderParams.type = 2;
-                return this.authClient.futures().postOrder(orderParams);
+                return this.getClientMarket(true).postOrder(orderParams);
             }).then((result) => {
                 this.verifyPositionSize(currencyPair, amount)
                 resolve(OrderResult.fromJson(result, currencyPair, this))
@@ -688,12 +763,15 @@ export default class OKEX extends AbstractContractExchange {
             const instrument = this.contractTypes.get(pairStr);
             if (instrument === undefined)
                 return Promise.reject({txt: "Instrument for currency pair doesn't exist", currencyPair: pairStr});
-            this.authClient.futures().cancelOrder(instrument.instrument_id, orderNumber).then((result) => {
+            let cancelPromise = OKEX.isPerpetual() === false ? this.getClientMarket(true).cancelOrder(instrument.instrument_id, orderNumber) : this.getClientMarket(true).postCancelOrder(instrument.instrument_id, orderNumber);
+            cancelPromise.then((result) => {
                 // check if already filled (or cancelled)
                 if (result && result.error_code == 32004)
                     return resolve({exchangeName: this.className, orderNumber: orderNumber, cancelled: true})
                 resolve({exchangeName: this.className, orderNumber: orderNumber, cancelled: result.result == true})
             }).catch((err) => {
+                if (err && err.response && err.response.data && err.response.data.error_code == 35029)
+                    return resolve({exchangeName: this.className, orderNumber: orderNumber, cancelled: true}); // already cancelled
                 reject(err)
             });
         })
@@ -731,7 +809,7 @@ export default class OKEX extends AbstractContractExchange {
                         outParams.amount = orders.getOrder(orderNumber).amount; // might be below min trading value now
                         if (outParams.amount > amount)
                             outParams.amount = this.getContractAmount(currencyPair, rate, outParams.amount / rate);
-                        return this.authClient.futures().postOrder(outParams);
+                        return this.getClientMarket(true).postOrder(outParams);
                     }).then((result) => {
                         //console.log("ORDER MOVED", result)
                         resolve(OrderResult.fromJson(result, currencyPair, this))
@@ -759,7 +837,7 @@ export default class OKEX extends AbstractContractExchange {
                 let contract = this.contractTypes.get(fetchPair);
                 if (contract === undefined)
                     return logger.error("Instrument for currency pair doesn't exist: %s", fetchPair);
-                reqOps.push(this.authClient.futures().getPosition(contract.instrument_id));
+                reqOps.push(this.getClientMarket(true).getPosition(contract.instrument_id));
             });
             Promise.all(reqOps).then((accountArr) => {
                 let list = new MarginPositionList();
@@ -789,7 +867,7 @@ export default class OKEX extends AbstractContractExchange {
             let contract = this.contractTypes.get(pairStr);
             if (contract === undefined)
                 return reject({txt: "Instrument for currency pair doesn't exist", currencyPair: pairStr});
-            this.authClient.futures().getPosition(contract.instrument_id).then((account) => {
+            this.getClientMarket(true).getPosition(contract.instrument_id).then((account) => {
                 account.pair = pairStr;
                 let position = this.currencies.getMarginPosition(account, this.getMaxLeverage());
                 if (!position)
@@ -850,7 +928,7 @@ export default class OKEX extends AbstractContractExchange {
                     instrument_id: contract.instrument_id,
                     type: position.type === "short" ? 4 : 3
                 }
-                return this.authClient.futures().postOrder(orderParams);
+                return this.getClientMarket(true).postOrder(orderParams);
             }).then((result) => {
                 return new Promise<MarginPosition>((resolveSub, rejectSub) => {
                     // check again for a position in the other direction
@@ -921,6 +999,7 @@ export default class OKEX extends AbstractContractExchange {
     */
 
     protected createApiWebsocketConnection(): any {
+        this.websocketChannelType = OKEX.isPerpetual() === true ? "swap" : "futures";
         this.wssClient = new okexApi.V3WebsocketClient();
         const marketEventStreamMap = new Map<string, EventStream<any>>(); // (exchange currency name, stream instance)
         //this.localSeqNr = 0; // keep counting upwards
@@ -939,9 +1018,9 @@ export default class OKEX extends AbstractContractExchange {
                 let contract = this.contractTypes.get(pair.toString());
                 if (contract === undefined)
                     return logger.error("Instrument for currency pair doesn't exist: %s", pair.toString());
-                this.wssClient.subscribe('futures/depth:' + contract.instrument_id);
-                this.wssClient.subscribe('futures/trade:' + contract.instrument_id);
-                //this.wssClient.subscribe('futures/ticker:' + contract.instrument_id); // currently done via HTTP
+                this.wssClient.subscribe(this.websocketChannelType + '/depth:' + contract.instrument_id);
+                this.wssClient.subscribe(this.websocketChannelType + '/trade:' + contract.instrument_id);
+                //this.wssClient.subscribe(this.websocketChannelType + '/ticker:' + contract.instrument_id); // currently done via HTTP
 
                 this.orderBook.get(pair.toString()).setSnapshot([], this.localSeqNr); // we receive an implicit snapshot with the first response
             });
@@ -969,6 +1048,9 @@ export default class OKEX extends AbstractContractExchange {
                     case "login":
                     case "subscribe":
                         break;
+                    case "error":
+                        logger.warn("%s WebSocket error:", this.className, json);
+                        break;
                     default:
                         logger.verbose("Received unknown %s WebSocket event type %s", this.className, eventType);
                 }
@@ -986,7 +1068,7 @@ export default class OKEX extends AbstractContractExchange {
         if (!marketData || typeof marketData !== "object")
             return logger.warn("Received invalid WebSocket market data from %s", this.className, marketData);
         switch (marketData.table) {
-            case "futures/depth": {
+            case this.websocketChannelType + "/depth": {
                 // marketData.action: 'partial' <- first, then 'update'
                 marketData.data.forEach((book) => {
                     const currencyPair = this.getCurrencyFromInstrumentID(book.instrument_id);
@@ -1019,7 +1101,7 @@ export default class OKEX extends AbstractContractExchange {
                 });
                 break;
             }
-            case "futures/trade": {
+            case this.websocketChannelType + "/trade": {
                 //console.log(marketData)
                 //let trades = [];
                 let tradeMap = new Trade.TradeAggregateMap(); // each message should only contain 1 currency pair, but to be sure we use a map
@@ -1138,7 +1220,7 @@ export default class OKEX extends AbstractContractExchange {
         if (/^[0-9]+$./.test(rawTrade.trade_id) === true) // ID is optional, we have own internal IDs
             tradeObj.tradeID = Number.parseInt(rawTrade.trade_id);
         tradeObj.date = new Date(rawTrade.timestamp); // from ISO date
-        tradeObj.amount = helper.parseFloatVal(rawTrade.qty); // integer as number of contracts
+        tradeObj.amount = helper.parseFloatVal(rawTrade.qty ? rawTrade.qty : rawTrade.size); // integer as number of contracts // size string for swap
         let coinAmount = this.contractsToCurrency(currencyPair, tradeObj.amount);
         if (coinAmount > 0.0)
             tradeObj.amount = coinAmount;
@@ -1205,7 +1287,7 @@ export default class OKEX extends AbstractContractExchange {
 
     protected loadContractTypes() {
         return new Promise<void>((resolve, reject) => {
-            this.pClient.futures().getInstruments().then((contracts) => {
+            this.getClientMarket().getInstruments().then((contracts) => {
                 if (this.lastLoadedContractTypes.getTime() + OKEX.RELOAD_CONTRACT_TYPES_H*utils.constants.HOUR_IN_SECONDS*1000 > Date.now())
                     return resolve();
                 contracts.forEach((contract) => {
@@ -1215,7 +1297,8 @@ export default class OKEX extends AbstractContractExchange {
                     let existing = this.contractTypes.get(currencyPairKey);
                     // TODO option to choose contract duration, use same map with different key
                     // for now just take the longest one, which also takes care of new contracts
-                    if (existing === undefined || existing.delivery.getTime() < instrument.delivery.getTime())
+                    // no contract replacements for perp swap
+                    if (existing === undefined || (OKEX.isPerpetual() === false && existing.delivery.getTime() < instrument.delivery.getTime()))
                         this.contractTypes.set(currencyPairKey, instrument);
                 });
                 this.lastLoadedContractTypes = new Date();
@@ -1225,5 +1308,11 @@ export default class OKEX extends AbstractContractExchange {
                 resolve(); // will get retried
             });
         });
+    }
+
+    protected getClientMarket(auth: boolean = false) {
+        if (OKEX.isPerpetual() === true)
+            return auth === true ? this.authClient.swap() : this.pClient.swap();
+        return auth === true ? this.authClient.futures() : this.pClient.futures(); // TODO add spot market
     }
 }
