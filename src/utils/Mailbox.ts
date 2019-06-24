@@ -72,13 +72,13 @@ export class Mailbox {
         if (knownMailDomain !== undefined) {
             try {
                 await this.tryConnectToHost(knownMailDomain);
-                //if (this.connection !== null) // always fail for known mailboxes (don't try alternative subdomains)
-                    //return;
+                if (this.connection !== null)
+                    return;
             }
             catch (err) {
                 logger.warn("Error connecting to known mailbox on %s", knownMailDomain, err); // continue with defaults below
             }
-            if (this.connection === null)
+            if (this.connection === null) // always fail for known mailboxes (don't try alternative subdomains)
                 throw new Error("Failed to connect to known mailbox of account: " + this.account.email);
         }
         for (let i = 0; i < Mailbox.IMAP_SUBDOMAINS.length; i++)

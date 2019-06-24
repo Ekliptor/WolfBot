@@ -10,9 +10,9 @@ import {WebSocketOpcode} from "./opcodes";
 import {AbstractTrader} from "../Trade/AbstractTrader";
 import TradeAdvisor from "../TradeAdvisor";
 import {AbstractAdvisor} from "../AbstractAdvisor";
+import {TradeConfig, TradingMode} from "../Trade/TradeConfig";
 
 export type LogType = "a" | "t"; // app or trades. short to save bytes
-export type TradingMode = "ai" | "lending" | "arbitrage" | "social" | "trading";
 export interface LogUpdate {
     state?: {
         trader: {
@@ -50,7 +50,7 @@ export class LogPublisher extends AppPublisher {
                     paused: traders.length !== 0 && traders[0].getPausedTrading(), // all should have the same value
                     pausedOpeningPositions: false
                 },
-                mode: this.getTradingMode(),
+                mode: TradeConfig.getTradingMode(),
                 devMode: nconf.get("serverConfig:user:devMode") ? true : false,
                 error: this.advisor.isErrorState(),
                 exchangesIdle: nconf.get("serverConfig:exchangesIdle") === true
@@ -141,17 +141,5 @@ export class LogPublisher extends AppPublisher {
         let msg = {};
         msg[type] = [line];
         this.publish(msg)
-    }
-
-    protected getTradingMode(): TradingMode {
-        if (nconf.get("ai"))
-            return "ai";
-        else if (nconf.get("lending"))
-            return "lending";
-        else if (nconf.get("arbitrage"))
-            return "arbitrage";
-        else if (nconf.get("social"))
-            return "social";
-        return "trading";
     }
 }

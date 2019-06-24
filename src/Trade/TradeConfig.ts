@@ -7,6 +7,7 @@ import * as path from "path";
 import {AbstractConfig, BotConfigMode} from "./AbstractConfig";
 
 export type ConfigCurrencyPair = string;
+export type TradingMode = "ai" | "lending" | "arbitrage" | "social" | "trading";
 
 export interface ConfigRuntimeUpdate {
     marginTrading: boolean;
@@ -186,6 +187,18 @@ export class TradeConfig extends AbstractConfig {
 
     public static isTradingMode() {
         return !nconf.get("ai") && !nconf.get("lending") && !nconf.get("arbitrage") && !nconf.get("social");
+    }
+
+    public static getTradingMode(): TradingMode {
+        if (nconf.get("ai"))
+            return "ai";
+        else if (nconf.get("lending"))
+            return "lending";
+        else if (nconf.get("arbitrage"))
+            return "arbitrage";
+        else if (nconf.get("social"))
+            return "social";
+        return "trading";
     }
 
     // ################################################################

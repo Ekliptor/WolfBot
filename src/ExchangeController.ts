@@ -369,7 +369,7 @@ export default class ExchangeController extends AbstractSubController {
             //return;
 
         let err = new Error();
-        let notification = new Notification(headline, err.stack.toString(), false);
+        let notification = new Notification(headline, utils.sprintf("Config: %s, Mode: %s, Exchanges: %s\n%s", this.getConfigFilename(), TradeConfig.getTradingMode(), Array.from(this.getExchanges().keys()), err.stack.toString()), false);
         this.notifier.send(notification).then(() => {
         }).catch((err) => {
             logger.error("Error sending %s notification", "ExchangeController", err)

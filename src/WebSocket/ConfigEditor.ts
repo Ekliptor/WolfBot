@@ -715,6 +715,11 @@ export class ConfigEditor extends AppPublisher {
             fs.copyFile(configFileSrc, configFileDest, (err) => {
                 if (err)
                     return reject({txt: "Error copying config file", err: err});
+                let existingConfigs = nconf.get("serverConfig:userConfigs") || [];
+                if (existingConfigs.indexOf(nameNew) !== -1) {
+                    existingConfigs.push(nameNew);
+                    nconf.set("serverConfig:userConfigs", existingConfigs);
+                }
                 resolve();
             });
         })

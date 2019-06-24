@@ -34,6 +34,22 @@
           "tradeStrategy": "RSIScalpOrderer",
           "enableLog": true
         },
+        "TradingViewSignal": {
+          "email": "",
+          "password": "",
+          "host": "",
+          "port": 0,
+          "tls": true,
+          "checkMailSec": 120,
+          "tradeDirection": "both",
+          "buyWords": "",
+          "sellWords": "",
+          "forceMaker": false,
+          "pair": "USD_BTC",
+          "candleSize": 5,
+          "tradeStrategy": "",
+          "enableLog": true
+        },
         "RSI": {
           "pair": "USD_BTC",
           "candleSize": 15,

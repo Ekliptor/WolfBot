@@ -18,6 +18,7 @@
                     "tradeDirection": "both",
                     "buyWords": "buy",
                     "sellWords": "sell",
+                    "closeWords": "close",
                     "forceMaker": false,
                     "pair": "USD_BTC",
                     "candleSize": 1,

@@ -101,6 +101,9 @@ export abstract class AbstractAdvisor extends AbstractSubController {
     // complicated to iterate over lists of strategies with different types. use 2 different functions instead
     //public abstract getStrategies(): StrategyMap | LendingStrategyMap;
 
+    /**
+     * Returns the current config file name without the .json ending.
+     */
     public abstract getConfigName(): string;
 
     //public abstract getConfigs(): TradeConfig[] | LendingConfig[];
@@ -211,9 +214,17 @@ export abstract class AbstractAdvisor extends AbstractSubController {
         return this.errorState;
     }
 
-    public static backupOriginalConfig() {
+    /**
+     * Backup config files
+     * @param overwriteFiles An array of file names (with or the .json ending) to allow overwriting existing backups.
+     */
+    public static backupOriginalConfig(overwriteFiles: string[] = []) {
         return new Promise<void>((resolve, reject) => {
             // simple way: backup every config file once (don't overwrite). this includes user config files
+            for (let i = 0; i < overwriteFiles.length; i++) {
+                if (overwriteFiles[i].substr(-5) !== ".json")
+                    overwriteFiles[i] += ".json";
+            }
             if (nconf.get("trader") === "Backtester" || process.env.IS_CHILD)
                 return resolve(); // no need to always back it up in backtesting mode
             const configDir = TradeConfig.getConfigRootDir();
@@ -228,7 +239,8 @@ export abstract class AbstractAdvisor extends AbstractSubController {
                 files.forEach((file) => {
                     let fullSrcPath = path.join(configDir, file);
                     let fullDestPath = path.join(backupDir, file);
-                    fileOps.push(utils.file.copyFile(fullSrcPath, fullDestPath, false)); // adds new config files without overwriting existing ones
+                    const overwrite = overwriteFiles.indexOf(file) !== -1;
+                    fileOps.push(utils.file.copyFile(fullSrcPath, fullDestPath, overwrite)); // adds new config files without overwriting existing ones
                 });
                 try {
                     logger.verbose("Creating backup of %s config files", fileOps.length)

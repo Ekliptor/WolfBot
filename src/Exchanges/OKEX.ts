@@ -116,8 +116,10 @@ export class OKEXCurrencies implements Currency.ExchangeCurrencies {
             let accountBalance = balances ? balances.get(Currency.getCurrencyLabel(currencyPair.to)) : null;
             //summary.pl += margin.holding[0].buy_profit_real + margin.holding[0].sell_profit_real; // shows realized p/l, we want the unrealized, use UPL from future_userinfo
             // use combined value of all margin positions (for this currency pair)
-            if (accountBalance)
-                summary.pl = helper.parseFloatVal(accountBalance.unrealized_pnl.replaceAll(",", ""));
+            if (accountBalance) {
+                let profitLoss = accountBalance.unrealized_pnl === undefined ? accountBalance.info.unrealized_pnl : accountBalance.unrealized_pnl; // swap has the info object
+                summary.pl = helper.parseFloatVal(profitLoss.replaceAll(",", ""));
+            }
             const liquidationPrice = helper.parseFloatVal(margin.holding[0].liquidation_price.replaceAll(",", ""));
             let currentMargin = this.computeOkexPseudoMargin(liquidationPrice, margin.pair);
             if (summary.currentMargin > currentMargin)
@@ -947,7 +949,7 @@ export default class OKEX extends AbstractContractExchange {
                 })
             }).then((position) => {
                 //if (position && position.type !== firstPosition.type) { // shouldn't happen with openOppositePositions disabled, but be safe
-                if (position) { // just check again for a position. sometimes the first order doesn't get through on OKEX. why?
+                if (position && position.amount !== 0.0) { // just check again for a position. sometimes the first order doesn't get through on OKEX. why?
                     logger.info("Closing 2nd open margin position for pair %s on %s", currencyPair.toString(), this.getClassName())
                     this.closeMarginPosition(currencyPair).then((orderResult) => {
                         // don't return this response

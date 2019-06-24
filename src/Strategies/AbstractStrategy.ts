@@ -257,7 +257,7 @@ export abstract class AbstractStrategy extends AbstractGenericStrategy {
     }
 
     /**
-     * Return the profit/loss in base currency (USD, BTC,...) of the current open margin position or 0 if there is no open position.
+     * Return the profit/loss in base currency (USD, BTC,...) of the current open position.
      * @param silent true will log a warning if there is no open position
      */
     public getProfitLoss(silent = false): number {

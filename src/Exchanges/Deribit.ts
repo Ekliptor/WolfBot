@@ -193,6 +193,7 @@ export default class Deribit extends AbstractContractExchange {
             this.marketStream.write(currencyPair, actions, seqNr);
         });
         */
+        //this.createWebsocket();
         this.createWebsocket();
 
         this.contractValues.set("BTC", 10);
@@ -611,8 +612,8 @@ export default class Deribit extends AbstractContractExchange {
 
     protected createApiWebsocketConnection(): any {
         this.localSeqNr = 0; // keep counting upwards
-        //if (this.websocket === null)
-            //this.createWebsocket();
+        if (this.websocket === null)
+            this.createWebsocket();
         this.updateOrderBooks(false); // we get it through the WebSocket connection
         this.createApiWebsocketConnectionDelayed();
 
@@ -640,7 +641,12 @@ export default class Deribit extends AbstractContractExchange {
             this.ticker.set(pair.toString(), tickerObj);
 
             const tradesFeed = utils.sprintf("trades.%s.100ms", this.getContractForCurrencyPair(pair));
-            this.websocket.subscribe("public", tradesFeed, (data: any[]) => {
+            this.websocket.subscribe("public", tradesFeed).then((data) => {
+                //console.log("INIT TRADES", data)
+            }).catch((err) => {
+                logger.error("Error subscribing to %s %s trades", this.className, pair.toString(), err);
+            });
+            this.websocket.on(tradesFeed, (data: any[]) => {
                 this.resetWebsocketTimeout();
                 this.localSeqNr++;
                 let trades = [];
@@ -652,14 +658,11 @@ export default class Deribit extends AbstractContractExchange {
                     trades.push(["t", trade.trade_id.replace(/[^-9]+/i, ""), trade.direction == "sell" ? 0 : 1, trade.price, trade.amount, trade.timestamp]);
                 });
                 marketEventStream.add(this.localSeqNr, trades);
-            }).then((data) => {
-                //console.log("INIT TRADES", data)
-            }).catch((err) => {
-                logger.error("Error subscribing to %s %s trades", this.className, pair.toString(), err);
             });
 
             const tickerFeed = utils.sprintf("ticker.%s.100ms", this.getContractForCurrencyPair(pair));
-            this.websocket.subscribe("public", tickerFeed, (data: any) => {
+            this.websocket.subscribe("public", tickerFeed);
+            this.websocket.on(tickerFeed, (data: any) => {
                 let ticker = this.ticker.get(pair.toString());
                 if (!ticker) {
                     logger.warn("Received %s ticker update for currency pair %s we didn't subscribe to", this.className, pair.toString());
@@ -675,7 +678,8 @@ export default class Deribit extends AbstractContractExchange {
             });
 
             const orderbookFeed = utils.sprintf("book.%s.none.20.100ms", this.getContractForCurrencyPair(pair));
-            this.websocket.subscribe("public", orderbookFeed, (data: any) => {
+            this.websocket.subscribe("public", orderbookFeed);
+            this.websocket.on(orderbookFeed, (data: any) => {
                 this.resetWebsocketTimeout();
                 this.localSeqNr++;
 
@@ -714,10 +718,11 @@ export default class Deribit extends AbstractContractExchange {
     }
 
     protected async createWebsocket(): Promise<void> {
-        this.websocket = deribit2; // function
+        //this.websocket = deribit2; // function // constructor now
         try {
+            this.websocket = new deribit2({key: this.apiKey.key, secret: this.apiKey.secret, domain: this.apiKey.testnet === true ? "test.deribit.com" : "www.deribit.com"});
             await this.websocket.connect();
-            await this.websocket.authenticate(this.apiKey.key, this.apiKey.secret);
+            await this.websocket.authenticate();
         }
         catch (err) {
             logger.error("Error connecting to %s WebSocket", this.className, err);

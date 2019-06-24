@@ -214,7 +214,7 @@ export default class TradeAdvisor extends AbstractAdvisor {
             this.loadConfig();
             if (this.errorState)
                 return;
-            AbstractAdvisor.backupOriginalConfig();
+            AbstractAdvisor.backupOriginalConfig(nconf.get("serverConfig:userConfigs"));
             this.ensureDefaultFallbackConfig();
             this.loadTrader();
             this.connectTrader();
