@@ -30,7 +30,7 @@
     "d3-dsv": "^1.0.10",
     "datatables.net": "^1.10.16",
     "datatables.net-bs": "^1.10.16",
-    "deribit-v2-ws": "0.0.3",
+    "deribit-v2-ws": "1.0.3",
     "elasticsearch": "^12.1.0",
     "eventemitter2": "^4.1.0",
     "feedparser": "^2.2.8",

@@ -2050,10 +2050,10 @@ deprecated@^0.0.1:
   resolved "https://registry.yarnpkg.com/deprecated/-/deprecated-0.0.1.tgz#f9c9af5464afa1e7a971458a8bdef2aa94d5bb19"
   integrity sha1-+cmvVGSvoeepcUWKi97yqpTVuxk=
 
-deribit-v2-ws@0.0.3:
-  version "0.0.3"
-  resolved "https://registry.yarnpkg.com/deribit-v2-ws/-/deribit-v2-ws-0.0.3.tgz#ca88891cd2bfb6b630d764fc4debcc69a8fbe47e"
-  integrity sha512-BcP/orqD0JZSqw7OBnJ7c0qbxlW1iDBzVf3n58OFtdwXTZz+3W4wZuvXz0swN5GhL96gCoMb0IoC0ZchyInzjw==
+deribit-v2-ws@1.0.3:
+  version "1.0.3"
+  resolved "https://registry.yarnpkg.com/deribit-v2-ws/-/deribit-v2-ws-1.0.3.tgz#19965b168599e2f7281ee084bc52ea7977b4f486"
+  integrity sha512-6RJDNAXQkNfodKUGx1kihBYR/x2M6q16oOoa4/ELj54rcrgO2WkghJJ16NRQ+LyW5LgkR9KbyJafHnUSRR4P4w==
   dependencies:
     ws "^6.2.0"
 
