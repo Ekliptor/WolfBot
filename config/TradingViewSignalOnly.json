@@ -9,7 +9,7 @@
             "flipPosition": true,
             "strategies": {
                 "TradingViewSignal": {
-                    "email": "",
+                    "email": "tradingview@wolfbot.org",
                     "password": "",
                     "host": "",
                     "port": 0,

@@ -1490,5 +1490,7 @@
   "pairChangeConfigPage": "Please go to the configuration page to change the trading pair.",
   "errorSaveStratConfig": "Error saving strategy configuration.",
   "restartChanges": "A bot restart is required for your changes to take effect.",
-  "botID": "Bot ID"
+  "botID": "Bot ID",
+  "backtestingTutorial": "It is recommended to use one of the fully imported currency pair histories from a supported exchange for all your backtesting (regardless of which exchange you are using for live trading). For important considerations about backtesting please read:",
+  "thisArticle": "This article"
 }
