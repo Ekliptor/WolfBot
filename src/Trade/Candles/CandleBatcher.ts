@@ -132,6 +132,8 @@ export class CandleBatcher<T extends TradeBase> extends CandleStream<T> {
                 if (candleMinutes % 3 !== 0)
                     return;
             }
+            if (this.minuteCandles.length < this.interval)
+                return; // not enough data yet
         }
 
         this.lastCandle = this.calculate();

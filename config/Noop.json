@@ -13,7 +13,7 @@
         "NOOP": {
           "sample": "in here come strategy parameteres & config in real trading strategies",
           "pair": "USD_BTC",
-          "candleSize": 3,
+          "candleSize": 2,
           "enableLog": true
         }
       }
