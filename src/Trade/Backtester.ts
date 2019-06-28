@@ -253,7 +253,7 @@ export default class Backtester extends PortfolioTrader {
             }).then(() => {
                 logger.info("Imported %s history", exchange.getClassName())
                 importDone();
-                setTimeout(resolve.bind(this), 3000); // give the DB some time to store it
+                setTimeout(resolve.bind(this), 5000); // give the DB some time to store it
             }).catch((err) => {
                 logger.error("Error importing %s history", exchange.getClassName(), err)
                 importDone();

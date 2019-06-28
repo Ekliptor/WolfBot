@@ -11,7 +11,8 @@ import {CandleStream, TradeBase} from "./CandleStream";
 export class CandleBatcher<T extends TradeBase> extends CandleStream<T> {
     protected interval: number; // candle size in minutes
     protected minuteCandles: Candle.Candle[] = [];
-    protected lastCandle: Candle.Candle = null;
+    protected lastCandle: Candle.Candle = null; // the last full (batched) candle
+    protected lastSmallCandle: Candle.Candle = null; // the last small incoming candle
     protected isMax = false; // this instance has the max interval for this currency pair
     protected currentCandleEmitTimer: NodeJS.Timer = null;
 
@@ -27,6 +28,8 @@ export class CandleBatcher<T extends TradeBase> extends CandleStream<T> {
     }
 
     public addCandles(candles: Candle.Candle[]) {
+        if (candles.length !== 0)
+            this.lastSmallCandle = candles[candles.length-1];
         // loop through our 1 minute candles and emit x minute candles at the right time
         _.each(candles, (candle) => {
             this.minuteCandles.push(candle);
@@ -111,10 +114,24 @@ export class CandleBatcher<T extends TradeBase> extends CandleStream<T> {
     // ###################### PRIVATE FUNCTIONS #######################
 
     protected checkCandleReady() {
-        if (this.minuteCandles.length % this.interval !== 0) {
+        const ensureInterval = nconf.get("serverConfig:ensureCandleHourInterval");
+        if (ensureInterval === false && this.minuteCandles.length % this.interval !== 0) {
             //let incompleteCandle = CandleBatcher.batchCandles(this.minuteCandles, this.interval, true); // better done within the updates of latest 1min candle
             //this.emitCurrentCandle(incompleteCandle);
             return;
+        }
+        if (this.lastSmallCandle === null)
+            return; // shouldn't happen
+        else if (ensureInterval === true) { // keep the candles in sync with the clock (independently of bot start time)
+            const candleMinutes = this.lastSmallCandle.start.getMinutes();
+            if (this.interval % 5 === 0) {
+                if (candleMinutes % 5 !== 0)
+                    return;
+            }
+            else if (this.interval % 3 === 0) {
+                if (candleMinutes % 3 !== 0)
+                    return;
+            }
         }
 
         this.lastCandle = this.calculate();
