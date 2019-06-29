@@ -36,9 +36,11 @@
   <script src="/js/bundle.js?v=4"></script>
 
   <script type="text/javascript">
-      TradingView.onready(function() {
-          appData.tvReady = true;
-      });
+      window.addEventListener('DOMContentLoaded', function () {
+          setTimeout(function () {
+              appData.tvReady = true;
+          }, 500);
+      }, false);
   </script>
 </body>
 </html>
