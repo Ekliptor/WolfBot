@@ -110,6 +110,18 @@ export class CandleBatcher<T extends TradeBase> extends CandleStream<T> {
         return candle;
     }
 
+    /**
+     * Emits all pending candles (if there are any) and clear the buffer.
+     * Normally you don't have to call this, just use addCandles()
+     */
+    public flush() {
+        if (this.minuteCandles.length === 0)
+            return;
+        this.lastCandle = this.calculate();
+        this.emitCandles([this.lastCandle]);
+        this.minuteCandles = [];
+    }
+
     // ################################################################
     // ###################### PRIVATE FUNCTIONS #######################
 

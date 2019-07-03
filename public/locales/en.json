@@ -620,6 +620,17 @@
       },
       "waitRepeatingTradeMin": "optional, default 600 min. Wait x minutes before executing the same order again (in case the market moves rapidly)."
     },
+    "BitmexSwagger": {
+      "desc": "Strategy looks at the BitMEX leaderboard and publicly posted positions (in shoutbox) and goes with the trend of the last 24 hours. It will wait for the chosen indicator high/low to join the direction of the majority of traders.<br>This strategy works very well for daytrading with candle sizes from 30min to 2h.<br>This strategy will only positions. You should combine it with a stop-loss and/or take profit strategy.<br>You can run this strategy on any exchange with any currency pair (that you think behaves similar to XBTUSD on BitMEX).",
+      "goLongPercentage": "optional, default 65% - The minimum percentage of leaders and shoutbox traders that must go long to open a long position with them.<br>You can use values below 50% to trade with the minority of the last 24 hours.",
+      "goShortPercentage": "optional, default 65% - The minimum percentage of leaders and shoutbox traders that must go short to open a short position with them.<br>You can use values below 50% to trade with the minority of the last 24 hours.",
+      "confirmationIndicator": "optional, default empty = none - The indicator to use to wait for confirmation to open a position. Available indicators: RSI|StochRSI|CCI|MFI",
+      "low": "optional, default 50 - Only go short if the confirmation indicator is below this value.",
+      "high": "optional, default 50 - Only go long if the confirmation indicator is above this value.",
+      "interval": "optional, default 14 - The number of candles to use for the high/low calculation of the confirmationIndicator.",
+      "maxGoLongPrice": "optional, default 0 = any price - The maximum price to open a long position.",
+      "minGoShortPrice": "optional, default 0 = any price - The minimum price to open a short position."
+    },
     "BollingerBands": {
       "desc": "Strategy that emits buy/sell based on the Bollinger Bands indicator. Our assumption is that the price will always jump between the upper and lower band (as in a sideways market). Consequently, at the upper we sell and at the lower band we buy. If the price stays at the upper/lower band for 'breakout' candles, we assume this breakout will continue.",
       "breakout": "optional, default 0 - The number of candles the price has to stay at the upper/lower band to assume a breakout.",
