@@ -3268,6 +3268,7 @@ class Backtesting extends JsonEditor_1.JsonEditor {
         index_1.App.initMultiSelect((optionEl, checked) => {
         });
         $("#startBalance").val(init.startBalance);
+        this.showRecentBacktests(init);
         this.loadDatePickerLib(() => {
             const now = Date.now();
             const useLast = init.lastFromMs !== 0 && init.lastToMs !== 0;
@@ -3299,6 +3300,26 @@ class Backtesting extends JsonEditor_1.JsonEditor {
             });
         }
         this.$("#importedCurrencyList").html(currencyHtml);
+    }
+    showRecentBacktests(init) {
+        if (init.recentBacktests.length === 0) {
+            this.$("#recentBacktests").text(i18next.t("noRecentBacktests"));
+            return;
+        }
+        let key = AppF.getCookie("apiKey");
+        let html = "";
+        init.recentBacktests.forEach((test) => {
+            let resultUrl = document.location.origin + "/dl/?bt=" + encodeURIComponent(test);
+            if (key)
+                resultUrl += "&apiKey=" + key;
+            let linkHtml = AppF.translate(pageData.html.misc.newWindowLink, {
+                id: test,
+                href: resultUrl,
+                title: test
+            });
+            html += linkHtml + "<br>";
+        });
+        this.$("#recentBacktests").html(html);
     }
     showResult(result) {
         this.enableBacktesting();

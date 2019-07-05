@@ -63,6 +63,7 @@ export class Backtesting extends JsonEditor {
         App.initMultiSelect((optionEl, checked) => {
         });
         $("#startBalance").val(init.startBalance);
+        this.showRecentBacktests(init)
 
         this.loadDatePickerLib(() => {
             const now = Date.now();
@@ -97,6 +98,27 @@ export class Backtesting extends JsonEditor {
             });
         }
         this.$("#importedCurrencyList").html(currencyHtml);
+    }
+
+    protected showRecentBacktests(init: BacktestInitData) {
+        if (init.recentBacktests.length === 0) {
+            this.$("#recentBacktests").text(i18next.t("noRecentBacktests"));
+            return;
+        }
+        let key = AppF.getCookie("apiKey");
+        let html = "";
+        init.recentBacktests.forEach((test) => {
+            let resultUrl = document.location.origin + "/dl/?bt=" + encodeURIComponent(test);
+            if (key)
+                resultUrl += "&apiKey=" + key;
+            let linkHtml = AppF.translate(pageData.html.misc.newWindowLink, {
+                id: test,
+                href: resultUrl,
+                title: test
+            });
+            html += linkHtml + "<br>";
+        });
+        this.$("#recentBacktests").html(html);
     }
 
     protected showResult(result: BacktestResult) {

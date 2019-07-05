@@ -14,9 +14,10 @@ import * as path from "path";
 import * as fs from "fs";
 import * as childProcess from "child_process";
 import {BotEvaluation} from "../Trade/PortfolioTrader";
-import {currencyImportMap} from "../../configLocal";
+import {currencyImportMap, MultipleCurrencyImportExchange} from "../../configLocal";
 import {Currency} from "@ekliptor/bit-models";
 const fork = childProcess.fork;
+import * as Heap from "qheap";
 
 const processFiles = [path.join(utils.appDir, 'app.js'),
     path.join(utils.appDir, 'build', 'app.js')]
@@ -35,6 +36,7 @@ export interface BacktestInitData {
         //[exchangeName: string]: Currency.CurrencyPair[];
         [exchangeName: string]: string[]; // currency pairs converted to string
     }
+    recentBacktests: string[];
 }
 export interface BacktestResult {
     file: string;
@@ -72,6 +74,15 @@ export interface BacktestRes {
     }
 }
 
+class BacktestingFileStat {
+    public readonly name: string;
+    public readonly ctimeMs: number;
+    constructor(name: string, ctime: number) {
+        this.name = name;
+        this.ctimeMs = ctime;
+    }
+}
+
 export class BacktestingUpdater extends AppPublisher {
     public readonly opcode = WebSocketOpcode.BACKTESTING;
     protected selectedConfig: string;
@@ -81,6 +92,7 @@ export class BacktestingUpdater extends AppPublisher {
     //protected backtestingSockets = new Map<string, WebSocket>(); // (socket id, socket) // to resume showing progress
     protected lastBacktestFromMs: number = 0;
     protected lastBacktestToMs: number = 0;
+    protected recentBacktests: string[] = []; // array of file names
 
     constructor(serverSocket: ServerSocket, advisor: AbstractAdvisor) {
         super(serverSocket, advisor)
@@ -89,7 +101,7 @@ export class BacktestingUpdater extends AppPublisher {
 
     public onSubscription(clientSocket: ClientSocketOnServer, initialRequest: http.IncomingMessage): void {
         //this.backtestingSockets.set((clientSocket as any).id, clientSocket)
-        ConfigEditor.listConfigFiles("trading").then((configFiles) => {
+        ConfigEditor.listConfigFiles("trading").then(async (configFiles) => {
             let update: BacktestRes = {
                 init: {
                     fromDays: nconf.get("data:backtestStartAgoDays"),
@@ -97,10 +109,11 @@ export class BacktestingUpdater extends AppPublisher {
                     lastFromMs: this.lastBacktestFromMs,
                     lastToMs: this.lastBacktestToMs,
                     configFiles: configFiles,
-                    exchanges: Array.from(Currency.ExchangeName.keys()),
+                    exchanges: this.getBacktestExchanges(),
                     selectedConfig: this.lastBacktestingConfig ? this.lastBacktestingConfig : this.selectedConfig,
                     startBalance: this.lastBacktestBalance,
-                    currencyImportMap: this.getCurrencyPairImportMap()
+                    currencyImportMap: this.getCurrencyPairImportMap(),
+                    recentBacktests: await this.getRecentBacktests()
                 }
             }
             this.send(clientSocket, update)
@@ -135,6 +148,7 @@ export class BacktestingUpdater extends AppPublisher {
         if (this.backtestRunning === true)
             return;
         this.backtestRunning = true;
+        this.recentBacktests = []; // invalidate cache, not really needed here
 
         let filePath = path.join(TradeConfig.getConfigDirForMode("trading"), data.start.config);
         let backtestFilePath: string;
@@ -284,6 +298,7 @@ export class BacktestingUpdater extends AppPublisher {
                     }
                 }
                 this.publish(resultUpdate)
+                this.recentBacktests = []; // invalidate cache
                 break;
             case 'tick':
                 let tickUpdate: BacktestRes = {
@@ -366,5 +381,81 @@ export class BacktestingUpdater extends AppPublisher {
             map.set(exchange, strPairs);
         }
         return map.toObject();
+    }
+
+    protected getBacktestExchanges() {
+        let exchanges = Array.from(Currency.ExchangeName.keys());
+        if (nconf.get("serverConfig:premium") === false)
+            return exchanges;
+        return exchanges.filter(e => currencyImportMap.has(e as MultipleCurrencyImportExchange));
+    }
+
+    protected getLogPath() {
+        return path.join(utils.appDir, nconf.get("tradesDir")); // backfindDir is a subdir, see PortfolioTrader constructor
+    }
+
+    protected async getRecentBacktests(): Promise<string[]> {
+        if (this.recentBacktests.length !== 0)
+            return this.recentBacktests; // use cached
+        try {
+            let files = await fs.promises.readdir(this.getLogPath(), {encoding: "utf8"});
+            this.recentBacktests = await this.getMostRecentFiles(files.filter(f => /\.html$/i.test(f) === true));
+            return this.recentBacktests;
+        }
+        catch (err) {
+            logger.error("Error getting recent backtests", err);
+            return [];
+        }
+    }
+
+    protected async getMostRecentFiles(files: string[]): Promise<string[]> {
+        let recentBacktests = new Heap({
+            comparBefore(a: BacktestingFileStat, b: BacktestingFileStat) {
+                return a.ctimeMs > b.ctimeMs; // higher numbers (newer files) come first
+            },
+            compar(a: BacktestingFileStat, b: BacktestingFileStat) {
+                return a.ctimeMs > b.ctimeMs ? -1 : 1;
+            },
+            freeSpace: true,
+            size: 40
+        });
+        for (let i = 0; i < files.length; i++)
+        {
+            const filePath = path.join(this.getLogPath(), files[i]);
+            try {
+                let stats = await fs.promises.stat(filePath);
+                let backtestFile = new BacktestingFileStat(files[i], stats.ctimeMs);
+                recentBacktests.insert(backtestFile);
+            }
+            catch (err) {
+                logger.error("Error getting file stats of %s", filePath, err);
+            }
+        }
+        const limit = nconf.get("serverConfig:showRecentTestCount");
+        let orderedResult = [];
+        for (let i = 0; i < limit; i++)
+        {
+            let next = recentBacktests.remove();
+            if (next === undefined)
+                break;
+            orderedResult.push(next.name);
+        }
+
+        // delete old backtests
+        if (nconf.get("serverConfig:premium") === true) {
+            let next, removeFiles = [];
+            while ((next = recentBacktests.remove()) !== undefined)
+            {
+                const nextPath = path.join(this.getLogPath(), next.name);
+                removeFiles.push(nextPath);
+            }
+            try {
+                await utils.file.deleteFiles(removeFiles);
+            }
+            catch (err) {
+                logger.error("Error deleting old backtest files", err);
+            }
+        }
+        return orderedResult;
     }
 }

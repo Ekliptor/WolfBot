@@ -32,6 +32,11 @@ export class MarketStream extends AbstractMarketStream {
     }
 
     public write(currencyPair: Currency.CurrencyPair, actions: /*MarketAction[]*/any[], seqNr: number) {
+        if (!currencyPair) {
+            let err = new Error("Can not add market data without currency pair");
+            utils.test.dumpError(err, logger);
+            return;
+        }
         let trades = []
         let orders = []
         const orderBook = this.exchange.getOrderBook().get(currencyPair.toString());

@@ -544,6 +544,10 @@ export default class Binance extends AbstractExchange implements ExternalTickerE
             let cleanDepth = this.apiClient.ws.depth(subscribePairs, (depth) => {
                 this.localSeqNr = depth.updateId; // use ids from server
                 const localPair = this.currencies.getLocalPair(depth.symbol);
+                if (!localPair) {
+                    logger.warn("Received %s WebSocket orderbook data for unknown pair %s", this.className, depth.symbol);
+                    return;
+                }
 
                 let orderModifications = [];
                 ["bidDepth", "askDepth"].forEach((prop) => {
@@ -569,6 +573,10 @@ export default class Binance extends AbstractExchange implements ExternalTickerE
                  */
                 this.resetWebsocketTimeout();
                 const localPair = this.currencies.getLocalPair(trade.symbol);
+                if (!localPair) {
+                    logger.warn("Received %s WebSocket trade data for unknown pair %s", this.className, trade.symbol);
+                    return;
+                }
                 let tradeObj = this.fromRawTrade(trade, localPair);
                 this.marketStream.write(localPair, [tradeObj], this.localSeqNr); // TODO increment localSeqNr? seqNr only used for orderbook either way
             })
