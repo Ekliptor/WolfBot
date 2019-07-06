@@ -379,8 +379,8 @@ export class ConfigEditor extends AppPublisher {
                 if (firstExchange.length === 0)
                     firstExchange = exchangeName;
                 nconf.set("serverConfig:apiKey:exchange:" + exchangeName, [currentKey]);
-                serverConfig.saveConfigLocal();
             }
+            serverConfig.saveConfigLocal();
             if (wasEmpty === true && firstExchange.length !== 0)
                 this.setExchangeInConfig(firstExchange);
             this.send(clientSocket, {saved: true, restart: true});
@@ -712,7 +712,7 @@ export class ConfigEditor extends AppPublisher {
         return new Promise<void>((resolve, reject) => {
             const configFileSrc = path.join(ConfigEditor.getConfigDir(), this.selectedConfig + ".json")
             const configFileDest = path.join(ConfigEditor.getConfigDir(), nameNew)
-            fs.copyFile(configFileSrc, configFileDest, (err) => {
+            fs.copyFile(configFileSrc, configFileDest, async (err) => {
                 if (err)
                     return reject({txt: "Error copying config file", err: err});
                 let existingConfigs = nconf.get("serverConfig:userConfigs") || [];
@@ -720,9 +720,28 @@ export class ConfigEditor extends AppPublisher {
                     existingConfigs.push(nameNew);
                     nconf.set("serverConfig:userConfigs", existingConfigs);
                 }
+                if (nconf.get("serverConfig:copyOnlyFirstConfig") === true)
+                    await this.truncateToFirstConfigGroup(nameNew);
                 resolve();
             });
         })
+    }
+
+    protected async truncateToFirstConfigGroup(configName: string): Promise<void> {
+        const configFilePath = path.join(ConfigEditor.getConfigDir(), configName);
+        try {
+            let fileData = await utils.file.readFile(configFilePath);
+            let json = utils.parseJson(fileData);
+            if (!json || Array.isArray(json.data) === false || json.data.length === 0)
+                throw Error("Invalid config file data");
+            let outData = utils.stringifyBeautiful({
+                data: json.data[0]
+            });
+            await fs.promises.writeFile(configFilePath, outData, {encoding: "utf8"});
+        }
+        catch (err) {
+            logger.error("Error truncating config file %s", configFilePath, err);
+        }
     }
 
     protected copyFirstStrategyCurrencyPair(json: StrategyJson, firstCurrencyPair: string = null) {

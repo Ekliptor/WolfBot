@@ -163,7 +163,7 @@ export class BacktestingUpdater extends AppPublisher {
                 this.send(clientSocket, update)
                 return
             }
-            else if (Array.isArray(json.data) === false || json.data.length !== 1) {
+            else if (Array.isArray(json.data) === false || json.data.length !== 1) { // TODO copy file and truncate in child
                 logger.error("Config for backtesting must contian exactly 1 trading pair: %s", filePath)
                 update.error = true;
                 update.errorCode = "exchangeMismatch";
