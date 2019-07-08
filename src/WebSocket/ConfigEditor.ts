@@ -312,8 +312,7 @@ export class ConfigEditor extends AppPublisher {
         }
         else if (typeof data.tradingModeChange === "string") {
             if (BotTrade.TRADING_MODES.indexOf(data.tradingModeChange) !== -1) {
-                this.selectedTradingMode = data.tradingModeChange;
-                this.send(clientSocket, {changed: true})
+                this.changeTradingMode(data, clientSocket);
             }
             else
                 this.send(clientSocket, {error: true, errorTxt: "This trading mode doesn't exist."})
@@ -606,7 +605,8 @@ export class ConfigEditor extends AppPublisher {
         return new Promise<string>((resolve, reject) => {
             if (name.substr(-5) !== ".json")
                 name += ".json";
-            const configFile = path.join(ConfigEditor.getConfigDir(), name)
+            //const configFile = path.join(ConfigEditor.getConfigDir(), name) // better for selecte dmode
+            const configFile = path.join(TradeConfig.getConfigDirForMode(this.selectedTradingMode), name)
             if (!utils.file.isSafePath(configFile))
                 return reject({txt: "Can not access path outside of app dir"})
             fs.readFile(configFile, "utf8", (err, data) => {
@@ -1486,6 +1486,24 @@ export class ConfigEditor extends AppPublisher {
             }).catch((err) => {
                 logger.error("Error saving config while setting 1st exchange", err)
                 resolve();
+            });
+        })
+    }
+
+    protected changeTradingMode(data: ConfigReq, clientSocket: ClientSocketOnServer) {
+        return new Promise<void>((resolve, reject) => {
+            this.selectedTradingMode = data.tradingModeChange;
+            ConfigEditor.listConfigFiles(this.selectedTradingMode).then((configFiles) => {
+                if (configFiles.length === 0)
+                    return Promise.reject("No config files available for mode: " + this.selectedTradingMode);
+                this.selectedConfig = configFiles[0].substr(1).replace(/\.json$/, "");
+                this.send(clientSocket, {
+                    //changed: true, // just a dummy response
+                    saved: true,
+                    configFiles: configFiles
+                });
+            }).catch((err) => {
+                logger.error("Error changing trading mode", err);
             });
         })
     }

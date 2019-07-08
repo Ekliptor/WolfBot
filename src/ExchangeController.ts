@@ -27,7 +27,7 @@ export default class ExchangeController extends AbstractSubController {
     protected exchanges = new ExchangeMap(); // (exchange name, instance)
     protected configs: TradeConfig[] = [];
     protected connectedExchanges: string[] = []; // the exchanges we are interested in according to our config
-    protected exchangesIdle = false;
+    protected exchangesIdle: boolean = false;
     protected configReady = false;
 
     protected notifier: AbstractNotification;
@@ -146,11 +146,20 @@ export default class ExchangeController extends AbstractSubController {
             const exchangeName = exchanges[0]
             const exchangeLabel = Currency.ExchangeName.get(exchangeName);
             const modulePath = path.join(__dirname, "Exchanges", "HistoryDataExchange");
-            let exchangeInstance = this.loadModule<AbstractExchange>(modulePath, {exchangeName: exchangeName, exchangeLabel: exchangeLabel});
+            let exchangeInstance = this.loadModule<AbstractExchange>(modulePath, {
+                exchangeName: exchangeName,
+                exchangeLabel: exchangeLabel
+            });
             if (exchangeInstance)
                 this.exchanges.set(exchangeName, exchangeInstance);
             return;
         }
+        this.tryLoadExchangKeys(activeProcessCount);
+        if (this.isExchangesIdle() ===  true) // sometimes nconf is slower reading initial data?
+            setTimeout(this.tryLoadExchangKeys.bind(this, activeProcessCount), 2500);
+    }
+
+    protected tryLoadExchangKeys(activeProcessCount: number) {
         let apiKeys = nconf.get("serverConfig:apiKey:exchange");
         if (!apiKeys || apiKeys.length === 0) {
             this.setExchangesIdle(true);

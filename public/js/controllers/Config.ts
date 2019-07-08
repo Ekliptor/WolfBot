@@ -15,7 +15,7 @@ import {Strategies} from "./Strategies";
 import * as $ from "jquery";
 import * as i18next from "i18next";
 import {TableController} from "./base/TableController";
-import {TradingMode} from "../../../src/WebSocket/LogPublisher";
+import {TradingMode} from "@ekliptor/bit-models/build/models/BotTrade";
 //import {AceAjax} from "ace"; // namespace, not a module
 
 declare var pageData: PageData, appData: AppData;

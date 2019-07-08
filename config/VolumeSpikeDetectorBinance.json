@@ -1,0 +1,92 @@
+{
+  "data": [
+    {
+      "exchanges": ["Binance"],
+      "marginTrading": false,
+      "tradeTotalBtc": 0.02,
+      "notifyTrades": false,
+      "strategies": {
+        "VolumeSpikeDetector": {
+          "spikeFactor": 3,
+          "minVolBtc": 1.2,
+          "historyCandle": 36,
+          "tradeDirection": "notify",
+          "minPriceChangePercent": 3.0,
+          "tradeOppositeDirection": false,
+          "strongRate": true,
+          "onlyDailyTrend": true,
+          "keepCandleCount": 3,
+          "candleSize": 15,
+          "pair": "BTC_ADA",
+          "enableLog": false
+        }
+      }
+    },
+    {
+      "exchanges": ["Binance"],
+      "marginTrading": false,
+      "tradeTotalBtc": 0.02,
+      "notifyTrades": false,
+      "strategies": {
+        "VolumeSpikeDetector": {
+          "spikeFactor": 3,
+          "minVolBtc": 1.2,
+          "historyCandle": 36,
+          "tradeDirection": "notify",
+          "minPriceChangePercent": 3.0,
+          "tradeOppositeDirection": false,
+          "strongRate": true,
+          "onlyDailyTrend": true,
+          "keepCandleCount": 3,
+          "candleSize": 15,
+          "pair": "BTC_XRP",
+          "enableLog": false
+        }
+      }
+    },
+    {
+      "exchanges": ["Binance"],
+      "marginTrading": false,
+      "tradeTotalBtc": 0.02,
+      "notifyTrades": false,
+      "strategies": {
+        "VolumeSpikeDetector": {
+          "spikeFactor": 3,
+          "minVolBtc": 1.2,
+          "historyCandle": 36,
+          "tradeDirection": "notify",
+          "minPriceChangePercent": 3.0,
+          "tradeOppositeDirection": false,
+          "strongRate": true,
+          "onlyDailyTrend": true,
+          "keepCandleCount": 3,
+          "candleSize": 15,
+          "pair": "BTC_ETH",
+          "enableLog": false
+        }
+      }
+    },
+    {
+      "exchanges": ["Binance"],
+      "marginTrading": false,
+      "tradeTotalBtc": 0.02,
+      "notifyTrades": false,
+      "strategies": {
+        "VolumeSpikeDetector": {
+          "spikeFactor": 3,
+          "minVolBtc": 1.2,
+          "historyCandle": 36,
+          "tradeDirection": "notify",
+          "minPriceChangePercent": 3.0,
+          "tradeOppositeDirection": false,
+          "strongRate": true,
+          "onlyDailyTrend": true,
+          "keepCandleCount": 3,
+          "candleSize": 15,
+          "pair": "BTC_TRX",
+          "enableLog": false
+        }
+      }
+    }
+  ]
+}
