@@ -1284,10 +1284,10 @@ catharsis@~0.8.8:
     json-text-sequence "^0.1"
     nofilter "^1.0.1"
 
-ccxt@^1.18.315:
-  version "1.18.717"
-  resolved "https://registry.yarnpkg.com/ccxt/-/ccxt-1.18.717.tgz#66b458f17bb5710b79bbfd51fa211cc02a57748a"
-  integrity sha512-RhTGprDcbcoUx4C91p5gCsSJmhbTCvfCf5md+7uLDTaH7Sk/P0G1I+mUVWZaLCB7nVzQiWvrbvjxYp8MhRr2bQ==
+ccxt@^1.18.908:
+  version "1.18.908"
+  resolved "https://registry.yarnpkg.com/ccxt/-/ccxt-1.18.908.tgz#e58aee104b02f2d87bb25ac13440c88b874a3830"
+  integrity sha512-EdYV5IzIxvg+KGc0svuKpU2mxQFivOAma5rJ6/LbEPDJ8b5JXIoPKEgS8NsC2/vCXSu+9AUzR50/dAVn056e5A==
 
 center-align@^0.1.1:
   version "0.1.3"

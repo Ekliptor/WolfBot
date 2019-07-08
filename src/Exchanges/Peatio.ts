@@ -138,7 +138,7 @@ export default class Peatio extends AbstractExchange {
             let options = this.getHttpOptions(this.getAuthHeaders());
             this.get(this.privateApiUrl + "api/v2/peatio/account/balances", (body, res) => {
                 let json = utils.parseJson(body);
-                if (body === false || json === null)
+                if (body === false || json === null || Array.isArray(json) === false)
                     return reject({txt: "Invalid response for exchange balances", err: res});
                 let balances = {}
                 json.forEach((balance) => { // {"currency":"eth","balance":"0.0","locked":"0.0"}

@@ -357,7 +357,7 @@ export default class ExchangeController extends AbstractSubController {
     protected scheduleRestart(forceDefaults: boolean, resetMode = false) {
         const configPathTrading = TradeConfig.getConfigDirForMode("trading", true);
         if (fs.existsSync(configPathTrading) === true) // if the backup dir doesn't exist this is the first install (or debugging)
-            this.notifyError("Config error");
+            this.notifyError("Config error (not existing)");
 
         setTimeout(async () => { // WebsocketController is loaded after exchanges
             let controller = await import("./Controller");

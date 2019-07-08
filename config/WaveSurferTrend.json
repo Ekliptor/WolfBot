@@ -66,6 +66,7 @@
           "enableLog": false
         },
         "TakeProfitStochRSI": {
+          "percentage": 50,
           "low": 11,
           "high": 87,
           "interval": 18,

@@ -459,6 +459,8 @@ export abstract class AbstractExchange {
         // Margin trading is not enabled for this market.
         if (errorLower.indexOf("insufficient") !== -1 || errorLower.indexOf("not enough") !== -1 || errorLower.indexOf("margin trading is not enabled") !== -1)
             return false;
+        if (errorLower.indexOf("not enough tradable balance") !== -1)
+            return false;
         if (errorLower.indexOf("minimum size") !== -1)
             return false;
 
