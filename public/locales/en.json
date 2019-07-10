@@ -392,6 +392,7 @@
   "backtestingCfgChange": "A restart is only required to change the live trading config (showing under \"Strategies\"). You can edit your config and run backtests while live trading another config without restarts.",
   "strategyOverview": "Overview of strategies and their use-cases including guides how to use them",
   "syntaxErrorConf": "Syntax error in configuration file.",
+  "invalidConfSchema": "Invalid configuration schema. Please fix your config and try saving again.",
   "savedConfig": "The configuration has been saved.",
   "serverTime": "Server Time",
   "strategyState": "Strategy State",

@@ -320,19 +320,22 @@ export class ConfigEditor extends AppPublisher {
         else if (data.saveConfig && data.configName) {
             // TODO broadcast config change to other clients
             // JSONView sends an object, code editor a string
+            let configObj: any = null;
             if (typeof data.saveConfig === "string") {
-                let configObj = utils.parseJson(data.saveConfig);
+                configObj = utils.parseJson(data.saveConfig);
                 if (configObj == null) { // validate JSON
                     this.send(clientSocket, {error: true, errorCode: "syntaxErrorConf"})
                     return;
                 }
                 configObj = this.validateConfigArray(configObj);
-                data.saveConfig = utils.stringifyBeautiful(configObj);
             }
-            else {
-                let configObj = this.validateConfigArray(data.saveConfig);
-                data.saveConfig = utils.stringifyBeautiful(configObj);
+            else
+                configObj = this.validateConfigArray(data.saveConfig);
+            if (configObj === null) {
+                this.send(clientSocket, {error: true, errorCode: "invalidConfSchema"})
+                return;
             }
+            data.saveConfig = utils.stringifyBeautiful(configObj);
             this.saveConfigFile(data.configName, data.saveConfig).then(() => {
                 let requireRestrt = this.updateConfig(data.saveConfig);
                 this.send(clientSocket, {saved: true, restart: requireRestrt});
@@ -506,7 +509,8 @@ export class ConfigEditor extends AppPublisher {
             nconf.set("serverConfig:lastRestartTime", new Date()); // only count forced (auto) restarts
             serverConfig.saveConfigLocal();
         }
-        this.saveState().then(() => {
+        this.saveState().then(async () => {
+            await utils.promiseDelay(3500); // ensure LastParams is deleted and give the restart more time
             let processArgs = Object.assign([], process.execArgv)
             for (let i=0; i < processArgs.length; i++) {
                 if (processArgs[i].substr(0,12) == "--debug-brk=") {
@@ -1374,13 +1378,24 @@ export class ConfigEditor extends AppPublisher {
         return filename.substr(1).replace(/\.json$/, "");
     }
 
-    protected validateConfigArray(clientConfig: any) {
+    /**
+     * Return a valid config object or null if if the schema is invalid
+     * @param clientConfig
+     */
+    protected validateConfigArray(clientConfig: any): any {
         let configObj: any = clientConfig;
         if (configObj.data === undefined || Array.isArray(configObj.data) === false) {
             configObj = {
                 data: configObj
             }
         }
+        // TODO add more validation
+        if (configObj.data.data)
+            return null;
+        configObj = TradeConfig.ensureConfigSchema(configObj);
+        if (configObj === null)
+            return null;
+
         for (let i = 0; i < configObj.data.length; i++)
         {
             if (Array.isArray(configObj.data[i].exchanges) === false)
@@ -1406,6 +1421,11 @@ export class ConfigEditor extends AppPublisher {
                 }
             }
             configObj.data[i].exchanges = validExchanges;
+
+            if (!configObj.data[i].strategies || Object.keys(configObj.data[i].strategies).length === 0) {
+                logger.error("Config at pos %s contains no strategies", i);
+                return null;
+            }
         }
         return configObj;
     }

@@ -93,7 +93,13 @@ export class LendingAdvisor extends AbstractAdvisor {
         this.checkRestoreConfig().then(() => {
             if (this.exchangeController.isExchangesIdle() === true)
                 return;
-            this.loadConfig();
+            try {
+                this.loadConfig();
+            }
+            catch (err) {
+                logger.error("Error loading config in %s", this.className, err);
+                this.waitForRestart();
+            }
             if (this.errorState)
                 return;
             AbstractAdvisor.backupOriginalConfig();

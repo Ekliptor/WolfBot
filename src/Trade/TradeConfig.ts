@@ -89,6 +89,22 @@ export class TradeConfig extends AbstractConfig {
         AbstractConfig.resetCounter();
     }
 
+    /**
+     * Return a valid config schema or null if the schema can not be parsed.
+     * @param json
+     */
+    public static ensureConfigSchema(json: any): any {
+        if (!json || typeof json !== "object" || !json.data)
+            return null;
+        if (Array.isArray(json.data) === false) {
+            if (typeof json.data === "object")
+                json.data = [json.data];
+            else
+                return null;
+        }
+        return json; // assume valid
+    }
+
     public getConfigCurrencyPair(currencyPair: Currency.CurrencyPair): ConfigCurrencyPair {
         return TradeConfig.createConfigCurrencyPair(this.configNr, currencyPair);
     }

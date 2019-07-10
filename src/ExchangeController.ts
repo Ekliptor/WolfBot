@@ -317,30 +317,42 @@ export default class ExchangeController extends AbstractSubController {
             logger.error("Invalid JSON in config file: %s", filePath)
             return
         }
-        let connectedExchanges = []
-        if (nconf.get("lending") && json.data.length === 1)
-            json.data = LendingConfig.expandConfig(json.data[0]);
-        json.data.forEach((conf) => {
-            let config;
-            try {
-                if (nconf.get("lending"))
-                    config = new LendingConfig(conf, this.configFilename);
-                else if (nconf.get("arbitrage"))
-                    config = new ArbitrageConfig(conf, this.configFilename);
-                else
-                    config = new TradeConfig(conf, this.configFilename);
-            }
-            catch (e) {
-                logger.error("Error loading config. Please fix your config and restart the app", e);
-                return;
-            }
-            this.configs.push(config)
+        json = TradeConfig.ensureConfigSchema(json);
+        if (json === null) {
+            logger.error("Invalid JSON in config schema in file: %s", filePath);
+            return;
+        }
+        fs.writeFileSync(filePath, utils.stringifyBeautiful(json), {encoding: "utf8"});
+        let connectedExchanges = [];
+        try {
+            if (nconf.get("lending") && json.data.length === 1)
+                json.data = LendingConfig.expandConfig(json.data[0]);
+            json.data.forEach((conf) => {
+                let config;
+                try {
+                    if (nconf.get("lending"))
+                        config = new LendingConfig(conf, this.configFilename);
+                    else if (nconf.get("arbitrage"))
+                        config = new ArbitrageConfig(conf, this.configFilename);
+                    else
+                        config = new TradeConfig(conf, this.configFilename);
+                } catch (e) {
+                    logger.error("Error loading config. Please fix your config and restart the app", e);
+                    return;
+                }
+                this.configs.push(config)
 
-            // just get the names
-            //const configExchanges = this.pipeMarketStreams(config);
-            const exchangeNames = config.exchanges;
-            connectedExchanges = connectedExchanges.concat(exchangeNames);
-        })
+                // just get the names
+                //const configExchanges = this.pipeMarketStreams(config);
+                const exchangeNames = config.exchanges;
+                connectedExchanges = connectedExchanges.concat(exchangeNames);
+            });
+        }
+        catch (err) {
+            logger.error("Invalid config JSON syntax on startup", err);
+            this.scheduleRestart(true, true);
+            return;
+        }
 
         TradeConfig.resetCounter();
         LendingConfig.resetCounter();
@@ -364,8 +376,8 @@ export default class ExchangeController extends AbstractSubController {
     }
 
     protected scheduleRestart(forceDefaults: boolean, resetMode = false) {
-        const configPathTrading = TradeConfig.getConfigDirForMode("trading", true);
-        if (fs.existsSync(configPathTrading) === true) // if the backup dir doesn't exist this is the first install (or debugging)
+        const configPathTrading = TradeConfig.getConfigDirForMode("trading", false);
+        if (fs.existsSync(configPathTrading) === false) // if the backup dir doesn't exist this is the first install (or debugging)
             this.notifyError("Config error (not existing)");
 
         setTimeout(async () => { // WebsocketController is loaded after exchanges

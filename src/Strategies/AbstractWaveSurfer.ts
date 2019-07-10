@@ -671,8 +671,8 @@ export abstract class AbstractWaveSurfer extends TechnicalStrategy {
                 exitMsg += " p/l: " + this.position.pl.toFixed(8) + " " + this.action.pair.getBase();
             this.sendNotification("Close imminent", exitMsg)
         }
-        let lows = this.mapInterval(this.intervalLows);
-        let highs = this.mapInterval(this.intervalHighs);
+        let lows = this.mapInterval(this.intervalLows, true);
+        let highs = this.mapInterval(this.intervalHighs, true);
         this.log("lows", lows, "highs", highs,
             "long trend", this.longTrend, "open tick count", this.positionOpenTickCount)
     }
