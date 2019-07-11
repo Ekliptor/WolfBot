@@ -2,7 +2,6 @@ import * as utils from "@ekliptor/apputils";
 const logger = utils.logger
     , nconf = utils.nconf;
 import {AbstractIndicator, MomentumIndicatorParams, PivotPointsParams} from "./AbstractIndicator";
-import {TaLib, TaLibParams, TaLibResult} from "./TaLib";
 import {Currency, Trade, Candle} from "@ekliptor/bit-models";
 
 export type PivotLineNr = 1 | 2 | 3;

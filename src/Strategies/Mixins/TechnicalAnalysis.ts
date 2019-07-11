@@ -23,6 +23,7 @@ import VolumeProfile from "../../Indicators/VolumeProfile";
 import PivotPoints from "../../Indicators/PivotPoints";
 import IchimokuClouds from "../../Indicators/IchimokuClouds";
 import Liquidator from "../../Indicators/Liquidator";
+import PivotsHL from "../../Indicators/PivotsHL";
 
 
 export abstract class TechnicalAnalysis extends AbstractGenericStrategy {
@@ -180,6 +181,14 @@ export abstract class TechnicalAnalysis extends AbstractGenericStrategy {
     public getPivotPoints(name: string): PivotPoints {
         let indicator = this.getIndicator(name);
         if (indicator instanceof PivotPoints)
+            return indicator;
+        logger.error("Indicator with name %s has the wrong instance type in %s", name, this.className)
+        return null;
+    }
+
+    public getPivotsHL(name: string): PivotsHL {
+        let indicator = this.getIndicator(name);
+        if (indicator instanceof PivotsHL)
             return indicator;
         logger.error("Indicator with name %s has the wrong instance type in %s", name, this.className)
         return null;

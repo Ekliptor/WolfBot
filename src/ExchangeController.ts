@@ -17,7 +17,7 @@ import {AbstractLendingExchange} from "./Exchanges/AbstractLendingExchange";
 import {ArbitrageConfig} from "./Arbitrage/ArbitrageConfig";
 import {AbstractNotification} from "./Notifications/AbstractNotification";
 import Notification from "./Notifications/Notification";
-import {CoinMarketCapApiStatus} from "./Social/CoinMarketCap";
+
 
 export default class ExchangeController extends AbstractSubController {
     protected static readonly WAIT_CONFIG_ONCE_MS = 3000

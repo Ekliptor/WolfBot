@@ -100,6 +100,11 @@ export class PivotPointsParams implements IntervalIndicatorParams {
     interval: number = 15; // the number of candles to use for high/low calculation
     enableLog: boolean;
 }
+export class PivotsHLParams implements IndicatorParams {
+    leftLen: number = 14; // the number of candles to go back after a high/low
+    rightLen: number = 14; // the number of candles to go forward after a high/low
+    enableLog: boolean;
+}
 export class OrderbookHeatIndicatorParams implements IntervalIndicatorParams {
     interval: number = 14; // number of candles for the indicator
     priceStepBucket: number = 0.1; // The orderbook granularity, meaning how much of a price change in the order book shall be combined in a single bucket.

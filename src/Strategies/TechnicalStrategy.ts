@@ -24,6 +24,7 @@ import VolumeProfile from "../Indicators/VolumeProfile";
 import PivotPoints from "../Indicators/PivotPoints";
 import IchimokuClouds from "../Indicators/IchimokuClouds";
 import Liquidator from "../Indicators/Liquidator";
+import PivotsHL from "../Indicators/PivotsHL";
 
 export interface TechnicalStrategyAction extends StrategyAction {
     // properties are optional because not all strategies will have all indicators (and some might inherit TechnicalStrategy for other functions)
@@ -196,6 +197,7 @@ export abstract class TechnicalStrategy extends AbstractStrategy implements Tech
     public getVolume: (name: string) => AverageVolume;
     public getVolumeProfile: (name: string) => VolumeProfile;
     public getPivotPoints: (name: string) => PivotPoints;
+    public getPivotsHL: (name: string) => PivotsHL;
     public getIchimokuClouds: (name: string) => IchimokuClouds;
     public getLiquidator: (name: string) => Liquidator;
     public allIndicatorsReady: () => boolean;
