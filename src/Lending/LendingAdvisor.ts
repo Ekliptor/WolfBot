@@ -193,7 +193,7 @@ export class LendingAdvisor extends AbstractAdvisor {
                 let restoreData = json[currency];
                 currency = currency.replace(/^[0-9]+/, config.configNr.toString()) // restore the real config number in case we changed it
                 let fallback = new RestoryStrategyStateMap();
-                let missingStrategyStates = [];
+                let missingStrategyStates: AbstractLendingStrategy[] = [];
                 let confStrategies = strategies.get(currency);
                 confStrategies.forEach((strategy) => {
                     let strategyName = strategy.getClassName();
@@ -222,7 +222,8 @@ export class LendingAdvisor extends AbstractAdvisor {
                         if (!strategy.canUnserialize(state, true)) // be sure and check candle size again
                             return;
                         try {
-                            strategy.unserialize(state)
+                            strategy.unserialize(state);
+                            strategy.removeUnserializedCopyAttributes();
                             logger.info("Restored strategy state of %s %s using fallback from %s", currency, strategyName, path.basename(filePath))
                             restored = true;
                         }

@@ -723,6 +723,7 @@ export class ConfigEditor extends AppPublisher {
                 if (existingConfigs.indexOf(nameNew) !== -1) {
                     existingConfigs.push(nameNew);
                     nconf.set("serverConfig:userConfigs", existingConfigs);
+                    serverConfig.saveConfigLocal();
                 }
                 if (nconf.get("serverConfig:copyOnlyFirstConfig") === true)
                     await this.truncateToFirstConfigGroup(nameNew);
@@ -1174,6 +1175,8 @@ export class ConfigEditor extends AppPublisher {
             return;
         setTimeout(() => {
             this.saveState().then(() => {
+                return AbstractAdvisor.backupOriginalConfig(nconf.get("serverConfig:userConfigs"));
+            }).then(() => {
                 this.scheduleSaveState();
             }).catch((err) => {
                 logger.error("Error on scheduled save state", err)

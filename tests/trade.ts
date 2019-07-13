@@ -351,15 +351,15 @@ let testBx = async () => {
 }
 
 let testCcxt = async () => {
-    let coinbase = new YoBit(nconf.get("serverConfig:apiKey:exchange:Bitstamp")[0])
+    let coinbase = new Bitstamp(nconf.get("serverConfig:apiKey:exchange:Bitstamp")[0])
     let params = {}
 
     let pair = new Currency.CurrencyPair(Currency.Currency.BTC, Currency.Currency.ETH)
     coinbase.subscribeToMarkets([pair]);
     await utils.promiseDelay(800); // wait til we are connected
 
-    //coinbase.getTicker().then((test) => {
-    coinbase.fetchOrderBook(pair, 10).then((test) => {
+    coinbase.getTicker().then((test) => {
+    //coinbase.fetchOrderBook(pair, 10).then((test) => {
     //coinbase.importHistory(pair, new Date(Date.now()-9*utils.constants.HOUR_IN_SECONDS*1000), new Date()).then((test) => {
     //coinbase.buy(pair, 3500, 0.08, params).then((test) => {
     //coinbase.sell(pair, 410, 0.08, params).then((test) => {
@@ -403,7 +403,7 @@ let testBitmexLiquidations = async () => {
 Controller.loadServerConfig(() => {
     utils.file.touch(AbstractExchange.cookieFileName).then(() => {
         //buy()
-        testOkex()
+        //testOkex()
         //testKraken()
         //testBitfinex()
         //testPolo();
@@ -413,7 +413,7 @@ Controller.loadServerConfig(() => {
         //testBitmexLiquidations();
         //testDeribit();
         //testBx();
-        //testCcxt();
+        testCcxt();
         //testPaetio();
     })
 })

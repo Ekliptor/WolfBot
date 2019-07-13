@@ -324,7 +324,7 @@ export default class TradeAdvisor extends AbstractAdvisor {
                 let restoreData = json[pair];
                 pair = pair.replace(/^[0-9]+/, config.configNr.toString()) // restore the real config number in case we changed it
                 let fallback = new RestoryStrategyStateMap();
-                let missingStrategyStates = [];
+                let missingStrategyStates: AbstractStrategy[] = [];
                 let confStrategies = strategies.get(pair);
                 confStrategies.forEach((strategy) => {
                     let strategyName = strategy.getClassName();
@@ -359,6 +359,7 @@ export default class TradeAdvisor extends AbstractAdvisor {
                             return;
                         try {
                             strategy.unserialize(state);
+                            strategy.removeUnserializedCopyAttributes();
                             logger.info("Restored strategy state of %s %s using fallback from %s", pair, strategyName, path.basename(filePath))
                             restored = true;
                             restoreBacktestStates.delete(strategy);

@@ -343,6 +343,14 @@ export abstract class AbstractGenericStrategy extends EventEmitter {
     }
 
     /**
+     * If we unserialize strategy candle data from another strategy (on startup) we have to
+     * unset some properties that are different for every strategy.
+     */
+    public removeUnserializedCopyAttributes() {
+        this.stateMessage = "";
+    }
+
+    /**
      * Create a strategy state for this strategy from 1min candles.
      * You can overwrite this function and create the state from the parent class to add more data.
      * @param candles1min
