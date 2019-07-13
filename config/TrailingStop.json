@@ -1,0 +1,26 @@
+{
+    "data": [
+        {
+            "exchanges": [
+                "Binance"
+            ],
+            "marginTrading": true,
+            "tradeTotalBtc": 0,
+            "warmUpMin": 0,
+            "updateIndicatorsOnTrade": false,
+            "flipPosition": false,
+            "strategies": {
+                "TrailingStop": {
+                    "rate": 6000,
+                    "comp": "<",
+                    "trailingStopPerc": 0.5,
+                    "closePosition": "always",
+                    "time": 0,
+                    "pair": "USDT_BTC",
+                    "candleSize": 5,
+                    "enableLog": true
+                }
+            }
+        }
+    ]
+}

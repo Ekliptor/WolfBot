@@ -1164,6 +1164,14 @@
       "closeWords": "optional, default 'close' - A list of words (case insensitive, separated by |) on which the strategy sells. If no close signals are used this strategy can still buy and (short) sell the same position without closing.<br>A close signal will always close the whole position size (regardless of your trading amount configuration) using a market order.",
       "forceMaker": "optional. default false - Only place a maker order (not paying the higher taker fee)."
     },
+    "TrailingStop": {
+      "desc": "Strategy places a trailing stop (in percent) after a user-defined price level has been crossed.<br>This can be used both to take profit or as a stop-loss.",
+      "rate": "The rate at which this trailing stop is activated.",
+      "comp": "Does the market rate have to cross above or below that rate for the stop to get activated? Values: <|>",
+      "trailingStopPerc": "optional, default 0.5% - The trailing stop percentage that will be placed after the configured rate has been crossed.",
+      "closePosition": "optional, default always - Only close a position if its profit/loss is in that defined state. Values: always|profit|loss",
+      "time": "optional, default 0 = immediately - The time in seconds until the stop gets executed after the trailing stop has been reached."
+    },
     "Trendatron": {
       "desc": "A strategy that follows waves of the chart by doing swing trading. It does this by combining 4 SMAs to Gann Swing indicator and adding VIX to check for volatility. Additionally it supports scalping, meaning it can buy more after sharp drops in price.",
       "interval": "The number of candles for SMAs to compute GannSwing.",
