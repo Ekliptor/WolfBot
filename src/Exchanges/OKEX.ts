@@ -734,7 +734,6 @@ export default class OKEX extends AbstractContractExchange {
                 resolve(OrderResult.fromJson(result, currencyPair, this))
             }).catch((err) => {
                 reject(err)
-                this.verifyExchangeResponse()
             });
         })
     }

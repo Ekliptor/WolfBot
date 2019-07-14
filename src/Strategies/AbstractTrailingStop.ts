@@ -54,6 +54,7 @@ export abstract class AbstractTrailingStop extends /*AbstractStopStrategy*/Techn
         });
         this.addInfo("stopCountStart", "stopCountStart");
         this.addInfo("entryPrice", "entryPrice");
+        this.addInfo("done", "done");
 
         this.addInfoFunction("positionState", () => {
             return this.getPositionState();
