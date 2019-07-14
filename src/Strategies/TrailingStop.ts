@@ -11,12 +11,12 @@ import {TradeInfo} from "../Trade/AbstractTrader";
 interface TrailingStopAction extends AbstractTrailingStopAction {
     rate: number; // The rate at which this trailing stop is activated.
     comp: "<" | ">"; // Does the market rate have to cross above or below that rate for the stop to get activated?  Values: <|>
+    // TODO add "percentage" to close parameter and expand parent class
 
     trailingStopPerc: number; // optional, default 0.5% - The trailing stop percentage that will be placed after the configured rate has been crossed.
     closePosition: ClosePositionState; // optional, default always - Only close a position if its profit/loss is in that defined state. Values: always|profit|loss
 
     time: number; // optional, default 0 = immediately - The time in seconds until the stop gets executed after the trailing stop has been reached.
-
 }
 
 /**

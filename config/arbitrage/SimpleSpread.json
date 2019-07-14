@@ -1,0 +1,36 @@
+{
+    "data": [
+        {
+            "exchanges": [
+                "Binance",
+                "CoinbasePro"
+            ],
+            "marginTrading": true,
+            "tradeTotalBtc": 100,
+            "notifyTrades": true,
+            "longShortRatio": 1,
+            "maxTradeBalancePercentage": 99,
+            "strategies": {
+                "Spread": {
+                    "spreadEntry": 0.85,
+                    "spreadTarget": 0.5,
+                    "trailingSpreadStop": 0.08,
+                    "tradingFees": {
+                        "Binance": {
+                            "maker": 0.1,
+                            "taker": 0.1
+                        },
+                        "CoinbasePro": {
+                            "maker": 0,
+                            "taker": 0.03
+                        }
+                    },
+                    "candleSize": 1,
+                    "pair": "USDC_ETH",
+                    "tradeStrategy": "",
+                    "enableLog": true
+                }
+            }
+        }
+    ]
+}

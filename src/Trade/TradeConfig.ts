@@ -135,7 +135,7 @@ export class TradeConfig extends AbstractConfig {
         let cur1 = Currency.Currency[pair[0]]
         let cur2 = Currency.Currency[pair[1]]
         if (!cur1 || !cur2) {
-            logger.error("Unknown currency pair in config: %s", configPair)
+            logger.error("Unknown currency pair in config: %s, base %s, quote %s", configPair, cur1, cur2)
             return undefined;
         }
         return new Currency.CurrencyPair(cur1, cur2)
