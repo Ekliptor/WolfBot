@@ -183,7 +183,7 @@ export default class RealTimeLendingTrader extends AbstractLendingTrader {
             if (!this.exchanges || AbstractLendingTrader.globalExchanges.size === 0)
                 return resolve(); // temporary instance
             if (AbstractLendingTrader.updatePortfolioTimerID === null)
-                return; // another instance is currently updating
+                return resolve(); // another instance is currently updating
             clearTimeout(AbstractLendingTrader.updatePortfolioTimerID)
             //AbstractLendingTrader.updatePortfolioTimerID = 0; // removed for now to avoid ignoring this function forever // TODO bug?
             let scheduleNextUpdate = (immediately = false) => {

@@ -14,6 +14,9 @@ import {AbstractTakeProfitStrategy} from "../Strategies/AbstractTakeProfitStrate
 import {AbstractStopStrategy} from "../Strategies/AbstractStopStrategy";
 import {AbstractArbitrageStrategy} from "../Arbitrage/Strategies/AbstractArbitrageStrategy";
 import {ArbitrageConfig} from "../Arbitrage/ArbitrageConfig";
+import {TradePosition} from "../structs/TradePosition";
+import {PendingOrder} from "./AbstractOrderTracker";
+import {Portfolio} from "../structs/Portfolio";
 
 //export type BotEvaluation = any;
 export type BotTradeFullDay = string; // 2017-11-01 - unix time string, see utils.getUnixTimeStr()
@@ -55,15 +58,48 @@ export interface BotEvaluation {
 }
 
 export class CoinMap extends Map<string, Currency.LocalCurrencyList> { // (exchange name, balance)
-    constructor() {
-        super()
-        TradeConfig;
+    constructor(iterable?: Iterable<[string, Currency.LocalCurrencyList]>) {
+        super(iterable)
+    }
 
+    public getCoinBalanceCount() {
+        let count = 0;
+        for (let coin of this)
+        {
+            let exchangeCoins: Currency.LocalCurrencyList = coin[1];
+            for (let key in exchangeCoins)
+            {
+                const balance = exchangeCoins[key];
+                if (balance != 0.0)
+                    count++;
+            }
+        }
+        return count;
     }
 }
 export class MarginPositionMap extends Map<string, MarginPositionList> { // (exchange name, balance)
-    constructor() {
-        super()
+    constructor(iterable?: Iterable<[string, MarginPositionList]>) {
+        super(iterable)
+        for (let pos of this) // ensure proper class after serialization
+        {
+            if (pos[1] instanceof MarginPositionList === false) {
+                let list = new MarginPositionList();
+                pos[1].forEach((arr) => {
+                    const pairStr = arr[0];
+                    const currentPos = arr[1];
+                    let singleMarginPosition: MarginPosition = Object.assign(new MarginPosition(currentPos.leverage), currentPos);
+                    singleMarginPosition.initTrades();
+                    list.set(pairStr, singleMarginPosition);
+                });
+                utils.objects.OBJECT_OVERWRITES.forEach((key) => {
+                    for (let entry of list) {
+                        if (entry[0] === key)
+                            list.delete(key);
+                    }
+                });
+                this.set(pos[0], list); // (exchange name, positions)
+            }
+        }
     }
 
     public getMarginPositionCount() {
@@ -270,6 +306,7 @@ export abstract class PortfolioTrader extends AbstractTrader {
 
     protected maxCandles = new Map<string, Candle.Candle[]>(); // (currency pair, candles with max interval)
     protected myTrades = new Map<string, BotTrade[]>();
+    protected savePortfolioQueue = Promise.resolve(); // mutex
 
     protected lastTrade = new LastTradeMap(); // a map with the date of the last trade. use strategy.getMarketTime() if not in realtime mode
 
@@ -288,7 +325,27 @@ export abstract class PortfolioTrader extends AbstractTrader {
                     PortfolioTrader.allExchangePairs.addPair(exchange, pairStr)
                     PortfolioTrader.allExchangePairs.addInstance(exchange, pairStr, /*this.config.configNr,*/ this) // multiple entries for instance // TODO ok?
                 })
-            })
+            });
+
+            setTimeout(async () => {
+                await this.loadPortfolio();
+                // can not be empty (or else assumed not initialized)
+                this.config.exchanges.forEach((exchange) => {
+                    if (PortfolioTrader.marginPositions.has(exchange) === false)
+                        PortfolioTrader.marginPositions.set(exchange, new MarginPositionList());
+                    if (PortfolioTrader.coinBalances.has(exchange) === false) {
+                        let coins = {}
+                        this.config.markets.forEach((market) => {
+                            let baseCurrency = market.from;
+                            let startBalance = nconf.get('serverConfig:backtest:startBalance');
+                            if (Currency.isFiatCurrency(baseCurrency) === true)
+                                startBalance *= 1000;
+                            coins[baseCurrency] = startBalance;
+                        });
+                        PortfolioTrader.coinBalances.set(exchange, coins);
+                    }
+                });
+            }, 5000);
         }
     }
 
@@ -549,6 +606,96 @@ export abstract class PortfolioTrader extends AbstractTrader {
         this.startCoinBalance = PortfolioTrader.coinCurrencyBalance;
     }
 
+    protected addSimulatedPosition(pendingOrder: PendingOrder) {
+        if (nconf.get("tradeMode") !== 1)
+            return; // not in paper trading mode
+
+        if (!pendingOrder.exchange) {
+            logger.error("Can not add simulated position without exchange in %s", this.className);
+            return;
+        }
+        const positions = PortfolioTrader.marginPositions.get(pendingOrder.exchange.getClassName());
+        const coinBalance = PortfolioTrader.coinBalances.get(pendingOrder.exchange.getClassName());
+        const coinPair = pendingOrder.order.currencyPair;
+        const pairStr = pendingOrder.order.currencyPair.toString();
+        const tradeAmount = pendingOrder.order.type === Trade.TradeType.SELL ? -1*Math.abs(pendingOrder.order.amount) : Math.abs(pendingOrder.order.amount);
+        if (this.config.marginTrading) {
+            let position = positions.get(pairStr);
+            if (pendingOrder.order.type === Trade.TradeType.CLOSE) {
+                if (position) {
+                    position.computePl(this.marketRates.get(pairStr));
+                    positions.delete(pairStr);
+                }
+            }
+            else {
+                if (!position) {
+                    position = new MarginPosition(pendingOrder.exchange.getMaxLeverage());
+                    positions.set(pairStr, position);
+                }
+                position.addTrade(tradeAmount, pendingOrder.order.rate);
+                position.addAmount(tradeAmount);
+            }
+            PortfolioTrader.marginPositions.set(pendingOrder.exchange.getClassName(), positions);
+        }
+        else {
+            let curBalance = coinBalance[coinPair.to] // from is BTC
+            if (!curBalance)
+                curBalance = 0.0;
+            if (pendingOrder.order.type !== Trade.TradeType.CLOSE) { // CLOSE shouldn't happen here
+                curBalance += tradeAmount;
+                if (curBalance < 0.0)
+                    curBalance = 0.0;
+            }
+            coinBalance[coinPair.to] = curBalance;
+            PortfolioTrader.coinBalances.set(pendingOrder.exchange.getClassName(), coinBalance);
+        }
+        this.savePortfolio();
+    }
+
+    protected async savePortfolio(): Promise<void> {
+        if (nconf.get("tradeMode") !== 1)
+            return; // not in paper trading mode
+        await this.savePortfolioQueue;
+        this.savePortfolioQueue = this.savePortfolioQueue.then(async () => {
+            return new Promise<void>(async (resolve, reject) => {
+                const filePath = this.tradeAdvisor.getSavePortfolioFile();
+                const portfolio = new Portfolio(PortfolioTrader.marginPositions, PortfolioTrader.coinBalances);
+                try {
+                    await fs.promises.writeFile(filePath, portfolio.serialize(), {encoding: "utf8"});
+                }
+                catch (err) {
+                    logger.error("Error saving portfolio in %s", this.className, err);
+                }
+                resolve();
+            })
+        });
+    }
+
+    protected async loadPortfolio(): Promise<void> {
+        if (nconf.get("tradeMode") !== 1)
+            return; // not in paper trading mode
+        // TODO also delete files from temp dir if we restore config
+        const filePath = this.tradeAdvisor.getSavePortfolioFile();
+        try {
+            let data = await fs.promises.readFile(filePath, {encoding: "utf8"});
+            const portfolio = Portfolio.unserialize(data);
+            PortfolioTrader.marginPositions = portfolio.marginPositions;
+            PortfolioTrader.coinBalances = portfolio.coinBalances;
+            logger.verbose("Loaded paper trading portfolio: %s margin positions, %s coin balances",
+                PortfolioTrader.marginPositions.getMarginPositionCount(), PortfolioTrader.coinBalances.getCoinBalanceCount());
+            // balances will show up after the next portfolio sync // emit loaded positions to strategies on first sync (after profit/loss calculation is possible)
+            setTimeout(() => { // wait a bit to be sure we have data for other currencies too
+                for (let ex of AbstractTrader.globalExchanges)
+                    this.syncPortfolio(ex[1]);
+            }, nconf.get("serverConfig:minPortfolioUpdateMs"));
+        }
+        catch (err) {
+            if (err && err.code === "ENOENT")
+                return; // no state saved (yet)
+            logger.error("Error loading portfolio in %s", this.className, err);
+        }
+    }
+
     protected syncMarket(strategy: AbstractStrategy) {
         super.syncMarket(strategy);
         /*
@@ -622,15 +769,16 @@ export abstract class PortfolioTrader extends AbstractTrader {
                 this.losingSellTrades++;
         }
         else
-            logger.error("Can not count stats for unknown margin position type %s in %s", position.type, this.className, position)
+            logger.warn("Can not count stats for unknown margin position type %s in %s", position.type, this.className, position)
     }
 
     protected syncPortfolio(exchange: AbstractExchange) {
-        const positions = PortfolioTrader.marginPositions.get(exchange.getClassName())
-        const coinBalance = PortfolioTrader.coinBalances.get(exchange.getClassName())
+        const positions = PortfolioTrader.marginPositions.get(exchange.getClassName());
+        const coinBalance = PortfolioTrader.coinBalances.get(exchange.getClassName());
         //let remainingMarketPairs = new Set<Currency.CurrencyPair>(this.config.markets) // safer as string
         let remainingMarketPairs = new Set<string>(PortfolioTrader.allMarkets);
         const isBacktest = nconf.get("trader") === "Backtester";
+        const isSimulation = nconf.get("tradeMode") === 1;
 
         if (!positions) {
             logger.verbose("No open margin positions on %s to sync", exchange.getClassName())
@@ -646,7 +794,7 @@ export abstract class PortfolioTrader extends AbstractTrader {
                     continue; // happens on startup
                 }
                 let coins = coinBalance[pair.to] || 0.0; // from is BTC
-                if (isBacktest === true) // otherwise we get the actual profit/loss value from the exchange
+                if (isBacktest === true || isSimulation === true) // otherwise we get the actual profit/loss value from the exchange
                     marginPos.computePl(this.marketRates.get(pair.toString()));
                 this.emitSyncExchangePortfolio(exchange.getClassName(), pair, coins, marginPos);
             }

@@ -66,12 +66,24 @@ export class MarginPosition {
         return position;
     }
 
+    public initTrades() {
+        let trades = [];
+        this.trades.forEach((trade) => {
+            trades.push(new MarginTrade(trade.amount, trade.rate));
+        });
+        this.trades = trades;
+    }
+
     public computePl(closePrice: number) {
         // TODO improve this. this is really basic and doesn't consider lending fees or even trading fees
         // it just looks if we have long or short and compares the price difference
         // also note that AbstractTrader currently doesn't allow to go short if we have an open long position for that currency pair (no mixed trading)
         // but this function should work nevertheless
         // TODO must be done FIFO for multiple trades in different directions
+        if (typeof closePrice !== "number" || closePrice < 0.0) {
+            logger.warn("Skipping p/l calculation because supplied market rate is invalid: %s", closePrice);
+            return;
+        }
 
         let totalBase = 0;
         let totalAmount = 0;
@@ -110,6 +122,20 @@ export class MarginPosition {
      */
     public addTrade(amount: number, rate: number) {
         this.trades.push(new MarginTrade(amount, rate))
+    }
+
+    /**
+     * Adds the total amount traded.
+     * @param amount The amount of coins. MUST be negative for sells.
+     */
+    public addAmount(amount: number) {
+        this.amount += amount;
+        if (this.amount > 0.0)
+            this.type = "long";
+        else if (this.amount < 0.0)
+            this.type = "short";
+        else
+            this.type = "none";
     }
 
     /**

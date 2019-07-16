@@ -125,7 +125,7 @@ export default class Backtester extends PortfolioTrader {
             const baseCurrency = this.config.markets[0].from;
             //if (exchange.isContractExchange())
             if (PortfolioTrader.baseCurrencyBalance < 1000.0) {
-                if (baseCurrency === Currency.Currency.USD || baseCurrency === Currency.Currency.EUR || baseCurrency === Currency.Currency.JPY || baseCurrency === Currency.Currency.GBP) {
+                if (Currency.isFiatCurrency(baseCurrency) === true) {
                     PortfolioTrader.baseCurrencyBalance *= 1000;
                     logger.info("Increased low start balance by factor 1000 to %s", PortfolioTrader.baseCurrencyBalance)
                 }

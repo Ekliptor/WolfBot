@@ -5,6 +5,7 @@ import {AbstractTrader} from "./AbstractTrader";
 import {PortfolioTrader, LastTradeMap} from "./PortfolioTrader";
 import {TradeConfig} from "../Trade/TradeConfig";
 import {OrderResult} from "../structs/OrderResult";
+import {TradePosition} from "../structs/TradePosition";
 import {AbstractExchange, CancelOrderResult, ExchangeMap, OrderParameters} from "../Exchanges/AbstractExchange";
 import {AbstractStrategy, TradeAction} from "../Strategies/AbstractStrategy";
 import {MarginPosition, MarginPositionList} from "../structs/MarginPosition";
@@ -154,6 +155,7 @@ export default class RealTimeTrader extends PortfolioTrader {
                             this.emitBuy(order, [], {strategy: strategy, reason: reason, exchange: exchange, pendingOrder: pendingOrder});
                             this.lastTrade.setLastTrade(exchange.getClassName(), coinPair.toString());
                             this.totalBuyTrades++;
+                            this.addSimulatedPosition(pendingOrder);
                             setTimeout(resolve, RealTimeTrader.REALTIME_SIMULATION_TRADE_DELAY_SEC*1000);
                         }))
                         continue;
@@ -223,6 +225,7 @@ export default class RealTimeTrader extends PortfolioTrader {
                             this.emitBuy(order, [], {strategy: strategy, reason: reason, exchange: exchange, pendingOrder: pendingOrder});
                             this.lastTrade.setLastTrade(exchange.getClassName(), coinPair.toString());
                             this.totalBuyTrades++;
+                            this.addSimulatedPosition(pendingOrder);
                             setTimeout(resolve, RealTimeTrader.REALTIME_SIMULATION_TRADE_DELAY_SEC*1000);
                         }))
                         continue;
@@ -306,6 +309,7 @@ export default class RealTimeTrader extends PortfolioTrader {
                             this.emitSell(order, [], {strategy: strategy, reason: reason, exchange: exchange, pendingOrder: pendingOrder});
                             this.lastTrade.setLastTrade(exchange.getClassName(), coinPair.toString());
                             this.totalSellTrades++;
+                            this.addSimulatedPosition(pendingOrder);
                             setTimeout(resolve, RealTimeTrader.REALTIME_SIMULATION_TRADE_DELAY_SEC*1000);
                         }))
                         continue;
@@ -379,6 +383,7 @@ export default class RealTimeTrader extends PortfolioTrader {
                             this.emitSell(order, [], {strategy: strategy, reason: reason, exchange: exchange, pendingOrder: pendingOrder});
                             this.lastTrade.setLastTrade(exchange.getClassName(), coinPair.toString());
                             this.totalSellTrades++;
+                            this.addSimulatedPosition(pendingOrder);
                             setTimeout(resolve, RealTimeTrader.REALTIME_SIMULATION_TRADE_DELAY_SEC*1000);
                         }))
                         continue;
@@ -432,7 +437,10 @@ export default class RealTimeTrader extends PortfolioTrader {
                         continue;
                     if (this.tradeMode === RealTimeTradeMode.SIMULATION) { // simulation should work even if we don't have coins on the exchange
                         orderOps.push(new Promise((resolve, reject) => {
-                            let balance: any = {} // TODO follow entry price to compute balance
+                            let balance = new MarginPosition(exchange.getMaxLeverage());
+                            let marginPositions = PortfolioTrader.marginPositions.get(pos[0]);
+                            if (marginPositions.has(coinPair.toString())) // we should now always have a balance in simulation mode
+                                balance = marginPositions.get(coinPair.toString());
                             logger.info("%s margin CLOSE simulation trade with %s from %s: %s", this.className, coinPair.toString(), strategy.getClassName(), reason);
                             logger.info("amount %s, rate %s, profit/loss %s", balance.amount, this.marketRates.get(coinPair.toString()), balance.pl);
                             let order = Order.Order.getOrder(coinPair, exchange.getExchangeLabel(), balance.amount, 0, Trade.TradeType.CLOSE, "", true)
@@ -441,6 +449,7 @@ export default class RealTimeTrader extends PortfolioTrader {
                             if (!nconf.get('serverConfig:canTradeImmediatelyAfterClose'))
                                 this.lastTrade.setLastTrade(exchange.getClassName(), coinPair.toString());
                             this.countMarginTrade(balance);
+                            this.addSimulatedPosition(pendingOrder);
                             setTimeout(resolve, RealTimeTrader.REALTIME_SIMULATION_TRADE_DELAY_SEC*1000);
                         }))
                         continue;
@@ -580,7 +589,9 @@ export default class RealTimeTrader extends PortfolioTrader {
             if (!this.exchanges || AbstractTrader.globalExchanges.size === 0)
                 return resolve(); // temporary instance
             if (PortfolioTrader.updatePortfolioTimerID === null)
-                return; // another instance is currently updating
+                return resolve(); // another instance is currently updating
+            if (nconf.get("tradeMode") === 1)
+                return resolve(); // in paper trading mode we keep track of our simulated balances locally
             clearTimeout(PortfolioTrader.updatePortfolioTimerID)
             PortfolioTrader.updatePortfolioTimerID = null;
             let scheduleNextUpdate = () => {

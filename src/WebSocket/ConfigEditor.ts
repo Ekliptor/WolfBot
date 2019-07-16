@@ -1429,8 +1429,31 @@ export class ConfigEditor extends AppPublisher {
                 logger.error("Config at pos %s contains no strategies", i);
                 return null;
             }
+
+            // validate coin pairs
+            if (!nconf.get("lending")) {
+                if (this.validateStrategyCurrencyPairs(configObj.data[i].strategies) === null)
+                    return null;
+            }
         }
         return configObj;
+    }
+
+    protected validateStrategyCurrencyPairs(strategyJson: any) {
+        for (let strategyName in strategyJson)
+        {
+            const json = strategyJson[strategyName];
+            if (!json.pair || typeof json.pair !== "string") {
+                logger.error("Invalid currency pair %s in config", json.pair);
+                return null;
+            }
+            let pairParsed = Currency.CurrencyPair.fromString(json.pair, logger.error);
+            if (pairParsed === null) {
+                logger.error("Unrecognized currency pair %s in config", json.pair);
+                return null;
+            }
+        }
+        return strategyJson;
     }
 
     protected setMaxLeverage(config: TradeConfig, maxLeverage: number) {

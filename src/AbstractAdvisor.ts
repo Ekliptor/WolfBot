@@ -206,6 +206,10 @@ export abstract class AbstractAdvisor extends AbstractSubController {
         return path.join(utils.appDir, "temp", "state-" + this.getConfigName() + "-bak.json")
     }
 
+    public getSavePortfolioFile() {
+        return path.join(utils.appDir, "temp", "portfolio-" + this.getConfigName() + ".json")
+    }
+
     public getBacktestWarmupState() {
         return this.backtestWarmupState;
     }
