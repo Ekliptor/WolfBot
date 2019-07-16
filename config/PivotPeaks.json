@@ -5,7 +5,7 @@
                 "Binance"
             ],
             "marginTrading": false,
-            "tradeTotalBtc": 200.0,
+            "tradeTotalBtc": 200,
             "warmUpMin": 0,
             "strategies": {
                 "PivotPeaks": {

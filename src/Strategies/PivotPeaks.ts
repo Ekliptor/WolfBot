@@ -4,7 +4,7 @@ const logger = utils.logger
 import {AbstractStrategy, StrategyAction} from "./AbstractStrategy";
 import {TechnicalStrategy, TechnicalStrategyAction} from "./TechnicalStrategy";
 import {Currency, Trade, Candle} from "@ekliptor/bit-models";
-import {PivotLineNr} from "../Indicators/PivotPoints";
+import {AbstractTurnStrategy} from "./AbstractTurnStrategy";
 
 
 interface PivotPeaksAction extends TechnicalStrategyAction {
@@ -21,7 +21,7 @@ interface PivotPeaksAction extends TechnicalStrategyAction {
  * This strategy will open position and trade against an open position (possible reverse the direction), but never close a position completely.
  * You can combine it with a stop-loss and/or take profit strategy.
  */
-export default class PivotPeaks extends TechnicalStrategy {
+export default class PivotPeaks extends /*TechnicalStrategy*/AbstractTurnStrategy {
     public action: PivotPeaksAction;
     protected prevHighRate: number = 0.0;
     protected prevLowRate: number = 0.0;
@@ -82,13 +82,14 @@ export default class PivotPeaks extends TechnicalStrategy {
         const highRate = highCond === true ? highs[0].close : this.prevHighRate;
         const goLong = highCond === true && highRate <= this.candle.close ? true : (this.prevLong === true && this.candle.high > highRate ? false : this.prevLong);
         if (goLong)
-            this.emitBuy(this.defaultWeight, "Going LONG on pivot high");
+            //this.emitBuy(this.defaultWeight, "Going LONG on pivot high");
+            this.openLong("Going LONG on pivot high");
 
         const lowCond = lows.length !== 0;
         const lowRate = lowCond === true ? lows[0].close : this.prevLowRate;
         const goShort = lowCond === true && lowRate >= this.candle.close ? true : (this.prevShort === true && this.candle.low  < lowRate ? false : this.prevShort);
         if (goShort)
-            this.emitSell(this.defaultWeight, "Going SHORT on pivot low");
+            this.openShort("Going SHORT on pivot low");
 
         this.prevShort = goShort;
         this.prevLong = goLong;

@@ -62,6 +62,7 @@ export default class StopLossTurn extends AbstractStopStrategy {
     protected lastLoggedStop = 0;
     //protected priceTime: Date = new Date(Date.now() +  365*utils.constants.DAY_IN_SECONDS * 1000); // time of the last high/low
     protected lastRSI: number = -1; // identical ro RSI because it's updated on every candle tick
+    protected warnedStopExecuted = false; // warn once per start, don't save it in state
 
     constructor(options) {
         super(options)
@@ -176,6 +177,13 @@ export default class StopLossTurn extends AbstractStopStrategy {
 
     protected candleTick(candle: Candle.Candle): Promise<void> {
         return new Promise<void>((resolve, reject) => {
+            if (this.done) {
+                if (this.warnedStopExecuted === false && this.stateMessage !== "none") {
+                    this.warnedStopExecuted = true;
+                    this.sendNotification("Stop already executed", "Strategy stop won't fire again", false, true);
+                }
+            }
+
             // update the prices based on candles to generate a lag.
             // so if the price moves fast in 1 direction we allow temporary higher setbacks
             let log = false;
