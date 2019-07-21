@@ -70,7 +70,8 @@ export class StatusUpdater extends AppPublisher {
             let update: StatusUpdate = {
                 name: this.getBotDirName(),
                 config: this.advisor.getConfigName(),
-                trader: this.advisor.getTraderName(true),
+                //trader: this.advisor.getTraderName(true),
+                trader: this.getSelectedTraderForDisplay(),
                 premium: nconf.get("serverConfig:premium"),
                 serverTime: utils.getUnixTimeStr(true, new Date()),
                 started: this.advisor.getStarted(),

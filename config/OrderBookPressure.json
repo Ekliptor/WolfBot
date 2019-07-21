@@ -12,6 +12,12 @@
                     "ticks": 1,
                     "percentChange": 0.35,
                     "minDiffPercent": 75,
+                    "increaseProfitPosition": 0,
+                    "orderRate": "book",
+                    "confirmLineCross": true,
+                    "CrossMAType": "EMA",
+                    "short": 2,
+                    "long": 7,
                     "pair": "USD_BTC",
                     "candleSize": 1,
                     "enableLog": true

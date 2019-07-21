@@ -368,6 +368,9 @@ export default class OKEX extends AbstractContractExchange {
             if (error.error_code >= 20001) // permanent errors
                 return false;
         }
+        const errorLower = error && typeof error.toString === "function" ? error.toString().toLowerCase() : "";
+        if (errorLower.indexOf("request failed") !== -1)
+            return false;
         return super.repeatFailedTrade(error, currencyPair);
     }
 

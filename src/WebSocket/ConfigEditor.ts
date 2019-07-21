@@ -1051,20 +1051,6 @@ export class ConfigEditor extends AppPublisher {
         }
     }
 
-    protected getSelectedTrader() {
-        let trader = this.advisor.getTraderName();
-        if (trader === "RealTimeLendingTrader" || nconf.get("lending")) // lending only supports real time for now // TODO
-            return "realTime";
-        else if (trader === "RealTimeTrader")
-            return nconf.get("tradeMode") === 1 ? "realTimePaper": "realTime"
-        else if (trader === "TradeNotifier")
-            return "notifier"
-        else if (trader === "Backtester")
-            return trader;
-        logger.error("Unknown trader %s selected", trader)
-        return trader;
-    }
-
     protected getRestartArgs(args: string[]) {
         let newArgs = []
         let foundTrader = false;

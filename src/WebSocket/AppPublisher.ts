@@ -33,6 +33,27 @@ export abstract class AppPublisher extends ServerSocketPublisher {
         })
     }
 
+    protected getSelectedTrader() {
+        let trader = this.advisor.getTraderName();
+        if (trader === "RealTimeLendingTrader" || nconf.get("lending")) // lending only supports real time for now // TODO
+            return "realTime";
+        else if (trader === "RealTimeTrader")
+            return nconf.get("tradeMode") === 1 ? "realTimePaper": "realTime"
+        else if (trader === "TradeNotifier")
+            return "notifier"
+        else if (trader === "Backtester")
+            return trader;
+        logger.error("Unknown trader %s selected", trader)
+        return trader;
+    }
+    
+    protected getSelectedTraderForDisplay() {
+        let trader = this.getSelectedTrader();
+        if (!trader)
+            return "-";
+        return trader[0].toLocaleUpperCase() + trader.substr(1);
+    }
+
     protected sendErrorMessage(clientSocket: ClientSocketOnServer, errorCode: string) {
         this.send(clientSocket, {
             error: true,

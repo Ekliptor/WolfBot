@@ -19,6 +19,7 @@ interface OrderBookPressureAction extends TechnicalStrategyAction {
     // The percentage to increase an existing position (from another strategy) if that position has a profit
     // if enabled this strategy will work as a 2nd strategy only (not open a new position).
     increaseProfitPosition: number; // optional, default 0% = disabled
+    orderRate: "market" | "last" | "book"; // optional, default market - The type of order that shall be used to enter the market. Values: market|last|book
 
     // EMA cross params (optional)
     confirmLineCross: boolean; // default true. Use EMA to confirm direction of the order book pressure trend before opening a position.
@@ -46,6 +47,8 @@ export default class OrderBookPressure extends TechnicalStrategy {
 
         if (!this.action.increaseProfitPosition)
             this.action.increaseProfitPosition = 0;
+        if (typeof this.action.orderRate !== "string")
+            this.action.orderRate = "market";
         if (typeof this.action.confirmLineCross !== "boolean")
             this.action.confirmLineCross = true;
         if (!this.action.CrossMAType)
@@ -86,6 +89,9 @@ export default class OrderBookPressure extends TechnicalStrategy {
             return Math.floor(this.getRaiseLowerRatio() * 100) / 100;
         });
         */
+        this.addInfoFunction("bookBullish", () => {
+            return this.getRaiseLowerDiffPercent() > 0.0;
+        });
         this.addInfoFunction("raiseLowerDiffPercent", () => {
             return Math.floor(this.getRaiseLowerDiffPercent() * 100) / 100;
         });
@@ -109,7 +115,17 @@ export default class OrderBookPressure extends TechnicalStrategy {
     }
 
     public getRate(action: BuySellAction): number {
-        return -2; // use a market order (limit orders don't get filled during volatile moments)
+        switch (this.action.orderRate)
+        {
+            case "last":
+                return this.orderBook.getLast();
+            case "book":
+                if (action === "buy")
+                    return this.orderBook.getBid();
+                return this.orderBook.getAsk();
+            default: // market
+                return -2; // use a market order (limit orders don't get filled during volatile moments)
+        }
     }
 
     public getOrderAmount(tradeTotalBtc: number, leverage: number = 1): number {
@@ -204,7 +220,7 @@ export default class OrderBookPressure extends TechnicalStrategy {
      * a value > 0 if there is more money on buy orders
      */
     protected getRaiseLowerDiffPercent() {
-        // positive % if raise amount bigger -> more sell orders
+        // positive % if raise amount bigger -> more sell orders (red)
         // -1 to reverse it, positive = up trend, negative = down trend
         return -1 * helper.getDiffPercent(this.orderBook.getRaiseAmount(this.action.percentChange), this.orderBook.getLowerAmount(this.action.percentChange));
     }

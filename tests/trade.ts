@@ -10,7 +10,7 @@ import Bittrex from "../src/Exchanges/Bittrex";
 import Binance from "../src/Exchanges/Binance";
 import BitMEX from "../src/Exchanges/BitMEX";
 import Deribit from "../src/Exchanges/Deribit";
-import {Currency} from "@ekliptor/bit-models";
+import {Currency, TradeHistory, Trade} from "@ekliptor/bit-models";
 import {AbstractMarketData} from "../src/Exchanges/feeds/AbstractMarketData";
 import BxCo from "../src/Exchanges/BxCo";
 import CoinbasePro from "../src/Exchanges/CoinbasePro";
@@ -27,6 +27,7 @@ import Bibox from "../src/Exchanges/Bibox";
 import Liquid from "../src/Exchanges/Liquid";
 import YoBit from "../src/Exchanges/YoBit";
 import Peatio from "../src/Exchanges/Peatio";
+import * as db from "../src/database";
 
 const logger = utils.logger
     , nconf = utils.nconf;
@@ -400,6 +401,18 @@ let testBitmexLiquidations = async () => {
     bitmex.subscribe([btc, eth]);
 }
 
+let updateHistory = async () => {
+    const start = utils.date.dateFromUtc(2019, 4, 1);
+    const end = utils.date.dateFromUtc(2019, 6, 16);
+    const pair = new Currency.CurrencyPair(Currency.Currency.USD, Currency.Currency.LTC);
+    let history = new TradeHistory.TradeHistory(pair, Currency.Exchange.BITFINEX, start, end);
+    TradeHistory.addToHistory(db.get(), history, (err) => {
+        if (err)
+            return logger.error("Error importing history", err);
+        logger.verbose("Added to imported history");
+    });
+}
+
 Controller.loadServerConfig(() => {
     utils.file.touch(AbstractExchange.cookieFileName).then(() => {
         //buy()
@@ -413,7 +426,8 @@ Controller.loadServerConfig(() => {
         //testBitmexLiquidations();
         //testDeribit();
         //testBx();
-        testCcxt();
+        //testCcxt();
         //testPaetio();
+        updateHistory();
     })
 })
