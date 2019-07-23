@@ -10,6 +10,7 @@
           "order": "closeLong",
           "setback": 5.0,
           "setbackLong": 5.5,
+          "updateTrailingStop": true,
           "time": 300,
           "setbackProfit": 2.7,
           "triggerProfit": 4.3,

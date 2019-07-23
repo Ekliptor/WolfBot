@@ -184,7 +184,7 @@ export default class OrderBookPressure extends TechnicalStrategy {
         if (this.lastTrend === "down") {
             if (diffPercent >= this.action.minDiffPercent) {
                 if (!this.action.confirmLineCross || emaDiff < 0)
-                    this.emitSell(this.defaultWeight, utils.sprintf("trend %s, percent %s", trend, avgDiffPercent));
+                    this.emitSell(this.defaultWeight, utils.sprintf("trend %s, percent %s", trend, avgDiffPercent.toFixed(2)));
                 else
                     this.log(utils.sprintf("Skipped opening a SHORT position because %s doesn't confirm it with value %s", this.action.CrossMAType, emaDiff));
             }
@@ -194,7 +194,7 @@ export default class OrderBookPressure extends TechnicalStrategy {
         else if (this.lastTrend === "up") {
             if (diffPercent >= this.action.minDiffPercent) {
                 if (!this.action.confirmLineCross || emaDiff > 0)
-                    this.emitBuy(this.defaultWeight, utils.sprintf("trend %s, percent %s", trend, avgDiffPercent));
+                    this.emitBuy(this.defaultWeight, utils.sprintf("trend %s, percent %s", trend, avgDiffPercent.toFixed(2)));
                 else
                     this.log(utils.sprintf("Skipped opening a LONG position because %s doesn't confirm it with value %s", this.action.CrossMAType, emaDiff));
             }

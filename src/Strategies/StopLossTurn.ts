@@ -15,6 +15,7 @@ interface StopLossTurnAction extends AbstractStopStrategyAction {
     // TODO dynamic stop depending on % difference of x candle high/low. or optimize it with our empirical test suite?
     setbackLong: number; // 2.5% // optional a higher setback for long positions. default = 0 = setback for both. setbackProfit takes precedence
     // TODO add setback bonus + depending on current volume (or set stop to min 24h high/low by collecting candle closes)
+    updateTrailingStop: boolean; // optional, default true - True means the setback and setbackLong values are used as trailing stop. False means they are only set once when opening a position.
 
     // TODO add an option to immediately open a position in the other direction?
     // TODO spike not sell %: option not to trigger the stop if the price spiked x% from lowest/highest price
@@ -72,6 +73,8 @@ export default class StopLossTurn extends AbstractStopStrategy {
             this.action.stopLong = 0.0;
         if (!this.action.setbackLong)
             this.action.setbackLong = 0.0;
+        if (typeof this.action.updateTrailingStop !== "boolean")
+            this.action.updateTrailingStop = true;
         if (!this.action.time)
             this.stopCountStart = new Date(0); // sell immediately
         if (["always", "profit", "loss"].indexOf(this.action.closePosition) === -1)
@@ -138,14 +141,18 @@ export default class StopLossTurn extends AbstractStopStrategy {
                 this.logStopValues(false); // too spammy
             }
             let log = false;
-            if (!this.action.candleSize || this.highestPrice === 0) { // first init exception
-                if (this.avgMarketPrice > this.highestPrice) {
-                    this.highestPrice = this.avgMarketPrice;
-                    log = true;
+            if (this.strategyPosition !== "none" && !this.action.candleSize || this.highestPrice === 0) { // first init exception
+                if (this.highestPrice === 0.0 || this.action.updateTrailingStop === true) {
+                    if (this.avgMarketPrice > this.highestPrice) {
+                        this.highestPrice = this.avgMarketPrice;
+                        log = true;
+                    }
                 }
-                if (this.avgMarketPrice < this.lowestPrice) { // on first call both conditions are true
-                    this.lowestPrice = this.avgMarketPrice;
-                    log = true;
+                if (this.lowestPrice === Number.MAX_VALUE || this.action.updateTrailingStop === true) {
+                    if (this.avgMarketPrice < this.lowestPrice) { // on first call both conditions are true
+                        this.lowestPrice = this.avgMarketPrice;
+                        log = true;
+                    }
                 }
                 if (!this.profitTriggerReached) {
                     if (this.strategyPosition === "long" && this.avgMarketPrice >= this.getTriggerPriceLong()) {
@@ -187,20 +194,22 @@ export default class StopLossTurn extends AbstractStopStrategy {
             // update the prices based on candles to generate a lag.
             // so if the price moves fast in 1 direction we allow temporary higher setbacks
             let log = false;
-            // use inverse high/low to keep the threshold as far away as possible in case of spikes
-            // TODO on very volatile markets it might be better to use candle.close? otherwise the stop can move away too far
-            // see LTC up after drop on OKEX on 2017-09-03
-            //if (candle.low > this.highestPrice) {
-                //this.highestPrice = candle.low; // using inverse values can be dangerous as it alows the stop to be moved incrementally
-            if (candle.high > this.highestPrice) {
-                this.highestPrice = candle.high;
-                log = true;
-            }
-            //if (candle.high < this.lowestPrice) { // on first call both conditions are true
-                //this.lowestPrice = candle.high;
-            if (candle.low < this.lowestPrice) {
-                this.lowestPrice = candle.low;
-                log = true;
+            if (this.strategyPosition !== "none") {
+                // use inverse high/low to keep the threshold as far away as possible in case of spikes
+                // TODO on very volatile markets it might be better to use candle.close? otherwise the stop can move away too far
+                // see LTC up after drop on OKEX on 2017-09-03
+                //if (candle.low > this.highestPrice) {
+                    //this.highestPrice = candle.low; // using inverse values can be dangerous as it alows the stop to be moved incrementally
+                if (candle.high > this.highestPrice && (this.highestPrice === 0.0 || this.action.updateTrailingStop === true)) {
+                    this.highestPrice = candle.high;
+                    log = true;
+                }
+                //if (candle.high < this.lowestPrice) { // on first call both conditions are true
+                    //this.lowestPrice = candle.high;
+                if (candle.low < this.lowestPrice && (this.lowestPrice === Number.MAX_VALUE || this.action.updateTrailingStop === true)) {
+                    this.lowestPrice = candle.low;
+                    log = true;
+                }
             }
             if (!this.profitTriggerReached) {
                 if (this.strategyPosition === "long" && candle.close >= this.getTriggerPriceLong()) {

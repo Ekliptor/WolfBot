@@ -1053,6 +1053,7 @@
       "stopLong": "optional, default 0 (use 'setback' setting or 'setbackLong' setting). Place a different fixed stop rate for long positions.",
       "setback": "The trailing stop percentage the price has to move against an open position for the stop to be triggered.",
       "setbackLong": "optional, default 0 (use 'setback') - The trailing stop percentage the price has to move against an open long position for the stop to be triggered. Use this to define a different (usually higher) stop for long positions.",
+      "updateTrailingStop": "optional, default true - True means the setback and setbackLong values are used as trailing stop. False means they are only set once when opening a position.",
       "time": "optional, default 0 - After the stop price is reached start a countdown of x seconds before closing the position. The countdown gets reset if the price moves above the stop price before the counter reaches 0 seconds.",
       "closePosition": "optional, default 'always' - Only close a position if its profit/loss is in that defined state. Values: always|profit|loss",
       "increaseTimeByVolatility": "optional, default false - Increase the stop time during volatile markets (by a factor between 1 and 2 computed from Bollinger Bandwidth). Takes precedence over reduceTimeByVolatility.",
