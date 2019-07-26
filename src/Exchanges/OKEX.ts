@@ -118,7 +118,8 @@ export class OKEXCurrencies implements Currency.ExchangeCurrencies {
             // use combined value of all margin positions (for this currency pair)
             if (accountBalance) {
                 let profitLoss = accountBalance.unrealized_pnl === undefined ? accountBalance.info.unrealized_pnl : accountBalance.unrealized_pnl; // swap has the info object
-                summary.pl = helper.parseFloatVal(profitLoss.replaceAll(",", ""));
+                if (profitLoss)
+                    summary.pl = helper.parseFloatVal(profitLoss.replaceAll(",", ""));
             }
             const liquidationPrice = helper.parseFloatVal(margin.holding[0].liquidation_price.replaceAll(",", ""));
             let currentMargin = this.computeOkexPseudoMargin(liquidationPrice, margin.pair);
@@ -177,7 +178,8 @@ export class OKEXCurrencies implements Currency.ExchangeCurrencies {
         if (balances && balances.has(quoteCurrencyStr) === true) {
             const balance = balances.get(quoteCurrencyStr);
             let profitLoss = balance.unrealized_pnl === undefined ? balance.info.unrealized_pnl : balance.unrealized_pnl; // swap has the info object
-            position.pl = helper.parseFloatVal(profitLoss.replaceAll(",", ""));
+            if (profitLoss)
+                position.pl = helper.parseFloatVal(profitLoss.replaceAll(",", ""));
             let rate = this.exchange.getLastRate(currencyPair);
             if (rate > 0.0)
                 position.pl *= rate;
