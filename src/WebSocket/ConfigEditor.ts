@@ -1301,7 +1301,7 @@ export class ConfigEditor extends AppPublisher {
         for (let exchangeName in keys)
         {
             let exchangeKeys = keys[exchangeName];
-            let hasPassphrase = false; // TODO add code to add passpharse if an exchange adds it later
+            let hasPassphrase = Currency.PassphraseExchanges.has(exchangeName);
             if (Array.isArray(exchangeKeys) === false || exchangeKeys.length === 0) {
                 logger.warn("Invalid exchange API config for %s", exchangeName, exchangeKeys);
                 userKeys[exchangeName] = { // we must return empty strings so that form inputs show up
@@ -1315,7 +1315,8 @@ export class ConfigEditor extends AppPublisher {
                 };
                 continue;
             }
-            hasPassphrase = exchangeKeys[0].passphrase && exchangeKeys[0].passphrase != "";
+            if (Currency.PassphraseExchanges.has(exchangeName) === false) // only use user input as fallback
+                hasPassphrase = exchangeKeys[0].passphrase && exchangeKeys[0].passphrase != "";
             userKeys[exchangeName] = {
                 key: exchangeKeys[0].key,
                 //secret: exchangeKeys[0].secret, // don't display secrets on the client
