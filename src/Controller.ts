@@ -318,6 +318,26 @@ export class Controller extends AbstractController { // TODO implement graceful 
         })*/
     }
 
+    public handleDatabaseConnectionError(err) {
+        if (!err || typeof err !== "object")
+            return false;
+        let message = ((err.message || "") + " " + (err.name || "")).toLocaleLowerCase(); // err.stack is too long
+        if (message && message.indexOf('mongoerror') !== -1 && (
+            message.indexOf('timed out') !== -1 || message.indexOf('slaveok=false') !== -1 || message.indexOf('topology was destroyed') !== -1 ||
+            message.indexOf('econnreset') !== -1)) {
+            // MongoError: connection 5 to localhost:27017 timed out
+            this.log('Database connection error', err, err.stack)
+            // we lost our database connection. our app might be in an undefined state.
+            // the safest thing we can do is wait a few sec and restart it
+            setTimeout(() => {
+                this.restart()
+                logger.error("Lost database connection")
+            }, 5000)
+            return true;
+        }
+        return false;
+    }
+
     disconnect(cb) {
         db.close((err) => {
             if (err)
@@ -385,26 +405,6 @@ export class Controller extends AbstractController { // TODO implement graceful 
         if (typeof localConf.orverrides === "function")
             localConf.orverrides();
         // should we call loginController immediately with a force = true parameter?
-    }
-
-    protected handleDatabaseConnectionError(err) {
-        if (!err || typeof err !== "object")
-            return false;
-        let message = (err.message || "") + " " + (err.name || ""); // err.stack is too long
-        if (message && message.indexOf('MongoError') !== -1 && (
-            message.indexOf('timed out') !== -1 || message.indexOf('slaveOk=false') !== -1 || message.indexOf('Topology was destroyed') !== -1 ||
-            message.indexOf('ECONNRESET') !== -1)) {
-            // MongoError: connection 5 to localhost:27017 timed out
-            this.log('Database connection error', err, err.stack)
-            // we lost our database connection. our app might be in an undefined state.
-            // the safest thing we can do is wait a few sec and restart it
-            setTimeout(() => {
-                this.restart()
-                logger.error("Lost database connection")
-            }, 5000)
-            return true;
-        }
-        return false;
     }
 
     protected setLastActive() {

@@ -65,7 +65,7 @@ export default class ExchangeController extends AbstractSubController {
                     return Promise.reject();
                 }
                 */
-                return Process.getActiveCount(db.get())
+                return Process.getActiveCount(db.get(), null, true);
             }).then((activeProcessCount) => {
                 this.loadExchanges(activeProcessCount)
                 return this.getTickers()
@@ -85,6 +85,8 @@ export default class ExchangeController extends AbstractSubController {
                 resolve()
             }).catch((err) => {
                 logger.error("Error in ExchangeController", err)
+                const Controller = require('./Controller').controller // has to be loaded after this file is included
+                Controller.handleDatabaseConnectionError(err); // will restart if true
                 resolve() // continue
             })
         })
@@ -359,7 +361,7 @@ export default class ExchangeController extends AbstractSubController {
         this.connectedExchanges = utils.uniqueArrayValues(connectedExchanges); // shouldn't change anything
         this.configReady = true;
     }
-    
+
     protected async copyFallbackConfigFile(dest: string): Promise<void> {
         let filePath = path.join(TradeConfig.getConfigDirForMode("trading"), nconf.get("serverConfig:fallbackTradingConfig") + ".json");
         try {
