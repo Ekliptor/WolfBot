@@ -168,16 +168,17 @@ export class TradeConfig extends AbstractConfig {
         }
     }
 
-    public static getConfigDir() {
+    public static getConfigDir(backupDir = false) {
+        const root = backupDir === true ? "config-bak" : "config";
         if (nconf.get("ai"))
-            return path.join(utils.appDir, "config", "machine-learning")
+            return path.join(utils.appDir, root, "machine-learning")
         else if (nconf.get("lending"))
-            return path.join(utils.appDir, "config", "lending")
+            return path.join(utils.appDir, root, "lending")
         else if (nconf.get("arbitrage"))
-            return path.join(utils.appDir, "config", "arbitrage")
+            return path.join(utils.appDir, root, "arbitrage")
         else if (nconf.get("social"))
-            return path.join(utils.appDir, "config", "social")
-        return path.join(utils.appDir, "config") // trading
+            return path.join(utils.appDir, root, "social")
+        return path.join(utils.appDir, root) // trading
     }
 
     public static getConfigDirForMode(mode: BotConfigMode, backupDir = false) {
@@ -215,6 +216,17 @@ export class TradeConfig extends AbstractConfig {
         else if (nconf.get("social"))
             return "social";
         return "trading";
+    }
+
+    public static isUserConfig(configName: string): boolean {
+        if (!configName)
+            return false;
+        if (configName[0] !== path.sep)
+            configName = path.sep + configName;
+        if (configName.substr(-5) !== ".json")
+            configName += ".json";
+        let existingConfigs = nconf.get("serverConfig:userConfigs") || [];
+        return existingConfigs.indexOf(configName) !== -1;
     }
 
     // ################################################################

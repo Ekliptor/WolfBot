@@ -880,8 +880,10 @@ export abstract class PortfolioTrader extends AbstractTrader {
         }
 
         if (this.config.flipPosition === true && strategy.getStrategyPosition() !== "none") {
-            if ((trade === "sell" && strategy.getStrategyPosition() === "long") || (trade === "buy" && strategy.getStrategyPosition() === "short"))
+            if ((trade === "sell" && strategy.getStrategyPosition() === "long") || (trade === "buy" && strategy.getStrategyPosition() === "short")) {
                 coinAmount *= 2.0;
+                logger.info("%s: Trading twice the amount because flipPosition is enabled in config on %s trade", this.className, trade.toUpperCase());
+            }
         }
 
         // if it's TakeProfit we have to ensure to not sell/close more coins than we hold

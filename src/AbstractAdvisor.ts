@@ -226,6 +226,8 @@ export abstract class AbstractAdvisor extends AbstractSubController {
         return new Promise<void>((resolve, reject) => {
             // simple way: backup every config file once (don't overwrite). this includes user config files
             for (let i = 0; i < overwriteFiles.length; i++) {
+                if (overwriteFiles[i][0] === path.sep)
+                    overwriteFiles[i] = overwriteFiles[i].substr(1);
                 if (overwriteFiles[i].substr(-5) !== ".json")
                     overwriteFiles[i] += ".json";
             }
@@ -243,7 +245,10 @@ export abstract class AbstractAdvisor extends AbstractSubController {
                 files.forEach((file) => {
                     let fullSrcPath = path.join(configDir, file);
                     let fullDestPath = path.join(backupDir, file);
-                    const overwrite = overwriteFiles.indexOf(file) !== -1;
+                    let fileShort = file;
+                    if (file[0] === path.sep)
+                        fileShort = file.substr(1);
+                    const overwrite = overwriteFiles.indexOf(fileShort) !== -1;
                     fileOps.push(utils.file.copyFile(fullSrcPath, fullDestPath, overwrite)); // adds new config files without overwriting existing ones
                 });
                 try {

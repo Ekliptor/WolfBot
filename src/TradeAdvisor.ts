@@ -576,6 +576,9 @@ export default class TradeAdvisor extends AbstractAdvisor {
                     if (nconf.get('trader') !== "Backtester") {
                         // order books are only available via APIs of exchanges for real time trading (no history data)
                         // and we have to wait with connecting it until it is loaded
+                        const checkIntrevalMs = 8000;
+                        const notifyMissingAfterChecks = 5;
+                        const startCheck = Date.now();
                         let timer = setInterval(() => {
                             let allReady = true;
                             let first = true;
@@ -588,7 +591,7 @@ export default class TradeAdvisor extends AbstractAdvisor {
                                         if (first === true) // use the 1st one when doing arbitrage (the bigger exchange) // TODO support multiple in arbitrage strategies
                                             strategyInstance.setOrderBook(orderBook);
                                     }
-                                    else
+                                    else if (startCheck + checkIntrevalMs*notifyMissingAfterChecks > Date.now())
                                         logger.warn("%s Order book of %s not ready", pairStr, exchange)
                                 }
 
@@ -598,7 +601,7 @@ export default class TradeAdvisor extends AbstractAdvisor {
                                         if (first === true) // use the 1st one when doing arbitrage (the bigger exchange)
                                             strategyInstance.setTicker(ticker.get(pairStr))
                                     }
-                                    else
+                                    else if (startCheck + checkIntrevalMs*notifyMissingAfterChecks > Date.now())
                                         logger.warn("%s Ticker of %s not ready", pairStr, exchange)
                                 }
 
@@ -610,7 +613,7 @@ export default class TradeAdvisor extends AbstractAdvisor {
                                 //logger.info("All tickers and orderbooks are ready"); // logged once per strategy
                                 clearInterval(timer);
                             }
-                        }, 8000)
+                        }, checkIntrevalMs);
                     }
                 }
 

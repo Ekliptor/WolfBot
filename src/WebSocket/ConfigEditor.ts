@@ -283,6 +283,9 @@ export class ConfigEditor extends AppPublisher {
         }
         else if (typeof data.deleteConfig === "string") {
             this.removeConfigFile(data.deleteConfig).then(() => {
+                if (TradeConfig.isUserConfig(data.deleteConfig) === true) // if it's a default config we will restor it with original values on restart
+                    return this.removeConfigFile(data.deleteConfig, true);
+            }).then(() => {
                 this.send(clientSocket, {saved: true})
             }).catch((err) => {
                 logger.error("Error deleting config file", err)
@@ -699,9 +702,9 @@ export class ConfigEditor extends AppPublisher {
         })
     }
 
-    protected removeConfigFile(name: string) {
+    protected removeConfigFile(name: string, removeBackupOnly = false) {
         return new Promise<void>((resolve, reject) => {
-            const configFile = path.join(ConfigEditor.getConfigDir(), name)
+            const configFile = path.join(TradeConfig.getConfigDir(removeBackupOnly === true), name);
             if (!utils.file.isSafePath(configFile))
                 return reject({txt: "Can not access path outside of app dir"})
             fs.unlink(configFile, (err) => {
@@ -720,7 +723,7 @@ export class ConfigEditor extends AppPublisher {
                 if (err)
                     return reject({txt: "Error copying config file", err: err});
                 let existingConfigs = nconf.get("serverConfig:userConfigs") || [];
-                if (existingConfigs.indexOf(nameNew) !== -1) {
+                if (existingConfigs.indexOf(nameNew) === -1) {
                     existingConfigs.push(nameNew);
                     nconf.set("serverConfig:userConfigs", existingConfigs);
                     serverConfig.saveConfigLocal();

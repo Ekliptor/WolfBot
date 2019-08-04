@@ -548,6 +548,7 @@ export default class Binance extends AbstractExchange implements ExternalTickerE
                     logger.warn("Received %s WebSocket orderbook data for unknown pair %s", this.className, depth.symbol);
                     return;
                 }
+                this.resetWebsocketTimeout(); // reset it also on orderbook updates as on Binance many users trade minor coins with very few trades
 
                 let orderModifications = [];
                 ["bidDepth", "askDepth"].forEach((prop) => {
