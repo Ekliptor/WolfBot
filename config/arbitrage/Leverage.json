@@ -12,6 +12,7 @@
           "spreadEntry": 0.8,
           "spreadTarget": 0.5,
           "trailingSpreadStop": 0.08,
+          "statelessArbitrage": false,
           "tradingFees": {
             "Bitfinex": {
               "maker": 0.1,

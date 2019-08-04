@@ -1416,7 +1416,8 @@
       "desc": "Arbitrage strategy that computes the average price across exchanges. If the price is x% higher/lower than avg on exchanges:<br>1. buy at the cheaper exchange and (short) sell at the expensive exchange<br>2. close positions after price difference moves x% closer",
       "spreadEntry": "How many % the market spread between the 2 exchanges has to be to open positions on both of them.",
       "spreadTarget": "Targeted profit in %. This takes trading fees into account. See the 'tradingFees' setting.<br>Positions will be closed according to this equation: spreadExit = spreadEntry - 4*fees - spreadTarget -> will usually negative, meaning prices flipped",
-      "trailingSpreadStop": "After reaching spreadTarget, place a trailing stop to exit the market. Set this to 0 to exit immediately,"
+      "trailingSpreadStop": "After reaching spreadTarget, place a trailing stop to exit the market. Set this to 0 to exit immediately.",
+      "statelessArbitrage": "optional, default false. Use only 1 trade per exchange (buy on the lower, sell on the higher) and don't keep an open margin position until the spread decreases.<br>Enabling this setting means configuration such as 'trailingSpreadStop' will be ignored since there are no trades to close the open arbitrage position."
     },
     "Leg": {
       "desc": "Arbitrage strategy using limit orders with 1 leg \"standing\" on the current price rate of the higher-volume exchange. Thereby offering liquidity to the lower-volume exchange by copying the orderbook.<br>Also see MarketMakerOffset strategy for a similar way of market making while only being connected to 1 exchange.",

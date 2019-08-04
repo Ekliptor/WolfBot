@@ -127,6 +127,8 @@ export class Mailbox {
                     else
                         logger.warn("Can not read unknown mail part of type %s", mailPart.which);
                 });
+                if (mail.message === undefined) // TODO reconnect and retry fetching by messageUUID ?
+                    logger.warn("Received empty message body in mail: %s", mail.subject, result);
                 mails.push(mail);
             });
             /* // might be unsafe

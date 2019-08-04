@@ -13,7 +13,9 @@ interface SpreadAction extends ArbitrageStrategyAction {
     spreadEntry: number; // 0.8% // How many % the market spread between the 2 exchanges has to be to open positions on both of them.
     spreadTarget: number; // 0.5% // Targeted profit in %. This takes trading fees into account. See the 'tradingFees' setting.
     // Positions will be closed according to this equation: spreadExit = spreadEntry - 4*fees - spreadTarget -> will usually negative, meaning prices flipped
-    trailingSpreadStop: number; // 0.08% // After reaching spreadTarget, place a trailing stop to exit the market. Set this to 0 to exit immediately,
+    trailingSpreadStop: number; // 0.08% // After reaching spreadTarget, place a trailing stop to exit the market. Set this to 0 to exit immediately.
+    statelessArbitrage: boolean; // optional, default false. Use only 1 trade per exchange (buy on the lower, sell on the higher) and don't keep an open margin position until the spread decreases.
+    // Enabling this setting means configuration such as 'trailingSpreadStop' will be ignored since there are no trades to close the open arbitrage position.
 }
 
 /**

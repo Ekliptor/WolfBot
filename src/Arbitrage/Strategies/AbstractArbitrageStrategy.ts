@@ -28,6 +28,8 @@ export interface TradingFeeMap { // simpler config changes without overriding co
 }
 
 export interface ArbitrageStrategyAction extends StrategyAction {
+    statelessArbitrage: boolean; // optional, default false. Use only 1 trade per exchange (buy on the lower, sell on the higher) and don't keep an open margin position until the spread decreases.
+    // Enabling this setting means configuration such as 'trailingSpreadStop' will be ignored since there are no trades to close the open arbitrage position.
     tradingFees: TradingFeeMap;
     // TODO implement exchange APIs to get current fees for user (depends on his trading volume)
     tradingFeeDefault: number; // default 0.1%. fee used when the exchange is not listed in "tradingFees"
@@ -57,6 +59,12 @@ export abstract class AbstractArbitrageStrategy extends AbstractStrategy {
 
     constructor(options) {
         super(options)
+        if (typeof this.action.statelessArbitrage !== "boolean")
+            this.action.statelessArbitrage = false;
+        if (this.config.marginTrading === true && this.action.statelessArbitrage === true) {
+            this.warn("Stateless arbitrage only works with margin trading disabled. Disabling stateless arbitrage because margin trading is enabled.");
+            this.action.statelessArbitrage = false;
+        }
         if (!this.action.tradingFeeDefault)
             this.action.tradingFeeDefault = 0.1;
     }
@@ -109,7 +117,10 @@ export abstract class AbstractArbitrageStrategy extends AbstractStrategy {
                     this.arbitrageState = "halfOpen";
                     break;
                 case "halfOpen":
-                    this.arbitrageState = "open";
+                    if (this.action.statelessArbitrage === true)
+                        this.arbitrageState = "none"; // we bought and sold. no margin positions
+                    else
+                        this.arbitrageState = "open";
                     break;
             }
             //this.arbitrageState = info.exchange.getExchangeLabel()
@@ -218,10 +229,23 @@ export abstract class AbstractArbitrageStrategy extends AbstractStrategy {
             this.exchangeCandleMap.set(key, existingCandles);
         }
         existingCandles.addCandle(candle);
-        if (existingCandles.candles.length === this.exchanges.length) {
-            this.exchangeCandleTick(existingCandles).catch((err) => {
-                logger.error("Error in %s exchange candle tick", this.className, err);
-            })
+        if (existingCandles.candles.length === this.exchanges.length)
+            this.sendExchangeCandleTick(existingCandles);
+        else if (this.exchanges.length === 2 && existingCandles.candles.length === 1) {
+            // simple solution if we do arbitrage between 2 exchanges and one of them doesn't have any trades
+            // we try to get the most recent candle of the other exchange and do arbitrage between those 2 candles
+            const presentExchangeName = Currency.getExchangeName(existingCandles.candles[0].exchange);
+            const missingExchange = this.exchanges.filter( e => e !== existingCandles.candles[0].exchange)[0];
+            const missingExchangeName = Currency.getExchangeName(missingExchange);
+            const latestCandle = this.getLastCandleForExchange(missingExchange, 1); // last one (offset=0) we just checked
+            if (latestCandle === null) {
+                this.log(utils.sprintf("No recent candle present because no trades happened on %s. Delaying arbitrage", missingExchangeName));
+                return;
+            }
+            let mergedExistingCandles: ExchangeCandles = Object.assign(new ExchangeCandles(), existingCandles);
+            mergedExistingCandles.addCandle(latestCandle);
+            this.log(utils.sprintf("Only %s exchange has new trades. Using older trades for %s exchange", presentExchangeName, missingExchangeName));
+            this.sendExchangeCandleTick(mergedExistingCandles);
         }
 
         const maxCandles: number = nconf.get("serverConfig:keepCandlesArbitrageGroup");
@@ -234,6 +258,16 @@ export abstract class AbstractArbitrageStrategy extends AbstractStrategy {
             if (this.exchangeCandleMap.size <= maxCandles)
                 break;
         }
+    }
+
+    protected sendExchangeCandleTick(existingCandles: ExchangeCandles) {
+        return new Promise<void>((resolve, reject) => {
+            this.exchangeCandleTick(existingCandles).catch((err) => {
+                logger.error("Error in %s exchange candle tick", this.className, err);
+            }).then(() => {
+                resolve();
+            })
+        })
     }
 
     protected performArbitrage(exchangeBuy: Currency.Exchange, exchangeSell: Currency.Exchange, rateBuy: number, rateSell: number) {
@@ -281,6 +315,20 @@ export abstract class AbstractArbitrageStrategy extends AbstractStrategy {
                 this.cancelAllOrders("cancelling all orders for startup");
             }, this.config.warmUpMin*utils.constants.MINUTE_IN_SECONDS*1000); // config object not ready on init
         }, 4000);
+    }
+
+    protected getLastCandleForExchange(exchange: Currency.Exchange, offset = 0): Candle.Candle {
+        const candlesAscending = Array.from(this.exchangeCandleMap.values());
+        for (let i = candlesAscending.length-1-offset; i >= 0; i--) // Map object preserves the order
+        {
+            const currentCandlePair = candlesAscending[i];
+            for (let u = 0; u < currentCandlePair.candles.length; u++) // this array only contains 1 item per exchange
+            {
+                if (currentCandlePair.candles[u].exchange === exchange)
+                    return currentCandlePair.candles[u];
+            }
+        }
+        return null;
     }
 
     protected resetValues(): void {
