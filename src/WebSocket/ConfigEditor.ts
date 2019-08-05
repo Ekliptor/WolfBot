@@ -229,6 +229,12 @@ export class ConfigEditor extends AppPublisher {
             configFiles = files;
             return this.readConfigFile(this.selectedConfig)
         }).then((configFileData) => {
+            let validConfigFile = this.validateConfigArray(configFileData); // TODO how does this error happen on restart? external/manual edit?
+            if (validConfigFile)
+                configFileData = utils.stringifyBeautiful(validConfigFile);
+            else
+                logger.error("Invalid config file %s on initial client data", this.selectedConfig);
+
             this.send(clientSocket, {
                 tradingModes: BotTrade.TRADING_MODES,
                 configFiles: configFiles,
@@ -652,6 +658,14 @@ export class ConfigEditor extends AppPublisher {
             }
         });
         return utils.stringifyBeautiful(json);
+    }
+
+    /**
+     * Return the fixed JSON if it can be repaired or null otherwise.
+     * @param json
+     */
+    protected canFixInvalidConfigJson(json: any): any {
+        return json;
     }
 
     protected ensureCurrencyPairString(pair: any): string {
@@ -1181,7 +1195,7 @@ export class ConfigEditor extends AppPublisher {
         }
         let jsonData = utils.parseJson(configFileData);
         if (jsonData === null || !jsonData.data || Array.isArray(jsonData.data) === false || jsonData.data.length === 0) {
-            logger.error("Error loading config file data from disk")
+            logger.error("Error loading config file data from disk", jsonData)
             return data;
         }
         let properties = this.createSchemaProperties(jsonData.data[0])
@@ -1376,6 +1390,11 @@ export class ConfigEditor extends AppPublisher {
      * @param clientConfig
      */
     protected validateConfigArray(clientConfig: any): any {
+        if (typeof clientConfig === "string") {
+            clientConfig = utils.parseJson(clientConfig);
+            if (clientConfig === null)
+                return null;
+        }
         let configObj: any = clientConfig;
         if (configObj.data === undefined || Array.isArray(configObj.data) === false) {
             configObj = {

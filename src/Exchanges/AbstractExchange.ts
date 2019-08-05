@@ -584,7 +584,7 @@ export abstract class AbstractExchange {
         this.responseTimeRecent = getAvg(this.responseTimesRecent, nconf.get('serverConfig:keepResponseTimes:recent'));
         this.responseTimeAvg = getAvg(this.responseTimesAvg, nconf.get('serverConfig:keepResponseTimes:avg'));
         if (this.responseTimeRecent > this.responseTimeAvg * nconf.get('serverConfig:keepResponseTimes:lowFactor'))
-            logger.error("%s is overloaded. recent response time (ms) %s, avg %s", this.className, this.responseTimeRecent, this.responseTimeAvg) // TODO send event?
+            logger.warn("%s is overloaded. recent response time (ms) %s, avg %s", this.className, this.responseTimeRecent, this.responseTimeAvg) // TODO send event?
     }
 
     protected openConnection(): void {

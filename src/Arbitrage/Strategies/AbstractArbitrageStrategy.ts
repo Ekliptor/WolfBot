@@ -61,12 +61,15 @@ export abstract class AbstractArbitrageStrategy extends AbstractStrategy {
         super(options)
         if (typeof this.action.statelessArbitrage !== "boolean")
             this.action.statelessArbitrage = false;
-        if (this.config.marginTrading === true && this.action.statelessArbitrage === true) {
-            this.warn("Stateless arbitrage only works with margin trading disabled. Disabling stateless arbitrage because margin trading is enabled.");
-            this.action.statelessArbitrage = false;
-        }
         if (!this.action.tradingFeeDefault)
             this.action.tradingFeeDefault = 0.1;
+
+        setTimeout(() => { // config not set in constructor
+            if (this.config && this.config.marginTrading === true && this.action.statelessArbitrage === true) {
+                this.warn("Stateless arbitrage only works with margin trading disabled. Disabling stateless arbitrage because margin trading is enabled.");
+                this.action.statelessArbitrage = false;
+            }
+        }, 8000);
     }
 
     /**
@@ -246,6 +249,10 @@ export abstract class AbstractArbitrageStrategy extends AbstractStrategy {
             mergedExistingCandles.addCandle(latestCandle);
             this.log(utils.sprintf("Only %s exchange has new trades. Using older trades for %s exchange", presentExchangeName, missingExchangeName));
             this.sendExchangeCandleTick(mergedExistingCandles);
+        }
+        else {
+            this.log(utils.sprintf("%s: Not yet enough trades for arbitrage. %s candles: %s", this.className, existingCandles.candles.length,
+                existingCandles.candles.map(c => Currency.getExchangeName(c.exchange)).toString()));
         }
 
         const maxCandles: number = nconf.get("serverConfig:keepCandlesArbitrageGroup");

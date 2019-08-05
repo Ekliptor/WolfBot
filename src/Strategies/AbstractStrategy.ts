@@ -166,8 +166,7 @@ export abstract class AbstractStrategy extends AbstractGenericStrategy {
             this.updateMarket(trades[trades.length - 1]);
             this.lastAvgMarketPrice = this.avgMarketPrice;
             let sum = 0, vol = 0;
-            for (let i = 0; i < trades.length; i++)
-            {
+            for (let i = 0; i < trades.length; i++) {
                 sum += trades[i].rate * trades[i].amount;
                 vol += trades[i].amount;
             }
@@ -193,20 +192,20 @@ export abstract class AbstractStrategy extends AbstractGenericStrategy {
     }
 
     public sendCandleTick(candle: Candle.Candle) {
-         this.tickQueue = this.tickQueue.then(() => {
-             this.candle = candle;
-             this.candleTrend = candle.trend;
-             this.candleTicks++;
-             if (this.strategyPosition !== "none")
+        this.tickQueue = this.tickQueue.then(() => {
+            this.candle = candle;
+            this.candleTrend = candle.trend;
+            this.candleTicks++;
+            if (this.strategyPosition !== "none")
                 this.positionOpenTicks++;
-             this.addCandleInternal(candle);
-             this.plotData.sync(candle, this.avgMarketPrice)
-             this.updateIndicatorCandles();
-             this.emit("startCandleTick", this); // sync call to events
+            this.addCandleInternal(candle);
+            this.plotData.sync(candle, this.avgMarketPrice)
+            this.updateIndicatorCandles();
+            this.emit("startCandleTick", this); // sync call to events
             return this.candleTick(candle)
         }).then(() => {
-             this.emit("doneCandleTick", this);
-         }).catch((err) => {
+            this.emit("doneCandleTick", this);
+        }).catch((err) => {
             logger.error("Error in candle tick of %s", this.className, err)
         })
     }
@@ -322,8 +321,7 @@ export abstract class AbstractStrategy extends AbstractGenericStrategy {
             this.entryPrice = -1;
             this.tradePosition = null;
             //this.closedPositions = true; // only close again in the strategy that emitted the close
-        }
-        else {
+        } else {
             if (this.entryPrice === -1)
                 this.entryPrice = order.rate;
             if (this.tradePosition === null)
@@ -331,10 +329,9 @@ export abstract class AbstractStrategy extends AbstractGenericStrategy {
             if (action === "buy") {
                 this.holdingCoins += order.amount;
                 this.tradePosition.addTrade(order.amount, order.rate); // ensure we pass a negative amount
-            }
-            else {
+            } else {
                 this.holdingCoins -= Math.abs(order.amount);
-                this.tradePosition.addTrade(-1*Math.abs(order.amount), order.rate); // ensure we pass a negative amount
+                this.tradePosition.addTrade(-1 * Math.abs(order.amount), order.rate); // ensure we pass a negative amount
             }
             this.strategyPosition = this.holdingCoins > 0 ? "long" : "short";
             this.closedPositions = false;
@@ -351,6 +348,7 @@ export abstract class AbstractStrategy extends AbstractGenericStrategy {
      * Also see onTrade()
      * @param pendingOrder
      */
+
     /* // not needed because onTrade() returns the order after submission too
     public onOrder(pendingOrder: PendingOrder): void {
         // implement this to keep track of submitted orders. call super.onOrder() at the end to stay compatible in case we add more functionality later
@@ -382,8 +380,7 @@ export abstract class AbstractStrategy extends AbstractGenericStrategy {
             this.entryPrice = -1;
             this.lastTrade = "close";
             this.positionOpenTicks = -1;
-        }
-        else if (this.entryPrice === -1)
+        } else if (this.entryPrice === -1)
             this.entryPrice = this.avgMarketPrice; // assume we just opened our position
         else if (this.strategyPosition !== lastStrategyPosition) {
             this.log(utils.sprintf("Strategy position changed from %s to %s. Resetting entry price", lastStrategyPosition, this.strategyPosition));
@@ -397,8 +394,7 @@ export abstract class AbstractStrategy extends AbstractGenericStrategy {
             // most likely a close http request to the exchange failed
             // this repetition will happen in the strategy that issued the close command (StopLossTurn, TakeProfit,...)
             this.emitClose(Number.MAX_VALUE, "strategy position out of sync");
-        }
-        else if (this.strategyPosition === "none") {
+        } else if (this.strategyPosition === "none") {
             this.closedPositions = false; // reset it so that we don't close a new position again
             if (this.isMainStrategy()) // only true for main strategy? StopLoss has it's own sync() implementation either way
                 this.done = false;
@@ -415,8 +411,8 @@ export abstract class AbstractStrategy extends AbstractGenericStrategy {
         // -2: market order (if supported by exchange), otherwise identical to -1
         if (this.action.priceTolerancePercent > 0.0 && this.avgMarketPrice !== -1) {
             if (action === "buy")
-                return this.avgMarketPrice + this.avgMarketPrice/100.0*this.action.priceTolerancePercent;
-            return this.avgMarketPrice - this.avgMarketPrice/100.0*this.action.priceTolerancePercent; // sell
+                return this.avgMarketPrice + this.avgMarketPrice / 100.0 * this.action.priceTolerancePercent;
+            return this.avgMarketPrice - this.avgMarketPrice / 100.0 * this.action.priceTolerancePercent; // sell
         }
         return this.rate;
     }
@@ -440,9 +436,9 @@ export abstract class AbstractStrategy extends AbstractGenericStrategy {
      */
     public getOrderAmount(tradeTotalBtc: number, leverage: number = 1): number {
         let amount = tradeTotalBtc * leverage;
-         if (!this.orderAmountPercent || this.orderAmountPercent === 100)
-             return amount;
-         return amount / 100 * this.orderAmountPercent;
+        if (!this.orderAmountPercent || this.orderAmountPercent === 100)
+            return amount;
+        return amount / 100 * this.orderAmountPercent;
     }
 
     /**
@@ -492,8 +488,7 @@ export abstract class AbstractStrategy extends AbstractGenericStrategy {
         if (disabled) {
             this.wasMainStrategy = this.isMainStrategy();
             this.mainStrategy = false; // some strategies are set to be main. but not when we use them as indicators for another one
-        }
-        else
+        } else
             this.mainStrategy = this.isMainStrategy() || this.wasMainStrategy; // reset it to main
     }
 
@@ -607,8 +602,7 @@ export abstract class AbstractStrategy extends AbstractGenericStrategy {
         if (Array.isArray(strategies) === false || strategies.length === 0)
             return null;
         let disabled = null;
-        for (let i = 0; i < strategies.length; i++)
-        {
+        for (let i = 0; i < strategies.length; i++) {
             if (strategies[i].isMainStrategy() === true) {
                 if (strategies[i].isActiveStrategy() === true)
                     return strategies[i];
@@ -781,7 +775,7 @@ export abstract class AbstractStrategy extends AbstractGenericStrategy {
         }
         this.lastTradeFromClass = fromClass ? fromClass : this.className;
         this.lastTradeState = this.createTradeState();
-        this.emit("buy", weight, reason, exchange);
+        this.emit("buy", weight, reason, this.adjustToSingleExchange(exchange));
     }
 
     /**
@@ -811,7 +805,7 @@ export abstract class AbstractStrategy extends AbstractGenericStrategy {
         }
         this.lastTradeFromClass = fromClass ? fromClass : this.className;
         this.lastTradeState = this.createTradeState();
-        this.emit("sell", weight, reason, exchange);
+        this.emit("sell", weight, reason, this.adjustToSingleExchange(exchange));
     }
 
     /**
@@ -825,7 +819,7 @@ export abstract class AbstractStrategy extends AbstractGenericStrategy {
         logger.warn("emitHold() might be removed in the future");
         this.lastTradeFromClass = fromClass ? fromClass : this.className;
         this.lastTradeState = this.createTradeState();
-        this.emit("hold", weight, reason, exchange);
+        this.emit("hold", weight, reason, this.adjustToSingleExchange(exchange));
     }
 
     /**
@@ -852,7 +846,7 @@ export abstract class AbstractStrategy extends AbstractGenericStrategy {
         // TODO option for 2nd strategy on close too? see passToTradeStrategy()
         this.lastTradeFromClass = fromClass ? fromClass : this.className;
         this.lastTradeState = this.createTradeState();
-        this.emit("close", weight, reason, exchange);
+        this.emit("close", weight, reason, this.adjustToSingleExchange(exchange));
     }
 
     /**
@@ -909,7 +903,7 @@ export abstract class AbstractStrategy extends AbstractGenericStrategy {
      * @param exchange
      */
     protected cancelAllOrders(reason: string, exchange: Currency.Exchange = Currency.Exchange.ALL) {
-        this.emit("cancelAllOrders", reason, exchange);
+        this.emit("cancelAllOrders", reason, this.adjustToSingleExchange(exchange));
     }
 
     /**
@@ -917,8 +911,7 @@ export abstract class AbstractStrategy extends AbstractGenericStrategy {
      * @param {ScheduledTrade} scheduledTrade
      */
     protected executeTrade(scheduledTrade: ScheduledTrade) {
-        switch (scheduledTrade.action)
-        {
+        switch (scheduledTrade.action) {
             case "buy":
                 this.emitBuy(scheduledTrade.weight, scheduledTrade.reason, scheduledTrade.fromClass, scheduledTrade.exchange);
                 return;
@@ -952,6 +945,18 @@ export abstract class AbstractStrategy extends AbstractGenericStrategy {
             }
         }
         return false;
+    }
+
+    protected adjustToSingleExchange(exchange: Currency.Exchange): Currency.Exchange {
+        if (exchange === Currency.Exchange.ALL) {
+            if (!this.config) {
+                logger.warn("%s: Trading config not available. Can't verify exchange before trade", this.className);
+                return exchange;
+            }
+            if (this.config.exchanges.length === 1)
+                return Currency.ExchangeName.get(this.config.exchanges[0]);
+        }
+        return exchange;
     }
 
     protected updateMarket(lastTrade: Trade.Trade) {

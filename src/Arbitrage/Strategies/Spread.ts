@@ -34,11 +34,17 @@ export default class Spread extends AbstractArbitrageStrategy {
     protected action: SpreadAction;
     protected spreadTargetReached = false;
     protected trailingStopSpread = 0.0;
+    protected spread: MaxSpreadCandles = null;
 
     constructor(options) {
         super(options)
         this.addInfo("spreadTargetReached", "spreadTargetReached");
         this.addInfo("trailingStopSpread", "trailingStopSpread");
+        this.addInfoFunction("spread", () => {
+            if (this.spread === null)
+                return 0.0;
+            return this.spread.getSpreadPercentage();
+        })
     }
 
     public getArbitrageRate(arbitrageTrade: ArbitrageTrade): number {
@@ -94,13 +100,13 @@ export default class Spread extends AbstractArbitrageStrategy {
     }
 
     protected checkOpenArbitrage(candles: ExchangeCandles) {
-        let spread = this.calcMaxSpread(candles);
-        if (spread.getSpreadPercentage() > this.action.spreadEntry) {
-            this.log(utils.sprintf("Performing arbitrage at spread percentage at %s%%", spread.getSpreadPercentage().toFixed(2)));
-            this.performArbitrage(spread.getMinCandle().exchange, spread.getMaxCandle().exchange, spread.getMinCandle().close, spread.getMaxCandle().close);
+        this.spread = this.calcMaxSpread(candles);
+        if (this.spread.getSpreadPercentage() > this.action.spreadEntry) {
+            this.log(utils.sprintf("Performing arbitrage at spread percentage at %s%%", this.spread.getSpreadPercentage().toFixed(2)));
+            this.performArbitrage(this.spread.getMinCandle().exchange, this.spread.getMaxCandle().exchange, this.spread.getMinCandle().close, this.spread.getMaxCandle().close);
         }
         else
-            this.log(utils.sprintf("Spread percentage at %s%% is too low for arbitrage", spread.getSpreadPercentage().toFixed(2)));
+            this.log(utils.sprintf("Spread percentage at %s%% is too low for arbitrage", this.spread.getSpreadPercentage().toFixed(2)));
     }
 
     protected checkExitArbitrage(candles: ExchangeCandles) {

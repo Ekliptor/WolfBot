@@ -63,11 +63,13 @@ export default class RealTimeTrader extends PortfolioTrader {
             {
                 if (this.config.exchanges.indexOf(ex[0]) === -1)
                     continue;
-                let exchange = ex[1];
-                let orderBook = exchange.getOrderBook().get(coinPair.toString())
+                let curExchange = ex[1];
+                if (exchange !== Currency.Exchange.ALL && curExchange.getExchangeLabel() !== exchange)
+                    continue;
+                let orderBook = curExchange.getOrderBook().get(coinPair.toString())
                 if (!orderBook) {
                     orderbooksReady = false;
-                    logger.warn("Skipping trade because %s orderbook is not ready", exchange.getClassName());
+                    logger.warn("Skipping trade because %s orderbook is not ready", curExchange.getClassName());
                     break;
                 }
             }
@@ -75,11 +77,13 @@ export default class RealTimeTrader extends PortfolioTrader {
         else {
             for (let balance of PortfolioTrader.coinBalances)
             {
-                let exchange = this.exchanges.get(balance[0]);
-                let orderBook = exchange.getOrderBook().get(coinPair.toString())
+                let curExchange = this.exchanges.get(balance[0]);
+                if (exchange !== Currency.Exchange.ALL && curExchange.getExchangeLabel() !== exchange)
+                    continue;
+                let orderBook = curExchange.getOrderBook().get(coinPair.toString())
                 if (!orderBook) {
                     orderbooksReady = false;
-                    logger.warn("Skipping trade because %s orderbook is not ready", exchange.getClassName());
+                    logger.warn("Skipping trade because %s orderbook is not ready", curExchange.getClassName());
                     break;
                 }
             }
