@@ -86,6 +86,88 @@
 /************************************************************************/
 /******/ ({
 
+/***/ "../../../NodeJS/Packets/browserutils/build/config.js":
+/*!****************************************************************************!*\
+  !*** /Volumes/untitled/Coding/NodeJS/Packets/browserutils/build/config.js ***!
+  \****************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+class UtilsConfig {
+    constructor() {
+        this.jsonStoreFormat = "JSON";
+    }
+}
+const config = new UtilsConfig();
+exports.config = config;
+
+
+/***/ }),
+
+/***/ "../../../NodeJS/Packets/browserutils/build/src/Store.js":
+/*!*******************************************************************************!*\
+  !*** /Volumes/untitled/Coding/NodeJS/Packets/browserutils/build/src/Store.js ***!
+  \*******************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+const config_1 = __webpack_require__(/*! ../config */ "../../../NodeJS/Packets/browserutils/build/config.js");
+const EJSON = __webpack_require__(/*! ejson */ "../../../NodeJS/Packets/browserutils/node_modules/ejson/index.js");
+class Store {
+    constructor() {
+        this.syncWithServer = false; // TODO option to pass WS in constructor to sync with backend
+    }
+    getItem(key) {
+        let value = localStorage.getItem(key);
+        if (value !== null && value.substr(0, Store.SERIALIZE_PREFIX.length) === Store.SERIALIZE_PREFIX)
+            value = this.unserialize(value);
+        return value;
+    }
+    setItem(key, value) {
+        if (typeof value !== "string")
+            value = this.serialize(value); // localStorage only supports strings
+        localStorage.setItem(key, value);
+    }
+    removeItem(key) {
+        localStorage.removeItem(key);
+    }
+    clear() {
+        localStorage.clear();
+    }
+    getLength() {
+        return localStorage.length;
+    }
+    keyName(index) {
+        return localStorage.key(index);
+    }
+    // ################################################################
+    // ###################### PRIVATE FUNCTIONS #######################
+    serialize(value) {
+        if (config_1.config.jsonStoreFormat === "EJSON")
+            return Store.SERIALIZE_PREFIX + EJSON.stringify(value);
+        return Store.SERIALIZE_PREFIX + JSON.stringify(value);
+    }
+    unserialize(value) {
+        if (value && value.substr(0, Store.SERIALIZE_PREFIX.length) === Store.SERIALIZE_PREFIX)
+            value = value.substr(Store.SERIALIZE_PREFIX.length);
+        if (config_1.config.jsonStoreFormat === "EJSON")
+            return EJSON.parse(value);
+        return JSON.parse(value);
+    }
+}
+Store.SERIALIZE_PREFIX = "___s";
+let store = new Store();
+exports.store = store;
+
+
+/***/ }),
+
 /***/ "../../../NodeJS/Packets/browserutils/build/utils.js":
 /*!***************************************************************************!*\
   !*** /Volumes/untitled/Coding/NodeJS/Packets/browserutils/build/utils.js ***!
@@ -96,6 +178,8 @@
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
+const Store_1 = __webpack_require__(/*! ./src/Store */ "../../../NodeJS/Packets/browserutils/build/src/Store.js");
+exports.store = Store_1.store;
 const EJSON = __webpack_require__(/*! ejson */ "../../../NodeJS/Packets/browserutils/node_modules/ejson/index.js");
 exports.EJSON = EJSON;
 //window["EJSON"] = EJSON;
@@ -4948,6 +5032,7 @@ exports.Status = Status;
 
 Object.defineProperty(exports, "__esModule", { value: true });
 const AbstractController_1 = __webpack_require__(/*! ./base/AbstractController */ "./public/js/controllers/base/AbstractController.ts");
+const browserutils_1 = __webpack_require__(/*! @ekliptor/browserutils */ "../../../NodeJS/Packets/browserutils/build/utils.js");
 const $ = __webpack_require__(/*! jquery */ "jquery");
 const TradingView = __webpack_require__(/*! ../libs/tv/charting_library.min */ "./public/js/libs/tv/charting_library.min.js");
 const i18next = __webpack_require__(/*! i18next */ "i18next");
@@ -5140,6 +5225,7 @@ class Strategies extends AbstractController_1.AbstractController {
     }
     addStrategyButtonEvents(config, strategyName) {
         this.$("#showChartBtn-" + config.nr + "-" + strategyName).unbind("click").click((event) => {
+            browserutils_1.store.setItem("chartClosed", false);
             const durationMs = 360;
             $('html, body').animate({ scrollTop: 0 }, durationMs);
             const button = $(event.target);
@@ -5193,6 +5279,8 @@ class Strategies extends AbstractController_1.AbstractController {
         this.renderChart(config, strategyName);
     }
     renderChart(config, strategyName) {
+        if (browserutils_1.store.getItem("chartClosed") === true)
+            return;
         const nextChart = config.nr + "-" + strategyName;
         if (this.showingChart === nextChart)
             return;
@@ -5226,6 +5314,7 @@ class Strategies extends AbstractController_1.AbstractController {
         this.$("#closeChart").unbind("click").click((event) => {
             this.$("#tvChart").empty();
             this.$(".chartButtons").fadeOut("slow");
+            browserutils_1.store.setItem("chartClosed", true);
         });
     }
     addTradingViewChart(config, activeStrategy) {
@@ -5251,6 +5340,9 @@ class Strategies extends AbstractController_1.AbstractController {
             datafeed: this.feed,
             library_path: "/js/libs/tv/",
             locale: appData.lang,
+            //timezone: this.getTimezoneName() as any,
+            //timezone: 'Asia/Bangkok',
+            //timezone: new Date().getTimezoneOffset() as any,
             //	Regression Trend-related functionality is not implemented yet, so it's hidden for a while
             drawings_access: { type: 'black', tools: [{ name: "Regression Trend" }] },
             disabled_features: ["header_symbol_search", "compare_symbol", "header_compare" /*, "use_localstorage_for_settings"*/],
@@ -5270,6 +5362,12 @@ class Strategies extends AbstractController_1.AbstractController {
         const stateType = meta.importLabel.toLowerCase().indexOf("failed") !== -1 ? "warning" : "success";
         Hlp.showMsg(i18next.t(meta.importLabel), stateType);
     }
+    /*
+    protected getTimezoneName(): string {
+        // https://stackoverflow.com/questions/18246547/get-name-of-time-zone
+        return (new Date).toString().split('(')[1].slice(0, -1);
+    }
+    */
     /*
     protected getBaseCurrency(strategies: any) {
         let strategyData;

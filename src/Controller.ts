@@ -57,7 +57,7 @@ export class Controller extends AbstractController { // TODO implement graceful 
             nconf.add('controllerDefaults', {type: 'literal', store: require(__dirname + '/../config.js').config})
 
         process.on('uncaughtException', (err) => {
-            if (!this.handleDatabaseConnectionError(err))
+            if (!this.handleDatabaseConnectionError(err) && !this.handleRestartException(err))
                 this.log('Uncaught Exception', err, err.stack)
         })
         process.on('unhandledRejection', (err) => {
@@ -405,6 +405,19 @@ export class Controller extends AbstractController { // TODO implement graceful 
         if (typeof localConf.orverrides === "function")
             localConf.orverrides();
         // should we call loginController immediately with a force = true parameter?
+    }
+
+    protected handleRestartException(err) {
+        if (!err || typeof err !== "object")
+            return false;
+        let message = ((err.message || "") + " " + (err.name || "")).toLocaleLowerCase(); // err.stack is too long
+        if (message.indexOf("listen eaddrinuse") === -1) // Error: listen EADDRINUSE: address already in use :::2096
+            return false;
+        logger.error("Another app is already running on the same port. Scheduling restart", err);
+        setTimeout(() => {
+            this.restart()
+        }, 2000)
+        return true;
     }
 
     protected setLastActive() {

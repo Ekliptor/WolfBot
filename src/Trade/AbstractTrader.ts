@@ -3,7 +3,7 @@ const logger = utils.logger
     , nconf = utils.nconf;
 import {TradeConfig} from "../Trade/TradeConfig";
 import {StrategyActionName, default as TradeAdvisor} from "../TradeAdvisor";
-import {AbstractStrategy, TradeAction} from "../Strategies/AbstractStrategy";
+import {AbstractStrategy, BuySellAction, TradeAction} from "../Strategies/AbstractStrategy";
 import {OrderResult} from "../structs/OrderResult";
 import {AbstractExchange, ExchangeMap, OrderParameters} from "../Exchanges/AbstractExchange";
 import {Trade, Order, Currency, Candle, serverConfig} from "@ekliptor/bit-models";
@@ -311,6 +311,18 @@ export abstract class AbstractTrader extends AbstractGenericTrader {
         if (this.config.tradeTotalBtc <= 0)
             return Number.POSITIVE_INFINITY; // during backtesting
         return this.config.tradeTotalBtc * nconf.get("serverConfig:maxSellPriseRise")
+    }
+
+    protected ensureValidRate(rate: number, action: BuySellAction, exchange: AbstractExchange, strategy: AbstractStrategy): number {
+        if (rate > 0.0)
+            return rate;
+        const coinPair = strategy.getAction().pair;
+        let orderBook = exchange.getOrderBook().get(coinPair.toString());
+        let last = orderBook.getLast();
+        if (last <= 0.0) // fallback if there were no trades
+            last = action === "buy" ? orderBook.getBid() : orderBook.getAsk();
+        logger.warn("%s: Invalid %s rate from %s. Resetting to", this.className, action.toUpperCase(), strategy.getClassName(), last.toFixed(8));
+        return last;
     }
 
     protected isStopOrTakeProfitStrategy(strategy: AbstractStrategy) {

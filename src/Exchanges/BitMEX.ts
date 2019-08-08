@@ -805,12 +805,15 @@ export default class BitMEX extends AbstractContractExchange {
                         this.setTickerMap(tickerMap)
                     });
                 })
-
             });
 
+            let closeSocketTimerID = null;
             this.apiClient.on('close', () => {
-                logger.info('%s Connection closed.', this.className)
-                this.closeConnection("Connection closed");
+                logger.info('%s Connection closed.', this.className);
+                clearTimeout(closeSocketTimerID);
+                closeSocketTimerID = setTimeout(() => { // close event is sometimes sent multiple times. prevent closing & opening multiple times
+                    this.closeConnection("Connection closed");
+                }, 2000);
             });
 
             this.apiClient.on('end', () => {

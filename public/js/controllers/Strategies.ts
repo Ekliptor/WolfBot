@@ -3,7 +3,7 @@ import {AbstractController} from "./base/AbstractController";
 import {WebSocketOpcode} from "../../../src/WebSocket/opcodes";
 import {PageData} from "../types/PageData";
 import {AppData} from "../types/AppData";
-import {AppFunc, HelpersClass} from "@ekliptor/browserutils";
+import {AppFunc, HelpersClass, store} from "@ekliptor/browserutils";
 import {LendingStrategyUpdate, StrategyMeta, StrategyUpdate} from "../../../src/WebSocket/StrategyUpdater";
 import * as $ from "jquery";
 import * as TradingView from "../libs/tv/charting_library.min";
@@ -222,6 +222,7 @@ export class Strategies extends AbstractController {
 
     protected addStrategyButtonEvents(config: StrategyUpdate, strategyName: string) {
         this.$("#showChartBtn-" + config.nr + "-" + strategyName).unbind("click").click((event) => {
+            store.setItem("chartClosed", false);
             const durationMs = 360;
             $('html, body').animate({scrollTop: 0}, durationMs);
             const button = $(event.target);
@@ -275,10 +276,11 @@ export class Strategies extends AbstractController {
             return AppF.log("Error: Config cache has missing data. Can not show chart.");
         let config = this.configCache[i];
         this.renderChart(config, strategyName);
-
     }
 
     protected renderChart(config: StrategyUpdate, strategyName: string) {
+        if (store.getItem("chartClosed") === true)
+            return;
         const nextChart = config.nr + "-" + strategyName;
         if (this.showingChart === nextChart)
             return;
@@ -314,6 +316,7 @@ export class Strategies extends AbstractController {
         this.$("#closeChart").unbind("click").click((event) => {
             this.$("#tvChart").empty();
             this.$(".chartButtons").fadeOut("slow");
+            store.setItem("chartClosed", true);
         });
     }
 
@@ -342,6 +345,9 @@ export class Strategies extends AbstractController {
             datafeed: this.feed,
             library_path: "/js/libs/tv/",
             locale: (appData.lang as TradingView.LanguageCode), // TODO check if lang is actually supported
+            //timezone: this.getTimezoneName() as any,
+            //timezone: 'Asia/Bangkok',
+            //timezone: new Date().getTimezoneOffset() as any,
             //	Regression Trend-related functionality is not implemented yet, so it's hidden for a while
             drawings_access: { type: 'black', tools: [ { name: "Regression Trend" } ] },
             disabled_features: ["header_symbol_search", "compare_symbol", "header_compare"/*, "use_localstorage_for_settings"*/],
@@ -362,6 +368,13 @@ export class Strategies extends AbstractController {
         const stateType = meta.importLabel.toLowerCase().indexOf("failed") !== -1 ? "warning" : "success";
         Hlp.showMsg(i18next.t(meta.importLabel), stateType);
     }
+
+    /*
+    protected getTimezoneName(): string {
+        // https://stackoverflow.com/questions/18246547/get-name-of-time-zone
+        return (new Date).toString().split('(')[1].slice(0, -1);
+    }
+    */
 
     /*
     protected getBaseCurrency(strategies: any) {

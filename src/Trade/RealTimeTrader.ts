@@ -147,6 +147,7 @@ export default class RealTimeTrader extends PortfolioTrader {
                         else
                             rate = orderBook.getLast() + orderBook.getLast() / 100 * nconf.get('serverConfig:maxPriceDiffPercent') // TODO or should we use bid/ask?
                     }
+                    rate = this.ensureValidRate(rate, "buy", exchange, strategy);
                     const buyAmount = this.getMaxCoinAmount(exchange, strategy, buyBtc / rate, "buy");
                     if (this.tradeMode === RealTimeTradeMode.SIMULATION) {
                         orderOps.push(new Promise((resolve, reject) => {
@@ -218,6 +219,7 @@ export default class RealTimeTrader extends PortfolioTrader {
                         else
                             rate = orderBook.getLast() + orderBook.getLast() / 100 * nconf.get('serverConfig:maxPriceDiffPercent')
                     }
+                    rate = this.ensureValidRate(rate, "buy", exchange, strategy);
                     // TODO check actual tradable balance on exchange and store it in map in advance (for faster real time trading)
                     const buyAmount = this.getMaxCoinAmount(exchange, strategy, buyBtc / rate, "buy");
                     if (this.tradeMode === RealTimeTradeMode.SIMULATION) {
@@ -301,6 +303,7 @@ export default class RealTimeTrader extends PortfolioTrader {
                         else
                             rate = orderBook.getLast() - orderBook.getLast() / 100 * nconf.get('serverConfig:maxPriceDiffPercent')
                     }
+                    rate = this.ensureValidRate(rate, "sell", exchange, strategy);
                     const sellAmount = this.getMaxCoinAmount(exchange, strategy, sellBtc / rate, "sell");
                     if (this.tradeMode === RealTimeTradeMode.SIMULATION) {
                         orderOps.push(new Promise((resolve, reject) => {
@@ -372,6 +375,7 @@ export default class RealTimeTrader extends PortfolioTrader {
                         else
                             rate = orderBook.getLast() - orderBook.getLast() / 100 * nconf.get('serverConfig:maxPriceDiffPercent')
                     }
+                    rate = this.ensureValidRate(rate, "sell", exchange, strategy);
 
                     if (curBalance * orderBook.getLast() > this.getMaxSellBtc())
                         curBalance = this.getMaxSellBtc() / orderBook.getLast();

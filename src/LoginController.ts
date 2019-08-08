@@ -65,8 +65,17 @@ export class LoginController extends AbstractSubController {
 
     public static getDisplayBotID(): string {
         let instance = LoginController.getInstance();
+        const firstStart = new Date(nconf.get("serverConfig:firstStart") || 0);
+        const threshold = new Date("2019-08-07T09:54:25.600Z"); // TODO remove after a few months
+        let botIdData: any = {
+            n: instance.getNodeConfig().id,
+            pa: utils.appDir,
+            k: nconf.get("serverConfig:premiumIdSeed")
+        }
+        if (firstStart.getTime() > threshold.getTime()) // new tokens
+            botIdData.u = nconf.get("serverConfig:username");
         return "WID" + crypto.createHash('sha512')
-            .update(JSON.stringify({n: instance.getNodeConfig().id, pa: utils.appDir, k: nconf.get("serverConfig:premiumIdSeed")}), 'utf8')
+            .update(JSON.stringify(botIdData), 'utf8')
             .digest('base64')
             .substr(2, 10);
     }
@@ -298,7 +307,7 @@ export class LoginController extends AbstractSubController {
     protected async loadConfig(): Promise<void> {
         if (this.nodeConfig !== null || nconf.get("serverConfig:premium") === false)
             return; // only load it once
-        let configFile = path.join(utils.appDir, "..", nconf.get("serverConfig:premiumConfigFileName"));
+        let configFile = this.getNodeConfigFilePath();
         try {
             let data = await utils.file.readFile(configFile)
             let json = utils.parseJson(data);
@@ -310,6 +319,10 @@ export class LoginController extends AbstractSubController {
             logger.error("Error reading node config file %s", configFile, err)
             throw err; // don't login
         }
+    }
+
+    protected getNodeConfigFilePath() {
+        return path.join(utils.appDir, "..", nconf.get("serverConfig:premiumConfigFileName"));
     }
 
     protected generateApiKey() {
