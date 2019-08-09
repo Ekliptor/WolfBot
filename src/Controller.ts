@@ -4,7 +4,6 @@ const nconf = utils.nconf
 import * as db from'./database';
 const argv = require('minimist')(process.argv.slice(2));
 import AbstractController from './AbstractController';
-import NotificationController from './NotificationController';
 import ExchangeController from './ExchangeController';
 import TradeAdvisor from './TradeAdvisor';
 import {LendingAdvisor} from './Lending/LendingAdvisor';
@@ -32,7 +31,6 @@ import {JsonResponse} from "./Web/JsonResponse";
 
 export class Controller extends AbstractController { // TODO implement graceful shutdown api command (stop & delete tasks)
     protected exchangeConntroller: ExchangeController = null;
-    protected notificationController: NotificationController;
     protected tradeAdvisor: TradeAdvisor = null;
     protected lendingAdvisor: LendingAdvisor = null;
     protected socialController: SocialController = null;
@@ -260,10 +258,7 @@ export class Controller extends AbstractController { // TODO implement graceful 
             this.exchangeConntroller = new ExchangeController(argv.config);
         if (this.loginController === null)
             this.loginController = LoginController.getInstance();
-        this.notificationController = new NotificationController()
-        this.notificationController.process().then(() => {
-            return this.exchangeConntroller.process()
-        }).then(() => {
+        this.exchangeConntroller.process().then(() => {
             // all exchanges are loaded & connected
             // since all our actions are based on events from streams we would not need this process() function to act
             // but running it every 5 seconds and act from here "flattens" market spikes

@@ -55,22 +55,29 @@
   <div class="panel-heading">{tr:notifications}</div>
   <div class="panel-body">
     <form id="notificationsForm" class="row form-horizontal" action="" method="post" enctype="application/x-www-form-urlencoded">
-      <div class="form-group bottom20">
-        <label for="notificationMethod" class="control-label col-sm-2">{tr:notificationMethod}{tr:colon}</label>
+      <div class="form-group row bottom20">
         <div class="col-sm-6">
+          <label for="notificationMethod" class="control-label col-sm-2">{tr:notificationMethod}{tr:colon}</label>
           <select id="notificationMethod" class="multiSel" name="notificationMethod"></select>
         </div>
-        <div class="col-sm-4">
-          <a id="notificationPushoverLink" target="_blank" href="https://pushover.net/">{tr:installApp}</a>
+        <div class="col-sm-1">
+          <a id="notificationAppLink" target="_blank" href="">{tr:installApp}</a>
         </div>
+        <div id="notificationSetupTxt" class="col-sm-5"></div>
       </div>
       <div class="panel panel-default bottom20">
-        <div id="" class="panel-heading notificationKeyTxt">{tr:pushoverKey}</div>
+        <div id="notificationAppKeyHead" class="panel-heading notificationKeyTxt">{tr:pushoverKey}</div>
         <div class="panel-body">
           <div class="form-group">
             <label for="notificationKey" class="control-label col-sm-3"><span class="notificationKeyTxt">{tr:pushoverKey}</span>{tr:colon}</label>
             <div class="col-sm-9">
               <input id="notificationKey" type="text" class="form-control" name="notificationKey" value="" required>
+            </div>
+          </div>
+          <div id="channelInputGroup" class="form-group" style="display: none;">
+            <label for="notificationChannel" class="control-label col-sm-3"><span class="notificationChannelTxt">{tr:channel}</span>{tr:colon}</label>
+            <div class="col-sm-9">
+              <input id="notificationChannel" type="text" class="form-control" name="notificationChannel" value="" placeholder="{tr:channelPlaceholder}">
             </div>
           </div>
         </div>

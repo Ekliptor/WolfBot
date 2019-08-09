@@ -3872,11 +3872,13 @@ class Config extends TableController_1.TableController {
             this.setupWizard(data);
         });
         let notificationMethods = Object.keys(data.notifications);
-        let firstNotification = true;
+        let firstNotificationMethod = "";
         notificationMethods.forEach((method) => {
-            this.$("#notificationMethod").append(this.getSelectOption(method, method, firstNotification));
-            firstNotification = false;
+            this.$("#notificationMethod").append(this.getSelectOption(method, method, method === data.notificationMethod));
+            if (firstNotificationMethod.length === 0)
+                firstNotificationMethod = method;
         });
+        this.updateNotificationMethodLabels(firstNotificationMethod);
         // Exchange API Keys
         this.setupExchangeForm(data);
         index_1.App.initMultiSelect((optionEl, checked) => {
@@ -3952,6 +3954,9 @@ class Config extends TableController_1.TableController {
             saveReq[method] = {
                 receiver: this.$("#notificationKey").val()
             };
+            const channel = (this.$("#notificationChannel").val() || "").trim();
+            if (channel.length !== 0)
+                saveReq[method].channel = channel;
             this.send({
                 saveNotification: saveReq,
                 notificationMeta: {
@@ -4260,6 +4265,27 @@ class Config extends TableController_1.TableController {
             return AppF.log("Error getting notification method data " + notifytMethod);
         let firstValue = /*notifyKeys.key || */ notifyKeys.receiver;
         this.$("#notificationKey").val(firstValue);
+        this.$("#notificationChannel").val(notifyKeys.channel ? notifyKeys.channel : "");
+        if (notifytMethod === "Telegram") {
+            this.$("#channelInputGroup").fadeIn("slow");
+            this.$("#notificationChannel").attr("required", "required");
+        }
+        else {
+            this.$("#channelInputGroup").fadeOut("slow");
+            this.$("#notificationChannel").removeAttr("required");
+        }
+        this.updateNotificationMethodLabels(notifytMethod);
+    }
+    updateNotificationMethodLabels(notifytMethod) {
+        const links = this.fullData.notificationAppLinks;
+        const translationKey = notifytMethod.toLowerCase() + "Key";
+        if (i18next.exists(translationKey))
+            this.$(".notificationKeyTxt").text(i18next.t(translationKey));
+        const setupKey = notifytMethod.toLowerCase() + "Txt";
+        if (i18next.exists(setupKey))
+            this.$("#notificationSetupTxt").html(i18next.t(setupKey));
+        if (links && links[notifytMethod])
+            this.$("#notificationAppLink").attr("href", links[notifytMethod]);
     }
     setCanEdit() {
         setTimeout(() => {

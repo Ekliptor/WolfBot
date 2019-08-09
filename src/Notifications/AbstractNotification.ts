@@ -8,6 +8,7 @@ import * as os from "os";
 export interface NotificationOpts {
     receiver: string; // email address, user token...
     adminReceiver: string; // admin address for crash reports (on premium bots)
+    channel?: string; // telegram channel ID
 }
 
 export abstract class AbstractNotification {

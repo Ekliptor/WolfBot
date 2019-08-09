@@ -13,6 +13,16 @@ export default class Notification {
         this.requireConfirmation = requireConfirmation;
     }
 
+    /**
+     * Return the messenger text message containing title + message text to be used for Telegram, etc...
+     */
+    public getMessengerText(): string {
+        let message = this.title;
+        if (this.text.length !== 0)
+            message += ":\r\n" + this.text;
+        return message;
+    }
+
     // ################################################################
     // ###################### PRIVATE FUNCTIONS #######################
 
