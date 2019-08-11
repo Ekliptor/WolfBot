@@ -408,10 +408,16 @@ export class Controller extends AbstractController { // TODO implement graceful 
         let message = ((err.message || "") + " " + (err.name || "")).toLocaleLowerCase(); // err.stack is too long
         if (message.indexOf("listen eaddrinuse") === -1) // Error: listen EADDRINUSE: address already in use :::2096
             return false;
-        logger.error("Another app is already running on the same port. Scheduling restart", err);
+        logger.error("Another app is already running on the same port. Scheduling restart", err); // TODO kill other app? usually it's the same one restarting too fast
+        if (this.webServer) {
+            this.webServer.close((err) => {
+                if (err)
+                    logger.error("Error closing webserver before restart", err);
+            });
+        }
         setTimeout(() => {
             this.restart()
-        }, 2000)
+        }, 8000);
         return true;
     }
 

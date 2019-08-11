@@ -247,7 +247,7 @@ export class Config extends TableController {
 
         App.initMultiSelect((optionEl, checked) => { // this must be called after adding all options to select elements
             const id = optionEl.attr("id");
-            if (id !== "exchanges")
+            if (id !== "exchanges" && id !== "notificationMethod")
                 this.showRestartMsg();
             if (id === "configs") {
                 this.canEdit = false;
@@ -267,8 +267,10 @@ export class Config extends TableController {
             }
             else if (id === "exchanges")
                 this.showEditExchangeApiKeys(optionEl.val());
-            else if (id === "notificationMethod")
+            else if (id === "notificationMethod") {
                 this.showNotificationKeyInput(optionEl.val());
+                this.$("#saveNotification").fadeIn("slow");
+            }
         });
         if (data.lending === true)
             (this.$("#traders") as any).multiselect('disable'); // TODO wait for typings
@@ -329,7 +331,8 @@ export class Config extends TableController {
                     title: i18next.t("notifySetupTitle"),
                     text: i18next.t("notifySetupTxt")
                 }
-            })
+            });
+            this.showRestartMsg();
         });
     }
 

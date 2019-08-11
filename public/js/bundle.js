@@ -3883,7 +3883,7 @@ class Config extends TableController_1.TableController {
         this.setupExchangeForm(data);
         index_1.App.initMultiSelect((optionEl, checked) => {
             const id = optionEl.attr("id");
-            if (id !== "exchanges")
+            if (id !== "exchanges" && id !== "notificationMethod")
                 this.showRestartMsg();
             if (id === "configs") {
                 this.canEdit = false;
@@ -3903,8 +3903,10 @@ class Config extends TableController_1.TableController {
             }
             else if (id === "exchanges")
                 this.showEditExchangeApiKeys(optionEl.val());
-            else if (id === "notificationMethod")
+            else if (id === "notificationMethod") {
                 this.showNotificationKeyInput(optionEl.val());
+                this.$("#saveNotification").fadeIn("slow");
+            }
         });
         if (data.lending === true)
             this.$("#traders").multiselect('disable'); // TODO wait for typings
@@ -3964,6 +3966,7 @@ class Config extends TableController_1.TableController {
                     text: i18next.t("notifySetupTxt")
                 }
             });
+            this.showRestartMsg();
         });
     }
     setupTradingTab(data) {
