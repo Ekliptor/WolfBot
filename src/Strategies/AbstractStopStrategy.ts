@@ -34,6 +34,7 @@ export abstract class AbstractStopStrategy extends /*AbstractStrategy*/Technical
     protected closeExecuted: boolean = false; // similar to "done", but set after the order went through
     protected profitTriggerReached = false;
     protected stopNotificationSent = false;
+    protected warnedStopExecuted = false; // warn once per start, don't save it in state
 
     protected highestPrice: number = 0; // for sell/closeLong
     protected lowestPrice: number = Number.MAX_VALUE; // for buy/closeShort
@@ -250,6 +251,18 @@ export abstract class AbstractStopStrategy extends /*AbstractStrategy*/Technical
 
     protected useProfitStop() {
         return false; // overwrite in subclass accordingly
+    }
+
+    protected warnStopExecutedMessage() {
+        if (nconf.get("trader") === "Backtester")
+            return;
+        if (this.warnedStopExecuted === false && this.stateMessage !== "" && this.strategyPosition !== "none") {
+            this.warnedStopExecuted = true;
+            setTimeout(() => {
+                if (this.strategyPosition !== "none")
+                    this.sendNotification("Stop already executed", "Strategy stop won't fire again", false, true);
+            }, nconf.get("serverConfig:updatePortfolioSec")*1000);
+        }
     }
 
     protected resetValues(): void {
