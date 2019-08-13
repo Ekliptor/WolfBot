@@ -10,6 +10,7 @@ import {ExchangeFeed} from "../Exchanges/feeds/AbstractMarketData";
 import * as helper from "../utils/helper";
 
 type FishingMode = "up" | "down" | "trend";
+type FishingTrendIndicator = "MACD" | "EMA" | "SMA" | "DEMA";
 
 interface FishingNetAction extends AbstractTrailingStopAction {
     fishingMode: FishingMode; // optional, default trend - In which direction shall this strategy open positions? 'trend' means the strategy will decide automatically based on the current MACD trend. Values: up|down|trend
@@ -28,6 +29,8 @@ interface FishingNetAction extends AbstractTrailingStopAction {
     trailingStopPerc: number; // optional, default 0.5% - The trailing stop percentage that will be placed once the computed profit target of the strategy has been reached.
     time: number; // optional, default 30 (0 = immediately) - The time in seconds until the stop gets executed after the trailing stop has been reached.
 
+    // Trend Indicator
+    trendIndicator: FishingTrendIndicator; // optional, default EMA. The indicator to determine the current market trend. Only used in fishingMode 'trend'. Values: MACD|EMA|SMA|DEMA
     // optional, default MACD indicator params
     short: number; // 10
     long: number; // 26
@@ -82,6 +85,8 @@ export default class FishingNet extends AbstractTrailingStop {
                 this.action.trailingStopPerc = 0.5;
             if (typeof this.action.time !== "number")
                 this.action.time = 30;
+            if (typeof this.action.trendIndicator !== "string")
+                this.action.trendIndicator = "EMA";
             if (!this.action.short)
                 this.action.short = 10;
             if (!this.action.long)
@@ -101,7 +106,11 @@ export default class FishingNet extends AbstractTrailingStop {
 
             this.addIndicator("VolumeProfile", "VolumeProfile", this.action);
             this.addIndicator("AverageVolume", "AverageVolume", this.action);
-            this.addIndicator("MACD", "MACD", this.action);
+            if (this.action.trendIndicator === "MACD")
+                this.addIndicator("TrendIndicator", "MACD", this.action);
+            else
+                this.addIndicator("TrendIndicator", this.action.trendIndicator, this.action);
+
             if (nconf.get("trader") !== "Backtester" && this.action.feed) {
                 this.addIndicator("Liquidator", "Liquidator", this.action);
             }
@@ -152,16 +161,39 @@ export default class FishingNet extends AbstractTrailingStop {
                 let i = averageVolume.getHighestVolumeCandleIndex();
                 return i === -1 ? "" : ("index: " + i + ", " + this.candleHistory[i].toString());
             });
-            const macd = this.getMACD("MACD");
-            this.addInfoFunction("MACD", () => {
-                return macd.getMACD();
+            this.addInfoFunction("trendUp", () => {
+                return this.isUpwardsMarketTrend();
             });
-            this.addInfoFunction("Signal", () => {
-                return macd.getSignal();
+            this.addInfoFunction("trendDown", () => {
+                return this.isDownwardsMarketTrend();
             });
-            this.addInfoFunction("Histogram", () => {
-                return macd.getHistogram();
-            });
+            if (this.action.trendIndicator === "MACD") {
+                const macd = this.getMACD("MACD");
+                this.addInfoFunction("MACD", () => {
+                    return macd.getMACD();
+                });
+                this.addInfoFunction("Signal", () => {
+                    return macd.getSignal();
+                });
+                this.addInfoFunction("Histogram", () => {
+                    return macd.getHistogram();
+                });
+            }
+            else {
+                const ema = this.indicators.get("TrendIndicator");
+                this.addInfoFunction("shortValue", () => {
+                    return ema.getShortLineValue();
+                });
+                this.addInfoFunction("longValue", () => {
+                    return ema.getLongLineValue();
+                });
+                this.addInfoFunction("line diff", () => {
+                    return ema.getLineDiff();
+                });
+                this.addInfoFunction("line diff %", () => {
+                    return ema.getLineDiffPercent();
+                });
+            }
             if (liquidator) {
                 this.addInfoFunction("liquidationTotalVol", () => {
                     return liquidator.getTotalVolume("both");
@@ -282,7 +314,7 @@ export default class FishingNet extends AbstractTrailingStop {
             else
                 this.emitBuy(this.defaultWeight, utils.sprintf("Going LONG in uptrend market with candle volume: %s", this.getVolumeStr()));
         }
-        else if (this.action.fishingMode === "down" || (this.action.fishingMode === "trend" && this.isUpwardsMarketTrend() === false)) {
+        else if (this.action.fishingMode === "down" || (this.action.fishingMode === "trend" && this.isDownwardsMarketTrend() === true)) {
             if (this.isSufficientVolume(this.action.minVolumeSpike) === false)
                 this.log("Insufficient volume (relative to avg) to go SHORT " + this.getVolumeStr());
             else if (valueArea.isPriceWithinArea(this.avgMarketPrice) === false)
@@ -365,9 +397,22 @@ export default class FishingNet extends AbstractTrailingStop {
         return false;
     }
 
-    protected isUpwardsMarketTrend() {
-        let macd = this.getMACD(/*this.action.trendIndicator*/"MACD");
-        return macd.getHistogram() > 0.0;
+    protected isUpwardsMarketTrend(): boolean {
+        if (this.action.trendIndicator === "MACD") {
+            let macd = this.getMACD("TrendIndicator");
+            return macd.getHistogram() > 0.0;
+        }
+        const ema = this.indicators.get("TrendIndicator");
+        return ema.getLineDiffPercent() > this.action.thresholds.up;
+    }
+
+    protected isDownwardsMarketTrend(): boolean {
+        if (this.action.trendIndicator === "MACD") {
+            let macd = this.getMACD("TrendIndicator");
+            return macd.getHistogram() < 0.0;
+        }
+        const ema = this.indicators.get("TrendIndicator");
+        return ema.getLineDiffPercent() < this.action.thresholds.down;
     }
 
     protected isSufficientVolume(minVolumeSpike: number) {

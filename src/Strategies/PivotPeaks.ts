@@ -83,13 +83,13 @@ export default class PivotPeaks extends /*TechnicalStrategy*/AbstractTurnStrateg
         const goLong = highCond === true && highRate <= this.candle.close ? true : (this.prevLong === true && this.candle.high > highRate ? false : this.prevLong);
         if (goLong)
             //this.emitBuy(this.defaultWeight, "Going LONG on pivot high");
-            this.openLong("Going LONG on pivot high");
+            this.openLong(utils.sprintf("Going LONG on pivot high %s", highRate.toFixed(8)));
 
         const lowCond = lows.length !== 0;
         const lowRate = lowCond === true ? lows[0].close : this.prevLowRate;
         const goShort = lowCond === true && lowRate >= this.candle.close ? true : (this.prevShort === true && this.candle.low  < lowRate ? false : this.prevShort);
         if (goShort)
-            this.openShort("Going SHORT on pivot low");
+            this.openShort(utils.sprintf("Going SHORT on pivot low %s", lowRate.toFixed(8)));
 
         this.prevShort = goShort;
         this.prevLong = goLong;

@@ -10,11 +10,12 @@ import HistoryDataExchange from "../src/Exchanges/HistoryDataExchange";
 import Pushover from "../src/Notifications/Pushover";
 import Notification from "../src/Notifications/Notification";
 import {OrderResult} from "../src/structs/OrderResult";
-import {Currency} from "@ekliptor/bit-models";
+import {Currency, TradeHistory} from "@ekliptor/bit-models";
 import OKEX from "../src/Exchanges/OKEX";
 import Kraken from "../src/Exchanges/Kraken";
 import Bitfinex from "../src/Exchanges/Bitfinex";
 import {MultipleCurrencyImportExchange, currencyImportMap} from "../configLocal";
+import * as db from "../src/database";
 
 
 let scheduleExit = (delayMs = 500, code = 0) => {
@@ -28,7 +29,7 @@ let importTrades = () => {
     //let ex = new Poloniex(nconf.get("serverConfig:apiKey:exchange:Poloniex"))
     //let ex = new OKEX(nconf.get("serverConfig:apiKey:exchange:OKEX")[0])
     //let ex = new Kraken(nconf.get("serverConfig:apiKey:exchange:Kraken")[0])
-    let ex = new Bitfinex(nconf.get("serverConfig:apiKey:exchange:Bitfinex")[0])
+    let ex = new Bitfinex(nconf.get("serverConfig:apiKey:exchange:Bitfinex")[0]);
 
     let pair = new Currency.CurrencyPair(Currency.Currency.USD, Currency.Currency.BTC)
     //let pair = new Currency.CurrencyPair(Currency.Currency.USDT, Currency.Currency.BTC)
@@ -38,6 +39,10 @@ let importTrades = () => {
     let start = utils.date.parseAsGmt0(nconf.get("serverConfig:backtest:from"))
     let end = utils.date.parseAsGmt0(nconf.get("serverConfig:backtest:to"))
     ex.subscribeToMarkets([pair])
+
+    //let history = new TradeHistory.TradeHistory(pair, ex.getExchangeLabel(), start, end);
+    //TradeHistory.addToHistory(db.get(), history)
+    //return logger.info("Added range to trades history");
 
     setTimeout(() => { // Bitfinex needs time to connect
         logger.info("Starting manual import of %s %s trades", ex.getClassName(), pair.toString());
