@@ -159,7 +159,7 @@ export default class FishingNet extends AbstractTrailingStop {
             });
             this.addInfoFunction("MaxVolumeCandle", () => {
                 let i = averageVolume.getHighestVolumeCandleIndex();
-                return i === -1 ? "" : ("index: " + i + ", " + this.candleHistory[i].toString());
+                return i === -1 || i >= this.candleHistory.length ? "" : ("index: " + i + ", " + this.candleHistory[i].toString());
             });
             this.addInfoFunction("trendUp", () => {
                 return this.isUpwardsMarketTrend();
@@ -430,7 +430,7 @@ export default class FishingNet extends AbstractTrailingStop {
     protected getHighestVolumeBarAveragePrice() {
         let averageVolume = this.getVolume("AverageVolume");
         let i = averageVolume.getHighestVolumeCandleIndex();
-        if (i === -1)
+        if (i === -1 || i >= this.candleHistory.length)
             return 0.0;
         return this.candleHistory[i].getAveragePrice();
     }

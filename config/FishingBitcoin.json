@@ -5,7 +5,7 @@
         "OKEX"
       ],
       "marginTrading": true,
-      "tradeTotalBtc": 200.0,
+      "tradeTotalBtc": 20.0,
       "warmUpMin": 0,
       "strategies": {
         "FishingNet": {
