@@ -49,7 +49,7 @@ export default class Liquidator extends AbstractIndicator {
 
         if (!this.params.feed)
             return; // disabled
-        this.feed = AbstractMarketData.getInstance(this.params.feed);
+        this.feed = AbstractMarketData.getInstance(this.params.feed, {streams: ["liquidation"]});
         if (this.feed === null)
             return;
         if (this.feed.isSubscribed() === false)

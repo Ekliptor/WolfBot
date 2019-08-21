@@ -226,7 +226,15 @@ export class ConfigEditor extends AppPublisher {
     }
 
     public onSubscription(clientSocket: ClientSocketOnServer, initialRequest: http.IncomingMessage): void {
-        this.sendInitialData(clientSocket)
+        const exchangeController = this.advisor.getExchangeController();
+        if (!exchangeController || exchangeController.isExchangesIdle() === true) {
+            setTimeout(() => {
+                logger.warn("Delayed sending initial client data because exchange connection(s) are not ready yet.");
+                this.sendInitialData(clientSocket)
+            }, 2000);
+        }
+        else
+            this.sendInitialData(clientSocket)
     }
 
     protected sendInitialData(clientSocket: ClientSocketOnServer) {
@@ -624,12 +632,25 @@ export class ConfigEditor extends AppPublisher {
         return lastRestart.getTime() + nconf.get("serverConfig:restartPreviouslyIntervalMin")*utils.constants.MINUTE_IN_SECONDS*1000 >= Date.now();
     }
 
-    protected readConfigFile(name: string, updateStrategyValues: boolean = true) {
+    protected async readConfigFile(name: string, updateStrategyValues: boolean = true): Promise<string> {
+        let dataStr = await this.readConfigFileSafe(name, updateStrategyValues, false);
+        if (dataStr)
+            return dataStr;
+        logger.warn("Loading config JSON failed. Retrying with backup");
+        dataStr = await this.readConfigFileSafe(name, updateStrategyValues, true);
+        if (dataStr)
+            return dataStr;
+        // TODO also try with updateStrategyValues = false ?
+        this.sendConfigNotification("Config error", "Please check your config JSON and exchange API keys. Trading disabled!");
+        return "";
+    }
+
+    protected readConfigFileSafe(name: string, updateStrategyValues: boolean = true, backup: boolean = false) {
         return new Promise<string>((resolve, reject) => {
             if (name.substr(-5) !== ".json")
                 name += ".json";
             //const configFile = path.join(ConfigEditor.getConfigDir(), name) // better for selecte dmode
-            const configFile = path.join(TradeConfig.getConfigDirForMode(this.selectedTradingMode), name)
+            const configFile = path.join(TradeConfig.getConfigDirForMode(this.selectedTradingMode, backup), name)
             if (!utils.file.isSafePath(configFile))
                 return reject({txt: "Can not access path outside of app dir"})
             fs.readFile(configFile, "utf8", (err, data) => {
@@ -653,7 +674,7 @@ export class ConfigEditor extends AppPublisher {
     protected ensureProperConfigFileData(data: string): string {
         let json = utils.parseJson(data);
         if (json === null || Array.isArray(json.data) === false) {
-            logger.error("Invalid config JSON data found")
+            logger.error("Invalid config JSON data found") // TODO empty string on startup
             return data;
         }
         // ensure no errors (happens after we update config pairs to same value)
@@ -1376,9 +1397,14 @@ export class ConfigEditor extends AppPublisher {
     }
 
     protected sendTestNotification(title: string, text: string) {
-        let notifier = AbstractNotification.getInstance(); // TODO should be sent after restart if user changes notification method
+        // TODO should be sent after restart if user changes notification method
         let headline = utils.sprintf(title, nconf.get("projectNameLong"));
-        let notification = new Notification(headline, text, false);
+        this.sendConfigNotification(headline, text, false);
+    }
+
+    protected sendConfigNotification(title: string, text: string, confirm = false) {
+        let notifier = AbstractNotification.getInstance();
+        let notification = new Notification(title, text, confirm);
         notifier.send(notification).then(() => {
         }).catch((err) => {
             logger.error("Error sending %s notification", this.className, err)

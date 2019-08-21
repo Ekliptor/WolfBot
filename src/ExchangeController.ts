@@ -20,7 +20,8 @@ import Notification from "./Notifications/Notification";
 
 
 export default class ExchangeController extends AbstractSubController {
-    protected static readonly WAIT_CONFIG_ONCE_MS = 3000
+    protected static readonly WAIT_CONFIG_ONCE_MS = 3000;
+    protected static readonly EXCHANGE_KEYS_BACKUP_FILE = "exchangeKeys.json";
 
     // cache instances to keep WebSocket connections (and other state)
     protected configFilename: string;
@@ -157,8 +158,12 @@ export default class ExchangeController extends AbstractSubController {
             return;
         }
         this.tryLoadExchangKeys(activeProcessCount);
-        if (this.isExchangesIdle() ===  true) // sometimes nconf is slower reading initial data?
-            setTimeout(this.tryLoadExchangKeys.bind(this, activeProcessCount), 2500);
+        if (this.isExchangesIdle() ===  true) { // sometimes nconf is slower reading initial data?
+            setTimeout(async () => {
+                await this.loadExchangeKeyBackup();
+                this.tryLoadExchangKeys(activeProcessCount);
+            }, 2500);
+        }
     }
 
     protected tryLoadExchangKeys(activeProcessCount: number) {
@@ -196,7 +201,7 @@ export default class ExchangeController extends AbstractSubController {
             }
             if (!exchangeKey.key || !exchangeKey.secret) {
                 this.setExchangesIdle(true);
-                logger.warn("Empty exchange key found for %s in config. Keeping exchanges idle.", ex);
+                logger.warn("Empty exchange key/secret found for %s in config. Keeping exchanges idle.", ex);
                 return;
             }
             const modulePath = path.join(__dirname, "Exchanges", ex);
@@ -210,6 +215,8 @@ export default class ExchangeController extends AbstractSubController {
                 this.setExchangesIdle(false);
             }
         }
+        if (this.exchangesIdle === false)
+            this.saveExchangeKeyBackup(); // better don't delay it to ensure we have this exact config
     }
 
     protected getTickers() {
@@ -401,5 +408,40 @@ export default class ExchangeController extends AbstractSubController {
             logger.error("Error sending %s notification", "ExchangeController", err)
         });
         //this.lastNotification = new Date();
+    }
+
+    protected async saveExchangeKeyBackup() {
+        let keys = nconf.get("serverConfig:apiKey:exchange");
+        if (!keys) {
+            logger.warn("Unable to save exchange key backup because no keys are available");
+            return
+        }
+        const tempDir = path.join(utils.appDir, nconf.get('tempDir'))
+        let backupPath = path.join(tempDir, ExchangeController.EXCHANGE_KEYS_BACKUP_FILE);
+        try {
+            await fs.promises.writeFile(backupPath, JSON.stringify(keys), {encoding: "utf8"})
+        }
+        catch (err) {
+            logger.error("Error writing exchange key backup to: %s", backupPath, err);
+        }
+    }
+
+    protected async loadExchangeKeyBackup() {
+        const tempDir = path.join(utils.appDir, nconf.get('tempDir'))
+        let backupPath = path.join(tempDir, ExchangeController.EXCHANGE_KEYS_BACKUP_FILE);
+        try {
+            let data = await fs.promises.readFile(backupPath, {encoding: "utf8"});
+            let json = utils.parseJson(data);
+            if (json === null) {
+                logger.error("Invalid JSON in exchange key backup: %s", backupPath);
+                return;
+            }
+            nconf.set("serverConfig:apiKey:exchange", json);
+            logger.info("Restored exchange keys from backup");
+        }
+        catch (err) {
+            if (err && err.code !== "ENOENT")
+                logger.error("Error loading exchange key backup from: %s", backupPath, err);
+        }
     }
 }

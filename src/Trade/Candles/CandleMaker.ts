@@ -15,6 +15,7 @@ import * as fs from "fs";
 export class CandleMaker<T extends TradeBase> extends CandleStream<T> {
     public static readonly TEMP_DATA_DIR = "candles";
     // TODO cleanup candle files older than x days on startup
+    // TODO implement more candle types such as heikin ashi and tick charts
 
     // we collect all trades for every min in a bucket before creating the candle
     protected buckets = new Map<string, T[]>(); // (minute string, trades)

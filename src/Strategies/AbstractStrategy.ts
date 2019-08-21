@@ -54,6 +54,16 @@ export class ScheduledTrade {
         this.created = new Date(); // only fallback value, better manually set marketTime
     }
 
+    /**
+     * Copies all scheduled trade properties WITHOUT any bound order functions for strategies.
+     * @return ScheduledTrade
+     */
+    public copy(): ScheduledTrade {
+        let copy = new ScheduledTrade(this.action, this.weight, this.reason, this.fromClass, this.exchange);
+        copy.created = this.created;
+        return copy;
+    }
+
     public bindEmittingStrategyFunctions(strategy: AbstractStrategy) {
         this.getOrderAmount = strategy.getOrderAmount.bind(strategy);
         this.getRate = strategy.getRate.bind(strategy); // action will be passed on call

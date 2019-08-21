@@ -74,12 +74,12 @@ export class BitMEXCurrencies implements Currency.ExchangeCurrencies {
     }
     public toLocalTicker(exchangeTicker: any): Ticker.Ticker {
         let ticker = new Ticker.Ticker(this.exchange.getExchangeLabel());
-        if (!exchangeTicker || !exchangeTicker.length) {
+        if (!exchangeTicker/* || !exchangeTicker.length*/) {
             logger.error("Received invalid exchange ticker data from %s", this.exchange.getClassName(), exchangeTicker)
             return undefined;
         }
-
-        exchangeTicker = exchangeTicker[0];
+        if (Array.isArray(exchangeTicker) === true && exchangeTicker.length !== 0)
+            exchangeTicker = exchangeTicker[0];
 
         //ticker.currencyPair = this.getLocalPair(exchangeTicker[0]); set on request
         ticker.last = exchangeTicker.lastPrice;
@@ -87,10 +87,14 @@ export class BitMEXCurrencies implements Currency.ExchangeCurrencies {
         ticker.highestBid = exchangeTicker.bidPrice;
         ticker.percentChange = 0;
         ticker.baseVolume = exchangeTicker.volume24h; // amount of contracts?
-        ticker.quoteVolume = 0;
+        ticker.quoteVolume = 0; // can be computed when needed
         ticker.isFrozen = false;
         ticker.high24hr = exchangeTicker.highPrice;
         ticker.low24hr = exchangeTicker.lowPrice;
+        ticker.turnover = exchangeTicker.turnover24h; // turnover24h or turnover? turnover24h is bigger
+        ticker.openInterest = exchangeTicker.openInterest;
+        ticker.openValue = exchangeTicker.openValue;
+        ticker.currencyPair = this.getLocalPair(exchangeTicker.symbol);
         return ticker;
     }
 
@@ -163,6 +167,7 @@ export default class BitMEX extends AbstractContractExchange {
     // also update contract value below
     protected static readonly FETCH_CURRENCIES = ["btc", "ltc", "eth", "etc", "bch", "btg", "xrp", "eos"]
     protected static readonly FETCH_PAIRS = ["btc_usd", "ltc_usd", "eth_usd", "etc_usd", "bch_usd", "btg_usd", "xrp_usd", "eos_usd"];
+    protected static readonly CLOSE_SOCKET_DELAY_MS = 4000;
     //protected futureContractType: string = nconf.get("serverConfig:futureContractType");
     protected futureContractType = new FutureContractTypeMap();
 
@@ -688,9 +693,13 @@ export default class BitMEX extends AbstractContractExchange {
             //let conn: WebSocket = new WebSocket(this.pushApiUrl, this.getWebsocketOptions());
             const bws = this.apiClient.socket/*(2)*/; // TODO proxy/options
 
+            let closeSocketTimerID = null;
             this.apiClient.on("error", (err) => {
                 logger.error("WebSocket error in %s", this.className, err);
-                this.closeConnection("WebSocket error")
+                clearTimeout(closeSocketTimerID);
+                closeSocketTimerID = setTimeout(() => {
+                    this.closeConnection("WebSocket error")
+                }, BitMEX.CLOSE_SOCKET_DELAY_MS);
             })
 
             this.apiClient.on('open', () => {
@@ -699,7 +708,6 @@ export default class BitMEX extends AbstractContractExchange {
 
             this.apiClient.on('initialize', () => {
                 logger.verbose('%s Client initialized, data is flowing.', this.className)
-
                 let lastTradeID = "";
 
                 this.currencyPairs.forEach((pair) => {
@@ -720,7 +728,7 @@ export default class BitMEX extends AbstractContractExchange {
                          this.marketStream.write(pair, value, seqNr);
                     })
 
-                    this.apiClient.addStream(marketPair, 'trade', (data, symbol, tableName) => {
+                    this.apiClient.addStream(marketPair, "trade", (data, symbol, tableName) => {
                         // we get maxTableLen newest results, if the table is full it behaves like a FIFO, so we need to detect whats new
                         //console.log("got trades: " + data.length);
                         this.resetWebsocketTimeout();
@@ -749,7 +757,6 @@ export default class BitMEX extends AbstractContractExchange {
                         let timestamp = Math.floor(Date.now() / 1000);
                         for (let i=newIndex; i < data.length; i++) {
                             let trade = data[i];
-
                             //let date = this.setDateByStr(new Date(this.lastServerTimestampMs), trade.timestamp);
                             //let timestamp = Math.floor(date.getTime() / 1000);
                             // todo: order.size to coin
@@ -807,18 +814,20 @@ export default class BitMEX extends AbstractContractExchange {
                 })
             });
 
-            let closeSocketTimerID = null;
             this.apiClient.on('close', () => {
                 logger.info('%s Connection closed.', this.className);
                 clearTimeout(closeSocketTimerID);
                 closeSocketTimerID = setTimeout(() => { // close event is sometimes sent multiple times. prevent closing & opening multiple times
                     this.closeConnection("Connection closed");
-                }, 2000);
+                }, BitMEX.CLOSE_SOCKET_DELAY_MS);
             });
 
             this.apiClient.on('end', () => {
-                logger.info('%s Connection ended.', this.className)
-                this.closeConnection("Connection ended");
+                logger.info('%s Connection ended.', this.className);
+                clearTimeout(closeSocketTimerID);
+                closeSocketTimerID = setTimeout(() => {
+                    this.closeConnection("Connection ended");
+                }, BitMEX.CLOSE_SOCKET_DELAY_MS);
             });
 
             return bws; // EventEmitter and not WebSocket, but ok

@@ -605,6 +605,10 @@
       "desc": "This strategy does nothing. It is just a sample and placeholder.",
       "sample": "Change the 'sample' strategy property."
     },
+    "NotificationTest": {
+      "desc": "This strategy sends a notification every minute. Use this to test your (smartphone) notification setup.<br>It does not perform any trades.",
+      "message": "The text included in your notification."
+    },
     "PlanRunner": {
       "desc": "Strategy that emits buy/sell signal based on your configured steps in config. Steps to take action are price points, support and resistance lines,... What makes this strategy powerful is the ability to combine it with any other strategy (including technical indicators). So you can for example configure it to: 'Buy if BitCoin price falls below 6.000 USD and the 1h RSI is below 30 (and the 2h MACD momentum is increasing and...)'",
       "orders": {

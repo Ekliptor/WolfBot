@@ -9,7 +9,11 @@ import {Currency, Ticker} from "@ekliptor/bit-models";
 import * as path from "path";
 
 export type ExchangeFeed = "BitmexMarketData";
-export type MarketEvent = "liquidation";
+export type MarketEvent = "liquidation" | "trade" | "funding" | "ticker";
+
+export interface AbstractMarketDataOptions {
+    [name: string]: any;
+}
 
 /**
  * Class to fetch exchange data impacting all crypto currencies.
@@ -17,6 +21,7 @@ export type MarketEvent = "liquidation";
  */
 export abstract class AbstractMarketData extends EventEmitter {
     protected className: string;
+    protected options: AbstractMarketDataOptions;
     protected static instances = new Map<string, AbstractMarketData>(); // (className, instance)
 
     protected currencyPairs: Currency.CurrencyPair[] = [];
@@ -29,9 +34,10 @@ export abstract class AbstractMarketData extends EventEmitter {
     protected static pushApiConnections = new Map<string, autobahn.Connection | WebSocket>(); // (className, instance)
     protected pushApiConnectionType: PushApiConnectionType = PushApiConnectionType.WEBSOCKET;
 
-    constructor() {
+    constructor(options: AbstractMarketDataOptions) {
         super()
         this.className = this.constructor.name;
+        this.options = options;
     }
 
     /**
@@ -39,8 +45,8 @@ export abstract class AbstractMarketData extends EventEmitter {
      * @param className
      * @param options
      */
-    public static getInstance(className: string, options: any = undefined): AbstractMarketData {
-        let instance = AbstractMarketData.instances.get(className);
+    public static getInstance(className: string, options: any = undefined, skipCache: boolean = false): AbstractMarketData {
+        let instance: AbstractMarketData = skipCache === true ? undefined : AbstractMarketData.instances.get(className);
         if (instance === undefined) {
             let modulePath = path.join(__dirname, className);
             instance = AbstractMarketData.loadModule(modulePath, options);
@@ -66,6 +72,14 @@ export abstract class AbstractMarketData extends EventEmitter {
         return this.currencyPairs;
     }
 
+    public getClassName() {
+        return this.className;
+    }
+
+    public getExchangeLabel() {
+        return this.exchangeLabel;
+    }
+
     public emit(event: MarketEvent, ...args: any[]): boolean {
         return super.emit(event, ...args);
     }
@@ -81,7 +95,7 @@ export abstract class AbstractMarketData extends EventEmitter {
         let socket = AbstractMarketData.pushApiConnections.get(this.className);
         try {
             if (!socket)
-                logger.error("No socket available to close WebSocket connection to %s", this.className)
+                logger.error("No socket available to close WebSocket connection in %s: %s", this.className, reason)
             else {
                 if (this.pushApiConnectionType === PushApiConnectionType.API_WEBSOCKET)
                     this.closeApiWebsocketConnection();
@@ -107,6 +121,10 @@ export abstract class AbstractMarketData extends EventEmitter {
         this.onConnectionClose(reason);
     }
 
+    protected closeApiWebsocketConnection() {
+        // overwrite this when using PushApiConnectionType.API_WEBSOCKET
+    }
+
     protected resetWebsocketTimeout() {
         if (this.webSocketTimeoutMs === 0)
             return;
@@ -124,8 +142,28 @@ export abstract class AbstractMarketData extends EventEmitter {
     }
 
     protected openConnection(): void {
-        let connection = this.createWebsocketConnection();
-        AbstractMarketData.pushApiConnections.set(this.className, connection);
+        let connection = null;
+        switch (this.pushApiConnectionType) {
+            case PushApiConnectionType.AUTOBAHN:
+                connection = this.createConnection();
+                break;
+            case PushApiConnectionType.WEBSOCKET:
+                connection = this.createWebsocketConnection();
+                break;
+            case PushApiConnectionType.API_WEBSOCKET:
+                connection = this.createApiWebsocketConnection();
+                break;
+            default:
+                utils.test.assertUnreachableCode(this.pushApiConnectionType);
+        }
+        if (connection)
+            AbstractMarketData.pushApiConnections.set(this.className, connection);
+        this.resetWebsocketTimeout();
+    }
+
+    protected createConnection(): autobahn.Connection {
+        // overwrite this in the subclass and return the connection
+        return null;
     }
 
     protected createWebsocketConnection(): WebSocket {
@@ -133,8 +171,9 @@ export abstract class AbstractMarketData extends EventEmitter {
         return null;
     }
 
-    protected closeApiWebsocketConnection() {
-        // overwrite this when using PushApiConnectionType.API_WEBSOCKET
+    protected createApiWebsocketConnection(): any {
+        // overwrite this in the subclass and return the connection
+        return null;
     }
 
     protected static loadModule(modulePath: string, options: any = undefined) {

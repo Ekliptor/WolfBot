@@ -27,6 +27,8 @@ import ExchangeController from "../ExchangeController";
 import {CoinMarketCap, CoinMarketCapCurrencyData} from "./CoinMarketCap";
 
 
+export type SocialPluginType = "websites" | "watchers" | "feeds";
+
 export class CrawlerMap extends Map<string, /*AbstractCrawler*/AbstractWebPlugin> { // (class name, instance)
     constructor() {
         super()
@@ -109,7 +111,6 @@ export class SocialController extends AbstractAdvisor {
         this.loadNotifier();
         if (this.errorState)
             return;
-        let foo = new Telegram();
         this.tickerWatcher = new TickerWatcher(this.exchangeController);
     }
 
@@ -211,8 +212,12 @@ export class SocialController extends AbstractAdvisor {
         return (telegram as Telegram).addMessage(message);
     }
 
-    public static isMultiNodeCrawlerSetup() {
+    public static isMultiNodeCrawlerSetup(): boolean {
         return argv.instance && nconf.get("serverConfig:socialCralerInstanceCount") > 1;
+    }
+
+    public static isPrimaryMultiNodeInstance(): boolean {
+        return SocialController.isMultiNodeCrawlerSetup() === false || argv.instance === 1;
     }
 
     // ################################################################
@@ -237,18 +242,20 @@ export class SocialController extends AbstractAdvisor {
 
             // we don't have exchanges to connect with strategies here
             // just load our crawlers. they handle all the data, sore it and emit events (for UI)
-            this.loadPlugin(config, conf, "websites", "Crawler");
-            this.loadPlugin(config, conf, "watchers", "Watcher");
-        })
+            //this.loadPlugin(config, conf, "websites");
+            //this.loadPlugin(config, conf, "watchers");
+            this.loadPlugin(config, conf, "feeds");
+        });
 
         this.logCrawlerSubscriptions();
     }
 
-    protected loadPlugin(config: SocialConfig, conf: any, pluginType: string, moduleSubFolder: string) {
+    protected loadPlugin(config: SocialConfig, conf: any, pluginType: SocialPluginType) {
         if (argv.noBrowser === true) {
             logger.warn("Skipped loading %s plugin because browser is disabled", pluginType);
             return;
         }
+        const moduleSubFolder = this.getModuleSubfolderForPluginType(pluginType);
         for (let className in conf[pluginType])
         {
             // in the parent process we load all classes once to get their config once.
@@ -258,7 +265,7 @@ export class SocialController extends AbstractAdvisor {
             else if (argv.c && argv.c !== className)
                 continue;
             const modulePath = path.join(__dirname, moduleSubFolder, className)
-            let crawlerInstance = this.loadModule<AbstractCrawler>(modulePath, conf[pluginType][className])
+            let crawlerInstance = this.loadModule<AbstractCrawler>(modulePath, conf[pluginType][className]); // or AbstractWatcher
             if (!crawlerInstance)
                 continue;
             this.crawlers.set(crawlerInstance.getClassName(), crawlerInstance);
@@ -270,6 +277,15 @@ export class SocialController extends AbstractAdvisor {
             }).catch((err) => {
                 logger.error("Error during %s crawler startup", crawlerInstance.getClassName(), err)
             })
+        }
+    }
+
+    protected getModuleSubfolderForPluginType(pluginType: SocialPluginType): string {
+        switch (pluginType) {
+            case "websites":            return "Crawler";
+            case "watchers":            return "Watcher";
+            case "feeds":               return "Feeds";
+            default:                    utils.test.assertUnreachableCode(pluginType);
         }
     }
 

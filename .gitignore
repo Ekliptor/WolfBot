@@ -78,6 +78,7 @@ tests/telegram.ts
 tests/tradingview.ts
 tests/system
 src/Social/Crawler
+src/Social/Feeds
 src/Social/Watcher
 config/social
 src/Arbitrage/Strategies/Leg.ts

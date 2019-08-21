@@ -1,0 +1,22 @@
+{
+    "data": [
+        {
+            "exchanges": [
+                "BitMEX"
+            ],
+            "marginTrading": true,
+            "tradeTotalBtc": 0,
+            "warmUpMin": 0,
+            "updateIndicatorsOnTrade": false,
+            "flipPosition": false,
+            "strategies": {
+                "NotificationTest": {
+                    "message": "This is a test message",
+                    "pair": "USD_BTC",
+                    "candleSize": 2,
+                    "enableLog": true
+                }
+            }
+        }
+    ]
+}

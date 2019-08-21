@@ -7,7 +7,7 @@ const logger = utils.logger;
 const nconf = utils.nconf;
 import * as db from "../../src/database";
 import * as async from "async"; // Promise.all() doesn't guarantee the execution order
-import {user, serverConfig, conversation, CoinMarketInfo, Trade, TradeHistory, Order, LoanOrder, Candle, Ticker, TickerVolumeSpike, Process, SocialPost, TrollShout, SystemMessage, BotTrade} from "@ekliptor/bit-models";
+import {user, serverConfig, conversation, CoinMarketInfo, Trade, TradeHistory, Order, LoanOrder, Liquidation, Candle, Ticker, TickerVolumeSpike, Process, SocialPost, TrollShout, SystemMessage, BotTrade} from "@ekliptor/bit-models";
 
 
 let addInitFn = (queue, addFunctions) => {
@@ -39,14 +39,15 @@ export async function run(): Promise<void> {
     addInitFn(actions, TradeHistory.getInitFunctions(db.get()));
     addInitFn(actions, Order.getInitFunctions(db.get()));
     addInitFn(actions, LoanOrder.getInitFunctions(db.get()));
+    addInitFn(actions, Liquidation.getInitFunctions(db.get()));
     addInitFn(actions, Candle.getInitFunctions(db.get()));
     addInitFn(actions, Process.getInitFunctions(db.get()));
     addInitFn(actions, SocialPost.getInitFunctions(db.get()));
     addInitFn(actions, TrollShout.getInitFunctions(db.get()));
     addInitFn(actions, CoinMarketInfo.getInitFunctions(db.get()));
-    addInitFn(actions, Ticker.getInitFunctions(db.get()))
-    addInitFn(actions, TickerVolumeSpike.getInitFunctions(db.get()))
-    addInitFn(actions, BotTrade.getInitFunctions(db.get()))
+    addInitFn(actions, Ticker.getInitFunctions(db.get()));
+    addInitFn(actions, TickerVolumeSpike.getInitFunctions(db.get()));
+    addInitFn(actions, BotTrade.getInitFunctions(db.get()));
 
     return new Promise<void>((resolve, reject) => {
         async.series(actions, (err) => {

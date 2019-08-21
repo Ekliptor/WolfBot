@@ -64,6 +64,8 @@ export class LoginController extends AbstractSubController {
     }
 
     public static getDisplayBotID(): string {
+        if (nconf.get("serverConfig:premium") !== true)
+            return "WID000";
         let instance = LoginController.getInstance();
         const firstStart = new Date(nconf.get("serverConfig:firstStart") || 0);
         const threshold = new Date("2019-08-07T09:54:25.600Z"); // TODO remove after a few months

@@ -133,6 +133,10 @@ export abstract class AbstractAdvisor extends AbstractSubController {
 
     public abstract getTraders(): AbstractGenericTrader[];
 
+    public getExchangeController() {
+        return this.exchangeController;
+    }
+
     //public abstract getCandleMaker(currencyPair: string, exchangeLabel?: Currency.Exchange): (CandleMaker<Trade.Trade> | CandleMaker<Funding.FundingTrade>);
     public getCandleMaker(currencyPair: string, exchangeLabel?: Currency.Exchange): (CandleMaker<Trade.Trade> | CandleMaker<Funding.FundingTrade>) {
         if (nconf.get("arbitrage")) {

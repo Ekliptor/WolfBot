@@ -93,6 +93,8 @@ export class Controller extends AbstractController { // TODO implement graceful 
         this.webServer = webServer;
         if (!this.webServer)
             throw new Error("Unable to start app without web server. Please ensure you have permission to listen on your specified port.");
+        if (!argv.config || typeof argv.config !== "string")
+            throw new Error("The --config startup parameter is mandatory.");
         return new Promise<void>((resolve, reject) => {
             // database
             this.connect(() => {

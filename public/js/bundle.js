@@ -4241,21 +4241,32 @@ class Config extends TableController_1.TableController {
         $("#apiKey2").val(exchangeKey.key2 || "");
         $("#apiSecret2").val(exchangeKey.secret2 || "");
         $("#apiPassphrase2").val(exchangeKey.secret || "");
+        const use2Keys = $("#key2Panel").is(":visible") === true;
         if (exchangeKey.key2 === undefined) {
-            $("#key2Panel").fadeOut("slow");
-            $("#apiKey2, #apiSecret2").removeAttr("required");
+            $("#apiSecret2").removeAttr("required");
+            $("#apiKey2").removeAttr("required");
+            $("#key2Panel").fadeOut("slow"); // fade out after attributes or else it might cause a jquery error
         }
         else {
             $("#key2Panel").fadeIn("slow");
             $("#apiKey2, #apiSecret2").attr("required", "required");
         }
         if (exchangeKey.passphrase === undefined) {
+            $("#apiPassphrase").removeAttr("required");
             $(".passphraseGroup").fadeOut("slow");
-            $("#apiPassphrase, #apiPassphrase2").removeAttr("required");
         }
         else {
             $(".passphraseGroup").fadeIn("slow");
-            $("#apiPassphrase, #apiPassphrase2").attr("required", "required");
+            $("#apiPassphrase").attr("required", "required");
+        }
+        if (exchangeKey.passphrase2 === undefined || !use2Keys) {
+            if ($("#apiPassphrase2").is(":visible") === true)
+                $("#apiPassphrase2").removeAttr("required");
+            $("#key2Panel .passphraseGroup").fadeOut("slow");
+        }
+        else {
+            $("#key2Panel .passphraseGroup").fadeIn("slow");
+            $("#apiPassphrase2").attr("required", "required");
         }
     }
     hasExchangeKey(exchangeName) {

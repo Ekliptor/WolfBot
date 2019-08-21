@@ -310,7 +310,7 @@ export abstract class AbstractExchange {
     public unsubscribeFromMarkets() {
         this.currencyPairs = [];
         this.orderBook.clear();
-        this.closeConnection("unsubscribing from markets");
+        this.closeConnection("un-subscribing from markets");
     }
 
     public getClassName() {
@@ -664,7 +664,7 @@ export abstract class AbstractExchange {
         let socket = AbstractExchange.pushApiConnections.get(this.className);
         try {
             if (!socket)
-                logger.error("No socket available to close WebSocket connection to %s", this.className)
+                logger.error("No socket available to close WebSocket connection in %s: %s", this.className, reason)
             else {
                 if (this.pushApiConnectionType === PushApiConnectionType.API_WEBSOCKET)
                     this.closeApiWebsocketConnection();
