@@ -21,9 +21,9 @@ export default class CCI extends AbstractIndicator {
 
     public addCandle(candle: Candle.Candle) {
         return new Promise<void>((resolve, reject) => {
-            this.valuesHigh = this.addData(this.valuesHigh, candle.close, this.params.interval);
-            this.valuesLow = this.addData(this.valuesLow, candle.volume, this.params.interval);
-            this.valuesClose = this.addData(this.valuesClose, candle.volume, this.params.interval);
+            this.valuesHigh = this.addData(this.valuesHigh, candle.high, this.params.interval);
+            this.valuesLow = this.addData(this.valuesLow, candle.low, this.params.interval);
+            this.valuesClose = this.addData(this.valuesClose, candle.close, this.params.interval);
             if (this.valuesHigh.length < this.params.interval)
                 return resolve(); // not enough data yet
 
