@@ -65,7 +65,8 @@ export abstract class AbstractNotification {
 
     public send(notification: Notification/*, forceAdmin = false*/): Promise<void> {
         // TODO add a limit "max messages per time per notification-type" in here instead of classes outside
-        notification.title = this.getBotDirName() + " " + notification.title;
+        const prefix = nconf.get("serverConfig:premium") === false || this.isAdminInstance === true ? this.getBotDirName() + " " : /*nconf.get("projectNameLong")*/"";
+        notification.title = prefix + notification.title;
         let forceAdmin = false;
         if (this === AbstractNotification.adminInstance && AbstractNotification.adminInstance.isAdminInstance === true) {
             const userInfo = os.userInfo({encoding: "utf8"});

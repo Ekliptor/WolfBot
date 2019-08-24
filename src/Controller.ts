@@ -418,7 +418,10 @@ export class Controller extends AbstractController { // TODO implement graceful 
             });
         }
         setTimeout(() => {
-            this.restart()
+            this.restart();
+            setTimeout(() => { // as a fallback if graceful restart doesn't work. will be restarted by shell script via cron
+                process.exit(1);
+            }, 20*1000);
         }, 8000);
         return true;
     }
@@ -455,6 +458,7 @@ export class Controller extends AbstractController { // TODO implement graceful 
         const postData = req != null ? utils.getJsonPostData((req as any).formFields) : null;
         let status = {
             ready: false,
+            uptime: process.uptime(), // in seconds // this.advisor.getStarted() on status page
             strategyInfos: this.tradeAdvisor ? this.tradeAdvisor.getStrategyInfos() : (this.lendingAdvisor ? this.lendingAdvisor.getStrategyInfos() : null),
             social: null, // only added on request. CPU intensive to compute
             prices: null,

@@ -1,0 +1,81 @@
+{
+    "data": [
+        {
+            "exchanges": ["BitMEX"],
+            "marginTrading": true,
+            "tradeTotalBtc": 100.0,
+            "warmUpMin": 0,
+            "notifyTrades": false,
+            "updateIndicatorsOnTrade": false,
+            "flipPosition": true,
+            "closePositionFirst": false,
+            "exchangeParams": [
+                "testnet"
+            ],
+            "strategies": {
+                "FishingNet": {
+                    "fishingMode": "trend",
+                    "percentage": 15.0,
+                    "maxPosIncreases": 7,
+                    "tradingAmountIncreaseFactor": 1.1,
+                    "profitPercent": 4.1,
+                    "interval": 24,
+                    "volumeRows": 24,
+                    "valueAreaPercent": 60,
+                    "minVolumeSpike": 1.1,
+                    "minVolumeSpikePosInc": 0.9,
+                    "closePosition": "profit",
+                    "trailingStopPerc": 0.5,
+                    "time": 30,
+                    "trendIndicator": "EMA",
+                    "short": 10,
+                    "long": 16,
+                    "signal": 9,
+                    "feed": "BitmexMarketData",
+                    "currencyPairs": ["USD_BTC"],
+                    "supportLines": [],
+                    "resistanceLines": [],
+                    "expirationPercent": 3.0,
+                    "pair": "USD_BTC",
+                    "candleSize": 30,
+                    "tradeStrategy": "RSIScalpOrderer",
+                    "enableLog": true
+                },
+                "RSIScalpOrderer": {
+                    "low": 34,
+                    "high": 70,
+                    "expiry": 60,
+                    "candleSize": 5,
+                    "pair": "USD_BTC",
+                    "enableLog": true
+                },
+                "StopLossTurn": {
+                    "order": "closeLong",
+                    "stop": 0.0,
+                    "stopLong": 0.0,
+                    "setback": 5.5,
+                    "setbackLong": 5.5,
+                    "time": 600,
+                    "updateTrailingStop": false,
+                    "setbackProfit": 4.1,
+                    "triggerProfit": 6.5,
+                    "timeProfit": 120,
+                    "reduceTimeByVolatility": false,
+                    "low": 52,
+                    "high": 56,
+                    "candleSize": 5,
+                    "pair": "USD_BTC",
+                    "enableLog": false
+                },
+                "TakeProfit": {
+                    "order": "closeLong",
+                    "profit": 5.2,
+                    "time": 360,
+                    "candleSize": 5,
+                    "pair": "USD_BTC",
+                    "enableLog": false
+                }
+            }
+        }
+    ]
+}

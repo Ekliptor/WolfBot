@@ -1,12 +1,13 @@
 import * as utils from "@ekliptor/apputils";
-import {PushApiConnectionType} from "../AbstractExchange";
-const logger = utils.logger
-    , nconf = utils.nconf;
+import {ConnectionState, PushApiConnectionType} from "../AbstractExchange";
 import * as WebSocket from "ws";
 import * as autobahn from "autobahn";
 import * as EventEmitter from 'events';
-import {Currency, Ticker} from "@ekliptor/bit-models";
+import {Currency} from "@ekliptor/bit-models";
 import * as path from "path";
+
+const logger = utils.logger
+    , nconf = utils.nconf;
 
 export type ExchangeFeed = "BitmexMarketData";
 export type MarketEvent = "liquidation" | "trade" | "funding" | "ticker";
@@ -33,6 +34,7 @@ export abstract class AbstractMarketData extends EventEmitter {
     protected websocketCleanupFunction: () => boolean = null;
     protected static pushApiConnections = new Map<string, autobahn.Connection | WebSocket>(); // (className, instance)
     protected pushApiConnectionType: PushApiConnectionType = PushApiConnectionType.WEBSOCKET;
+    protected connectionState: ConnectionState = ConnectionState.CLOSED;
 
     constructor(options: AbstractMarketDataOptions) {
         super()
@@ -135,6 +137,7 @@ export abstract class AbstractMarketData extends EventEmitter {
     }
 
     protected onConnectionClose(reason: string): void {
+        this.connectionState = ConnectionState.CLOSED;
         logger.warn("Websocket connection to %s closed: Reason: %s", this.className, reason);
         clearTimeout(this.websocketTimeoutTimerID);
         //clearTimeout(this.websocketPingTimerID);
@@ -143,6 +146,13 @@ export abstract class AbstractMarketData extends EventEmitter {
 
     protected openConnection(): void {
         let connection = null;
+        if (this.connectionState !== ConnectionState.CLOSED) {
+            logger.warn("%s connection already in state %s. Skipped connecting twice", this.className, this.connectionState);
+            return;
+        }
+        this.connectionState = ConnectionState.OPENING;
+        if (AbstractMarketData.pushApiConnections.has(this.className))
+            return; // already connected
         switch (this.pushApiConnectionType) {
             case PushApiConnectionType.AUTOBAHN:
                 connection = this.createConnection();
@@ -156,8 +166,15 @@ export abstract class AbstractMarketData extends EventEmitter {
             default:
                 utils.test.assertUnreachableCode(this.pushApiConnectionType);
         }
-        if (connection)
+        if (connection) {
             AbstractMarketData.pushApiConnections.set(this.className, connection);
+            setTimeout(() => { // easy way for all subclasses: just set it to connected if no error occurs
+                if (this.connectionState === ConnectionState.OPENING)
+                    this.connectionState = ConnectionState.OPEN;
+                else
+                    logger.warn("%s connection reached unknown state during connecting: %s", this.className, this.connectionState);
+            }, 5000);
+        }
         this.resetWebsocketTimeout();
     }
 

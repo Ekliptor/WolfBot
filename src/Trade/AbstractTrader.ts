@@ -127,6 +127,14 @@ export abstract class AbstractTrader extends AbstractGenericTrader {
             return;
         }
 
+        if (this.config.closePositionFirst === true) {
+            const currentPosition = strategy.getStrategyPosition();
+            if ((action === "sell" && currentPosition === "long") || (action === "buy" && currentPosition === "short")) {
+                logger.info("%s: Changing trade action from %s to CLOSE because closePositionFirst is enabled for existing %s position", this.className, action.toUpperCase(), currentPosition.toUpperCase());
+                action = "close";
+            }
+        }
+
         if (this.tradeNotifier instanceof AbstractTrader)
             this.tradeNotifier.callAction(action, strategy, reason, exchange); // TODO call this only if we actually executed the trade
         let tradingTimeoutMs = nconf.get("serverConfig:orderTimeoutSec")*1000;

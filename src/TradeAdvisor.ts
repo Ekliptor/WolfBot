@@ -304,7 +304,7 @@ export default class TradeAdvisor extends AbstractAdvisor {
         configs.forEach((config) => {
             let pairs = config.listConfigCurrencyPairs();
             pairs.forEach((pair) => {
-                if (!json[pair]) {
+                if (!json[pair]) { // TODO don't restore if exchange changed with same currency pair? (should be a new config file)
                     let found = false;
                     if (nconf.get("serverConfig:searchAllPairsForState")) {
                         // it's in the other config. just check if it matches

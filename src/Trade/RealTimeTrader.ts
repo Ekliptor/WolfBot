@@ -743,7 +743,8 @@ export default class RealTimeTrader extends PortfolioTrader {
             return super.skipTrade(action, exchange, strategy, amountBtc); // we still have to check for other conditions in parent class
         if (nconf.get("arbitrage") === false) {
             if (action !== "close" || !nconf.get('serverConfig:canAlwaysClose')) {
-                if (lastTrade.getTime() + nconf.get('serverConfig:holdMin') * utils.constants.MINUTE_IN_SECONDS * 1000 > Date.now()) {
+                const holdMin = nconf.get('serverConfig:holdMin');
+                if (holdMin > 0 && lastTrade.getTime() + holdMin * utils.constants.MINUTE_IN_SECONDS * 1000 > Date.now()) {
                     const passed = utils.test.getPassedTime(lastTrade.getTime())
                     logger.info("Skipping %s trade in %s on %s for %s because we traded recently. last trade %s ago", action, this.className, exchangeName, currencyPair, passed)
                     return true;

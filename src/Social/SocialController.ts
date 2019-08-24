@@ -242,9 +242,13 @@ export class SocialController extends AbstractAdvisor {
 
             // we don't have exchanges to connect with strategies here
             // just load our crawlers. they handle all the data, sore it and emit events (for UI)
-            //this.loadPlugin(config, conf, "websites");
-            //this.loadPlugin(config, conf, "watchers");
-            this.loadPlugin(config, conf, "feeds");
+            this.loadPlugin(config, conf, "websites");
+            if (SocialController.isPrimaryMultiNodeInstance()) {
+                this.loadPlugin(config, conf, "watchers");
+                this.loadPlugin(config, conf, "feeds");
+            }
+            else
+                logger.info("Skipped loading additional social plugins because this node is not the primary instance");
         });
 
         this.logCrawlerSubscriptions();
@@ -262,8 +266,10 @@ export class SocialController extends AbstractAdvisor {
             // then in the children every class has it's own child process
             if (process.env.IS_CHILD && process.env.CRAWLER_CLASS !== className)
                 continue;
-            else if (argv.c && argv.c !== className)
+            else if (argv.c && argv.c !== className) {
+                logger.verbose("Skipped starting %s %s plugin because of startup param", className, pluginType);
                 continue;
+            }
             const modulePath = path.join(__dirname, moduleSubFolder, className)
             let crawlerInstance = this.loadModule<AbstractCrawler>(modulePath, conf[pluginType][className]); // or AbstractWatcher
             if (!crawlerInstance)

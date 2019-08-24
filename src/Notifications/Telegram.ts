@@ -14,6 +14,7 @@ export default class Telegram extends AbstractNotification {
     // does this plain GET post approach still work? https://medium.com/@xabaras/sending-a-message-to-a-telegram-channel-the-easy-way-eb0a0b32968
     protected bot: any; // TODO wait for typings
     protected callbackServer: any;
+    // TODO make this work with private groups/channels too. they have non-readable links: https://t.me/joinchat/abc-defg
 
     constructor(options: NotificationOpts) {
         super(options)

@@ -7,7 +7,7 @@ const logger = utils.logger;
 const nconf = utils.nconf;
 import * as db from "../../src/database";
 import * as async from "async"; // Promise.all() doesn't guarantee the execution order
-import {user, serverConfig, conversation, CoinMarketInfo, Trade, TradeHistory, Order, LoanOrder, Liquidation, Candle, Ticker, TickerVolumeSpike, Process, SocialPost, TrollShout, SystemMessage, BotTrade} from "@ekliptor/bit-models";
+import {user, serverConfig, conversation, CoinMarketInfo, Trade, TradeHistory, Order, LoanOrder, Liquidation, Candle, Ticker, TickerVolumeSpike, Process, FearGreedIndex, SocialPost, TrollShout, SystemMessage, BotTrade} from "@ekliptor/bit-models";
 
 
 let addInitFn = (queue, addFunctions) => {
@@ -48,6 +48,7 @@ export async function run(): Promise<void> {
     addInitFn(actions, Ticker.getInitFunctions(db.get()));
     addInitFn(actions, TickerVolumeSpike.getInitFunctions(db.get()));
     addInitFn(actions, BotTrade.getInitFunctions(db.get()));
+    addInitFn(actions, FearGreedIndex.getInitFunctions(db.get()));
 
     return new Promise<void>((resolve, reject) => {
         async.series(actions, (err) => {

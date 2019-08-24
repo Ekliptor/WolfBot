@@ -5,8 +5,10 @@
             "marginTrading": true,
             "tradeTotalBtc": 150.0,
             "warmUpMin": 0,
+            "notifyTrades": false,
             "updateIndicatorsOnTrade": false,
             "flipPosition": true,
+            "closePositionFirst": false,
             "strategies": {
                 "TradingViewSignal": {
                     "email": "tradingview@wolfbot.org",

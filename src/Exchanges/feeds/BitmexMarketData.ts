@@ -38,13 +38,25 @@ export default class BitmexMarketData extends AbstractMarketData {
         this.currencies = new BitMEXCurrencies(this as any); // we only need it to convert currency pairs
         this.pushApiConnectionType = PushApiConnectionType.API_WEBSOCKET;
         this.webSocketTimeoutMs = 0; // disabled it. few data, but stable library handling reconnects automatically
-        this.apiClient = new BitMEXClient({
-            //testnet: this.apiKey.testnet === true,
-            //apiKeyID: this.apiKey.key,
-            //apiKeySecret: this.apiKey.secret,
-            maxTableLen: 1000,  // the maximum number of table elements to keep in memory (FIFO queue)
-            wsExtras: bitmexFix ? bitmexFix.getWebsocketExtras() : null
-        });
+
+        try {
+            this.apiClient = new BitMEXClient({
+                //testnet: this.apiKey.testnet === true,
+                //apiKeyID: this.apiKey.key,
+                //apiKeySecret: this.apiKey.secret,
+                maxTableLen: 1000,  // the maximum number of table elements to keep in memory (FIFO queue)
+                wsExtras: bitmexFix ? bitmexFix.getWebsocketExtras() : null
+            });
+        }
+        catch (err) {
+            /**
+             * 2019-08-21 17:40:09 - warn: Uncaught Exception
+             2019-08-21 17:40:09 - warn: Error: Forbidden
+             at Request.callback (/home/bitbrain2/nodejs/BitBrain2/Sensor1/node_modules/superagent/lib/node/index.js:706:15)
+             at IncomingMessage.<anonymous>
+             */
+            logger.error("Error initializing %s. Please check your config and API key permissions.", this.className, err);
+        }
     }
 
     // ################################################################

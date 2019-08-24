@@ -185,6 +185,12 @@ export enum PushApiConnectionType {
     API_WEBSOCKET = 3
 }
 
+export enum ConnectionState {
+    CLOSED = 1,
+    OPENING = 2,
+    OPEN = 3
+}
+
 export abstract class AbstractExchange {
     // TODO fix crash (no stacktrace) in poloniex (and others?) when they are down for a longer time > 10min. out of memory repeating calls?
     public static readonly DEFAULT_MAKER_FEE = 0.0015;
@@ -205,6 +211,7 @@ export abstract class AbstractExchange {
     protected pushApiUrl = "";
     protected httpKeepConnectionsAlive = true;
     protected pushApiConnectionType: PushApiConnectionType = PushApiConnectionType.WEBSOCKET;
+    protected connectionState: ConnectionState = ConnectionState.CLOSED;
     protected dateTimezoneSuffix = ""; // used if dates from the API come as strings. for example " GMT+0000"
     protected serverTimezoneDiffMin = 0; // see getTimezoneOffset()
     protected httpPollIntervalSec = nconf.get("serverConfig:httpPollIntervalSec");
@@ -271,6 +278,10 @@ export abstract class AbstractExchange {
         if (options.marginNotification)
             this.marginNotification = parseFloat(options.marginNotification);
         this.exchangeOptions = options;
+
+        let params: string[] = nconf.get("exchangeParams");
+        if (params.indexOf("testnet") !== -1)
+            this.apiKey.testnet = true;
 
         // instances stays the same throughout the session. on WebSocket reconnects just the underlying socket & EventStream gets replaced
         this.marketStream = useCandleMarketStream ? new CandleMarketStream(this) : new MarketStream(this);
@@ -592,6 +603,11 @@ export abstract class AbstractExchange {
         // but the push api connection has to be a static variable because we keep it open all the time
         if (!this.pushApiUrl)
             return;
+        if (this.connectionState !== ConnectionState.CLOSED) {
+            logger.warn("%s connection already in state %s. Skipped connecting twice", this.className, this.connectionState);
+            return;
+        }
+        this.connectionState = ConnectionState.OPENING;
         if (AbstractExchange.pushApiConnections.has(this.className))
             return; // already connected
         logger.verbose("Opening Websocket connection in %s to %s", this.className, this.pushApiUrl)
@@ -609,8 +625,15 @@ export abstract class AbstractExchange {
             default:
                 utils.test.assertUnreachableCode(this.pushApiConnectionType);
         }
-        if (connection)
+        if (connection) {
             AbstractExchange.pushApiConnections.set(this.className, connection);
+            setTimeout(() => { // easy way for all subclasses: just set it to connected if no error occurs
+                if (this.connectionState === ConnectionState.OPENING)
+                    this.connectionState = ConnectionState.OPEN;
+                else
+                    logger.warn("%s connection reached unknown state during connecting: %s", this.className, this.connectionState);
+            }, 5000);
+        }
         this.resetWebsocketTimeout();
     }
 
@@ -635,11 +658,13 @@ export abstract class AbstractExchange {
             return wsOptions;
         // create an instance of the `HttpsProxyAgent` class with the proxy server information
         let options = url.parse(this.proxy[utils.getRandomInt(0, this.proxy.length)]);
-        wsOptions.agent = new HttpsProxyAgent(options);
+        if (options)
+            wsOptions.agent = new HttpsProxyAgent(options.href);
         return wsOptions;
     }
 
     protected onConnectionClose(reason: string): void {
+        this.connectionState = ConnectionState.CLOSED;
         if (AbstractExchange.pushApiConnections.has(this.className) === false) {
             logger.warn("Already closed %s websocket connection. reason %s", this.className, reason)
             return;

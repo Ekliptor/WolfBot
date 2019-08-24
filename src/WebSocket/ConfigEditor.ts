@@ -7,7 +7,7 @@ import {ServerSocketPublisher, ServerSocket, ServerSocketSendOptions, ClientSock
 import {AppPublisher} from "./AppPublisher";
 import {WebSocketOpcode} from "./opcodes";
 import TradeAdvisor from "../TradeAdvisor";
-import {TradeConfig, ConfigRuntimeUpdate, ConfigCurrencyPair} from "../Trade/TradeConfig";
+import {TradeConfig, ConfigRuntimeUpdate, ConfigCurrencyPair, TradingMode} from "../Trade/TradeConfig";
 import * as path from "path";
 import * as fs from "fs";
 import * as childProcess from "child_process";
@@ -86,7 +86,7 @@ export interface ConfigRes extends ConfigData {
     lending?: boolean;
     arbitrage?: boolean;
     social?: boolean;
-    selectedTradingMode?: BotTrade.TradingMode;
+    selectedTradingMode?: TradingMode;
     selectedConfig?: string;
     activeConfig?: string;
     selectedTrader?: string;
@@ -138,8 +138,9 @@ export interface SaveConfigFileRes {
 
 export class ConfigEditor extends AppPublisher {
     public readonly opcode = WebSocketOpcode.CONFIG;
+    protected static readonly HIDDEN_LOG_CONFIG_PROPS: string[] = ["password"]
 
-    protected selectedTradingMode: BotTrade.TradingMode;
+    protected selectedTradingMode: /*BotTrade.TradingMode*/TradingMode;
     protected selectedConfig: string;
     protected static activeConfig: string; // config file changes require a restart
     protected static instance: ConfigEditor = null; // to access it from outside. readonly is not available for static members
@@ -155,7 +156,7 @@ export class ConfigEditor extends AppPublisher {
         super(serverSocket, advisor)
         if (ConfigEditor.instance === null)
             ConfigEditor.instance = this;
-        this.selectedTradingMode = nconf.get("lending") === true ? "lending" : (nconf.get("arbitrage") == true ? "arbitrage" : "trading");
+        this.selectedTradingMode = TradeConfig.getTradingMode();
         this.selectedConfig = this.advisor.getConfigName();
         ConfigEditor.activeConfig = this.selectedConfig;
         this.selectedTrader = this.getSelectedTrader();
@@ -196,6 +197,12 @@ export class ConfigEditor extends AppPublisher {
                 path.join(configBackupDir, "gWeekPredictorg.json"), path.join(configBackupDir, "ggWeekPredictorgg.json")]);
         }, 0);
         */
+        let localizedNotificationData = nconf.get("serverConfig:user:sendTestNotificationOnRestart");
+        if (localizedNotificationData) {
+            setTimeout(this.sendTestNotification.bind(this, localizedNotificationData.title, localizedNotificationData.text), 5000);
+            nconf.set("serverConfig:user:sendTestNotificationOnRestart", null);
+            serverConfig.saveConfigLocal();
+        }
     }
 
     public static getInstance() {
@@ -451,6 +458,10 @@ export class ConfigEditor extends AppPublisher {
                 setTimeout(() => { // delay this to ensure we use the latest config
                     this.sendTestNotification(data.notificationMeta.title, data.notificationMeta.text);
                 }, 1000);
+                nconf.set("serverConfig:user:sendTestNotificationOnRestart", {
+                    title: data.notificationMeta.title,
+                    text: data.notificationMeta.text
+                }); // notification method change requires restart
             }
             this.send(clientSocket, {saved: true})
         }
@@ -548,11 +559,11 @@ export class ConfigEditor extends AppPublisher {
                 //else if (processArgs[i].substr(0, 21) == "--max-old-space-size=")
                 //processArgs[i] = "--max-old-space-size=1224"; // reduce max memory
             }
-            let options = {
+            let options: childProcess.SpawnOptions = {
                 //encoding: 'utf8',
                 //timeout: timeoutMs, // send killSignal after timeout ms
                 //maxBuffer: 500 * 1024 * 1024, // max bytes in stdout or stderr // 500 mb
-                killSignal: 'SIGTERM',
+                //killSignal: 'SIGTERM', // only exists for exec()
                 cwd: process.cwd(),
                 env: process.env, // key-value pairs
                 detached: true,
@@ -655,7 +666,7 @@ export class ConfigEditor extends AppPublisher {
                 return reject({txt: "Can not access path outside of app dir"})
             fs.readFile(configFile, "utf8", (err, data) => {
                 if (err)
-                    reject(err)
+                    reject({txt: "Error reading config file", mode: this.selectedTradingMode, err: err})
                 if (updateStrategyValues) {
                     try {
                         data = this.updateStrategyValues(data);
@@ -700,13 +711,16 @@ export class ConfigEditor extends AppPublisher {
     }
 
     protected ensureCurrencyPairString(pair: any): string {
+        const fallbackPair = (new Currency.CurrencyPair(Currency.Currency.USD, Currency.Currency.BTC)).toString();
+        if (!pair)
+            return fallbackPair;
         if (typeof pair === "string")
             return pair;
         if (pair instanceof Currency.CurrencyPair)
             return pair.toString();
         if (!pair.from || !pair.to) {
             logger.error("Unknown currency pair data provided: %s", JSON.stringify(pair));
-            return (new Currency.CurrencyPair(Currency.Currency.USD, Currency.Currency.BTC)).toString();
+            return fallbackPair;
         }
         let pairStr = (new Currency.CurrencyPair(pair.from, pair.to)).toString(); // TODO lending mode?
         if (this.initialPairs.has(pairStr) === false)
@@ -739,6 +753,10 @@ export class ConfigEditor extends AppPublisher {
             const configFile = path.join(ConfigEditor.getConfigDir(), name)
             if (!utils.file.isSafePath(configFile))
                 return reject({txt: "Can not access path outside of app dir"})
+
+            // ensure config is valid JSON (we had empty config on crashes)
+            if (utils.parseJson(data) === null)
+                return reject({txt: "Skipped saving config because of invalid/empty JSON.", dataStr: data});
             fs.writeFile(configFile, data, {encoding: "utf8"}, (err) => {
                 if (err)
                     reject(err)
@@ -861,7 +879,8 @@ export class ConfigEditor extends AppPublisher {
                             if (strategyConf[prop] !== undefined && action[prop] !== undefined && strategyConf[prop].toString() !== action[prop].toString()) {
                                 if (prop === "pair" && (this.pairChangePendingRestart === true || this.initialPairs.has(strategyConf[prop]) === false))
                                     continue;
-                                logger.verbose("updating strategy %s %s %s from %s to %s", strat.getAction().pair.toString(), strat.getClassName(), prop, strategyConf[prop], action[prop])
+                                if (ConfigEditor.HIDDEN_LOG_CONFIG_PROPS.indexOf(prop) === -1)
+                                    logger.verbose("updating strategy %s %s %s from %s to %s", strat.getAction().pair.toString(), strat.getClassName(), prop, strategyConf[prop], action[prop])
                                 strategyConf[prop] = action[prop];
                             }
                         }
@@ -897,7 +916,8 @@ export class ConfigEditor extends AppPublisher {
                             if (strategyConf[prop] !== undefined && action[prop] !== undefined && strategyConf[prop].toString() !== action[prop].toString()) {
                                 if ((prop === "pair" || prop === "currency") && (this.pairChangePendingRestart === true || this.initialPairs.has(strategyConf[prop]) === false))
                                     continue;
-                                logger.verbose("updating strategy %s %s %s from %s to %s", strat.getAction().currency.toString(), strat.getClassName(), prop, strategyConf[prop], action[prop])
+                                if (ConfigEditor.HIDDEN_LOG_CONFIG_PROPS.indexOf(prop) === -1)
+                                    logger.verbose("updating strategy %s %s %s from %s to %s", strat.getAction().currency.toString(), strat.getClassName(), prop, strategyConf[prop], action[prop])
                                 strategyConf[prop] = action[prop];
                             }
                         }
@@ -919,6 +939,10 @@ export class ConfigEditor extends AppPublisher {
                 crawlers.forEach((crawler) => {
                     let crawlerConf = crawler.getConfig();
                     let websiteConf = conf.websites && conf.websites[crawler.getClassName()] ? conf.websites[crawler.getClassName()] : conf.watchers[crawler.getClassName()];
+                    if (!websiteConf && conf.feeds && conf.feeds[crawler.getClassName()])
+                        websiteConf = conf.feeds[crawler.getClassName()];
+                    if (!websiteConf)
+                        return logger.warn("Website config for crawler %s is not available", crawler.getClassName());
                     for (let prop in crawlerConf) {
                         if (websiteConf[prop] !== undefined && crawlerConf[prop] !== undefined && websiteConf[prop].toString() !== crawlerConf[prop]) {
                             logger.verbose("updating crawler %s %s from %s to %s", crawler.getClassName(), prop, crawlerConf[prop], websiteConf[prop])
@@ -954,6 +978,7 @@ export class ConfigEditor extends AppPublisher {
                         warmUpMin: conf.warmUpMin,
                         updateIndicatorsOnTrade: conf.updateIndicatorsOnTrade,
                         flipPosition: conf.flipPosition,
+                        closePositionFirst: conf.closePositionFirst,
                         exchangeParams: conf.exchangeParams
                     }
                     if (configs.length > i)
@@ -1449,6 +1474,8 @@ export class ConfigEditor extends AppPublisher {
         if (configObj === null)
             return null;
 
+        if (this.selectedTradingMode === "ai" || this.selectedTradingMode === "social")
+            return configObj; // TODO validate config in those modes too
         for (let i = 0; i < configObj.data.length; i++)
         {
             if (Array.isArray(configObj.data[i].exchanges) === false)
@@ -1530,7 +1557,7 @@ export class ConfigEditor extends AppPublisher {
         return super.send(ws, data, options);
     }
 
-    protected getFirstFileForMode(mode: BotTrade.TradingMode) {
+    protected getFirstFileForMode(mode: TradingMode) {
         const dirPath = TradeConfig.getConfigDirForMode(mode);
         try {
             let files = fs.readdirSync(dirPath);
@@ -1598,6 +1625,7 @@ export class ConfigEditor extends AppPublisher {
                     saved: true,
                     configFiles: configFiles
                 });
+                serverConfig.saveConfigLocal();
             }).catch((err) => {
                 logger.error("Error changing trading mode", err);
             });

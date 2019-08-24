@@ -17,6 +17,7 @@
           "timeProfit": 120,
           "notifyBeforeStopSec": 0,
           "reduceTimeByVolatility": false,
+          "keepTrendOpen": true,
           "low": 52,
           "high": 56,
           "candleSize": 5,

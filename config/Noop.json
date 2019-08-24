@@ -9,6 +9,7 @@
             "warmUpMin": 0,
             "updateIndicatorsOnTrade": false,
             "flipPosition": false,
+            "closePositionFirst": false,
             "strategies": {
                 "NOOP": {
                     "sample": "in here come strategy parameteres & config in real trading strategies",

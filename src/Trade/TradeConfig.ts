@@ -17,6 +17,7 @@ export interface ConfigRuntimeUpdate {
     warmUpMin: number;
     updateIndicatorsOnTrade: boolean;
     flipPosition: boolean;
+    closePositionFirst: boolean;
     exchangeParams: string[];
 }
 
@@ -25,13 +26,14 @@ export class TradeConfig extends AbstractConfig {
     public readonly exchanges: string[] = null;
     public readonly exchangeFeeds: string[] = null; // some of the specified exchanges can be used as read-only (no trades submitted). useful to debug arbitrage
     public readonly markets: Currency.CurrencyPair[] = [];
-    public readonly marginTrading = true;
+    public readonly marginTrading: boolean = true;
     public readonly tradeTotalBtc = 0.0; // will be leveraged 2.5 if marginTrading is enabled
     public readonly maxLeverage = 0.0; // in AbstractExchange default is 0.0 too
     public readonly tradeDirection: TradeDirection = "both";
     public readonly warmUpMin: number = 0;
     public readonly updateIndicatorsOnTrade: boolean = false;
-    public readonly flipPosition: boolean = false;
+    public readonly flipPosition: boolean = false; // trade twice the amount on a buy/sell signal if we have an existing position to flip the position direction
+    public readonly closePositionFirst: boolean = false; // close a position on a buy/sell signal opposite to our existing position
     // additional params for exchanges. since we only create 1 instance per exchange these are merged globally (and not per config instance)
     // requires a restart to take affect
     public readonly exchangeParams: string[] = [];
@@ -76,12 +78,15 @@ export class TradeConfig extends AbstractConfig {
             this.updateIndicatorsOnTrade = json.updateIndicatorsOnTrade;
         if (typeof json.flipPosition === "boolean")
             this.flipPosition = json.flipPosition;
+        if (typeof json.closePositionFirst === "boolean")
+            this.closePositionFirst = json.closePositionFirst;
         if (Array.isArray(json.exchangeParams) === true && json.exchangeParams.length !== 0 && typeof json.exchangeParams[0] === "string") {
             this.exchangeParams = json.exchangeParams;
             this.addExchangeParams();
         }
         if (typeof json.notifyTrades === "boolean")
             this.notifyTrades = json.notifyTrades;
+        this.validateConfig();
     }
 
     public static resetCounter() {
@@ -149,6 +154,7 @@ export class TradeConfig extends AbstractConfig {
             if (update[prop] !== undefined) // don't set invalid values (removing means setting them to 0/null)
                 this[prop] = update[prop];
         }
+        this.validateConfig();
     }
 
     protected loadMarkets(strategies) {
@@ -241,5 +247,11 @@ export class TradeConfig extends AbstractConfig {
                 existing.push(param);
         });
         nconf.set("exchangeParams", existing);
+    }
+
+    protected validateConfig() {
+        super.validateConfig();
+        if (this.marginTrading === false && this.closePositionFirst === true)
+            logger.error("Config error: closePositionFirst can only be used for marginTrading.");
     }
 }

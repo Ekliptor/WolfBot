@@ -93,6 +93,7 @@ export class LendingConfig extends AbstractConfig {
             this.currency = json.currency;
         this.loadMarkets(json.strategies);
         //this.loadMarketsFromCurrencies(json.currencies);
+        this.validateConfig();
     }
 
     public static expandConfig(json: any): any[] {
@@ -188,6 +189,7 @@ export class LendingConfig extends AbstractConfig {
             if (update[prop] !== undefined) // don't set invalid values (removing means setting them to 0/null)
                 this[prop] = update[prop];
         }
+        this.validateConfig();
     }
 
     public updateCurrency(update: CurrencyConfRuntimeUpdate) {
@@ -223,4 +225,8 @@ export class LendingConfig extends AbstractConfig {
         }
     }
     */
+
+    protected validateConfig() {
+        super.validateConfig();
+    }
 }

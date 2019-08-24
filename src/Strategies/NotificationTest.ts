@@ -19,6 +19,9 @@ export default class NotificationTest extends TechnicalStrategy {
 
     constructor(options) {
         super(options)
+        if (nconf.get("trader") === "Backtester")
+            throw new Error(utils.sprintf("%s is not available during backtesting because notifications can only be sent during live trading.", this.className));
+
         this.addInfoFunction("sample", () => {
             return this.action.message;
         });

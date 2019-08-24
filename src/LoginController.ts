@@ -34,6 +34,7 @@ export class BotSubscription {
  * Class to check if the login & subscription on wolfbot.org is valid.
  */
 export class LoginController extends AbstractSubController {
+    public static readonly BOT_ID_PREFIX = "WID";
     private static instance: LoginController = null;
 
     protected lastCheckedLogin = new Date(0);
@@ -65,7 +66,7 @@ export class LoginController extends AbstractSubController {
 
     public static getDisplayBotID(): string {
         if (nconf.get("serverConfig:premium") !== true)
-            return "WID000";
+            return LoginController.BOT_ID_PREFIX + "000";
         let instance = LoginController.getInstance();
         const firstStart = new Date(nconf.get("serverConfig:firstStart") || 0);
         const threshold = new Date("2019-08-07T09:54:25.600Z"); // TODO remove after a few months
@@ -76,7 +77,7 @@ export class LoginController extends AbstractSubController {
         }
         if (firstStart.getTime() > threshold.getTime()) // new tokens
             botIdData.u = nconf.get("serverConfig:username");
-        return "WID" + crypto.createHash('sha512')
+        return LoginController.BOT_ID_PREFIX + crypto.createHash('sha512')
             .update(JSON.stringify(botIdData), 'utf8')
             .digest('base64')
             .substr(2, 10);

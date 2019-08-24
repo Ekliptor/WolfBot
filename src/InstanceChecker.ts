@@ -24,6 +24,7 @@ export default class InstanceChecker extends AbstractSubController {
     protected lastCheck: Date = null;
     protected lastPort: number = 0;
     protected lastResponse = new Date(); // assume working on startup
+    protected lastOkRuntime = new Date(); // last time the runtime of the bot we are monitoring was high enough
     protected notifier: AbstractNotification;
     protected lastNotification: Date = null;
 
@@ -149,7 +150,7 @@ export default class InstanceChecker extends AbstractSubController {
                             // TODO verify again that it's still running?
                             const msg = utils.sprintf("Killing possibly stuck process: PID %s, last response %s", PID, utils.test.getPassedTime(this.lastResponse.getTime()));
                             logger.warn(msg)
-                            this.notifyBotKill(botName, "is unresponsive", msg)
+                            this.notifyBotError(botName, "is unresponsive", msg)
                             try {
                                 process.kill(PID, "SIGKILL") // just kill it. bots get (re-)started by our bash script
                             }
@@ -229,13 +230,13 @@ export default class InstanceChecker extends AbstractSubController {
         if (this.lastResponse.getTime() + nconf.get("serverConfig:assumeBotCrashedMin") * utils.constants.MINUTE_IN_SECONDS*1000 > Date.now())
             return;
         const msg = utils.sprintf("Last response: %s\nPort: %s", utils.test.getPassedTime(this.lastResponse.getTime()), this.lastPort);
-        this.notifyBotKill(botName, "is not starting", msg);
+        this.notifyBotError(botName, "is not starting", msg);
     }
 
     protected checkBotApiResponsive(botName: string) {
         return new Promise<boolean>((resolve, reject) => {
             this.getBotApiPort(botName).then((port) => {
-                const apiUrl = "https://localhost:" + port + "/state/"
+                const apiUrl = "https://localhost:" + port + "/state/" // TODO also check uptime
                 logger.verbose("Checking instance %s with URL: ", botName, apiUrl)
                 this.lastPort = port;
                 let data = {
@@ -243,11 +244,11 @@ export default class InstanceChecker extends AbstractSubController {
                 }
                 let reqOptions = {skipCertificateCheck: true}
                 utils.postDataAsJson(apiUrl, data, (body, res) => {
-                    if (body === false || !utils.parseJson(body)) { // it's EJSON, but compatible
+                    if (body === false || this.checkBotUptime(botName, body) === false) {
                         // do a 2nd check to be sure
                         setTimeout(() => {
                             utils.postDataAsJson(apiUrl, data, (body, res) => {
-                                if (body === false || !utils.parseJson(body))
+                                if (body === false || this.checkBotUptime(botName, body) === false)
                                     return resolve(false)
                                 resolve(true)
                             }, reqOptions)
@@ -260,6 +261,25 @@ export default class InstanceChecker extends AbstractSubController {
                 reject(err)
             })
         })
+    }
+
+    /**
+     * Returns false if the json is invalid.
+     * @param botName
+     * @param statusJsonStr
+     */
+    protected checkBotUptime(botName: string, statusJsonStr: string): boolean {
+        const json = utils.parseJson(statusJsonStr); // it's EJSON, but compatible
+        if (json === null)
+            return false;
+        if (json.uptime > 0.0) {
+            const runtimeH = Math.floor(json.runtime / utils.constants.HOUR_IN_SECONDS);
+            if (runtimeH >= nconf.get("serverConfig:instanceRuntimeOkH"))
+                this.lastOkRuntime = new Date();
+            else if (this.lastOkRuntime.getTime() + nconf.get("serverConfig:notifyInstanceLowRuntimeH")*utils.constants.HOUR_IN_SECONDS*1000 < Date.now())
+                this.notifyBotError(botName, "Bot has low uptime", utils.sprintf("Uptime %sh, last OK uptime %s", runtimeH, utils.test.getPassedTime(this.lastOkRuntime.getTime())));
+        }
+        return true; // JSON is valid
     }
 
     protected copyBotLogfile(botName: string) {
@@ -298,7 +318,7 @@ export default class InstanceChecker extends AbstractSubController {
         })
     }
 
-    protected notifyBotKill(botName: string, title: string, message: string) {
+    protected notifyBotError(botName: string, title: string, message: string) {
         const pauseMs = nconf.get('serverConfig:notificationPauseMin') * utils.constants.MINUTE_IN_SECONDS * 1000;
         if (this.lastNotification && this.lastNotification.getTime() + pauseMs > Date.now()) // lastNotification per bot? we only monitor 1 instance per bot
             return;

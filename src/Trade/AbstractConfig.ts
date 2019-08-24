@@ -23,4 +23,8 @@ export class AbstractConfig {
     public static getExchangeNames(exchanges: string[]) { // in Strategies on client and AbstractConfig on server
         return exchanges.toString().replace(/,/g, ", ");
     }
+
+    protected validateConfig() {
+        // nothing to validate in parent class yet
+    }
 }
