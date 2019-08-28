@@ -27,6 +27,7 @@
                     "order": "closeLong",
                     "stop": 0.0,
                     "profit": 1.2,
+                    "updateTrailingStop": true,
                     "trailingStopPerc": 0.0,
                     "time": 300,
                     "reduceTimeByVolatility": false,

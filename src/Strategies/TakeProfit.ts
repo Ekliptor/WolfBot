@@ -11,6 +11,7 @@ interface TakeProfitAction extends /*StrategyAction*/AbstractTakeProfitStrategyA
     // add interest rates for margin trading (0.13% on average for BTC on poloniex) ==> > 0.63%
     stop: number; // optional. A fixed stop price when to sell (> for long position) or buy (< for short position). If present takes precedence over 'profit'.
     profit: number; // 2.3% // in %
+    updateTrailingStop: boolean; // optional, default true - True means the setback value is used as trailing stop. False means it is set to a fixed rate once when opening a position.
 
     time: number; // in seconds, optional. only close the position if the price doesn't reach a new high/low within this time
     reduceTimeByVolatility: boolean; // optional, default true. Reduce the stop time during high volatility market moments.
@@ -41,6 +42,8 @@ export default class TakeProfit extends AbstractTakeProfitStrategy {
             this.stopCountStart = new Date(Date.now() + 1000*utils.constants.DAY_IN_SECONDS*1000); // use Date.now() because marketTime is null
         else
             this.stopCountStart = new Date(0); // sell immediately
+        if (typeof this.action.updateTrailingStop !== "boolean")
+            this.action.updateTrailingStop = true;
         if (this.action.keepTrendOpen === undefined)
             this.action.keepTrendOpen = TakeProfit.KEEP_TREND_OPEN;
         if (typeof this.action.forceMaker !== "boolean")
@@ -81,18 +84,22 @@ export default class TakeProfit extends AbstractTakeProfitStrategy {
                     this.logStopValues(false);
                 }
                 let log = false;
-                //if (this.entryPrice === -1) // causes buggy/late reset
-                    //this.entryPrice = this.avgMarketPrice;
-                if (!this.action.candleSize || this.highestPrice === 0) { // first init exception
-                    if (this.avgMarketPrice > this.highestPrice) {
-                        this.highestPrice = this.avgMarketPrice;
-                        this.updateStopCount();
-                        log = true;
+                if (this.strategyPosition !== "none" && (!this.action.candleSize || this.highestPrice === 0)) { // first init exception
+                    //if (this.entryPrice === -1) // causes buggy/late reset
+                        //this.entryPrice = this.avgMarketPrice;
+                    if (this.highestPrice === 0.0 || this.action.updateTrailingStop === true) {
+                        if (this.avgMarketPrice > this.highestPrice) {
+                            this.highestPrice = this.avgMarketPrice;
+                            this.updateStopCount();
+                            log = true;
+                        }
                     }
-                    if (this.avgMarketPrice < this.lowestPrice) { // on first call both conditions are true
-                        this.lowestPrice = this.avgMarketPrice;
-                        this.updateStopCount();
-                        log = true;
+                    if (this.lowestPrice === Number.MAX_VALUE || this.action.updateTrailingStop === true) {
+                        if (this.avgMarketPrice < this.lowestPrice) { // on first call both conditions are true
+                            this.lowestPrice = this.avgMarketPrice;
+                            this.updateStopCount();
+                            log = true;
+                        }
                     }
                 }
                 if (log)
@@ -117,12 +124,12 @@ export default class TakeProfit extends AbstractTakeProfitStrategy {
             // so if the price moves fast in 1 direction we allow temporary higher setbacks
             let log = false;
             // use close price here instead of high/low
-            if (candle.close > this.highestPrice) {
+            if (candle.close > this.highestPrice && (this.highestPrice === 0.0 || this.action.updateTrailingStop === true)) {
                 this.highestPrice = candle.close;
                 this.updateStopCount();
                 log = true;
             }
-            if (candle.close < this.lowestPrice) { // on first call both conditions are true
+            if (candle.close < this.lowestPrice && (this.lowestPrice === Number.MAX_VALUE || this.action.updateTrailingStop === true)) { // on first call both conditions are true
                 this.lowestPrice = candle.close;
                 this.updateStopCount();
                 log = true;

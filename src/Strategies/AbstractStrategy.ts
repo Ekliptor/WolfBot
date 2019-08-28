@@ -1196,6 +1196,14 @@ export abstract class AbstractStrategy extends AbstractGenericStrategy {
         return this.avgMarketPrice;
     }
 
+    protected getCurrentRate(): number {
+        if (this.avgMarketPrice > 0.0)
+            return this.avgMarketPrice;
+        if (this.ticker && this.ticker.last > 0.0)
+            return this.ticker.last;
+        throw new Error(utils.sprintf("%s: Unable to get current market rate for %s because neither trade feed nor ticker of exchange is updating", this.className, this.action.pair.toString()));
+    }
+
     protected toTradeAction(action: StrategyOrder): TradeAction {
         return action === "closeLong" || action === "closeShort" ? "close" : action;
     }

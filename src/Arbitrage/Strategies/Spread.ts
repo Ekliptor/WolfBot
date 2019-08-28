@@ -29,6 +29,8 @@ interface SpreadAction extends ArbitrageStrategyAction {
  ie , if  the price is $5000 on deribit  then bitmex is $5050 ....
  it will  limit buy any thing on deribit up to $5005  and market sell the same ammount  down to $5045
  need to place in the money limit order , because if it was a wick a there may not not enter a trade ... and you dont want to eat too much slipage with  market order
+
+ // TODO limit order on on side (exchange with less stable API, downs, BitMEX) and then market buy/sell into the other exchange AFTER
  */
 export default class Spread extends AbstractArbitrageStrategy {
     protected action: SpreadAction;

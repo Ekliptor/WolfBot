@@ -246,6 +246,8 @@ export abstract class AbstractExchange {
     protected responseTimeRecent = 0;
     protected responseTimeAvg = 0;
     protected webSocketTimeoutMs: number = nconf.get('serverConfig:websocketTimeoutMs'); // set to 0 to disable it
+    protected reconnectWebsocketDelayMs = 2500;
+    protected reconnectWebsocketTimerID: NodeJS.Timer = null;
     protected websocketTimeoutTimerID: NodeJS.Timer = null;
     protected websocketPingTimerID: NodeJS.Timer = null;
     protected websocketCleanupFunction: () => boolean = null;
@@ -631,7 +633,7 @@ export abstract class AbstractExchange {
                 if (this.connectionState === ConnectionState.OPENING)
                     this.connectionState = ConnectionState.OPEN;
                 else
-                    logger.warn("%s connection reached unknown state during connecting: %s", this.className, this.connectionState);
+                    logger.warn("%s connection reached unknown state during connecting: %s", this.className, ConnectionState[this.connectionState]);
             }, 5000);
         }
         this.resetWebsocketTimeout();
@@ -679,7 +681,8 @@ export abstract class AbstractExchange {
         this.openMarketRelays = [];
         for (let book of this.orderBook)
             this.orderBook.get(book[0]).clear(); // keep references to the orderbook
-        setTimeout(this.openConnection.bind(this), 2500);
+        clearTimeout(this.reconnectWebsocketTimerID);
+        this.reconnectWebsocketTimerID = setTimeout(this.openConnection.bind(this), this.reconnectWebsocketDelayMs);
         //this.forceReload = true;
         // TODO if it takes us mutlipe tries to reconnect (exchange overloaded for many minutes) our trades list is incomplete
         // add a feature to auto import missing trades or suspend trading for candleSize * numberOfCandles of the longest strategy

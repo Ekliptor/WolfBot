@@ -38,6 +38,7 @@ export default class BitmexMarketData extends AbstractMarketData {
         this.currencies = new BitMEXCurrencies(this as any); // we only need it to convert currency pairs
         this.pushApiConnectionType = PushApiConnectionType.API_WEBSOCKET;
         this.webSocketTimeoutMs = 0; // disabled it. few data, but stable library handling reconnects automatically
+        this.reconnectWebsocketDelayMs = 6000; // BitMEX is currently (August 2019) very unstable
 
         try {
             this.apiClient = new BitMEXClient({

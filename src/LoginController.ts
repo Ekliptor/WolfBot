@@ -80,7 +80,16 @@ export class LoginController extends AbstractSubController {
         return LoginController.BOT_ID_PREFIX + crypto.createHash('sha512')
             .update(JSON.stringify(botIdData), 'utf8')
             .digest('base64')
-            .substr(2, 10);
+            .substr(2, 10); // TODO make them URL friendly? but not stored in DB currently anway
+    }
+
+    public static getWebhookUrl(): string {
+        let nodeConfig = LoginController.getInstance().getNodeConfig();
+        if (nodeConfig === null) {
+            logger.error("Can not get Webhook URL for bot. Incorrect premium node setup.");
+            return "";
+        }
+        return nodeConfig.url + "/api";
     }
 
     public isLoginValid() {

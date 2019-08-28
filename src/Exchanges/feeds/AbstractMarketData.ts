@@ -31,6 +31,8 @@ export abstract class AbstractMarketData extends EventEmitter {
     protected websocketTimeoutTimerID: NodeJS.Timer = null;
     //protected websocketPingTimerID: NodeJS.Timer = null;
     protected webSocketTimeoutMs: number = nconf.get('serverConfig:websocketTimeoutMs'); // set to 0 to disable it
+    protected reconnectWebsocketDelayMs = 2500;
+    protected reconnectWebsocketTimerID: NodeJS.Timer = null;
     protected websocketCleanupFunction: () => boolean = null;
     protected static pushApiConnections = new Map<string, autobahn.Connection | WebSocket>(); // (className, instance)
     protected pushApiConnectionType: PushApiConnectionType = PushApiConnectionType.WEBSOCKET;
@@ -141,7 +143,8 @@ export abstract class AbstractMarketData extends EventEmitter {
         logger.warn("Websocket connection to %s closed: Reason: %s", this.className, reason);
         clearTimeout(this.websocketTimeoutTimerID);
         //clearTimeout(this.websocketPingTimerID);
-        setTimeout(this.openConnection.bind(this), 2500);
+        clearTimeout(this.reconnectWebsocketTimerID);
+        this.reconnectWebsocketTimerID = setTimeout(this.openConnection.bind(this), this.reconnectWebsocketDelayMs);
     }
 
     protected openConnection(): void {
@@ -172,7 +175,7 @@ export abstract class AbstractMarketData extends EventEmitter {
                 if (this.connectionState === ConnectionState.OPENING)
                     this.connectionState = ConnectionState.OPEN;
                 else
-                    logger.warn("%s connection reached unknown state during connecting: %s", this.className, this.connectionState);
+                    logger.warn("%s connection reached unknown state during connecting: %s", this.className, ConnectionState[this.connectionState]);
             }, 5000);
         }
         this.resetWebsocketTimeout();

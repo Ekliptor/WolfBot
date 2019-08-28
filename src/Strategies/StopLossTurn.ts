@@ -140,7 +140,7 @@ export default class StopLossTurn extends AbstractStopStrategy {
                 this.logStopValues(false); // too spammy
             }
             let log = false;
-            if (this.strategyPosition !== "none" && !this.action.candleSize || this.highestPrice === 0) { // first init exception
+            if (this.strategyPosition !== "none" && (!this.action.candleSize || this.highestPrice === 0)) { // first init exception
                 if (this.highestPrice === 0.0 || this.action.updateTrailingStop === true) {
                     if (this.avgMarketPrice > this.highestPrice) {
                         this.highestPrice = this.avgMarketPrice;

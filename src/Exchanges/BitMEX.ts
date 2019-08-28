@@ -195,6 +195,7 @@ export default class BitMEX extends AbstractContractExchange {
         //this.maxTimeAheadMs = 20000; // their clock goes ahead?
         this.currencies = new BitMEXCurrencies(this);
         this.webSocketTimeoutMs = nconf.get('serverConfig:websocketTimeoutMs')*6; // they don't send pings too often
+        this.reconnectWebsocketDelayMs = 6000; // BitMEX is currently (August 2019) very unstable
         this.httpKeepConnectionsAlive = true; // they have full support for it. allegedly as fast as websockets
         if (!options || !this.apiKey.key)
             return; // temp instance to check exchange type
@@ -485,6 +486,10 @@ export default class BitMEX extends AbstractContractExchange {
         return new Promise<CancelOrderResult>((resolve, reject) => {
             let params = {
                 orderID: orderNumber
+            }
+            if (!params.orderID) { // how did this happen?
+                logger.error("Can not cancel %s order with invalid order number %s", this.className, orderNumber);
+                return resolve({exchangeName: this.className, orderNumber: orderNumber, cancelled: true})
             }
             this.privateReq("DELETE /order", params).then((result) => {
                 if (result && result.error) {

@@ -27,9 +27,12 @@ import {TaLib, TaLibParams, TaLibResult} from "./Indicators/TaLib";
 import {Brain} from "./AI/Brain";
 import {WebErrorCode} from "./Web/errorCodes";
 import {JsonResponse} from "./Web/JsonResponse";
+import {GlobalTradeSignal} from "./structs/GlobalTradeSignal";
 
 
 export class Controller extends AbstractController { // TODO implement graceful shutdown api command (stop & delete tasks)
+    public static readonly GLOBAL_SIGNALS = new GlobalTradeSignal();
+
     protected exchangeConntroller: ExchangeController = null;
     protected tradeAdvisor: TradeAdvisor = null;
     protected lendingAdvisor: LendingAdvisor = null;
@@ -475,6 +478,19 @@ export class Controller extends AbstractController { // TODO implement graceful 
             status.strategyInfos !== null || status.social !== null || status.prices !== null)) // add more checks if we use different features later
             status.ready = true;
         return {data: status}
+    }
+
+    public async processApiRequest(req: http.IncomingMessage): Promise<any> {
+        const postReq: any = req; // postReq.params {"signal":"t=000&h=devbot.wolfbot.org%3A2096&a=NSFjl234jlsjdfgl345"}
+        let output = {added: false}
+        if (postReq.params && postReq.params.signal) {
+            // TradingView has the message in the raw body
+            const signal = decodeURIComponent(postReq.params.signal).replace(/\+/, " "); // decodeURIComponent() is safe to be called multiple times
+            logger.info("Received Webhook API signal: %s", signal);
+            Controller.GLOBAL_SIGNALS.addSignal(signal);
+            output.added = true;
+        }
+        return output;
     }
 
     public addTelegramMessage(message: /*RawTelegramMessage*/any) {

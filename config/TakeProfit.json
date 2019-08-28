@@ -9,6 +9,7 @@
         "TakeProfit": {
           "order": "closeLong",
           "profit": 5.2,
+          "updateTrailingStop": true,
           "time": 3600,
           "reduceTimeByVolatility": false,
           "keepTrendOpen": true,

@@ -139,6 +139,14 @@ dispatcher.onPost('/state/', async (req, res) => {
     res.end(utils.EJSON.stringify(output))
 })
 
+dispatcher.onPost('/api', async (req, res) => {
+    res.writeHead(200, {'Content-Type': 'application/json; charset=UTF-8'})
+    //if (checkPostAuth(req.formFields, res) === false)
+        //return
+    let output = await Controller.processApiRequest(req)
+    res.end(JSON.stringify(output))
+})
+
 dispatcher.onPost('/telegram/', (req, res) => {
     res.writeHead(200, {'Content-Type': 'application/json; charset=UTF-8', 'Access-Control-Allow-Origin': '*'})
     if (checkPostAuth(req.formFields, res) === false)

@@ -881,7 +881,7 @@ export abstract class PortfolioTrader extends AbstractTrader {
 
         if (this.config.flipPosition === true && strategy.getStrategyPosition() !== "none") {
             if ((trade === "sell" && strategy.getStrategyPosition() === "long") || (trade === "buy" && strategy.getStrategyPosition() === "short")) {
-                coinAmount *= 2.0;
+                coinAmount *= 2.0; // TODO if we traded multiple times in the same direction (multiple buys) this amount from config is too low. always sync before?
                 logger.info("%s: Trading twice the amount because flipPosition is enabled in config on %s trade", this.className, trade.toUpperCase());
             }
         }
