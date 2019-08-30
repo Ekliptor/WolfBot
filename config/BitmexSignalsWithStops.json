@@ -1,0 +1,112 @@
+{
+  "data": [
+    {
+      "exchanges": [
+        "BitMEX"
+      ],
+      "marginTrading": true,
+      "tradeTotalBtc": 900,
+      "warmUpMin": 0,
+      "notifyTrades": true,
+      "updateIndicatorsOnTrade": false,
+      "flipPosition": true,
+      "strategies": {
+        "TradingViewSignal": {
+          "email": "tradingview@wolfbot.org",
+          "password": "",
+          "host": "",
+          "port": 0,
+          "tls": true,
+          "checkMailSec": 31,
+          "tradeDirection": "both",
+          "buyWords": "buy",
+          "sellWords": "sell",
+          "closeWords": "close",
+          "forceMaker": false,
+          "pair": "USD_BTC",
+          "candleSize": 1,
+          "tradeStrategy": "",
+          "enableLog": true
+        },
+        "StopLossTurn": {
+          "order": "closeShort",
+          "setback": 1.4,
+          "setbackLong": 1.4,
+          "updateTrailingStop": false,
+          "time": 30,
+          "notifyBeforeStopSec": 120,
+          "reduceTimeByVolatility": false,
+          "keepTrendOpen": false,
+          "low": 40,
+          "high": 65,
+          "candleSize": 5,
+          "pair": "USD_BTC",
+          "enableLog": false
+        },
+        "TakeProfit": {
+          "order": "closeShort",
+          "profit": 3.1,
+          "updateTrailingStop": false,
+          "time": 300,
+          "candleSize": 5,
+          "pair": "USD_BTC",
+          "enableLog": false
+        }
+      }
+    },
+    {
+      "exchanges": [
+        "BitMEX"
+      ],
+      "marginTrading": true,
+      "tradeTotalBtc": 900,
+      "warmUpMin": 0,
+      "notifyTrades": true,
+      "updateIndicatorsOnTrade": false,
+      "flipPosition": true,
+      "strategies": {
+        "TradingViewSignal": {
+          "email": "tradingview@wolfbot.org",
+          "password": "",
+          "host": "",
+          "port": 0,
+          "tls": true,
+          "checkMailSec": 31,
+          "tradeDirection": "both",
+          "buyWords": "",
+          "sellWords": "",
+          "closeWords": "",
+          "forceMaker": false,
+          "pair": "USD_ETH",
+          "candleSize": 1,
+          "tradeStrategy": "",
+          "enableLog": true
+        },
+        "StopLossTurn": {
+          "order": "closeShort",
+          "setback": 1.4,
+          "setbackLong": 1.4,
+          "updateTrailingStop": false,
+          "time": 30,
+          "notifyBeforeStopSec": 120,
+          "reduceTimeByVolatility": false,
+          "keepTrendOpen": false,
+          "low": 40,
+          "high": 65,
+          "candleSize": 5,
+          "pair": "USD_ETH",
+          "enableLog": false
+        },
+        "TakeProfit": {
+          "order": "closeShort",
+          "profit": 3.1,
+          "updateTrailingStop": false,
+          "time": 300,
+          "candleSize": 5,
+          "pair": "USD_ETH",
+          "enableLog": false
+        }
+      }
+    }
+  ]
+}
