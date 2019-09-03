@@ -1,0 +1,61 @@
+{
+  "data": [
+    {
+      "exchanges": [
+        "BitMEX"
+      ],
+      "marginTrading": true,
+      "tradeTotalBtc": 100,
+      "warmUpMin": 0,
+      "notifyTrades": true,
+      "updateIndicatorsOnTrade": false,
+      "flipPosition": false,
+      "closePositionFirst": false,
+      "closePositionAndTrade": true,
+      "strategies": {
+        "TradingViewSignal": {
+          "email": "tradingview@wolfbot.org",
+          "password": "",
+          "host": "",
+          "port": 0,
+          "tls": true,
+          "checkMailSec": 31,
+          "tradeDirection": "both",
+          "buyWords": "buy",
+          "sellWords": "sell",
+          "closeWords": "close",
+          "alwaysAllowPosIncrease": true,
+          "forceMaker": false,
+          "pair": "USD_BTC",
+          "candleSize": 1,
+          "tradeStrategy": "",
+          "enableLog": true
+        },
+        "StopLossTurn": {
+          "order": "closeShort",
+          "setback": 0.45,
+          "setbackLong": 0.45,
+          "updateTrailingStop": false,
+          "time": 20,
+          "notifyBeforeStopSec": 120,
+          "reduceTimeByVolatility": false,
+          "keepTrendOpen": false,
+          "low": 45,
+          "high": 55,
+          "candleSize": 5,
+          "pair": "USD_BTC",
+          "enableLog": false
+        },
+        "TakeProfit": {
+          "order": "closeShort",
+          "profit": 1.1,
+          "updateTrailingStop": false,
+          "time": 20,
+          "candleSize": 5,
+          "pair": "USD_BTC",
+          "enableLog": false
+        }
+      }
+    }
+  ]
+}

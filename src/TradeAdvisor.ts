@@ -786,8 +786,8 @@ export default class TradeAdvisor extends AbstractAdvisor {
 
         const orderActions: StrategyActionName[] = ["cancelOrder"];
         orderActions.forEach((actionName) => {
-            strategy.on(actionName, (pendingOrder: PendingOrder, reason: string) => {
-                this.trader.get(config.configNr).callAction(actionName, strategy, reason, pendingOrder.exchange.getExchangeLabel());
+            strategy.on(actionName, (pendingOrder: PendingOrder, reason: string, exchange: Currency.Exchange = Currency.Exchange.ALL) => {
+                this.trader.get(config.configNr).callAction(actionName, strategy, reason, exchange);
             });
         });
         const batchOderActions: StrategyActionName[] = ["cancelAllOrders"];

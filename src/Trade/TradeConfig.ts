@@ -18,6 +18,7 @@ export interface ConfigRuntimeUpdate {
     updateIndicatorsOnTrade: boolean;
     flipPosition: boolean;
     closePositionFirst: boolean;
+    closePositionAndTrade: boolean;
     exchangeParams: string[];
 }
 
@@ -34,6 +35,7 @@ export class TradeConfig extends AbstractConfig {
     public readonly updateIndicatorsOnTrade: boolean = false;
     public readonly flipPosition: boolean = false; // trade twice the amount on a buy/sell signal if we have an existing position to flip the position direction
     public readonly closePositionFirst: boolean = false; // close a position on a buy/sell signal opposite to our existing position
+    public readonly closePositionAndTrade: boolean = false; // close a position on a buy/sell signal opposite to our existing position first and then trade
     // additional params for exchanges. since we only create 1 instance per exchange these are merged globally (and not per config instance)
     // requires a restart to take affect
     public readonly exchangeParams: string[] = [];
@@ -80,6 +82,8 @@ export class TradeConfig extends AbstractConfig {
             this.flipPosition = json.flipPosition;
         if (typeof json.closePositionFirst === "boolean")
             this.closePositionFirst = json.closePositionFirst;
+        if (typeof json.closePositionAndTrade === "boolean")
+            this.closePositionAndTrade = json.closePositionAndTrade;
         if (Array.isArray(json.exchangeParams) === true && json.exchangeParams.length !== 0 && typeof json.exchangeParams[0] === "string") {
             this.exchangeParams = json.exchangeParams;
             this.addExchangeParams();
@@ -251,7 +255,11 @@ export class TradeConfig extends AbstractConfig {
 
     protected validateConfig() {
         super.validateConfig();
-        if (this.marginTrading === false && this.closePositionFirst === true)
-            logger.error("Config error: closePositionFirst can only be used for marginTrading.");
+        if (this.marginTrading === false) {
+            if (this.closePositionFirst === true)
+                logger.error("Config error: closePositionFirst can only be used for marginTrading.");
+            if (this.closePositionAndTrade === true)
+                logger.error("Config error: closePositionAndTrade can only be used for marginTrading.");
+        }
     }
 }

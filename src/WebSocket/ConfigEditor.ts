@@ -735,6 +735,10 @@ export class ConfigEditor extends AppPublisher {
 
     protected saveConfigFile(name: string, data: string) {
         return new Promise<void>((resolve, reject) => {
+            if (process.env.IS_CHILD) { // prevent corrupted data
+                logger.warn("Skipped saving config file in child process %s", process.pid);
+                return resolve();
+            }
             if (name.substr(-5) !== ".json")
                 name += ".json";
             try {
@@ -979,6 +983,7 @@ export class ConfigEditor extends AppPublisher {
                         updateIndicatorsOnTrade: conf.updateIndicatorsOnTrade,
                         flipPosition: conf.flipPosition,
                         closePositionFirst: conf.closePositionFirst,
+                        closePositionAndTrade: conf.closePositionAndTrade,
                         exchangeParams: conf.exchangeParams
                     }
                     if (configs.length > i)

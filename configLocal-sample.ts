@@ -216,6 +216,8 @@ let tradingViewAccount = {
 export {root, serverConfig, orverrides, tradingViewAccount}
 
 
-export type MultipleCurrencyImportExchange = "Poloniex" | "Bitfinex";
+export type MultipleCurrencyImportExchange = "Poloniex" | "Bitfinex" | "BitMEX";
 export const currencyImportMap = new Map<MultipleCurrencyImportExchange, Currency.CurrencyPair[]>([
+]);
+export const liveTradeImportMap = new Map<MultipleCurrencyImportExchange, Currency.CurrencyPair[]>([
 ]);

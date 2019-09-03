@@ -495,6 +495,17 @@ export abstract class AbstractGenericStrategy extends EventEmitter {
     }
 
     /**
+     * Log a message and update this strategy's current state with it.
+     * See logState() for details.
+     * @param args
+     */
+    protected logStateOnce(...args) {
+        this.loggingState = true;
+        this.updateStateFromLogMessage(...args);
+        this.logOnce(...args);
+    }
+
+    /**
      * Log arguments as warning
      * @param args the arguments to log. You can't use %s, but arguments will be formatted as string.
      * Use utils.sprintf() to format strings.

@@ -44,6 +44,7 @@ export abstract class AbstractTrader extends AbstractGenericTrader {
     protected start: number = 0;
     protected pausedOpeningPositions: boolean = nconf.get("serverConfig:pausedOpeningPositions");
     protected simulatedExchanges = new Map<string, AbstractExchange>(); // (exchange name, dummy instance)
+    protected isTradeSequence: boolean = false; // is this trade part of a LONG -> CLOSE -> SHORT trade series?
 
     protected marketRates = new Map<string, number>(); // (currency pair, rate)
 
@@ -127,9 +128,18 @@ export abstract class AbstractTrader extends AbstractGenericTrader {
             return;
         }
 
-        if (this.config.closePositionFirst === true) {
-            const currentPosition = strategy.getStrategyPosition();
-            if ((action === "sell" && currentPosition === "long") || (action === "buy" && currentPosition === "short")) {
+        const currentPosition = strategy.getStrategyPosition();
+        const isOppositeDirectionTrade = (action === "sell" && currentPosition === "long") || (action === "buy" && currentPosition === "short");
+        let tradeAfterClose: StrategyActionName = null;
+        if (this.config.closePositionAndTrade === true) {
+            if (isOppositeDirectionTrade === true && this.isTradeSequence === false) {
+                logger.info("%s: Closing position on %s trade because closePositionAndTrade is enabled for existing %s position", this.className, action.toUpperCase(), currentPosition.toUpperCase());
+                tradeAfterClose = action;
+                action = "close";
+            }
+        }
+        else if (this.config.closePositionFirst === true) {
+            if (isOppositeDirectionTrade === true) {
                 logger.info("%s: Changing trade action from %s to CLOSE because closePositionFirst is enabled for existing %s position", this.className, action.toUpperCase(), currentPosition.toUpperCase());
                 action = "close";
             }
@@ -158,7 +168,12 @@ export abstract class AbstractTrader extends AbstractGenericTrader {
 
                 this[action](strategy, reason, exchange).then(() => {
                     this.isTrading.delete(pairStr);
-                    logger.verbose("Trading action %s %s has finished in %s", action, pairStr, this.className)
+                    logger.verbose("Trading action %s %s has finished in %s", action, pairStr, this.className);
+                    if (tradeAfterClose !== null) {
+                        this.isTradeSequence = true;
+                        this.callAction(tradeAfterClose, strategy, reason, exchange);
+                        this.isTradeSequence = false;
+                    }
                 }).catch((err) => {
                     logger.error("Error executing %s %s in %s", action, pairStr, this.className, err);
                     this.isTrading.delete(pairStr);

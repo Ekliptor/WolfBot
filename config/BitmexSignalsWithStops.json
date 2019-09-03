@@ -10,6 +10,8 @@
       "notifyTrades": true,
       "updateIndicatorsOnTrade": false,
       "flipPosition": true,
+      "closePositionFirst": false,
+      "closePositionAndTrade": false,
       "strategies": {
         "TradingViewSignal": {
           "email": "tradingview@wolfbot.org",
@@ -23,6 +25,7 @@
           "sellWords": "sell",
           "closeWords": "close",
           "forceMaker": false,
+          "alwaysAllowPosIncrease": false,
           "pair": "USD_BTC",
           "candleSize": 1,
           "tradeStrategy": "",
@@ -64,6 +67,7 @@
       "notifyTrades": true,
       "updateIndicatorsOnTrade": false,
       "flipPosition": true,
+      "closePositionAndTrade": false,
       "strategies": {
         "TradingViewSignal": {
           "email": "tradingview@wolfbot.org",
@@ -76,6 +80,7 @@
           "buyWords": "",
           "sellWords": "",
           "closeWords": "",
+          "alwaysAllowPosIncrease": false,
           "forceMaker": false,
           "pair": "USD_ETH",
           "candleSize": 1,

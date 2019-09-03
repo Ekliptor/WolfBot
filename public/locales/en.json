@@ -573,7 +573,8 @@
     "tradeTotalBtc": "Enter the total amount you want to trade in your base currency (USD when trading USD_BTC, BTC when trading BTC_ETH,...). If you enable margin trading this amount will be leveraged (multiplied).",
     "updateIndicatorsOnTrade": "If enabled all technical indicators will be updated on every trade that happens on the exchange. This means indicator values on the latest candle will always change. The default behaviour is to only update indicator values once the candle is complete.",
     "flipPosition": "By enabling this WolfBot will trade with 2x \"tradeTotalBtc\" if there already is an open position. This means you can always switch between a long and short short position with a single trade.<br>This only applies to buy an sell signals (close signals will still close the position).",
-    "closePositionFirst": "Enable this to close an existing long position when receiving a sell signal (or a short position when receiving a buy signal) instead of making a new trade. This option is only available when margin trading is enabled.<br>This option takes precedence over flipPosition.",
+    "closePositionFirst": "Enable this to market close an existing long position when receiving a sell signal (or a short position when receiving a buy signal) instead of making a new trade. This option is only available when margin trading is enabled.<br>This option takes precedence over flipPosition.",
+    "closePositionAndTrade": "Enable this to market close an existing long position when receiving a sell call (or a short position when receiving a buy signal) before executing the new trade to open a position in the opposite direction.This option is only available when margin trading is enabled.<br>This option takes precedence over flipPosition and closePositionFirst.",
     "maxLeverage": "The max leverage to use for margin trading to multiply 'tradeTotalBtc' with. This also applies to futures trading.",
     "warmUpMin": "How many minutes after start shall the bot start trading? Keep it to 0 (immediately) unless you want to wait for some external market events (news, crash,...). WolfBot will sync pre-existing positions positions on startup and initialize strategies with historical data, so increasing this value doesn't give WolfBot a better understanding of the market.",
     "notifyTrades": "Send push notifications of all trades to your smartphone.",
@@ -1171,6 +1172,7 @@
       "buyWords": "optional, default 'buy' - A list of words (case insensitive, separated by |) on which the strategy buys. It is recommended to fine-tune your alert messages first and only use this as fallback.",
       "sellWords": "optional, default 'sell' - A list of words (case insensitive, separated by |) on which the strategy sells. It is recommended to fine-tune your alert messages first and only use this as fallback.",
       "closeWords": "optional, default 'close' - A list of words (case insensitive, separated by |) on which the strategy sells. If no close signals are used this strategy can still buy and (short) sell the same position without closing.<br>A close signal will always close the whole position size (regardless of your trading amount configuration) using a market order.",
+      "alwaysAllowPosIncrease": "optional, default false - Always allow increasing an existing position even if signal conditions such as \"p/l\" would prohibit it.",
       "forceMaker": "optional. default false - Only place a maker order (not paying the higher taker fee)."
     },
     "TrailingStop": {

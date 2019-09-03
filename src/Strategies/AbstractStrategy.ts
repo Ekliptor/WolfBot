@@ -900,10 +900,13 @@ export abstract class AbstractStrategy extends AbstractGenericStrategy {
      * Emit an event to cancel an order placed on an exchange. If the order hasn't ben filled yet it will be cancelled.
      * @param pendingOrder
      * @param reason
+     * @param exchange
      */
-    protected emitCancelOrder(pendingOrder: PendingOrder, reason: string) {
+    protected emitCancelOrder(pendingOrder: PendingOrder, reason: string, exchange: Currency.Exchange = Currency.Exchange.ALL) {
         this.lastCancelledOrder = pendingOrder;
-        this.emit("cancelOrder", pendingOrder, reason);
+        if (exchange === Currency.Exchange.ALL && pendingOrder.exchange && pendingOrder.exchange.getExchangeLabel() !== exchange)
+            exchange = pendingOrder.exchange.getExchangeLabel(); // overwrite it if we still have the original order object and it was on another exchange
+        this.emit("cancelOrder", pendingOrder, reason, exchange);
     }
 
     /**

@@ -301,11 +301,15 @@ export default class HistoryDataExchange extends AbstractExchange {
                             if (err)
                                 return reject({txt: "Error replaying trades", err: err}); // abort
                             tradeDocs = [];
-                            getNextDoc();
+                            setTimeout(getNextDoc.bind(this), 0); // clear the stack
                         });
                     }
-                    else
-                        getNextDoc();
+                    else {
+                        if (count % 10 === 0)
+                            setTimeout(getNextDoc.bind(this), 0); // clear the stack
+                        else
+                            getNextDoc();
+                    }
                 })
             }
             getNextDoc();

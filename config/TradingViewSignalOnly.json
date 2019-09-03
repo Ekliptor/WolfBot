@@ -9,6 +9,7 @@
             "updateIndicatorsOnTrade": false,
             "flipPosition": true,
             "closePositionFirst": false,
+            "closePositionAndTrade": false,
             "strategies": {
                 "TradingViewSignal": {
                     "email": "tradingview@wolfbot.org",
@@ -21,6 +22,7 @@
                     "buyWords": "buy",
                     "sellWords": "sell",
                     "closeWords": "close",
+                    "alwaysAllowPosIncrease": false,
                     "forceMaker": false,
                     "pair": "USD_BTC",
                     "candleSize": 1,

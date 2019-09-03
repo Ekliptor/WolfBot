@@ -14,7 +14,7 @@ import * as path from "path";
 import * as fs from "fs";
 import * as childProcess from "child_process";
 import {BotEvaluation} from "../Trade/PortfolioTrader";
-import {currencyImportMap, MultipleCurrencyImportExchange} from "../../configLocal";
+import {currencyImportMap, liveTradeImportMap, MultipleCurrencyImportExchange} from "../../configLocal";
 import {Currency} from "@ekliptor/bit-models";
 const fork = childProcess.fork;
 import * as Heap from "qheap";
@@ -371,7 +371,9 @@ export class BacktestingUpdater extends AppPublisher {
 
     protected getCurrencyPairImportMap() {
         let map = new Map<string, string[]>();
-        for (let cur of currencyImportMap)
+        // merge both. duplicates with have the value of the last key
+        const availableImports = new Map<MultipleCurrencyImportExchange, Currency.CurrencyPair[]>([...currencyImportMap, ...liveTradeImportMap]);
+        for (let cur of availableImports)
         {
             const exchange = cur[0];
             const pairs = cur[1];
@@ -387,7 +389,10 @@ export class BacktestingUpdater extends AppPublisher {
         let exchanges = Array.from(Currency.ExchangeName.keys());
         if (nconf.get("serverConfig:premium") === false)
             return exchanges;
-        return exchanges.filter(e => currencyImportMap.has(e as MultipleCurrencyImportExchange));
+        let backtestExchanges = exchanges.filter((e: MultipleCurrencyImportExchange) => {
+            return currencyImportMap.has(e) || liveTradeImportMap.has(e);
+        });
+        return backtestExchanges;
     }
 
     protected getLogPath() {
