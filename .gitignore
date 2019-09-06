@@ -88,6 +88,7 @@ src/Strategies/MarketMakerMartingale.ts
 src/Strategies/TradingViewSignal.ts
 src/Strategies/WeekPredictor.ts
 src/Strategies/FishingStraight.ts
+src/Strategies/HullSwinger.ts
 config/BitmexSwagger.json
 config/MarketMakerOffset.json
 config/MarketMakerMartingale.json
@@ -102,6 +103,7 @@ config/OkexWeekSwap.json
 config/BitmexWeekStops.json
 config/DeribitTradingViewImmediate.json
 config/FishingStraight.json
+config/HullSwinger.json
 config/arbitrage/Leg.json
 config/arbitrage/LegDouble.json
 src/Browser

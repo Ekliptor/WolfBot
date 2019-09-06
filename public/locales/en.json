@@ -1400,6 +1400,15 @@
       "long": "optional, default 26 - The number of candles for the long EMA of the MACD indicator.",
       "signal": "optional, default 9 - The number of candles for the signal line of the MACD line (short EMA - long EMA)."
     },
+    "HullSwinger": {
+      "desc": "Strategy that detects swings based on the Hull MA together with DEMA and Bollinger Bands percent B value.<br>This swing trading strategy is meant for short term daytrading. It works well on candle sizes of 5min - 120min.<br>It will open and close positions. You may still add a stop-loss or take-profit strategy.",
+      "tradeDirection": "optional, default both - The direction in which this strategy shall open positions. Values: up|down|both",
+      "interval": "optional, default 9 - The number of candles to use for the Hull MA computation.",
+      "swingBackTicks": "optional, default 1 - How many candles have to at least pass to trade again in the opposite direction.",
+      "N": "optional, default 20 - The time period for MA of BollingerBands.",
+      "K": "optional, default 2 - The factor for upper/lower band of BollingerBands.",
+      "MAType": "optional, default 0 (SMA) - The moving average type of BollingerBands."
+    },
     "MarketMakerOffset": {
       "desc": "Strategy that acts as a market maker by placing 2 corresponding buy/sell limit orders a certain percentage away from each other. You can configure a fixed percentage or place them as far away as possible within the orderbook (while staying closer to the last trade price than any other orders).<br>This strategy can also pause market making during quick price movements.<br>This strategy can also issue multiple open buy/sell order pairs - each one a configured percentage further apart.<br>You must run this strategy alone, meaning without any StopLoss, take-profit or trade strategy.",
       "makerMode": "optional, default fixed - Fixed means we place orders at percent steps away from the last trade price. Book means orders get placed as far away as possible in the orderbook (going inwards towards the market price) to not ruin potential spread opportunities. Values: fixed|book",

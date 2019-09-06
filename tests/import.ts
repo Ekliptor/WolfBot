@@ -40,10 +40,6 @@ let importTrades = () => {
     let end = utils.date.parseAsGmt0(nconf.get("serverConfig:backtest:to"))
     ex.subscribeToMarkets([pair])
 
-    //let history = new TradeHistory.TradeHistory(pair, ex.getExchangeLabel(), start, end);
-    //TradeHistory.addToHistory(db.get(), history)
-    //return logger.info("Added range to trades history");
-
     setTimeout(() => { // Bitfinex needs time to connect
         logger.info("Starting manual import of %s %s trades", ex.getClassName(), pair.toString());
         ex.importHistory(pair, start, end).then(() => {
@@ -54,6 +50,23 @@ let importTrades = () => {
             scheduleExit();
         })
     }, nconf.get("serverConfig:exchangeImportDelayMs"))
+}
+
+let completeHistoryImport = () => {
+    let ex = new Poloniex(nconf.get("serverConfig:apiKey:exchange:Poloniex"))
+    //let ex = new OKEX(nconf.get("serverConfig:apiKey:exchange:OKEX")[0])
+    //let ex = new Kraken(nconf.get("serverConfig:apiKey:exchange:Kraken")[0])
+    //let ex = new Bitfinex(nconf.get("serverConfig:apiKey:exchange:Bitfinex")[0]);
+
+    let pair = new Currency.CurrencyPair(Currency.Currency.USDT, Currency.Currency.BTC)
+
+    let start = utils.date.parseAsGmt0(nconf.get("serverConfig:backtest:from"))
+    let end = utils.date.parseAsGmt0(nconf.get("serverConfig:backtest:to"))
+    ex.subscribeToMarkets([pair])
+
+    let history = new TradeHistory.TradeHistory(pair, ex.getExchangeLabel(), start, end);
+    TradeHistory.addToHistory(db.get(), history)
+    logger.info("Added %s %s range to trades history", ex.getClassName(), pair.toString());
 }
 
 let importMultipleCurrencyTrades = (exchangeName: MultipleCurrencyImportExchange) => {
@@ -151,6 +164,7 @@ let getOpenOrders = () => {
 Controller.loadServerConfig(() => {
     utils.file.touch(AbstractExchange.cookieFileName).then(() => {
         //importTrades()
+        //completeHistoryImport()
 
         // node --use_strict --max-old-space-size=2096 app.js --config=Noop --exchange=Poloniex --days=2 -p=3849
         importMultipleCurrencyTrades(argv.exchange ? argv.exchange : "Poloniex");

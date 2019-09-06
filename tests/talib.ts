@@ -28,7 +28,7 @@ let testTaLib = () => {
     }
 
     // Retreive Average Directional Movement Index indicator specifications
-    let function_desc = talib.explain("KAMA");
+    let function_desc = talib.explain("WMA");
     console.dir(function_desc);
 
 
@@ -37,7 +37,7 @@ let testTaLib = () => {
 
     // execute Average Directional Movement Index indicator with time period 9
     talib.execute({
-        name: "CDLHAMMER",
+        name: "WMA",
         startIdx: 0,
         endIdx: marketData.close.length - 1,
         inReal: marketData.close,

@@ -5,13 +5,13 @@
         "BitMEX"
       ],
       "marginTrading": true,
-      "tradeTotalBtc": 100,
+      "tradeTotalBtc": 10,
       "warmUpMin": 0,
       "notifyTrades": true,
       "updateIndicatorsOnTrade": false,
-      "flipPosition": false,
+      "flipPosition": true,
       "closePositionFirst": false,
-      "closePositionAndTrade": true,
+      "closePositionAndTrade": false,
       "strategies": {
         "TradingViewSignal": {
           "email": "tradingview@wolfbot.org",
@@ -26,7 +26,7 @@
           "closeWords": "close",
           "alwaysAllowPosIncrease": true,
           "forceMaker": false,
-          "pair": "USD_BTC",
+          "pair": "USD_ETH",
           "candleSize": 1,
           "tradeStrategy": "",
           "enableLog": true
@@ -43,7 +43,7 @@
           "low": 25,
           "high": 75,
           "candleSize": 5,
-          "pair": "USD_BTC",
+          "pair": "USD_ETH",
           "enableLog": false
         },
         "TakeProfit": {
@@ -52,7 +52,7 @@
           "updateTrailingStop": false,
           "time": 20,
           "candleSize": 5,
-          "pair": "USD_BTC",
+          "pair": "USD_ETH",
           "enableLog": false
         }
       }

@@ -3,7 +3,7 @@
         {
             "exchanges": ["BitMEX"],
             "marginTrading": true,
-            "tradeTotalBtc": 100.0,
+            "tradeTotalBtc": 500.0,
             "warmUpMin": 0,
             "strategies": {
                 "FishingNet": {
@@ -48,14 +48,14 @@
                     "stopLong": 0.0,
                     "setback": 5.5,
                     "setbackLong": 5.5,
-                    "time": 600,
+                    "time": 300,
                     "updateTrailingStop": false,
                     "setbackProfit": 4.1,
                     "triggerProfit": 6.5,
                     "timeProfit": 120,
                     "reduceTimeByVolatility": false,
-                    "low": 52,
-                    "high": 56,
+                    "low": 20,
+                    "high": 80,
                     "candleSize": 5,
                     "pair": "USD_BTC",
                     "enableLog": false

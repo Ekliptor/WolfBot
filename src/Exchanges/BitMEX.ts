@@ -433,6 +433,13 @@ export default class BitMEX extends AbstractContractExchange {
     }
 
     public marginSell(currencyPair: Currency.CurrencyPair, rate: number, amount: number, params: MarginOrderParameters) {
+        /**
+         *  TODO how? we already have AbstractTrader.ensureValidRate() retry uses same function
+         * 2019-09-05 06:10:29 - error: BitMEX margin order error:  {"error":{"message":"orderQty is required","name":"HTTPError"}}
+         2019-09-05 06:10:29 - info: RealTimeTrader margin BUY trade with USD_BTC from TradingViewSignal: BUY signal: Hull Buy Alert USD_BTC pl=0.4 (HTTP API)
+         2019-09-05 06:10:29 - info: rate 0, amount Infinity
+         */
+
         return this.marginOrder(currencyPair, rate, -amount, params);
     }
 
