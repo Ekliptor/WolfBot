@@ -1207,6 +1207,14 @@ export abstract class AbstractStrategy extends AbstractGenericStrategy {
         throw new Error(utils.sprintf("%s: Unable to get current market rate for %s because neither trade feed nor ticker of exchange is updating", this.className, this.action.pair.toString()));
     }
 
+    protected isPositionOpenTicks(minTicks: number): boolean {
+        if (this.positionOpenTicks < 0)
+            return false; // no open position
+        else if (minTicks <= 0) // invalid ?
+            return true;
+        return this.positionOpenTicks >= minTicks;
+    }
+
     protected toTradeAction(action: StrategyOrder): TradeAction {
         return action === "closeLong" || action === "closeShort" ? "close" : action;
     }
