@@ -60,6 +60,13 @@ export default class HullMA extends AbstractIndicator {
         return this.value !== -1 && this.valuesClose.length >= this.params.interval;
     }
 
+    /**
+     * Return the Volume Weighted Average (WMA) value of 'interval' candles.
+     */
+    public getWMA() {
+        return this.wmaValue;
+    }
+
     // ################################################################
     // ###################### PRIVATE FUNCTIONS #######################
 

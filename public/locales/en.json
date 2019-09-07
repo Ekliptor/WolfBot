@@ -1405,6 +1405,7 @@
       "tradeDirection": "optional, default both - The direction in which this strategy shall open positions. Values: up|down|both",
       "interval": "optional, default 9 - The number of candles to use for the Hull MA computation.",
       "swingBackTicks": "optional, default 1 - How many candles have to at least pass to trade again in the opposite direction.",
+      "minProfitClose": "optional, default 0 (disabled) - The minimum profit a position must have to close it (and open an opposite position) on a new swing.<br>The amount is specified in base currency (USD for USD_XXX pair). Increasing this value can be useful in sideways markets to wait for the next swing and keep the position open until it is profitable.",
       "N": "optional, default 20 - The time period for MA of BollingerBands.",
       "K": "optional, default 2 - The factor for upper/lower band of BollingerBands.",
       "MAType": "optional, default 0 (SMA) - The moving average type of BollingerBands."
