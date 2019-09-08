@@ -1112,9 +1112,11 @@ export abstract class AbstractStrategy extends AbstractGenericStrategy {
     protected getDailyChange(): number {
         if (nconf.get("trader") === "Backtester") { // no ticker available
             if (this.candles1min.length < 1440)
-                return 0.0;
+                return 0.0; // faster
             let dailyCandle = this.getCandles(1440, 1) // last 24h candle
-            return Math.round(dailyCandle[0].getPercentChange() * 100) / 100.0;
+            if (dailyCandle && dailyCandle.length !== 0) // check if we have data for less than a full day (we use the correct offset)
+                return Math.round(dailyCandle[0].getPercentChange() * 100) / 100.0;
+            return 0.0;
         }
         if (!this.ticker) {
             logger.error("No ticker available to get daily %s change", this.action.pair.toString())

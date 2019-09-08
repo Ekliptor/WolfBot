@@ -1,61 +1,72 @@
 {
-  "data": [
-    {
-      "exchanges": ["Poloniex"],
-      "marginTrading": true,
-      "tradeTotalBtc": 0.7,
-      "warmUpMin": 0,
-      "strategies": {
-        "DayTrendFollower": {
-          "entryMode": "candlestick",
-          "entrySetbackPercent": 0.0,
-          "dynamicFactor": 0.8,
-          "maxDailyTrend": 22.0,
-          "closeLossCandles": 24,
-          "trendLineDays": 3,
-          "tradeDirection": "both",
-          "candleSize": 60,
-          "pair": "BTC_LTC",
-          "tradeStrategy": "RSIScalpOrderer",
-          "enableLog": true
-        },
-        "RSIScalpOrderer": {
-          "low": 34,
-          "high": 70,
-          "expiry": 20,
-          "candleSize": 5,
-          "pair": "BTC_LTC",
-          "enableLog": true
-        },
-        "StopLossTurn": {
-          "order": "closeLong",
-          "setback": 3.5,
-          "setbackLong": 5.5,
-          "time": 7200,
-          "reduceTimeByVolatility": false,
-          "low": 52,
-          "high": 56,
-          "candleSize": 5,
-          "pair": "BTC_LTC",
-          "enableLog": false
-        },
-        "TakeProfitStochRSI": {
-          "low": 11,
-          "high": 87,
-          "interval": 18,
-          "closeRateFactor": 0.9992,
-          "alwaysIncreaseStop": false,
-          "candleSize": 60,
-          "orderStrategy": "TriggerOrder",
-          "pair": "BTC_LTC",
-          "enableLog": true
-        },
-        "TriggerOrder": {
-          "candleSize": 1,
-          "pair": "BTC_LTC",
-          "enableLog": true
+    "data": [
+        {
+            "exchanges": "Bitfinex",
+            "marginTrading": true,
+            "tradeTotalBtc": 200,
+            "warmUpMin": 0,
+            "strategies": {
+                "DayTrendFollower": {
+                    "entryMode": "candlestick",
+                    "entrySetbackPercent": 0,
+                    "dynamicFactor": 0.8,
+                    "maxDailyTrend": 22,
+                    "closeLossCandles": 24,
+                    "trendLineDays": 3,
+                    "tradeDirection": "both",
+                    "candleSize": 60,
+                    "pair": "USD_BTC",
+                    "tradeStrategy": "RSIScalpOrderer",
+                    "enableLog": true
+                },
+                "RSIScalpOrderer": {
+                    "low": 34,
+                    "high": 70,
+                    "expiry": 20,
+                    "candleSize": 5,
+                    "pair": "USD_BTC",
+                    "enableLog": true
+                },
+                "StopLossTurn": {
+                    "order": "closeLong",
+                    "setback": 3.5,
+                    "setbackLong": 5.5,
+                    "updateTrailingStop": false,
+                    "time": 300,
+                    "reduceTimeByVolatility": false,
+                    "keepTrendOpen": false,
+                    "low": 52,
+                    "high": 56,
+                    "candleSize": 5,
+                    "pair": "USD_BTC",
+                    "enableLog": false
+                },
+                "TakeProfitStochRSI": {
+                    "low": 11,
+                    "high": 87,
+                    "interval": 18,
+                    "closeRateFactor": 0.9992,
+                    "alwaysIncreaseStop": false,
+                    "candleSize": 60,
+                    "orderStrategy": "TriggerOrder",
+                    "pair": "USD_BTC",
+                    "enableLog": true
+                },
+                "TriggerOrder": {
+                    "candleSize": 1,
+                    "pair": "USD_BTC",
+                    "enableLog": true
+                },
+                "TakeProfit": {
+                    "order": "closeShort",
+                    "profit": 6.1,
+                    "updateTrailingStop": false,
+                    "time": 300,
+                    "candleSize": 5,
+                    "pair": "USD_BTC",
+                    "enableLog": false
+                }
+            }
         }
-      }
-    }
-  ]
+    ]
 }

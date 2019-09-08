@@ -297,6 +297,8 @@ export default class ExchangeController extends AbstractSubController {
                 }
 
                 logger.warn("Unable to load config file %s in %s - most likely wrong trading mode after restart. Retrying defaults", filePath, this.className);
+                if (nconf.get("trader") === "Backtester")
+                    return;
                 const paramsFile = path.join(/*utils.appDir, */nconf.get("lastParamsFile")); // use working dir
                 fs.unlink(paramsFile, (err) => {
                     if (err && err.code !== "ENOENT")
@@ -370,6 +372,8 @@ export default class ExchangeController extends AbstractSubController {
     }
 
     protected async copyFallbackConfigFile(dest: string): Promise<void> {
+        if (nconf.get("trader") === "Backtester")
+            return; // can only be chosen from parent process with valid config files
         let filePath = path.join(TradeConfig.getConfigDirForMode("trading"), nconf.get("serverConfig:fallbackTradingConfig") + ".json");
         try {
             await fs.promises.copyFile(filePath, dest)

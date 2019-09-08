@@ -206,7 +206,7 @@ export abstract class AbstractGenericStrategy extends EventEmitter {
         let candles = Object.assign([], this.candles1min);
         //if (candleCount > 0)
         //candles.splice(0, candles.length - (candleSize * candleCount + 1*candleSize)) // batcher will only emit full candles, so add 1 candle
-        while (candles.length > candleSize*candleCount)
+        while (candles.length > 2*candleSize*candleCount+1) // we need twice the amount because we use proper hourly/daily offsets
             candles.pop();
         batcher.addCandles(candles);
         while (longCandles.length > candleCount)
