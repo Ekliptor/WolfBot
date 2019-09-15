@@ -34,16 +34,16 @@ export abstract class AbstractTurnStrategy extends TechnicalStrategy {
 
     protected openLong(reason: string) {
         // TODO add RSI to prevent buying on overbought. generally MACD is faster than RSI, EMA can have about the same speed
+        this.scheduledEnterMarketOnTick = new ScheduledTrade("buy", this.defaultWeight, reason); // must be set before close()
         if (this.strategyPosition === "short")
             this.emitClose(this.defaultWeight, "changing strategy position from short to long")
-        this.scheduledEnterMarketOnTick = new ScheduledTrade("buy", this.defaultWeight, reason);
         return true;
     }
 
     protected openShort(reason: string) {
+        this.scheduledEnterMarketOnTick = new ScheduledTrade("sell", this.defaultWeight, reason);
         if (this.strategyPosition === "long")
             this.emitClose(this.defaultWeight, "changing strategy position from long to short")
-        this.scheduledEnterMarketOnTick = new ScheduledTrade("sell", this.defaultWeight, reason);
         return true;
     }
 }

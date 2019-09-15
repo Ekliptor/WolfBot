@@ -136,7 +136,19 @@ export class CandleBatcher<T extends TradeBase> extends CandleStream<T> {
             return; // shouldn't happen
         else if (ensureInterval === true) { // keep the candles in sync with the clock (independently of bot start time)
             const candleMinutes = this.lastSmallCandle.start.getMinutes();
-            if (this.interval % 5 === 0) {
+            if (this.interval % 60 === 0) {
+                if (candleMinutes % 60 !== 0)
+                    return;
+            }
+            else if (this.interval % 30 === 0) {
+                if (candleMinutes % 30 !== 0)
+                    return;
+            }
+            else if (this.interval % 15 === 0) {
+                if (candleMinutes % 15 !== 0)
+                    return;
+            }
+            else if (this.interval % 5 === 0) {
                 if (candleMinutes % 5 !== 0)
                     return;
             }

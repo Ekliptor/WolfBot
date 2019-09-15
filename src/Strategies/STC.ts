@@ -21,7 +21,7 @@ interface StcAction extends TechnicalStrategyAction {
 }
 
 /**
- * Strategy that emits buy/sell based on the Schaff Trend Cycle. STC is a faster version of MACD that oscillates around 0.
+ * Strategy that emits buy/sell based on the Schaff Trend Cycle. STC is a faster version of MACD that oscillates between 0 and 100.
  * Sell signals are given when STC goes down from a high and buy signals when it comes up from a low.
  * This strategy also closes positions if an opposite trade signal occurs.
  */

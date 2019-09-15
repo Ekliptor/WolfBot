@@ -1029,7 +1029,7 @@
       "initialOrder": "optional, default empty - Just wait for the first candle trend and follow it."
     },
     "STC": {
-      "desc": "Strategy that emits buy/sell based on the Schaff Trend Cycle. STC is a faster version of MACD that oscillates around 0. Sell signals are given when STC goes down from a high and buy signals when it comes up from a low. This strategy also closes positions if an opposite trade signal occurs.",
+      "desc": "Strategy that emits buy/sell based on the Schaff Trend Cycle. STC is a faster version of MACD that oscillates between 0 and 100. Sell signals are given when STC goes down from a high and buy signals when it comes up from a low. This strategy also closes positions if an opposite trade signal occurs.",
       "low": "optional, default 25 - Go long if STC goes up from this value.",
       "high": "optional, default 75 - Go short if STC goes down from this value.",
       "closePositions": "optional, default true - Close existing positions if an opposite signal occurs.",
@@ -1194,6 +1194,19 @@
       "resistanceLines": "The price levels where we want to open short a position.",
       "tradeBreakout": "optional, default false - A value of false means we will assume the price will bounce back within the trading range. If set to true we wait for the support/resistance to get broken and trade the breakout direction.",
       "expirationPercent": "optional, default 3% - Only execute orders at price levels that are within x% of the set support/resistance lines."
+    },
+    "TrendOscillator": {
+      "desc": "Strategy that first checks for the current market trend using EMA crossover strategy.<br>It then emits buy/sell based on the Schaff Trend Cycle to only trade with the current trend. STC is a faster version of MACD that oscillates between 0 and 100. Sell signals are given when STC goes down from a high and buy signals when it comes up from a low.<br>This strategy also closes positions if an opposite trade signal occurs.",
+      "CrossMAType": "optional, default EMA - The moving average type to use for identifying trend directions. Values: EMA|SMA|DEMA|WMA",
+      "short": "optional, default 7 - Number of candles for the short EMA line.",
+      "long": "optional, default 30 - Number of candles for the long EMA line.",
+      "low": "optional, default 10 - Go long if STC goes up from this value.",
+      "high": "optional, default 90 - Go short if STC goes down from this value.",
+      "closePositions": "optional, default true - Close existing positions if an opposite signal occurs. Otherwise the position will be kept open until it is closed by another strategy (stop-loss, take-profit,...).",
+      "fast": "optional, default 23 - The number of fast EMA candles.",
+      "slow": "optional, default 50 - The number of slow EMA candles.",
+      "stcLength": "optional, default 10 - How many candles STC will keep to compute MACD signal and STC candle data.",
+      "factor": "optional, default 0.5 (should be <= 1.0) - A lower value means STC will forget historic data faster and be more responsive, thus doing more trades."
     },
     "TriggerOrder": {
       "desc": "Strategy that receives a order from another strategy (such as StopLoss or TakeProfit) and executes it once the threshold triggers. This strategy works with a small candle size (1min) while the strategy giving the order can have a larger candle size. This strategy doesn't have its own config, but instead uses some parameters from the pending order to be executed by it."

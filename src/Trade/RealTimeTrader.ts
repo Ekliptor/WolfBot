@@ -524,7 +524,8 @@ export default class RealTimeTrader extends PortfolioTrader {
                     continue;
                 }
                 orderOps.push(new Promise((resolve, reject) => {
-                    exchange.cancelOrder(order.order.currencyPair, order.order.orderID).then((cancelResult: CancelOrderResult) => {
+                    let cancelFn = this.config.marginTrading ? exchange.marginCancelOrder(order.order.currencyPair, order.order.orderID) : exchange.cancelOrder(order.order.currencyPair, order.order.orderID);
+                    cancelFn.then((cancelResult: CancelOrderResult) => {
                         logger.info("%s CANCEL order from %s: %s", this.className, strategy.getClassName(), reason);
                         logger.info("amount %s, rate %s", order.order.amount, order.order.rate);
                         logger.info(JSON.stringify(cancelResult))
@@ -563,6 +564,7 @@ export default class RealTimeTrader extends PortfolioTrader {
                     continue;
                 }
                 orderOps.push(new Promise((resolve, reject) => {
+                    // margin cancel decided inside that function after oreders are being fetched
                     exchange.cancelAllOrders(strategy.getAction().pair).then((cancelResult: CancelOrderResult) => {
                         logger.info("%s CANCEL ALL orders from %s: %s", this.className, strategy.getClassName(), reason);
                         logger.info(JSON.stringify(cancelResult))

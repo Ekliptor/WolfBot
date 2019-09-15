@@ -31,6 +31,7 @@ interface SpreadAction extends ArbitrageStrategyAction {
  need to place in the money limit order , because if it was a wick a there may not not enter a trade ... and you dont want to eat too much slipage with  market order
 
  // TODO limit order on on side (exchange with less stable API, downs, BitMEX) and then market buy/sell into the other exchange AFTER
+ buy bitmex, sell deribit https://media.discordapp.net/attachments/535073809620008971/621153358102790197/ice_screenshot_20190911-112128.png
  */
 export default class Spread extends AbstractArbitrageStrategy {
     protected action: SpreadAction;

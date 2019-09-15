@@ -513,13 +513,15 @@ export abstract class AbstractExchange {
     }
 
     public async cancelAllOrders(currencyPair: Currency.CurrencyPair): Promise<CancelOrderResult> {
-        console.log("CANCEL ALL", currencyPair)
         let cancelResult: CancelOrderResult = {exchangeName: this.className, cancelled: false, orderNumber: 0}
         try {
             let orders = await this.getOpenOrders(currencyPair);
             let cancelOps = [];
             orders.orders.forEach((order) => {
-                cancelOps.push(this.cancelOrder(currencyPair, order.orderNumber));
+                if (order.leverage > 1.0 || this.contractExchange === true)
+                    cancelOps.push(this.marginCancelOrder(currencyPair, order.orderNumber));
+                else
+                    cancelOps.push(this.cancelOrder(currencyPair, order.orderNumber));
             });
             await Promise.all(cancelOps);
         }

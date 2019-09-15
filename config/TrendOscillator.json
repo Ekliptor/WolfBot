@@ -1,0 +1,68 @@
+{
+    "data": [
+        {
+            "exchanges": "Bitfinex",
+            "marginTrading": true,
+            "tradeTotalBtc": 200,
+            "notifyTrades": true,
+            "warmUpMin": 0,
+            "strategies": {
+                "TrendOscillator": {
+                    "CrossMAType": "EMA",
+                    "short": 7,
+                    "long": 30,
+                    "low": 10,
+                    "high": 90,
+                    "closePositions": true,
+                    "fast": 23,
+                    "slow": 50,
+                    "stcLength": 10,
+                    "factor": 0.5,
+                    "pair": "USD_BTC",
+                    "candleSize": 30,
+                    "tradeStrategy": "RSIScalpOrderer",
+                    "enableLog": true
+                },
+                "RSIScalpOrderer": {
+                    "low": 35,
+                    "high": 65,
+                    "interval": 6,
+                    "immediateLow": 20,
+                    "immediateHigh": 80,
+                    "onlyBounceBack": false,
+                    "enterLow": 50,
+                    "enterHigh": 50,
+                    "expiry": 5,
+                    "deleteExpired": true,
+                    "candleSize": 5,
+                    "pair": "USD_BTC",
+                    "enableLog": true
+                },
+                "StopLossTurn": {
+                    "order": "closeLong",
+                    "setback": 2.8,
+                    "setbackLong": 2.8,
+                    "updateTrailingStop": false,
+                    "time": 300,
+                    "notifyBeforeStopSec": 120,
+                    "reduceTimeByVolatility": false,
+                    "keepTrendOpen": false,
+                    "low": 25,
+                    "high": 75,
+                    "candleSize": 5,
+                    "pair": "USD_BTC",
+                    "enableLog": false
+                },
+                "TakeProfit": {
+                    "order": "closeLong",
+                    "profit": 5.1,
+                    "updateTrailingStop": false,
+                    "time": 300,
+                    "candleSize": 5,
+                    "pair": "USD_BTC",
+                    "enableLog": false
+                }
+            }
+        }
+    ]
+}
