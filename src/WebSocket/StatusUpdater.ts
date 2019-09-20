@@ -26,6 +26,7 @@ export interface StatusUpdate {
     nodeVersion: string;
     username: string;
     subscriptionValid: boolean;
+    demoVersion: boolean;
     botID: string;
     //currencies: string[];
     currencies: string;
@@ -81,6 +82,7 @@ export class StatusUpdater extends AppPublisher {
                 nodeVersion: process.version,
                 username: nconf.get("serverConfig:premium") === true ? nconf.get("serverConfig:username") : "",
                 subscriptionValid: nconf.get("serverConfig:premium") === true && nconf.get("serverConfig:loggedIn") === true,
+                demoVersion: subscription && subscription.demo === true ? true : false,
                 botID: this.getBotDisplayID(),
                 currencies: this.advisor.getCandleCurrencies().toString().replaceAll(",", ", "),
                 // TODO better evaluation display for premium bot

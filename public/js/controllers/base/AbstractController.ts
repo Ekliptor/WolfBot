@@ -4,6 +4,7 @@ import * as $ from "jquery";
 import {PageData} from "../../types/PageData";
 import {AppData} from "../../types/AppData";
 import {AppFunc, HelpersClass} from "@ekliptor/browserutils";
+import * as i18next from "i18next";
 
 declare var pageData: PageData, appData: AppData;
 declare var AppF: AppFunc, Hlp: HelpersClass;
@@ -51,10 +52,14 @@ export abstract class AbstractController extends ClientSocketReceiver {
             let el = $("#" + this.className + " ." + prop);
             if (el.length === 0)
                 continue;
+            let value = data[prop];
+            if (typeof value === "boolean")
+                value = i18next.t(value === true ? "yes" : "no");
+            // TODO checks & conversions for more types
             if (safeHtml === true)
-                el.html(data[prop]);
+                el.html(value);
             else
-                el.text(data[prop]);
+                el.text(value);
         }
     }
 

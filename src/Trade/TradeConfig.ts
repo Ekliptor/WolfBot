@@ -19,6 +19,7 @@ export interface ConfigRuntimeUpdate {
     flipPosition: boolean;
     closePositionFirst: boolean;
     closePositionAndTrade: boolean;
+    limitOrderToBidAskRate: boolean;
     exchangeParams: string[];
 }
 
@@ -36,6 +37,7 @@ export class TradeConfig extends AbstractConfig {
     public readonly flipPosition: boolean = false; // trade twice the amount on a buy/sell signal if we have an existing position to flip the position direction
     public readonly closePositionFirst: boolean = false; // close a position on a buy/sell signal opposite to our existing position
     public readonly closePositionAndTrade: boolean = false; // close a position on a buy/sell signal opposite to our existing position first and then trade
+    public readonly limitOrderToBidAskRate: boolean = false; // emulate post-only orders
     // additional params for exchanges. since we only create 1 instance per exchange these are merged globally (and not per config instance)
     // requires a restart to take affect
     public readonly exchangeParams: string[] = [];
@@ -84,6 +86,8 @@ export class TradeConfig extends AbstractConfig {
             this.closePositionFirst = json.closePositionFirst;
         if (typeof json.closePositionAndTrade === "boolean")
             this.closePositionAndTrade = json.closePositionAndTrade;
+        if (typeof json.limitOrderToBidAskRate === "boolean")
+            this.limitOrderToBidAskRate = json.limitOrderToBidAskRate;
         if (Array.isArray(json.exchangeParams) === true && json.exchangeParams.length !== 0 && typeof json.exchangeParams[0] === "string") {
             this.exchangeParams = json.exchangeParams;
             this.addExchangeParams();
@@ -111,6 +115,8 @@ export class TradeConfig extends AbstractConfig {
             else
                 return null;
         }
+        if (json.data.length === 0)
+            return null;
         return json; // assume valid
     }
 

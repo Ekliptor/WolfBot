@@ -387,6 +387,7 @@ export class LendingAdvisor extends AbstractAdvisor {
 
     protected pipeMarketStreams(config: LendingConfig) {
         let connectedExchanges: string[] = []
+        const isBacktester = nconf.get('trader') === "Backtester";
         const exchangeNames = config.exchanges;
         for (let ex of this.exchanges) // should only be 1 for lending
         {
@@ -403,21 +404,23 @@ export class LendingAdvisor extends AbstractAdvisor {
 
                 // batch trades and send them at most every x sec to save CPU
                 let tradesToSend = [];
-                if (nconf.get('trader') === "Backtester")
+                if (isBacktester === true)
                     tradesToSend = trades;
                 else {
                     const currencyStr = Currency.Currency[currency];
                     let lastSent = this.lastSentTrades.get(currencyStr)
-                    const forwardTradesMs = (nconf.get("serverConfig:forwardTradesSec") + nconf.get("serverConfig:forwardTradesAddPerMarketSec")*this.candleCurrencies.length)*1000;
+                    const forwardTradesMs = (nconf.get("serverConfig:forwardTradesSec") + nconf.get("serverConfig:forwardTradesAddPerMarketSec")*this.candleCurrencies.length)*1000 + this.delayTradeUpdatesMs;
                     if (!lastSent || lastSent.last.getTime() + forwardTradesMs < Date.now()) {
-                        if (lastSent)
+                        if (lastSent) {
                             tradesToSend = lastSent.pendingTrades;
+                            this.handleDynamicTradeDelay(lastSent.last, forwardTradesMs, tradesToSend.length);
+                        }
                         tradesToSend = tradesToSend.concat(trades);
                         this.lastSentTrades.set(currencyStr, {pendingTrades: [], last: new Date()})
                     }
                     else {
                         lastSent.pendingTrades = lastSent.pendingTrades.concat(trades);
-                        return;
+                        return; // send them later with more data
                     }
                 }
                 if (tradesToSend.length !== 0) {

@@ -575,6 +575,7 @@
     "flipPosition": "By enabling this WolfBot will trade with 2x \"tradeTotalBtc\" if there already is an open position. This means you can always switch between a long and short short position with a single trade.<br>This only applies to buy an sell signals (close signals will still close the position).",
     "closePositionFirst": "Enable this to market close an existing long position when receiving a sell signal (or a short position when receiving a buy signal) instead of making a new trade. This option is only available when margin trading is enabled.<br>This option takes precedence over flipPosition.",
     "closePositionAndTrade": "Enable this to market close an existing long position when receiving a sell call (or a short position when receiving a buy signal) before executing the new trade to open a position in the opposite direction.This option is only available when margin trading is enabled.<br>This option takes precedence over flipPosition and closePositionFirst.",
+    "limitOrderToBidAskRate": "Enable this to ensure the order will placed with a rate that it gets added to the orderbook only (emulate post-only orders to only pay the maker fee). For buy orders this means the rate wont't exceed the highest bid and for sell orders the rate will be at least the lowest ask.<br>Note that if the orderbook updates rapidly the exchange might still charge you the taker fee. Use the 'postOnly' parameter in supported strategies and exchanges to force post-only orders via exchange API.",
     "maxLeverage": "The max leverage to use for margin trading to multiply 'tradeTotalBtc' with. This also applies to futures trading.",
     "warmUpMin": "How many minutes after start shall the bot start trading? Keep it to 0 (immediately) unless you want to wait for some external market events (news, crash,...). WolfBot will sync pre-existing positions positions on startup and initialize strategies with historical data, so increasing this value doesn't give WolfBot a better understanding of the market.",
     "notifyTrades": "Send push notifications of all trades to your smartphone.",
@@ -1433,7 +1434,8 @@
       "idleMinutesOnLiquidation": "optional, default 2min - Don't place orders for this time after a liquidation occurred.",
       "removeOrderPairsOnLiquidation": "optional, default true - Remove open order pairs when a liquidation occurred.",
       "feed": "optional, default BitmexMarketData - The exchange feed to use to get liquidations from. This is not available during backtesting, so results might differ. Values: BitmexMarketData",
-      "currencyPairs": "optional, default [\"USD_BTC\"] - The currency pairs to subscribe to for liquidation data."
+      "currencyPairs": "optional, default [\"USD_BTC\"] - The currency pairs to subscribe to for liquidation data.",
+      "forceMaker": "optional. default false - Only place a maker order (not paying the higher taker fee)."
     },
     "TrailingStopReverseEntry": {
       "desc": "Strategy that has pre-configured support/resistance lines. When the price crosses such a line we place a trailing stop to trade in the other direction (expecting a bounce back). This trade will only happen if the entry price (when the trailing stop gets executed) is still above resistance (resp. below support).<br>Works well with high leverage (10x - 20x) and RSI strategy for entry.<br>Works well on 1min candle size together with a trade strategy such as RSIOrderer or RSIScalpOrderer.<br>This strategy doesn't close positions. You must add a stop-loss and take profit strategy.",
@@ -1561,5 +1563,6 @@
   "backtestingTutorial": "It is recommended to use one of the fully imported currency pair histories from a supported exchange for all your backtesting (regardless of which exchange you are using for live trading). For important considerations about backtesting please read:",
   "thisArticle": "This article",
   "recentBacktests": "Recent backtests",
-  "noRecentBacktests": "There are no recent backtets available. Use the controls above to start your first backtest."
+  "noRecentBacktests": "There are no recent backtets available. Use the controls above to start your first backtest.",
+  "demoVersion": "Demo Version"
 }

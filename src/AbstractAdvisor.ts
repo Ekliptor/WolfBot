@@ -82,6 +82,8 @@ export abstract class AbstractAdvisor extends AbstractSubController {
     protected candleBatchers: Map<any, any>;
     protected tradeBook: TradeBook;
     protected loadedConfig = false;
+    protected delayTradeUpdatesMs: number = 0;
+    protected previousCpuUsage: NodeJS.CpuUsage = null;
     protected pendingBacktests: PendingBacktest[] = [];
     protected backtestRunning = false;
     protected backtestWarmupState: BacktestWarmupState = BacktestWarmupState.IDLE;
@@ -366,6 +368,33 @@ export abstract class AbstractAdvisor extends AbstractSubController {
         let warmupMinutes = strategies.filter(s => s.getAction().candleSize != 0).map(s => s.getMinWarumCandles() * s.getAction().candleSize);
         warmupMinutes.push(1);
         return Math.max(...warmupMinutes);
+    }
+
+    protected handleDynamicTradeDelay(lastSentDate: Date, forwardTradesMs: number, tradeCount: number) {
+        if (/*this.getExchanges().size < 3*/this.getConfigs().length < 3)
+            return; // should be handled by CPU
+        // TODO implement delayTradeUpdatesMs as a map per currency pair as sometimes just 1 exchange is slow
+        const delayMs = Date.now() - lastSentDate.getTime() - forwardTradesMs; // delayTradeUpdatesMs already included
+        if (delayMs > nconf.get("serverConfig:delayIgnoreIncresseMs"))
+            return;
+        const maxDelayMs = nconf.get("serverConfig:maxDelayedTradesMs");
+        const upperLimitMs = nconf.get("serverConfig:upperLimitDelayMs");
+
+        // if our CPU was too busy in userspace we increase our dynamic delay
+        this.previousCpuUsage = process.cpuUsage(this.previousCpuUsage ? this.previousCpuUsage : undefined);
+        const userDelayMs = this.previousCpuUsage.user / 1000; // from microseconds
+        if (delayMs > maxDelayMs && userDelayMs > 2.5*delayMs && tradeCount >= nconf.get("serverConfig:minTradeCountForIncrease") && this.delayTradeUpdatesMs < upperLimitMs) {
+            this.delayTradeUpdatesMs += nconf.get("serverConfig:increaseTradeDynamicSec")*1000;
+            if (this.delayTradeUpdatesMs > upperLimitMs)
+                this.delayTradeUpdatesMs = upperLimitMs;
+            logger.warn("Increasing trade forward frequency by %s sec to %s ms (high CPU) delay %s ms, trade count %s, userspace CPU %s ms",
+                nconf.get("serverConfig:increaseTradeDynamicSec"), this.delayTradeUpdatesMs, delayMs, tradeCount, Math.floor(userDelayMs));
+        }
+        else if (delayMs <= maxDelayMs && this.delayTradeUpdatesMs > 0) {
+            const reduceMs = Math.ceil(nconf.get("serverConfig:increaseTradeDynamicSec")*1000/4);
+            //logger.verbose("Reducing trade forward frequency becuase CPU load is OK by %s ms back to %s ms", reduceMs, forwardTradesMs-reduceMs);
+            this.delayTradeUpdatesMs = Math.max(0, this.delayTradeUpdatesMs - reduceMs);
+        }
     }
 
     protected getMaxCandleHistoryStrategy(strategies: AbstractGenericStrategy[]) {

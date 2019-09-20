@@ -23,6 +23,7 @@ export class BotSubscription {
     token: string = ""; // server-generated unique token per bot
     coupon: string = ""; // cooupon code
     discount: number = 0; // percentage of the discount with the coupon
+    demo: boolean = false; // demo versions can't do live trading (only backtesting and paper trading)
     constructor(id: number, url: string, expiration: Date) {
         this.id = id;
         this.url = url;
@@ -283,7 +284,9 @@ export class LoginController extends AbstractSubController {
             // check if we have a subscription for this bot instance
             if (sub.bot_url != null && typeof sub.bot_url === "object") {
                 if (sub.bot_url.id === this.nodeConfig.id) {
-                    this.subscription = new BotSubscription(sub.bot_url.id, sub.bot_url.url, sub.bot_url.expiration);
+                    let curBotUrl = sub.bot_url;
+                    delete curBotUrl.expiration;
+                    this.subscription = Object.assign(new BotSubscription(sub.bot_url.id, sub.bot_url.url, sub.bot_url.expiration), curBotUrl);
                     if (sub.bot_url.coupon) {
                         this.subscription.coupon = sub.bot_url.coupon;
                         this.subscription.discount = sub.bot_url.discount;

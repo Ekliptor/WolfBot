@@ -4320,6 +4320,8 @@ class Config extends TableController_1.TableController {
             }
             //else if (prop !== "type")
             //continue;
+            else if (!schema[prop]) // can get removed if we modify children
+                continue;
             else if (schema[prop].title === undefined) {
                 const key = "confTitle." + prop;
                 if (i18next.exists(key))
@@ -5034,7 +5036,7 @@ class Status extends AbstractController_1.AbstractController {
                 this.$("#botEvaluation, #stateForm").addClass("hidden");
             else {
                 this.$("#botEvaluation").html(JSON.stringify(data.evaluation, null, 4));
-                this.$("#usernameRow, #tokenRow, #statusRow, #botIDRow").addClass("hidden");
+                this.$("#usernameRow, #tokenRow, #statusRow, #botIDRow, .premiumOnlyProp").addClass("hidden");
             }
             this.removeAsyncLoadingIcon();
             Hlp.updateTimestampsRepeating();
@@ -5660,6 +5662,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 //import {AbstractWidget} from "../classes/AbstractWidget";
 const ClientSocket_1 = __webpack_require__(/*! ../../classes/WebSocket/ClientSocket */ "./public/js/classes/WebSocket/ClientSocket.ts");
 const $ = __webpack_require__(/*! jquery */ "jquery");
+const i18next = __webpack_require__(/*! i18next */ "i18next");
 class AbstractController extends ClientSocket_1.ClientSocketReceiver {
     //protected static readonly DATE_REGEX = "^2.+T.+Z$"; // bad idea because timezone is lost in this format. use EJSON for Dates
     constructor(socket) {
@@ -5686,10 +5689,14 @@ class AbstractController extends ClientSocket_1.ClientSocketReceiver {
             let el = $("#" + this.className + " ." + prop);
             if (el.length === 0)
                 continue;
+            let value = data[prop];
+            if (typeof value === "boolean")
+                value = i18next.t(value === true ? "yes" : "no");
+            // TODO checks & conversions for more types
             if (safeHtml === true)
-                el.html(data[prop]);
+                el.html(value);
             else
-                el.text(data[prop]);
+                el.text(value);
         }
     }
     /**

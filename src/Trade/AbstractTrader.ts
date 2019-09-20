@@ -15,6 +15,11 @@ import {AbstractGenericTrader} from "./AbstractGenericTrader";
 import {AbstractStopStrategy} from "../Strategies/AbstractStopStrategy";
 import {AbstractTakeProfitStrategy} from "../Strategies/AbstractTakeProfitStrategy";
 import {AbstractOrderer} from "../Strategies/AbstractOrderer";
+import {PendingOrder} from "./AbstractOrderTracker";
+import LoggerEx from "../Exchanges/LoggerEx";
+import {LoginController} from "../LoginController";
+import * as helper from "../utils/helper";
+
 
 export type TradeDirection = "up" | "down" | "both";
 
@@ -77,6 +82,10 @@ export abstract class AbstractTrader extends AbstractGenericTrader {
         }
     }
 
+    public static isLiveTrading(): boolean {
+        return nconf.get("trader") === "RealTimeTrader" && nconf.get("tradeMode") === 0;
+    }
+
     /**
      * Return an exchange by name. Make sure to call this on the correct AbstractTrader instance.
      * Use PortfolioTrader.allExchangePairs map to find the right instance.
@@ -97,11 +106,20 @@ export abstract class AbstractTrader extends AbstractGenericTrader {
 
     public callAction(action: StrategyActionName, strategy: AbstractStrategy, reason = "", exchange: Currency.Exchange = Currency.Exchange.ALL): void {
         const pairStr = strategy.getAction().pair.toString() + "-" + Currency.Exchange[exchange]; // add the exchange because for arbitrage we call it twice
-        if (nconf.get("serverConfig:premium") === true && nconf.get("serverConfig:loggedIn") === false) {
-            const msg = utils.sprintf("Unable to %s %s in %s because you don't have a valid subscription: %s - %s", action, pairStr, this.className, strategy.getClassName(), reason)
-            logger.info(msg)
-            this.writeLogLine(msg)
-            return;
+        if (nconf.get("serverConfig:premium") === true) {
+            if (nconf.get("serverConfig:loggedIn") === false) {
+                const msg = utils.sprintf("Unable to %s %s in %s because you don't have a valid subscription: %s - %s", action, pairStr, this.className, strategy.getClassName(), reason)
+                logger.info(msg)
+                this.writeLogLine(msg)
+                return;
+            }
+            const loginController = LoginController.getInstance();
+            if (AbstractTrader.isLiveTrading() === true && loginController.getSubscription().demo === true) {
+                const msg = utils.sprintf("Skipped placing %s %s live trade in %s because you only have a demo subscription: %s - %s", action, pairStr, this.className, strategy.getClassName(), reason)
+                logger.info(msg)
+                this.writeLogLine(msg)
+                return;
+            }
         }
         if (nconf.get("trader") !== "Backtester") {
             if (this.pausedTrading) {
@@ -337,6 +355,7 @@ export abstract class AbstractTrader extends AbstractGenericTrader {
     }
 
     protected ensureValidRate(rate: number, action: BuySellAction, exchange: AbstractExchange, strategy: AbstractStrategy): number {
+        rate = this.maybePlaceBookRate(rate, action, strategy);
         if (rate > 0.0)
             return rate;
         const coinPair = strategy.getAction().pair;
@@ -346,6 +365,21 @@ export abstract class AbstractTrader extends AbstractGenericTrader {
             last = action === "buy" ? orderBook.getBid() : orderBook.getAsk();
         logger.warn("%s: Invalid %s rate from %s. Resetting to", this.className, action.toUpperCase(), strategy.getClassName(), last.toFixed(8));
         return last;
+    }
+
+    protected maybePlaceBookRate(rate: number, action: BuySellAction, strategy: AbstractStrategy): number {
+        if (this.config.limitOrderToBidAskRate !== true)
+            return rate;
+        const book = strategy.getOrderBook();
+        if (!book || book.isSnapshotReady() === false)
+            return rate;
+        const bookRate = action === "buy" ? Math.min(rate, book.getBid()) : Math.max(rate, book.getAsk());
+        const bookSpreadPercent = Math.abs(helper.getDiffPercent(bookRate, book.getLast()));
+        if (bookSpreadPercent > nconf.get("serverConfig:maxBidAskToLastTradeSpreadPerc")) {
+            logger.warn("%s: Orderbook spread to last trade is %s%% on trade from %s. Ignoring bid/ask rates", this.className, bookSpreadPercent, strategy.getClassName());
+            return rate;
+        }
+        return bookRate;
     }
 
     protected isStopOrTakeProfitStrategy(strategy: AbstractStrategy) {
@@ -380,5 +414,3 @@ import "./PortfolioTrader";
 import "./RealTimeTrader";
 import "./TradeNotifier";
 import "../Lending/RealTimeLendingTrader";
-import {PendingOrder} from "./AbstractOrderTracker";
-import LoggerEx from "../Exchanges/LoggerEx";

@@ -984,6 +984,7 @@ export class ConfigEditor extends AppPublisher {
                         flipPosition: conf.flipPosition,
                         closePositionFirst: conf.closePositionFirst,
                         closePositionAndTrade: conf.closePositionAndTrade,
+                        limitOrderToBidAskRate: conf.limitOrderToBidAskRate,
                         exchangeParams: conf.exchangeParams
                     }
                     if (configs.length > i)
@@ -1256,6 +1257,10 @@ export class ConfigEditor extends AppPublisher {
         }
         let jsonData = utils.parseJson(configFileData);
         if (jsonData === null || !jsonData.data || Array.isArray(jsonData.data) === false || jsonData.data.length === 0) {
+            if (jsonData.data && jsonData.data.exchanges) { // convert to array
+                logger.warn("Converting invalid JSON data config to array", jsonData);
+                jsonData.data = [jsonData.data];
+            }
             logger.error("Error loading config file data from disk", jsonData)
             return data;
         }
@@ -1514,6 +1519,10 @@ export class ConfigEditor extends AppPublisher {
 
             // validate coin pairs
             if (!nconf.get("lending")) {
+                if (configObj.data[i].tradeTotalBtc < 0) {
+                    logger.error("Config at pos %s has invalid tradeTotalBtc %s", i, configObj.data[i].tradeTotalBtc);
+                    return null;
+                }
                 if (this.validateStrategyCurrencyPairs(configObj.data[i].strategies) === null)
                     return null;
             }

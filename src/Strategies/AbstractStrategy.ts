@@ -433,6 +433,10 @@ export abstract class AbstractStrategy extends AbstractGenericStrategy {
         // until it is taken
         // getRate() MUST return a rate below/above the market price for buy/sell orders or -1 to let the trader choose the rate based
         // on the order book
+
+        const strategyAction: any = this.action;
+        if (typeof strategyAction.forceMaker === "boolean") // allow adding this to every strategy
+            return strategyAction.forceMaker === true;
         return false;
     }
 

@@ -710,6 +710,8 @@ export class Config extends TableController {
             }
             //else if (prop !== "type")
                 //continue;
+            else if (!schema[prop]) // can get removed if we modify children
+                continue;
             else if (schema[prop].title === undefined) {
                 const key = "confTitle." + prop;
                 if (i18next.exists(key))
