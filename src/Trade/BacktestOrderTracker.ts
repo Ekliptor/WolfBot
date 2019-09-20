@@ -49,8 +49,10 @@ export class BacktestOrderTracker extends AbstractOrderTracker {
             let rate = -1;
             const exchangeName = pendingOrder.exchange.getClassName();
             const pairStr = pendingOrder.order.currencyPair.toString();
-            if (!this.trader.isOpenOrder(exchangeName, pendingOrder.order.orderID))
+            if (!this.trader.isOpenOrder(exchangeName, pendingOrder.order.orderID)) {
+                this.sendOrderFilled(pendingOrder);
                 return;
+            }
             this.resetOrderTimeout(pendingOrder);
 
             // we are in simulation. all orders submitted are still open unless they have been removed from our local map

@@ -57,10 +57,24 @@ export class TradePosition {
         return Math.floor(pl*100000000) / 100000000; // max 8 decimals
     }
 
+    public getAverageRate(): number {
+        let sum = 0.0, vol = 0.0;
+        for (let i = 0; i < this.trades.length; i++)
+        {
+            sum += this.trades[i].rate * this.trades[i].amount;
+            vol += this.trades[i].amount;
+        }
+        if (vol === 0.0)
+            return 0.0;
+        return Math.floor(sum/vol*100000000) / 100000000; // max 8 decimals
+    }
+
     public getType(): StrategyPosition {
-        if (this.getAmount() > 0.0)
+        const amount = this.getAmount();
+        if (amount > 0.0)
             return "long";
-        // short is not possible without margin trading
+        else if (amount < 0.0)
+            return "short"; // short is not possible without margin trading
         return "none";
     }
 

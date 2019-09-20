@@ -37,6 +37,7 @@ export class RealTimeOrderTracker extends AbstractOrderTracker {
                     // TODO once poloniex just cancelled an order. wtf?
                     logger.info("Order %s %s at %s with ID %s has filled completely", typeStr, pairStr,
                         exchangeName, pendingOrder.order.orderID)
+                    this.sendOrderFilled(pendingOrder);
                     return
                 }
 

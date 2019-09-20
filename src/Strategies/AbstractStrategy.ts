@@ -334,14 +334,10 @@ export abstract class AbstractStrategy extends AbstractGenericStrategy {
         } else {
             if (this.entryPrice === -1)
                 this.entryPrice = order.rate;
-            if (this.tradePosition === null)
-                this.tradePosition = new TradePosition();
             if (action === "buy") {
-                this.holdingCoins += order.amount;
-                this.tradePosition.addTrade(order.amount, order.rate); // ensure we pass a negative amount
+                this.holdingCoins += order.amount; // tradePosition is updated once the order is filled. should holdingCoins be updated then too? order gets moved
             } else {
                 this.holdingCoins -= Math.abs(order.amount);
-                this.tradePosition.addTrade(-1 * Math.abs(order.amount), order.rate); // ensure we pass a negative amount
             }
             this.strategyPosition = this.holdingCoins > 0 ? "long" : "short";
             this.closedPositions = false;
@@ -349,6 +345,25 @@ export abstract class AbstractStrategy extends AbstractGenericStrategy {
 
         if (action === "close")
             return;
+    }
+
+    /**
+     * This is called every time an order submitted to an exchange has been filled completely.
+     * Notice that depending on the update frequency in AbstractOrderTracker this might be delayed a few seconds.
+     * To receive a callback immediately when an order is placed, use onTrade().
+     * @param pendingOrder
+     */
+    public onOrderFilled(pendingOrder: PendingOrder): void {
+        if (this.tradePosition === null)
+            this.tradePosition = new TradePosition();
+        const order = pendingOrder.order;
+        if (order.type === Trade.TradeType.BUY) {
+            this.tradePosition.addTrade(order.amount, order.rate); // ensure we pass a negative amount
+        }
+        else if (order.type === Trade.TradeType.SELL) {
+            this.tradePosition.addTrade(-1 * Math.abs(order.amount), order.rate); // ensure we pass a negative amount
+        }
+        // on close the tradePosition gets removed
     }
 
     /**

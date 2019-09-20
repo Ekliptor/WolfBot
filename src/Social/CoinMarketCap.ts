@@ -176,6 +176,7 @@ export class CoinMarketCap {
             case "TWOGIVE":     return "2GIVE";
             case "GXS":        	return "GXC";
             case "GLD":        	return "GLC";
+            case "WAX":        	return "WAXP";
         }
         return label;
     }
@@ -194,6 +195,7 @@ export class CoinMarketCap {
             case "2GIVE":   return Currency.Currency.TWOGIVE;
             case "GXC":     return Currency.Currency.GXS;
             case "GLC":     return Currency.Currency.GLD;
+            case "WAXP":     return Currency.Currency.WAX;
             default:
                 let currency = Currency.Currency[currencyStr];
                 if (currency)

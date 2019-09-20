@@ -54,6 +54,10 @@ export abstract class AbstractOrderTracker {
             this.trader.addOrder(pendingOrder.exchange, pendingOrder.order) // only re-add it if it still existed
     }
 
+    protected sendOrderFilled(pendingOrder: PendingOrder) {
+        pendingOrder.strategy.onOrderFilled(pendingOrder);
+    }
+
     protected cancelOrder(pendingOrder: PendingOrder) {
         const exchangeName = pendingOrder.exchange.getClassName();
         pendingOrder.exchange.cancelPendingOrder(pendingOrder).then((result) => {
