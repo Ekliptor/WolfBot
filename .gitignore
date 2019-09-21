@@ -90,6 +90,7 @@ src/Strategies/WeekPredictor.ts
 src/Strategies/FishingStraight.ts
 src/Strategies/HullSwinger.ts
 config/BitmexSwagger.json
+config/MarketMakerBook.json
 config/MarketMakerOffset.json
 config/MarketMakerMartingale.json
 config/TradingViewSignal.json

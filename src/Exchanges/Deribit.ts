@@ -156,6 +156,8 @@ export class DeribitCurrencies implements Currency.ExchangeCurrencies {
             position.amount *= -1;
         position.liquidationPrice = margin.estimated_liquidation_price;
         position.pl = margin.floating_profit_loss;
+        if (margin.average_price > 0.0)
+            position.basePrice = margin.average_price;
         return position;
     }
 }

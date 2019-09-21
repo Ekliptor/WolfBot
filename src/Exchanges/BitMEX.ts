@@ -125,6 +125,8 @@ export class BitMEXCurrencies implements Currency.ExchangeCurrencies {
         }
         if (typeof position.amount !== "number")
             position.amount = 0.0; // fix against undefined
+        if (margin.avgEntryPrice > 0.0)
+            position.basePrice = margin.avgEntryPrice;
 
         position.liquidationPrice = margin.liquidationPrice;
 
@@ -189,7 +191,7 @@ export default class BitMEX extends AbstractContractExchange {
         this.serverTimezoneDiffMin = 0;
         this.exchangeLabel = Currency.Exchange.BITMEX;
         //this.minTradingValue = 1.0; // for margin positions, min 1 contract (100 USD with BTC, 10 USD with LTC)
-        this.minTradingValue = 0.09; // actually different for LTC and BTC, depending on contract value
+        this.minTradingValue = 0.001; // actually different for LTC and BTC, depending on contract value
         this.fee = 0.003; // only for opening positions
         this.maxLeverage = 1; // 2 - 100 // 1 is easier in cross-margin mode
         //this.maxTimeAheadMs = 20000; // their clock goes ahead?
@@ -475,7 +477,7 @@ export default class BitMEX extends AbstractContractExchange {
                 //this.verifyPositionSize(currencyPair, amount)
 
                 let result = new OrderResult()
-                result.success = response.ordStatus == "Filled"
+                result.success = response.ordStatus == "Filled" || response.ordStatus == "New";
                 result.orderNumber = response.orderID || "";
                 if (!result.success) {
                     logger.error("%s margin order error: ", this.className, response);

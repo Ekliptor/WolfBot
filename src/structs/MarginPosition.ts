@@ -24,7 +24,7 @@ export class MarginPosition {
     amount: number = 0; // negative for short positions
     contracts?: number; // present for some futures exchanges (needed to close the corract amount)
     total: number = 0; // how much the we won/lost in currency of "amount" (without fees)
-    basePrice: number = 0;
+    basePrice: number = 0; // average entry price
     liquidationPrice: number = -1;
     pl: number = 0; // profit/loss in base currency (BTC)
     lendingFees: number = 0;

@@ -25,8 +25,8 @@ export class BacktestOrderTracker extends AbstractOrderTracker {
 
         if (!pendingOrder.orderParameters.postOnly)
             return; // will get taken in backtester or expire. speed up backtesting
-        if (this.skipTrackingOrder(pendingOrder) === true)
-            return;
+        //if (this.skipTrackingOrder(pendingOrder) === true)
+            //return;
         this.pendingOrders.push(pendingOrder)
     }
 
@@ -54,6 +54,8 @@ export class BacktestOrderTracker extends AbstractOrderTracker {
                 return;
             }
             this.resetOrderTimeout(pendingOrder);
+            if (this.skipTrackingOrder(pendingOrder) === true)
+                return;
 
             // we are in simulation. all orders submitted are still open unless they have been removed from our local map
             rate = this.getNewRate(pendingOrder);

@@ -600,7 +600,7 @@
       "tradingFeeDefault": "The default trading fee to use if the exchange is not listed in the 'tradingFees' setting.",
       "N": "optional, default 20 - The time period for MA of BollingerBands.",
       "K": "optional, default 2 - The factor for upper/lower band of BollingerBands.",
-      "MAType": "optional, default 0 (SMA) - The moving average type of BollingerBands.",
+      "MAType": "optional, default 0 (SMA) - The moving average type of BollingerBands.<br>All MA types:<br>0=SMA, 1=EMA, 2=WMA, 3=DEMA, 4=TEMA, 5=TRIMA, 6=KAMA, 7=MAMA, 8=T3",
       "notifyBeforeStopSec": "optional, default 0 - Send a notification (for example to the smartphone) x seconds before the stop executes. A value of 0 means disabled.",
       "time": "optional, default 0 seconds - After the stop price is reached start a countdown of x seconds before closing the position. The countdown gets reset if the price moves above the stop price before the counter reaches 0 seconds."
     },
@@ -1431,6 +1431,7 @@
       "numOrdersPerSide": "optional, default 1 - The number of buy and sell orders with the same amount and same price distance that shall be placed. In 'book' mode there can only be 1 order on each side.",
       "orderExpiryHours": "optional, default 24 (0 = disabled) - After how many hours orders that only had 1 side filled (buy or sell) shall be cancelled.",
       "exitOrderThreshold": "optional, default 1 - If this is > 0 the WolfBot will cancel all opposite-direction orders orders once exitOrderThreshold buy/sell orders have been filled and place a single take-profit order to exit the market at priceSpreadPerc. If this is 0 WolfBot will keep all orders on both sides until they are filled or expired.",
+      "stopLossPerc": "optional, default 0.0 (disabled). Place a stop-loss threshold in percent (from the 1st entry rate) at which this strategy will cancel all orders and exit an existing position at a loss.",
       "bollingerBandProtection": "optional, default true - Only place order pairs within Bollinger Bands to protect against volatile markets where it is more likely that only 1 order will get filled.",
       "idleMinutesOnLiquidation": "optional, default 2min - Don't place orders for this time after a liquidation occurred.",
       "removeOrderPairsOnLiquidation": "optional, default true - Remove open order pairs when a liquidation occurred.",
