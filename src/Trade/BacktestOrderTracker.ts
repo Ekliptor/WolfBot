@@ -53,6 +53,7 @@ export class BacktestOrderTracker extends AbstractOrderTracker {
                 this.sendOrderFilled(pendingOrder);
                 return;
             }
+            this.sendOpenOrdersFromPendingOrder(pendingOrder);
             this.resetOrderTimeout(pendingOrder);
             if (this.skipTrackingOrder(pendingOrder) === true)
                 return;

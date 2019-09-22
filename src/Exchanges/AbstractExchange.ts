@@ -104,6 +104,11 @@ export class OrderBookUpdate<T> {
     */
 }
 
+export class OpenOrdersMap extends Map<string, OpenOrders> { // (exchange name, orders)
+    constructor() {
+        super();
+    }
+}
 export interface OpenOrder {
     orderNumber: number | string;
     type: "buy" | "sell"; // "close" is always filled immediately
@@ -119,6 +124,8 @@ export class OpenOrders {
     public orders: OpenOrder[] = [];
 
     constructor(currencyPair: Currency.CurrencyPair, exchangeName: string) {
+        if (currencyPair instanceof Currency.CurrencyPair === false)
+            currencyPair = new Currency.CurrencyPair(currencyPair.from, currencyPair.to); // after serialization
         this.currencyPair = currencyPair;
         this.exchangeName = exchangeName;
     }
@@ -145,6 +152,21 @@ export class OpenOrders {
         return false;
     }
 
+    public isEmpty(): boolean {
+        return this.orders.length === 0;
+    }
+
+    public removeOrder(orderNumber: number | string): OpenOrder {
+        for (let i = 0; i < this.orders.length; i++)
+        {
+            if (this.orders[i].orderNumber == orderNumber) {
+                let removedOrders = this.orders.splice(i, 1);
+                return removedOrders[0];
+            }
+        }
+        return null;
+    }
+
     public getOrder(orderNumber: number | string): OpenOrder {
         for (let i = 0; i < this.orders.length; i++)
         {
@@ -152,6 +174,18 @@ export class OpenOrders {
                 return this.orders[i];
         }
         return null;
+    }
+
+    public getOrdersByRate(rate: number): OpenOrder[] {
+        let orders = [];
+        rate = Math.floor(rate * 100000000) / 100000000.0; // compare max 8 decimals
+        for (let i = 0; i < this.orders.length; i++)
+        {
+            const curRate = Math.floor(this.orders[i].rate * 100000000) / 100000000.0;
+            if (curRate === rate)
+                orders.push(this.orders[i]);
+        }
+        return orders;
     }
 }
 

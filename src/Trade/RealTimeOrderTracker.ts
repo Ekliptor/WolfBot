@@ -32,6 +32,7 @@ export class RealTimeOrderTracker extends AbstractOrderTracker {
             const exchangeName = pendingOrder.exchange.getClassName();
             const pairStr = pendingOrder.order.currencyPair.toString();
             pendingOrder.exchange.getOpenOrders(pendingOrder.order.currencyPair).then((orders) => {
+                this.sendOpenOrders(pendingOrder, orders);
                 if (!orders.isOpenOrder(pendingOrder.order.orderID)) {
                     const typeStr = Trade.TradeType[pendingOrder.order.type]
                     // TODO once poloniex just cancelled an order. wtf?

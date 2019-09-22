@@ -6,7 +6,7 @@ import {AbstractTrader} from "./AbstractTrader";
 import {PortfolioTrader, LastTradeMap} from "./PortfolioTrader";
 import {TradeConfig} from "../Trade/TradeConfig";
 import {OrderResult} from "../structs/OrderResult";
-import {AbstractExchange, ExchangeMap, OrderParameters} from "../Exchanges/AbstractExchange";
+import {AbstractExchange, ExchangeMap, OpenOrder, OpenOrders, OrderParameters} from "../Exchanges/AbstractExchange";
 import {AbstractStrategy, TradeAction} from "../Strategies/AbstractStrategy";
 import * as helper from "../utils/helper";
 
@@ -56,6 +56,34 @@ export abstract class AbstractOrderTracker {
 
     protected sendOrderFilled(pendingOrder: PendingOrder) {
         pendingOrder.strategy.onOrderFilled(pendingOrder);
+    }
+
+    protected sendOpenOrders(pendingOrder: PendingOrder, orders: OpenOrders) {
+        let strategies = pendingOrder.strategy.getStrategyGroup();
+        if (!strategies) { // should always be present
+            pendingOrder.strategy.onSyncOpenOrders(orders); // just send it to this one
+            return;
+        }
+        const allStrategies = strategies.getAllStrategies();
+        for (let i = 0; i < allStrategies.length; i++)
+            allStrategies[i].onSyncOpenOrders(orders);
+    }
+
+    /**
+     * During backtesting we just have a single order. Create the exchange order-list on-the-fly.
+     */
+    protected sendOpenOrdersFromPendingOrder(pendingOrder: PendingOrder) {
+        let orders = new OpenOrders(pendingOrder.order.currencyPair, pendingOrder.exchange.getClassName());
+        let openOrder: OpenOrder = {
+            orderNumber: pendingOrder.order.orderID,
+            type: pendingOrder.order.type === Trade.TradeType.BUY ? "buy" : "sell",
+            rate: pendingOrder.order.rate,
+            amount: pendingOrder.order.amount,
+            total: pendingOrder.order.rate * pendingOrder.order.amount,
+            leverage: pendingOrder.order.leverage
+        }
+        orders.addOrder(openOrder);
+        this.sendOpenOrders(pendingOrder, orders);
     }
 
     protected cancelOrder(pendingOrder: PendingOrder) {

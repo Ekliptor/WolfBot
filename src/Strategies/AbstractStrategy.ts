@@ -17,6 +17,7 @@ import * as helper from "../utils/helper";
 import {TradePosition} from "../structs/TradePosition";
 import {PendingOrder} from "../Trade/AbstractOrderTracker";
 import {SimpleOrder} from "../structs/MarketMakerOrders";
+import {OpenOrders, OpenOrdersMap} from "../Exchanges/AbstractExchange";
 
 export type BuySellAction = "buy" | "sell";
 export type TradeAction = "buy" | "sell" | "close" // actions that go out from the strategy and the Trader instances executes and sends back the event to the strategy
@@ -162,6 +163,8 @@ export abstract class AbstractStrategy extends AbstractGenericStrategy {
     protected lastTradeFromClass: string = ""; // the class emitting the last trade (can be another strategy, see AbstractOrderer)
     protected lastTradeState: GenericStrategyState = null; // the state when the last trade signal was emitted
     protected lastCancelledOrder: PendingOrder = null;
+    protected openOrders: OpenOrders = null; // all open orders for this currency pair on the exchange
+    protected openOrdersMap = new OpenOrdersMap(); // a map with open orders with the exchange as key (needed for arbitrage with multiple exchanges)
 
     constructor(options) {
         super(options)
@@ -354,6 +357,13 @@ export abstract class AbstractStrategy extends AbstractGenericStrategy {
      * @param pendingOrder
      */
     public onOrderFilled(pendingOrder: PendingOrder): void {
+        // remove the order if still present
+        if (this.openOrders)
+            this.openOrders.removeOrder(pendingOrder.order.orderID);
+        let existingOrder = this.openOrdersMap.get(pendingOrder.exchange.getClassName());
+        if (existingOrder !== undefined)
+            existingOrder.removeOrder(pendingOrder.order.orderID);
+
         if (this.tradePosition === null)
             this.tradePosition = new TradePosition();
         const order = pendingOrder.order;
@@ -364,6 +374,15 @@ export abstract class AbstractStrategy extends AbstractGenericStrategy {
             this.tradePosition.addTrade(-1 * Math.abs(order.amount), order.rate); // ensure we pass a negative amount
         }
         // on close the tradePosition gets removed
+    }
+
+    /**
+     * This is called every time our list of open orders (to be filled) on the exchange is synced.
+     * @param orders
+     */
+    public onSyncOpenOrders(orders: OpenOrders): void {
+        this.openOrders = orders;
+        this.openOrdersMap.set(orders.exchangeName, orders); // arbitrage with more than 1 exchange
     }
 
     /**
@@ -715,6 +734,7 @@ export abstract class AbstractStrategy extends AbstractGenericStrategy {
         state.position = this.position;
         state.previousBalance = this.previousBalance;
         state.pendingOrder = this.pendingOrder;
+        state.openOrders = this.openOrders;
         return state;
     }
 
@@ -755,6 +775,12 @@ export abstract class AbstractStrategy extends AbstractGenericStrategy {
             this.pendingOrder = new ScheduledTrade(prev.action, prev.weight, prev.reason, prev.fromClass, prev.exchange);
             // TODO unserialize functions too: https://github.com/yahoo/serialize-javascript
             // but doesn't work that easy because of bound context... maybe better store class properties instead of functions
+        }
+        if (state.openOrders) {
+            this.openOrders = new OpenOrders(state.openOrders.currencyPair, state.openOrders.exchangeName);
+            state.openOrders.orders.forEach((order) => {
+                this.openOrders.addOrder(order);
+            });
         }
     }
 

@@ -370,6 +370,8 @@ export abstract class AbstractTrader extends AbstractGenericTrader {
     protected maybePlaceBookRate(rate: number, action: BuySellAction, strategy: AbstractStrategy): number {
         if (this.config.limitOrderToBidAskRate !== true)
             return rate;
+        if (this.isStopStrategy(strategy) === true) // disable this for StopLoss strategies. // TODO and take-profit?
+            return rate;
         const book = strategy.getOrderBook();
         if (!book || book.isSnapshotReady() === false)
             return rate;

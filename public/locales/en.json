@@ -1431,6 +1431,7 @@
       "numOrdersPerSide": "optional, default 1 - The number of buy and sell orders with the same amount and same price distance that shall be placed. In 'book' mode there can only be 1 order on each side.",
       "orderExpiryHours": "optional, default 24 (0 = disabled) - After how many hours orders that only had 1 side filled (buy or sell) shall be cancelled.",
       "exitOrderThreshold": "optional, default 1 - If this is > 0 the WolfBot will cancel all opposite-direction orders orders once exitOrderThreshold buy/sell orders have been filled and place a single take-profit order to exit the market at priceSpreadPerc. If this is 0 WolfBot will keep all orders on both sides until they are filled or expired.",
+      "scaleOutPerc": "optional, default 0.0 (use the same amount for all orders) - This value allows you to increase each buy/sell order of numOrdersPerSide by a certain percentage. This helps to move the average rate of all your orders (and thus the break-even rate) in your favor.",
       "stopLossPerc": "optional, default 0.0 (disabled). Place a stop-loss threshold in percent (from the 1st entry rate) at which this strategy will cancel all orders and exit an existing position at a loss.",
       "bollingerBandProtection": "optional, default true - Only place order pairs within Bollinger Bands to protect against volatile markets where it is more likely that only 1 order will get filled.",
       "idleMinutesOnLiquidation": "optional, default 2min - Don't place orders for this time after a liquidation occurred.",
