@@ -26,6 +26,7 @@ import {AbstractArbitrageStrategy} from "./Arbitrage/Strategies/AbstractArbitrag
 import {TradeBook} from "./Trade/TradeBook";
 import ExchangeController from "./ExchangeController";
 import {PendingOrder} from "./Trade/AbstractOrderTracker";
+import {PortfolioTrader} from "./Trade/PortfolioTrader";
 
 
 export class GenericStrategyMap<T extends AbstractGenericStrategy> extends Map<ConfigCurrencyPair, T[]> {
@@ -155,7 +156,7 @@ export class ExchangeCurrencyPairMap extends Map<string, Currency.CurrencyPair[]
     }
 }
 
-export type StrategyActionName = "buy" | "sell" | "close" | "hold" | "cancelOrder" | "cancelAllOrders";
+export type StrategyActionName = "buy" | "sell" | "close" | "hold" | "cancelOrder" | "cancelAllOrders" | "updatePortfolio";
 export interface StrategyAction {
     action: StrategyActionName;
     weight: number;
@@ -233,7 +234,7 @@ export default class TradeAdvisor extends AbstractAdvisor {
                 {
                     if (trader[1] instanceof Backtester)
                     //(<Backtester>trader[1]).backtest() // deprecated because of .jsx conflict
-                        (trader[1] as Backtester).backtest(this.exchangeController)
+                        (trader[1] as Backtester).backtest(this.exchangeController);
                 }
             }
             else
@@ -455,7 +456,11 @@ export default class TradeAdvisor extends AbstractAdvisor {
 
         //let currencyPairs = new Set<Currency.CurrencyPair>();
         let currencyPairs = new ExchangeCurrencyPairMap();
-        let connectedExchanges = []
+        let connectedExchanges = [];
+        if (nconf.get("trader") === "Backtester" && json.data.length > 1) {
+            logger.warn("Truncating backtest config to only use the 1st currency pair and exchange");
+            json.data = [json.data[0]];
+        }
         json.data.forEach((conf) => {
             let config;
             try {
@@ -797,6 +802,16 @@ export default class TradeAdvisor extends AbstractAdvisor {
         batchOderActions.forEach((actionName) => {
             strategy.on(actionName, (reason: string, exchange: Currency.Exchange) => {
                 this.trader.get(config.configNr).callAction(actionName, strategy, reason, exchange);
+            });
+        });
+        const portfolioActions: StrategyActionName[] = ["updatePortfolio"];
+        portfolioActions.forEach((actionName) => {
+            strategy.on(actionName, (reason: string, exchange: Currency.Exchange) => {
+                const portfolioTrader = this.trader.get(config.configNr);
+                if (portfolioTrader instanceof PortfolioTrader)
+                    portfolioTrader.requestUpdatePortfolio(reason, exchange);
+                else
+                    logger.warn("%s as not an instance of PortfolioTrader, ignored update portfolio request", portfolioTrader.getClassName());
             });
         });
 

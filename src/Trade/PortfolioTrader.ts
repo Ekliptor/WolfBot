@@ -493,6 +493,11 @@ export abstract class PortfolioTrader extends AbstractTrader {
         return PortfolioTrader.coinBalances;
     }
 
+    public async requestUpdatePortfolio(reason: string, exchange: Currency.Exchange): Promise<void> {
+        logger.verbose("Processing event to update %s portfolio in %s: %s", Currency.getExchangeName(exchange), this.className, reason);
+        return this.updatePortfolio();
+    }
+
     // ################################################################
     // ###################### PRIVATE FUNCTIONS #######################
 

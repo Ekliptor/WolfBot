@@ -60,16 +60,8 @@ export default class ExchangeController extends AbstractSubController {
             utils.file.touch(AbstractExchange.cookieFileName).then(() => {
                 return utils.promiseDelay(this.configReady === true ? 0 : ExchangeController.WAIT_CONFIG_ONCE_MS); // wait once
             }).then(() => {
-                /* // we have to continue without loading any exchanges, so that ConfigEditor gets initialized for a possible restart
-                if (this.configReady === false) {
-                    logger.error("Config is not ready in %s. Bot trading mode or config most likely wrong (not existing?). Please fix this and restart the bot.", this.className)
-                    return Promise.reject();
-                }
-                */
-                return Process.getActiveCount(db.get(), null, true);
-            }).then((activeProcessCount) => {
-                this.loadExchanges(activeProcessCount)
-                return this.getTickers()
+                if (!process.env.IS_CHILD) // don't attempt to create dirs on every child process
+                    return this.ensureDir(utils.appDir, [nconf.get("tempDir")])
             }).then(() => {
                 if (!process.env.IS_CHILD) // don't attempt to create dirs on every child process
                     return this.ensureDir(utils.appDir, [nconf.get("tradesDir"), Brain.TEMP_DATA_DIR, CandleMaker.TEMP_DATA_DIR])
@@ -82,6 +74,17 @@ export default class ExchangeController extends AbstractSubController {
             }).then(() => {
                 if (!process.env.IS_CHILD)
                     return this.ensureDir(path.join(utils.appDir, nconf.get("tempDir")), [CandleMaker.TEMP_DATA_DIR]) // doesn't really belong here
+            }).then(() => {
+                /* // we have to continue without loading any exchanges, so that ConfigEditor gets initialized for a possible restart
+                if (this.configReady === false) {
+                    logger.error("Config is not ready in %s. Bot trading mode or config most likely wrong (not existing?). Please fix this and restart the bot.", this.className)
+                    return Promise.reject();
+                }
+                */
+                return Process.getActiveCount(db.get(), null, true);
+            }).then((activeProcessCount) => {
+                this.loadExchanges(activeProcessCount)
+                return this.getTickers()
             }).then(() => {
                 resolve()
             }).catch((err) => {

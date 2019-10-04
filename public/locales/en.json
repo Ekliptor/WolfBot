@@ -602,7 +602,10 @@
       "K": "optional, default 2 - The factor for upper/lower band of BollingerBands.",
       "MAType": "optional, default 0 (SMA) - The moving average type of BollingerBands.<br>All MA types:<br>0=SMA, 1=EMA, 2=WMA, 3=DEMA, 4=TEMA, 5=TRIMA, 6=KAMA, 7=MAMA, 8=T3",
       "notifyBeforeStopSec": "optional, default 0 - Send a notification (for example to the smartphone) x seconds before the stop executes. A value of 0 means disabled.",
-      "time": "optional, default 0 seconds - After the stop price is reached start a countdown of x seconds before closing the position. The countdown gets reset if the price moves above the stop price before the counter reaches 0 seconds."
+      "time": "optional, default 0 seconds - After the stop price is reached start a countdown of x seconds before closing the position. The countdown gets reset if the price moves above the stop price before the counter reaches 0 seconds.",
+      "limitClose": "optional, default false - If enabled the trailing stop will be placed as a limit order at the last trade price (or above/below if makerMode is enabled). Otherwise the position will be closed with a market order.",
+      "makerMode": "optional, default false. Whether to adjust all order rates below/above bid ask rates to ensure we only pay the lower (maker) fee.",
+      "forceMaker": "optional, default false - Only place a maker order (not paying the higher taker fee). Order will get adjusted in case the price moves away from it."
     },
     "NOOP": {
       "desc": "This strategy does nothing. It is just a sample and placeholder.",
@@ -1379,6 +1382,7 @@
       "fishingMode": "optional, default trend - In which direction shall this strategy open positions? 'trend' means the strategy will decide automatically based on the current MACD trend. Values: up|down|trend",
       "percentage": "optional, default 15% - How many percent of the total trading balance shall be used for the first trade and on each trade to increase the position size.",
       "maxPosIncreases": "optional, default 7 - How many times this strategy shall increase an existing position at most. Note that raising this value can cause your strategy to trade with more than your configured total trading balance.",
+      "scaleOutPerc": "optional, default 0.0 (use the same amount for all orders) - This value allows you to increase each buy/sell order of numOrdersPerSide by a certain percentage. This helps to move the average rate of all your orders (and thus the break-even rate) in your favor.",
       "tradingAmountIncreaseFactor": "optional, default 1.1 - The factor with which your trading amount will be increased on each trade after opening a position. So the total capital of trade n to increase an existing position will be: tradeTotalBtc * percentage * tradingAmountIncreaseFactor * n",
       "profitPercent": "optional, default 2.1% - After the total position size reached this profit the position will no longer be increased. Instead a trailing stop with 'trailingStopPerc' will be placed.",
       "interval": "optional, default 24 - The number of candles to compute the volume profile and average volume from. Also the number of data points to keep in history.",

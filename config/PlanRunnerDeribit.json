@@ -1,0 +1,73 @@
+{
+    "data": [
+        {
+            "exchanges": [
+                "Deribit"
+            ],
+            "marginTrading": true,
+            "tradeTotalBtc": 0.5,
+            "notifyTrades": true,
+            "strategies": {
+                "PlanRunner": {
+                    "orders": [
+                        {
+                            "action": "buy",
+                            "comp": "<",
+                            "position": "none",
+                            "rate": 7500,
+                            "reason": "hedging on low",
+                            "expirationPercent": 3,
+                            "volume": 0,
+                            "volumeCandleSize": 60,
+                            "ticks": 0,
+                            "indicators": [
+                                "RSI"
+                            ]
+                        },
+                        {
+                            "action": "sell",
+                            "comp": ">",
+                            "position": "none",
+                            "rate": 10050,
+                            "reason": "hedging on high",
+                            "expirationPercent": 3,
+                            "volume": 0,
+                            "volumeCandleSize": 60,
+                            "ticks": 0,
+                            "indicators": [
+                                "RSI"
+                            ]
+                        }
+                    ],
+                    "pair": "USD_BTC",
+                    "candleSize": 1,
+                    "tradeStrategy": "RSIScalpOrderer",
+                    "enableLog": true
+                },
+                "RSI": {
+                    "pair": "USD_BTC",
+                    "candleSize": 15,
+                    "interval": 5,
+                    "low": 54,
+                    "high": 55,
+                    "enableLog": false
+                },
+                "RSIScalpOrderer": {
+                    "low": 35,
+                    "high": 65,
+                    "interval": 6,
+                    "immediateLow": 20,
+                    "immediateHigh": 80,
+                    "onlyBounceBack": false,
+                    "enterLow": 50,
+                    "enterHigh": 50,
+                    "expiry": 5,
+                    "deleteExpired": true,
+                    "candleSize": 5,
+                    "pair": "USD_BTC",
+                    "enableLog": true
+                }
+            }
+        }
+    ]
+}

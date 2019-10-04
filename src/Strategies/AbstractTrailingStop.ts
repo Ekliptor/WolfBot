@@ -8,10 +8,12 @@ import {TradeInfo} from "../Trade/AbstractTrader";
 import * as helper from "../utils/helper";
 import {MarginPosition} from "../structs/MarginPosition";
 import {TechnicalStrategy, TechnicalStrategyAction} from "./TechnicalStrategy";
+import {PendingOrder} from "../Trade/AbstractOrderTracker";
 
 
 export interface AbstractTrailingStopAction extends TechnicalStrategyAction {
     trailingStopPerc: number; // optional, default 0.5% - The trailing stop percentage that will be placed after minCandles have passed.
+    limitClose: boolean; // optional, default false - If enabled the trailing stop will be placed as a limit order at the last trade price (or above/below if makerMode is enabled). Otherwise the position will be closed with a market order.
     closePosition: ClosePositionState; // optional, default always - Only close a position if its profit/loss is in that defined state.
 
     time: number; // optional, default 0 = immediately - The time in seconds until the stop gets executed after the trailing stop has been reached.
@@ -38,6 +40,8 @@ export abstract class AbstractTrailingStop extends /*AbstractStopStrategy*/Techn
             this.action.closePosition = "always";
         if (typeof this.action.trailingStopPerc !== "number")
             this.action.trailingStopPerc = 0.5;
+        if (typeof this.action.limitClose !== "boolean")
+            this.action.limitClose = false;
         if (!this.action.time) {
             this.stopCountStart = new Date(0); // sell immediately
             this.action.time = 0;
@@ -70,11 +74,24 @@ export abstract class AbstractTrailingStop extends /*AbstractStopStrategy*/Techn
         }
     }
 
+    public onOrderFilled(pendingOrder: PendingOrder): void {
+        super.onOrderFilled(pendingOrder);
+        if (this.done === true && pendingOrder.strategy.getClassName() === this.getClassName() && this.strategyPosition !== "none")
+            this.emitClose(Number.MAX_VALUE, utils.sprintf("Closing remaining %s position amount %s after limit CLOSE order.", this.strategyPosition.toUpperCase(), this.getPositionAmount().toFixed(8)));
+    }
+
     public onSyncPortfolio(coins: number, position: MarginPosition, exchangeLabel: Currency.Exchange) {
         super.onSyncPortfolio(coins, position, exchangeLabel)
         if (this.strategyPosition === "none") {
             this.trailingStopPrice = -1;
         }
+    }
+
+    public getOrderAmount(tradeTotalBtc: number, leverage: number = 1): number {
+        let amount =  super.getOrderAmount(tradeTotalBtc, leverage);
+        if (this.done === false)
+            return amount;
+        return Math.abs(this.getPositionAmount()) * leverage;
     }
 
     public serialize() {
@@ -171,14 +188,20 @@ export abstract class AbstractTrailingStop extends /*AbstractStopStrategy*/Techn
 
     protected closeLongPosition() {
         this.log("emitting sell because price dropped to", this.avgMarketPrice, "stop", this.getStopSell());
-        this.emitClose(Number.MAX_VALUE, this.getCloseReason(true)); // SellClose
         this.done = true;
+        if (this.action.limitClose !== true)
+            this.emitClose(Number.MAX_VALUE, this.getCloseReason(true)); // SellClose
+        else
+            this.emitSell(Number.MAX_VALUE, this.getCloseReason(true));
     }
 
     protected closeShortPosition() {
         this.log("emitting buy because price rose to", this.avgMarketPrice, "stop", this.getStopBuy());
-        this.emitClose(Number.MAX_VALUE, this.getCloseReason(false)); // BuyClose
         this.done = true;
+        if (this.action.limitClose !== true)
+            this.emitClose(Number.MAX_VALUE, this.getCloseReason(false)); // BuyClose
+        else
+            this.emitBuy(Number.MAX_VALUE, this.getCloseReason(true));
     }
 
     protected getStopSell() {

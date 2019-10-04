@@ -1,52 +1,50 @@
 {
     "data": [
         {
-            "exchanges": ["BitMEX"],
+            "exchanges": [
+                "Deribit"
+            ],
             "marginTrading": true,
-            "tradeTotalBtc": 500.0,
+            "tradeTotalBtc": 200,
             "warmUpMin": 0,
             "strategies": {
                 "FishingNet": {
                     "fishingMode": "trend",
-                    "percentage": 15.0,
-                    "maxPosIncreases": 7,
-                    "scaleOutPerc": 0.0,
+                    "percentage": 15,
+                    "maxPosIncreases": 11,
                     "tradingAmountIncreaseFactor": 1.1,
                     "profitPercent": 4.1,
                     "interval": 24,
                     "volumeRows": 24,
-                    "valueAreaPercent": 60,
-                    "minVolumeSpike": 1.1,
-                    "minVolumeSpikePosInc": 0.9,
+                    "valueAreaPercent": 90,
+                    "minVolumeSpike": 0.6,
+                    "minVolumeSpikePosInc": 0.2,
                     "closePosition": "profit",
                     "trailingStopPerc": 0.5,
+                    "limitClose": true,
                     "time": 30,
                     "trendIndicator": "EMA",
                     "short": 10,
                     "long": 16,
                     "signal": 9,
                     "feed": "BitmexMarketData",
-                    "currencyPairs": ["USD_BTC"],
+                    "currencyPairs": [
+                        "USD_BTC"
+                    ],
                     "supportLines": [],
                     "resistanceLines": [],
-                    "expirationPercent": 3.0,
+                    "expirationPercent": 3,
+                    "makerMode": true,
+                    "forceMaker": false,
                     "pair": "USD_BTC",
-                    "candleSize": 30,
-                    "tradeStrategy": "RSIScalpOrderer",
-                    "enableLog": true
-                },
-                "RSIScalpOrderer": {
-                    "low": 34,
-                    "high": 70,
-                    "expiry": 60,
                     "candleSize": 5,
-                    "pair": "USD_BTC",
+                    "tradeStrategy": "",
                     "enableLog": true
                 },
                 "StopLossTurn": {
                     "order": "closeLong",
-                    "stop": 0.0,
-                    "stopLong": 0.0,
+                    "stop": 0,
+                    "stopLong": 0,
                     "setback": 5.5,
                     "setbackLong": 5.5,
                     "time": 300,
@@ -57,14 +55,6 @@
                     "reduceTimeByVolatility": false,
                     "low": 20,
                     "high": 80,
-                    "candleSize": 5,
-                    "pair": "USD_BTC",
-                    "enableLog": false
-                },
-                "TakeProfit": {
-                    "order": "closeLong",
-                    "profit": 5.2,
-                    "time": 360,
                     "candleSize": 5,
                     "pair": "USD_BTC",
                     "enableLog": false

@@ -9,7 +9,7 @@ import {CandleBatcher} from "../Trade/Candles/CandleBatcher";
 import {DataPlotCollector, PlotMarkValues, PlotMark} from "../Indicators/DataPlotCollector";
 import * as _ from "lodash";
 import {OrderBook} from "../Trade/OrderBook";
-import {TradeInfo} from "../Trade/AbstractTrader";
+import {AbstractTrader, TradeInfo} from "../Trade/AbstractTrader";
 import {StrategyGroup} from "../Trade/StrategyGroup";
 import {MarginPosition} from "../structs/MarginPosition";
 import {AbstractGenericStrategy, GenericStrategyState, StrategyEvent, StrategyInfo} from "./AbstractGenericStrategy";
@@ -23,6 +23,7 @@ export type BuySellAction = "buy" | "sell";
 export type TradeAction = "buy" | "sell" | "close" // actions that go out from the strategy and the Trader instances executes and sends back the event to the strategy
     | "cancelOrder"/* | "order"*/ // this action only goes out from the strategy
     | "cancelAllOrders"
+    | "updatePortfolio"
     // other non-trade action events
     | "hold";
 export type StrategyOrder = "buy" | "sell" | "closeLong" | "closeShort";
@@ -453,12 +454,20 @@ export abstract class AbstractStrategy extends AbstractGenericStrategy {
         // special values:
         // -1: limit order at the last price
         // -2: market order (if supported by exchange), otherwise identical to -1
+        let rate = 0.0;
         if (this.action.priceTolerancePercent > 0.0 && this.avgMarketPrice !== -1) {
             if (action === "buy")
-                return this.avgMarketPrice + this.avgMarketPrice / 100.0 * this.action.priceTolerancePercent;
-            return this.avgMarketPrice - this.avgMarketPrice / 100.0 * this.action.priceTolerancePercent; // sell
+                rate = this.avgMarketPrice + this.avgMarketPrice / 100.0 * this.action.priceTolerancePercent;
+            else
+                rate = this.avgMarketPrice - this.avgMarketPrice / 100.0 * this.action.priceTolerancePercent; // sell
         }
-        return this.rate;
+        else
+            rate = this.rate;
+
+        const strategyAction: any = this.action;
+        if (typeof strategyAction.makerMode === "boolean" && strategyAction.makerMode === true)
+            rate = AbstractTrader.getBookRateToPlace(rate, action, this);
+        return rate;
     }
 
     public forceMakeOnly(): boolean {
@@ -965,6 +974,17 @@ export abstract class AbstractStrategy extends AbstractGenericStrategy {
     }
 
     /**
+     * Request an immediate update of your open positions on the exchange.
+     * Portfolio updates are done automatically, but for fast trading styles you can do call this function to update
+     * more frequently.
+     * @param reason
+     * @param exchange
+     */
+    protected requestPortfolioUpdate(reason: string, exchange: Currency.Exchange = Currency.Exchange.ALL) {
+        this.emit("updatePortfolio", reason, this.adjustToSingleExchange(exchange));
+    }
+
+    /**
      * Shorthand function to call emitBuy/emitSell/emitClose with a ScheduledTrade object as parameter.
      * @param {ScheduledTrade} scheduledTrade
      */
@@ -982,6 +1002,8 @@ export abstract class AbstractStrategy extends AbstractGenericStrategy {
             case "cancelOrder":
             case "cancelAllOrders":
                 return; // not used for cancelling orders because it needs a PendingOrder object
+            case "updatePortfolio":
+                return;
             case "hold":
                 return; // shouldn't happen, hold is deprecated
             default:
@@ -1005,6 +1027,11 @@ export abstract class AbstractStrategy extends AbstractGenericStrategy {
         return false;
     }
 
+    /**
+     * Return the currently selected exchange in config (if there is only 1, default for trading) if
+     * Currency.Exchange.ALL is passed in.
+     * @param exchange
+     */
     protected adjustToSingleExchange(exchange: Currency.Exchange): Currency.Exchange {
         if (exchange === Currency.Exchange.ALL) {
             if (!this.config) {

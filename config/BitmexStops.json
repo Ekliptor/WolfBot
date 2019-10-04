@@ -11,8 +11,8 @@
       "strategies": {
         "StopLossTurn": {
           "order": "closeShort",
-          "stop": 10900.6,
-          "stopLong": 9760.3,
+          "stop": 9820.6,
+          "stopLong": 7895.3,
           "time": 30,
           "closePosition": "always",
           "reduceTimeByVolatility": false,
@@ -22,16 +22,6 @@
           "high": 65,
           "candleSize": 5,
           "pair": "USD_BTC",
-          "enableLog": true
-        },
-        "TrailingStop": {
-          "rate": 9760.2,
-          "comp": "<",
-          "trailingStopPerc": 1.3,
-          "closePosition": "profit",
-          "time": 0,
-          "pair": "USD_BTC",
-          "candleSize": 5,
           "enableLog": true
         }
       }
@@ -47,8 +37,8 @@
       "strategies": {
         "StopLossTurn": {
           "order": "closeLong",
-          "stop": 220.9,
-          "stopLong": 194.5,
+          "stop": 194.9,
+          "stopLong": 169.1,
           "time": 30,
           "closePosition": "always",
           "reduceTimeByVolatility": false,
@@ -58,16 +48,6 @@
           "high": 65,
           "candleSize": 5,
           "pair": "USD_ETH",
-          "enableLog": true
-        },
-        "TrailingStop": {
-          "rate": 290.1,
-          "comp": ">",
-          "trailingStopPerc": 1.3,
-          "closePosition": "profit",
-          "time": 0,
-          "pair": "USD_ETH",
-          "candleSize": 5,
           "enableLog": true
         }
       }

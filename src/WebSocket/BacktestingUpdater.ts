@@ -163,13 +163,16 @@ export class BacktestingUpdater extends AppPublisher {
                 this.send(clientSocket, update)
                 return
             }
-            else if (Array.isArray(json.data) === false || json.data.length !== 1) { // TODO copy file and truncate in child
-                logger.error("Config for backtesting must contian exactly 1 trading pair: %s", filePath)
+            else if (Array.isArray(json.data) === false || json.data.length !== 1) { // child process truncates to only use the 1st pair
+                /*
+                logger.error("Config for backtesting must contian exactly 1 trading pair: %s", path.basename(filePath))
                 update.error = true;
                 update.errorCode = "exchangeMismatch";
                 this.backtestRunning = false;
                 this.send(clientSocket, update)
                 return;
+                 */
+                logger.warn("Config for backtesting contains multiple trading pairs/exchange. Only backtesting 1st: %s", path.basename(filePath))
             }
             // we could also just rename the exchange temporarily in the file (exchanges are only loaded on startup for live trading)
             // but this more clean

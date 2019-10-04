@@ -1,7 +1,7 @@
 import * as utils from "@ekliptor/apputils";
 const logger = utils.logger
     , nconf = utils.nconf;
-import {AbstractStrategy, StrategyAction, TradeAction} from "./AbstractStrategy";
+import {AbstractStrategy, BuySellAction, StrategyAction, TradeAction} from "./AbstractStrategy";
 import {Candle, Currency, Order, Trade} from "@ekliptor/bit-models";
 import {AbstractTrailingStop, AbstractTrailingStopAction} from "./AbstractTrailingStop";
 import {ClosePositionState} from "./AbstractStopStrategy";
@@ -16,6 +16,8 @@ interface FishingNetAction extends AbstractTrailingStopAction {
     fishingMode: FishingMode; // optional, default trend - In which direction shall this strategy open positions? 'trend' means the strategy will decide automatically based on the current MACD trend. Values: up|down|trend
     percentage: number; // optional, default 15% - How many percent of the total trading balance shall be used for the first trade and on each trade to increase the position size.
     maxPosIncreases: number; // optional, default 7 - How many times this strategy shall increase an existing position at most. Note that raising this value can cause your strategy to trade with more than your configured total trading balance.
+    //scaleOutPerc: number; // optional, default 0.0 (use the same amount for all orders) - This value allows you to increase each buy/sell order of numOrdersPerSide by a certain percentage. This helps to move the average rate of all your orders
+    // (and thus the break-even rate) in your favor.
     tradingAmountIncreaseFactor; // optional, default 1.1 - The factor with which your trading amount will be increased on each trade after opening a position. So the total capital of trade n to increase an existing position will be: tradeTotalBtc * percentage * tradingAmountIncreaseFactor * n
     profitPercent: number; // optional, default 2.1% - After the total position size reached this profit the position will no longer be increased. Instead a trailing stop with 'trailingStopPerc' will be placed.
 
@@ -27,6 +29,7 @@ interface FishingNetAction extends AbstractTrailingStopAction {
 
     closePosition: ClosePositionState; // optional, default profit - Only close a position by placing the trailing stop if its profit/loss is in that defined state.
     trailingStopPerc: number; // optional, default 0.5% - The trailing stop percentage that will be placed once the computed profit target of the strategy has been reached.
+    limitClose: boolean; // optional, default false - If enabled the trailing stop will be placed as a limit order at the last trade price (or above/below if makerMode is enabled). Otherwise the position will be closed with a market order.
     time: number; // optional, default 30 (0 = immediately) - The time in seconds until the stop gets executed after the trailing stop has been reached.
 
     // Trend Indicator
@@ -43,6 +46,7 @@ interface FishingNetAction extends AbstractTrailingStopAction {
     supportLines: number[]; // The price levels where we want to open long a position. Leave empty to open at any price level.
     resistanceLines: number[]; // The price levels where we want to open short a position. Leave empty to open at any price level.
     expirationPercent: number; // default 3%. Only execute orders at price levels that are within x% of the set support/resistance lines.
+    makerMode: boolean; // optional, default false. Whether to adjust all order rates below/above bid ask rates to ensure we only pay the lower (maker) fee.
 }
 
 /**
@@ -65,6 +69,8 @@ export default class FishingNet extends AbstractTrailingStop {
                 this.action.percentage = 15.0;
             if (typeof this.action.maxPosIncreases !== "number")
                 this.action.maxPosIncreases = 7;
+            //if (typeof this.action.scaleOutPerc !== "number")
+                //this.action.scaleOutPerc = 0.0;
             if (typeof this.action.tradingAmountIncreaseFactor !== "number")
                 this.action.tradingAmountIncreaseFactor = 1.1;
             if (typeof this.action.profitPercent !== "number")
@@ -260,6 +266,16 @@ export default class FishingNet extends AbstractTrailingStop {
             if (leverage >= 10 && this.isPossibleFuturesPair(this.action.pair) === true)
                 amount = tradeTotalBtc * leverage * /*this.ticker.last*/this.avgMarketPrice;
         }
+
+        // scaleOutPerc option to give outer buy/sell orders higher amounts
+        // this.orderPairs gets increased in onTrade() - after the order has been placed
+        /*
+        if (this.action.scaleOutPerc > 0.0) {
+            const increaseFactor = this.positionIncreasedCount * this.action.scaleOutPerc;
+            if (increaseFactor > 0.0)
+                amount *= increaseFactor;
+        }
+         */
 
         this.orderAmountPercent = this.action.percentage;
         if (!this.orderAmountPercent || this.orderAmountPercent === 100)

@@ -177,6 +177,7 @@ export class CoinMarketCap {
             case "GXS":        	return "GXC";
             case "GLD":        	return "GLC";
             case "WAX":        	return "WAXP";
+            case "NEOS":        return "NEO";
         }
         return label;
     }
@@ -196,6 +197,7 @@ export class CoinMarketCap {
             case "GXC":     return Currency.Currency.GXS;
             case "GLC":     return Currency.Currency.GLD;
             case "WAXP":     return Currency.Currency.WAX;
+            case "NEO":     return Currency.Currency.NEO; // NEOS also exists
             default:
                 let currency = Currency.Currency[currencyStr];
                 if (currency)

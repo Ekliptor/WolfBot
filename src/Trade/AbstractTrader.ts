@@ -367,18 +367,37 @@ export abstract class AbstractTrader extends AbstractGenericTrader {
         return last;
     }
 
-    protected maybePlaceBookRate(rate: number, action: BuySellAction, strategy: AbstractStrategy): number {
-        if (this.config.limitOrderToBidAskRate !== true)
-            return rate;
-        if (this.isStopStrategy(strategy) === true) // disable this for StopLoss strategies. // TODO and take-profit?
-            return rate;
+    protected maybePlaceBookRate(rate: number, action: BuySellAction, strategy: AbstractStrategy, force: boolean = false): number {
+        if (force === false) {
+            if (this.config.limitOrderToBidAskRate !== true)
+                return rate;
+            if (this.isStopStrategy(strategy) === true) // disable this for StopLoss strategies. // TODO and take-profit?
+                return rate;
+        }
+        return AbstractTrader.getBookRateToPlace(rate, action, strategy);
+    }
+
+    public static getBookRateToPlace(rate: number, action: BuySellAction, strategy: AbstractStrategy): number {
+        // TODO add parameter to go further above/below
         const book = strategy.getOrderBook();
-        if (!book || book.isSnapshotReady() === false)
-            return rate;
+        const curRate = book && book.getLast() > 0.0 ? book.getLast() : strategy.getAvgMarketPrice();
+        if (!book || book.isSnapshotReady() === false) {
+            const lastRate = strategy.getLastAvgMarketPrice();
+            if (curRate <= 0.0 || lastRate <= 0.0) {
+                logger.warn("No orderbook and trade data available to place maker order in %s", strategy.getClassName());
+                return rate;
+            }
+            let spread = Math.abs(helper.getDiffPercent(curRate, lastRate));
+            if (spread < 0.01)
+                spread = 0.01;
+            if (action === "buy")
+                return curRate - curRate/100.0*spread;
+            return curRate + curRate/100.0*spread;
+        }
         const bookRate = action === "buy" ? Math.min(rate, book.getBid()) : Math.max(rate, book.getAsk());
-        const bookSpreadPercent = Math.abs(helper.getDiffPercent(bookRate, book.getLast()));
-        if (bookSpreadPercent > nconf.get("serverConfig:maxBidAskToLastTradeSpreadPerc")) {
-            logger.warn("%s: Orderbook spread to last trade is %s%% on trade from %s. Ignoring bid/ask rates", this.className, bookSpreadPercent, strategy.getClassName());
+        const bookSpreadPercent = Math.abs(helper.getDiffPercent(bookRate, curRate));
+        if (bookSpreadPercent > nconf.get("serverConfig:maxBidAskToLastTradeSpreadPerc") && curRate > 0.0) {
+            logger.warn("Orderbook spread to last trade is %s%% on trade from %s. Ignoring bid/ask rates", bookSpreadPercent, strategy.getClassName());
             return rate;
         }
         return bookRate;
