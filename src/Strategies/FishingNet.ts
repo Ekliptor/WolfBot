@@ -309,7 +309,7 @@ export default class FishingNet extends AbstractTrailingStop {
     }
 
     protected checkIndicators() {
-        if (this.strategyPosition === "none")
+        if (this.strategyPosition === "none") // can get called twice on small candle size if order doesn't get filled quickly, but trade will be in same direction
             this.checkOpenPosition();
         else if (this.trailingStopPrice === -1) // don't increase our position further after we placed a trailing stop
             this.checkModifyPosition();

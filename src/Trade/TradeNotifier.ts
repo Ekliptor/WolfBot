@@ -125,16 +125,16 @@ export default class TradeNotifier extends PortfolioTrader/*AbstractTrader*/ { /
         })
     }
 
-    protected sendNotification(strategy: AbstractStrategy, headline: string, text: string, reason: string, marketPrice = 0.0, profitLoss = 0.0) {
+    protected sendNotification(strategy: AbstractStrategy, headline: string, text: string, reason: string, marketPrice = 0.0, profitLoss = 0.0, forceSend: boolean = false) {
         if ((nconf.get("trader") === "RealTimeTrader" && nconf.get("tradeMode") === 1 && reason.toLowerCase().indexOf("out of sync") !== -1)
             || this.config.tradeTotalBtc === 0.0 || this.pausedTrading) {
             logger.verbose("Skipped sending 'out of sync' notifcation in paper trading mode")
             return;
         }
 
-        const pauseMs = nconf.get('serverConfig:notificationPauseMin') * utils.constants.MINUTE_IN_SECONDS * 1000;
+        const pauseMs = nconf.get('serverConfig:tradeNotificationPauseMin') * utils.constants.MINUTE_IN_SECONDS * 1000;
         const last = this.lastNotification.get(strategy);
-        if (last && last.getTime() + pauseMs > Date.now())
+        if (forceSend === false && last && last.getTime() + pauseMs > Date.now())
             return;
         text += "\nPosition: " + strategy.getStrategyPosition();
         if (reason)

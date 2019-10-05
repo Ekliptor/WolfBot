@@ -39,7 +39,7 @@
                     "forceMaker": false,
                     "pair": "USD_BTC",
                     "thresholds": {
-                        "down": -0.085,
+                        "down": -0.055,
                         "up": 0.05
                     },
                     "candleSize": 5,

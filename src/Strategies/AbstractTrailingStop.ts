@@ -31,6 +31,7 @@ export abstract class AbstractTrailingStop extends /*AbstractStopStrategy*/Techn
     public action: AbstractTrailingStopAction;
     protected trailingStopPrice: number = -1;
     protected stopCountStart: Date = null;
+    protected limitClosedPositions: boolean = false;
 
     constructor(options) {
         super(options)
@@ -71,12 +72,13 @@ export abstract class AbstractTrailingStop extends /*AbstractStopStrategy*/Techn
         super.onTrade(action, order, trades, info);
         if (action === "close") {
             this.trailingStopPrice = -1;
+            this.limitClosedPositions = false;
         }
     }
 
     public onOrderFilled(pendingOrder: PendingOrder): void {
         super.onOrderFilled(pendingOrder);
-        if (this.done === true && pendingOrder.strategy.getClassName() === this.getClassName() && this.strategyPosition !== "none")
+        if (this.limitClosedPositions === true && pendingOrder.strategy.getClassName() === this.getClassName() && this.strategyPosition !== "none")
             this.emitClose(Number.MAX_VALUE, utils.sprintf("Closing remaining %s position amount %s after limit CLOSE order.", this.strategyPosition.toUpperCase(), this.getPositionAmount().toFixed(8)));
     }
 
@@ -84,6 +86,7 @@ export abstract class AbstractTrailingStop extends /*AbstractStopStrategy*/Techn
         super.onSyncPortfolio(coins, position, exchangeLabel)
         if (this.strategyPosition === "none") {
             this.trailingStopPrice = -1;
+            this.limitClosedPositions = false;
         }
     }
 
@@ -97,6 +100,7 @@ export abstract class AbstractTrailingStop extends /*AbstractStopStrategy*/Techn
     public serialize() {
         let state = super.serialize();
         state.trailingStopPrice = this.trailingStopPrice;
+        state.limitClosedPositions = this.limitClosedPositions;
         return state;
     }
 
@@ -104,6 +108,7 @@ export abstract class AbstractTrailingStop extends /*AbstractStopStrategy*/Techn
         super.unserialize(state);
         if (state.trailingStopPrice > 0.0) // be sure this never gets undefined
             this.trailingStopPrice = state.trailingStopPrice;
+        this.limitClosedPositions = state.limitClosedPositions || false;
     }
 
     // ################################################################
@@ -188,20 +193,24 @@ export abstract class AbstractTrailingStop extends /*AbstractStopStrategy*/Techn
 
     protected closeLongPosition() {
         this.log("emitting sell because price dropped to", this.avgMarketPrice, "stop", this.getStopSell());
-        this.done = true;
         if (this.action.limitClose !== true)
             this.emitClose(Number.MAX_VALUE, this.getCloseReason(true)); // SellClose
-        else
+        else {
+            this.limitClosedPositions = true;
             this.emitSell(Number.MAX_VALUE, this.getCloseReason(true));
+        }
+        this.done = true;
     }
 
     protected closeShortPosition() {
         this.log("emitting buy because price rose to", this.avgMarketPrice, "stop", this.getStopBuy());
-        this.done = true;
         if (this.action.limitClose !== true)
             this.emitClose(Number.MAX_VALUE, this.getCloseReason(false)); // BuyClose
-        else
+        else {
+            this.limitClosedPositions = true;
             this.emitBuy(Number.MAX_VALUE, this.getCloseReason(true));
+        }
+        this.done = true;
     }
 
     protected getStopSell() {
