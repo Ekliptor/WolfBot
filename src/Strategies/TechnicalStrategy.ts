@@ -299,9 +299,13 @@ export abstract class TechnicalStrategy extends AbstractStrategy implements Tech
      */
     protected abstract checkIndicators(): void;
 
+    /**
+     * Returns true if the percentage between the current candle and action.long number of candles back is less than
+     * action.thresholds.sidewaysPercent
+     */
     protected isSidewaysMarket() {
         // TODO move to AbstractStrategy class?
-        // TODO use Bollinger bw as alternative?
+        // TODO use Bollinger BW as alternative?
         let startCandle = this.getCandleAt(this.action.long)
         if (!startCandle || !this.candle)
             return false;

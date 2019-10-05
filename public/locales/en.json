@@ -605,7 +605,13 @@
       "time": "optional, default 0 seconds - After the stop price is reached start a countdown of x seconds before closing the position. The countdown gets reset if the price moves above the stop price before the counter reaches 0 seconds.",
       "limitClose": "optional, default false - If enabled the trailing stop will be placed as a limit order at the last trade price (or above/below if makerMode is enabled). Otherwise the position will be closed with a market order.",
       "makerMode": "optional, default false. Whether to adjust all order rates below/above bid ask rates to ensure we only pay the lower (maker) fee.",
-      "forceMaker": "optional, default false - Only place a maker order (not paying the higher taker fee). Order will get adjusted in case the price moves away from it."
+      "forceMaker": "optional, default false - Only place a maker order (not paying the higher taker fee). Order will get adjusted in case the price moves away from it.",
+      "thresholds": {
+        "up": "The minimum difference in percent EMA/SMA crossover strategies must have between the long and short line to make a buy trade.",
+        "down": "The minimum difference in percent EMA/SMA crossover strategies must have between the long and short line to make a sell trade.",
+        "persistence": "The minimum number of candle ticks the up/down threshold must be crossed to open a trade. This value starts at 1 which means immediately.",
+        "sidewaysPercent": "The bot assumes the market goes sideways if the percentage in price change between the current candle and 'long' number of candles back is less than this value. Some strategies will not trade in sideways markets, while others will only trade in sideways markets."
+      }
     },
     "NOOP": {
       "desc": "This strategy does nothing. It is just a sample and placeholder.",

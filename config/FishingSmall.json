@@ -2,16 +2,17 @@
     "data": [
         {
             "exchanges": [
-                "Deribit"
+                "BitMEX"
             ],
             "marginTrading": true,
             "tradeTotalBtc": 200,
+            "notifyTrades": true,
             "warmUpMin": 0,
             "strategies": {
                 "FishingNet": {
                     "fishingMode": "trend",
                     "percentage": 15,
-                    "maxPosIncreases": 11,
+                    "maxPosIncreases": 14,
                     "tradingAmountIncreaseFactor": 1.1,
                     "profitPercent": 4.1,
                     "interval": 24,
@@ -37,6 +38,10 @@
                     "makerMode": true,
                     "forceMaker": false,
                     "pair": "USD_BTC",
+                    "thresholds": {
+                        "down": -0.085,
+                        "up": 0.05
+                    },
                     "candleSize": 5,
                     "tradeStrategy": "",
                     "enableLog": true
@@ -47,11 +52,11 @@
                     "stopLong": 0,
                     "setback": 5.5,
                     "setbackLong": 5.5,
-                    "time": 300,
+                    "time": 30,
                     "updateTrailingStop": false,
                     "setbackProfit": 4.1,
                     "triggerProfit": 6.5,
-                    "timeProfit": 120,
+                    "timeProfit": 30,
                     "reduceTimeByVolatility": false,
                     "low": 20,
                     "high": 80,
