@@ -8,6 +8,7 @@ import {ClosePositionState} from "./AbstractStopStrategy";
 import {TradeInfo} from "../Trade/AbstractTrader";
 import {ExchangeFeed} from "../Exchanges/feeds/AbstractMarketData";
 import * as helper from "../utils/helper";
+import {MarginPosition} from "../structs/MarginPosition";
 
 type FishingMode = "up" | "down" | "trend";
 type FishingTrendIndicator = "MACD" | "EMA" | "SMA" | "DEMA";
@@ -255,6 +256,14 @@ export default class FishingNet extends AbstractTrailingStop {
     public onTrade(action: TradeAction, order: Order.Order, trades: Trade.Trade[], info: TradeInfo) {
         super.onTrade(action, order, trades, info);
         if (action === "close") {
+            this.positionIncreasedCount = 0;
+            this.lastIncreasedRate = -1.0;
+        }
+    }
+
+    public onSyncPortfolio(coins: number, position: MarginPosition, exchangeLabel: Currency.Exchange) {
+        super.onSyncPortfolio(coins, position, exchangeLabel);
+        if (this.strategyPosition === "none") {
             this.positionIncreasedCount = 0;
             this.lastIncreasedRate = -1.0;
         }

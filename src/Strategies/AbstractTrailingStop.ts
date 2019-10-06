@@ -83,7 +83,7 @@ export abstract class AbstractTrailingStop extends /*AbstractStopStrategy*/Techn
     }
 
     public onSyncPortfolio(coins: number, position: MarginPosition, exchangeLabel: Currency.Exchange) {
-        super.onSyncPortfolio(coins, position, exchangeLabel)
+        super.onSyncPortfolio(coins, position, exchangeLabel);
         if (this.strategyPosition === "none") {
             this.trailingStopPrice = -1;
             this.limitClosedPositions = false;
@@ -92,7 +92,7 @@ export abstract class AbstractTrailingStop extends /*AbstractStopStrategy*/Techn
 
     public getOrderAmount(tradeTotalBtc: number, leverage: number = 1): number {
         let amount =  super.getOrderAmount(tradeTotalBtc, leverage);
-        if (this.done === false)
+        if (this.limitClosedPositions === false)
             return amount;
         return Math.abs(this.getPositionAmount()) * leverage;
     }
