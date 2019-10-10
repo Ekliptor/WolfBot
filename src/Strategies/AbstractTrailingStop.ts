@@ -83,11 +83,14 @@ export abstract class AbstractTrailingStop extends /*AbstractStopStrategy*/Techn
     }
 
     public onSyncPortfolio(coins: number, position: MarginPosition, exchangeLabel: Currency.Exchange) {
+        const previousAmount = this.getPositionAmount();
         super.onSyncPortfolio(coins, position, exchangeLabel);
         if (this.strategyPosition === "none") {
             this.trailingStopPrice = -1;
             this.limitClosedPositions = false;
         }
+        else if (this.limitClosedPositions === true && previousAmount !== this.getPositionAmount()) // sometimes faster than filled order callback
+            this.emitClose(Number.MAX_VALUE, utils.sprintf("Closing remaining %s position amount %s on position sync after limit CLOSE order.", this.strategyPosition.toUpperCase(), this.getPositionAmount().toFixed(8)));
     }
 
     public getOrderAmount(tradeTotalBtc: number, leverage: number = 1): number {

@@ -22,7 +22,7 @@ export class MarginTrade {
  */
 export class MarginPosition {
     amount: number = 0; // negative for short positions
-    contracts?: number; // present for some futures exchanges (needed to close the corract amount)
+    contracts?: number; // present for some futures exchanges (needed to close the correct amount)
     total: number = 0; // how much the we won/lost in currency of "amount" (without fees)
     basePrice: number = 0; // average entry price
     liquidationPrice: number = -1;

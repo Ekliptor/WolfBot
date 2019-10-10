@@ -1,3 +1,7 @@
+
+// https://github.com/ccxt/ccxt
+// alternative with ws: https://github.com/altangent/ccxws
+
 import * as utils from "@ekliptor/apputils";
 import {
     AbstractExchange,

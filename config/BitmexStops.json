@@ -12,7 +12,7 @@
         "StopLossTurn": {
           "order": "closeShort",
           "stop": 9820.6,
-          "stopLong": 7835.3,
+          "stopLong": 8140.3,
           "time": 30,
           "closePosition": "always",
           "reduceTimeByVolatility": false,
@@ -38,7 +38,7 @@
         "StopLossTurn": {
           "order": "closeLong",
           "stop": 194.9,
-          "stopLong": 168.1,
+          "stopLong": 186.1,
           "time": 30,
           "closePosition": "always",
           "reduceTimeByVolatility": false,
