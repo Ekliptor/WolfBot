@@ -823,7 +823,7 @@ export abstract class PortfolioTrader extends AbstractTrader {
             return;
         }
         if (nconf.get("trader") !== "Backtester")
-            logger.verbose("Synced %s %s portfiolio: %s coins, %s margin amount", exchangeName, currencyPair.toString(), coins, position.amount);
+            logger.verbose("Synced %s %s portfolio: %s coins, %s margin amount", exchangeName, currencyPair.toString(), coins, position.amount);
         // we sync all positions of an exchange together (to save http requests). but we have to call emit
         // on the correct instance (else the corresponding config, margin trading,... is wrong)
         let traderInstance = PortfolioTrader.allExchangePairs.getInstance(exchangeName, currencyPair.toString())

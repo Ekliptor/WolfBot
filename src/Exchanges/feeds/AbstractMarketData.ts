@@ -140,11 +140,11 @@ export abstract class AbstractMarketData extends EventEmitter {
 
     protected onConnectionClose(reason: string): void {
         this.connectionState = ConnectionState.CLOSED;
-        logger.warn("Websocket connection to %s closed: Reason: %s", this.className, reason);
         clearTimeout(this.websocketTimeoutTimerID);
         //clearTimeout(this.websocketPingTimerID);
-        clearTimeout(this.reconnectWebsocketTimerID);
+        clearTimeout(this.reconnectWebsocketTimerID); // do this first to ensure we reconnect
         this.reconnectWebsocketTimerID = setTimeout(this.openConnection.bind(this), this.reconnectWebsocketDelayMs);
+        logger.warn("Websocket connection to %s closed: Reason: %s", this.className, reason);
     }
 
     protected openConnection(): void {

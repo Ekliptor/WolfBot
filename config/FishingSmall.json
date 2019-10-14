@@ -12,9 +12,9 @@
                 "FishingNet": {
                     "fishingMode": "trend",
                     "percentage": 15,
-                    "maxPosIncreases": 18,
+                    "maxPosIncreases": 24,
                     "tradingAmountIncreaseFactor": 1.1,
-                    "profitPercent": 2.5,
+                    "profitPercent": 2.4,
                     "interval": 24,
                     "volumeRows": 24,
                     "valueAreaPercent": 90,

@@ -703,6 +703,8 @@ export abstract class AbstractExchange {
 
     protected onConnectionClose(reason: string): void {
         this.connectionState = ConnectionState.CLOSED;
+        clearTimeout(this.reconnectWebsocketTimerID); // do this first to ensure we reconnect
+        this.reconnectWebsocketTimerID = setTimeout(this.openConnection.bind(this), this.reconnectWebsocketDelayMs);
         if (AbstractExchange.pushApiConnections.has(this.className) === false) {
             logger.warn("Already closed %s websocket connection. reason %s", this.className, reason)
             return;
@@ -717,8 +719,6 @@ export abstract class AbstractExchange {
         this.openMarketRelays = [];
         for (let book of this.orderBook)
             this.orderBook.get(book[0]).clear(); // keep references to the orderbook
-        clearTimeout(this.reconnectWebsocketTimerID);
-        this.reconnectWebsocketTimerID = setTimeout(this.openConnection.bind(this), this.reconnectWebsocketDelayMs);
         //this.forceReload = true;
         // TODO if it takes us mutlipe tries to reconnect (exchange overloaded for many minutes) our trades list is incomplete
         // add a feature to auto import missing trades or suspend trading for candleSize * numberOfCandles of the longest strategy

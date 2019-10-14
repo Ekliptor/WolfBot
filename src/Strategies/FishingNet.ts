@@ -39,7 +39,6 @@ interface FishingNetAction extends AbstractTrailingStopAction {
     short: number; // 10
     long: number; // 26
     signal: number; // 9
-    // TODO add option to use other indicators than MACD for trend detection?
 
     feed: ExchangeFeed; // optional, default BitmexMarketData - The exchange feed to use to get liquidations from. This is not available during backtesting, so results might differ. Values: BitmexMarketData
     currencyPairs: string[]; // optional, default ["USD_BTC"] - The currency pairs to subscribe to for liquidation data.
