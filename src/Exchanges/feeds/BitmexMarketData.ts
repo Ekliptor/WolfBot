@@ -105,10 +105,10 @@ export default class BitmexMarketData extends AbstractMarketData {
                         this.apiClient.addStream(marketPair, "trade", (data, symbol, tableName) => {
                             // we get maxTableLen newest results, if the table is full it behaves like a FIFO, so we need to detect whats new
                             //console.log("got trades: " + data.length);
-                            this.resetWebsocketTimeout();
                             if (!data.length || data.length <= 0) {
                                 return
                             }
+                            this.resetWebsocketTimeout();
 
                             let newIndex = 0;
                             for (let i=data.length-1; i >= 0; i--) {

@@ -61,7 +61,7 @@ export class Controller extends AbstractController { // TODO implement graceful 
             if (!this.handleDatabaseConnectionError(err) && !this.handleRestartException(err))
                 this.log('Uncaught Exception', err, err.stack)
         })
-        process.on('unhandledRejection', (err) => {
+        process.on('unhandledRejection', (err: any) => {
             if (!this.handleDatabaseConnectionError(err))
                 this.log('Unhandled Rejection', err, err.stack)
         })

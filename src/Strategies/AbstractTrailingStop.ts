@@ -167,7 +167,9 @@ export abstract class AbstractTrailingStop extends /*AbstractStopStrategy*/Techn
     }
 
     protected checkStopSell() {
-        if (this.avgMarketPrice > this.getStopSell()) {
+        if (this.limitClosedPositions === true)
+            return;
+        else if (this.avgMarketPrice > this.getStopSell()) {
             if (this.action.time)
                 this.stopCountStart = null;
             return;
@@ -181,7 +183,9 @@ export abstract class AbstractTrailingStop extends /*AbstractStopStrategy*/Techn
     }
 
     protected checkStopBuy() {
-        if (this.avgMarketPrice < this.getStopBuy()) {
+        if (this.limitClosedPositions === true)
+            return;
+        else if (this.avgMarketPrice < this.getStopBuy()) {
             if (this.action.time)
                 this.stopCountStart = null;
             return;

@@ -173,6 +173,7 @@ export abstract class AbstractStrategy extends AbstractGenericStrategy {
             this.action.pair = TradeConfig.getCurrencyPair(options.pair);
         if (!options.tradeStrategy)
             options.tradeStrategy = "";
+        this.initRestartCheck();
     }
 
     public sendTick(trades: Trade.Trade[]) {
@@ -1350,6 +1351,23 @@ export abstract class AbstractStrategy extends AbstractGenericStrategy {
     protected isPossibleFuturesPair(pair: Currency.CurrencyPair) {
         const futurePairs: string[] = nconf.get("serverConfig:futureCoinPairs");
         return futurePairs.indexOf(pair.toString()) !== -1;
+    }
+
+    protected initRestartCheck() {
+        const maxTickMin = nconf.get("serverConfig:restartLastCandleTickMin");
+        if (maxTickMin <= 0 || nconf.get("trader") === "Backtester")
+            return;
+        setTimeout(() => { // wait til it's decided if main strategy (usually in constructor)
+            if (this.isMainStrategy() === false)
+                return;
+            setInterval(async () => {
+                if (!this.candle || !this.candle.start || this.candle.start.getTime() + maxTickMin*utils.constants.MINUTE_IN_SECONDS*1000 < Date.now()) {
+                    logger.error("Last candle tick was longer than %s minutes ago. Scheduling restart", maxTickMin);
+                    const controller = await import("../Controller");
+                    controller.controller.restart();
+                }
+            }, nconf.get("serverConfig:checkRestartIntervalMin")*utils.constants.MINUTE_IN_SECONDS*1000);
+        }, 5000);
     }
 }
 

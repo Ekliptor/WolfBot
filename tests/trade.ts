@@ -28,6 +28,7 @@ import Liquid from "../src/Exchanges/Liquid";
 import YoBit from "../src/Exchanges/YoBit";
 import Peatio from "../src/Exchanges/Peatio";
 import * as db from "../src/database";
+import * as ccxt from "ccxt";
 
 const logger = utils.logger
     , nconf = utils.nconf;
@@ -355,7 +356,8 @@ let testCcxt = async () => {
     let coinbase = new Bitstamp(nconf.get("serverConfig:apiKey:exchange:Bitstamp")[0])
     let params = {}
 
-    let pair = new Currency.CurrencyPair(Currency.Currency.BTC, Currency.Currency.ETH)
+    //let pair = new Currency.CurrencyPair(Currency.Currency.BTC, Currency.Currency.ETH)
+    let pair = new Currency.CurrencyPair(Currency.Currency.BTC, Currency.Currency.EUR)
     coinbase.subscribeToMarkets([pair]);
     await utils.promiseDelay(800); // wait til we are connected
 
@@ -426,8 +428,8 @@ Controller.loadServerConfig(() => {
         //testBitmexLiquidations();
         //testDeribit();
         //testBx();
-        //testCcxt();
+        testCcxt();
         //testPaetio();
-        updateHistory();
+        //updateHistory();
     })
 })

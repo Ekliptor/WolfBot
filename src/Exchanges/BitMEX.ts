@@ -757,11 +757,11 @@ export default class BitMEX extends AbstractContractExchange {
                     this.apiClient.addStream(marketPair, "trade", (data, symbol, tableName) => {
                         // we get maxTableLen newest results, if the table is full it behaves like a FIFO, so we need to detect whats new
                         //console.log("got trades: " + data.length);
-                        this.resetWebsocketTimeout();
 
                         if (!data.length || data.length <= 0) {
                             return
                         }
+                        this.resetWebsocketTimeout();
 
                         let marketEventStream = marketEventStreamMap.get(currencyPair.toString());
                         if (!marketEventStream) {

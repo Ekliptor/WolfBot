@@ -21,6 +21,7 @@ interface FishingNetAction extends AbstractTrailingStopAction {
     // (and thus the break-even rate) in your favor.
     tradingAmountIncreaseFactor; // optional, default 1.1 - The factor with which your trading amount will be increased on each trade after opening a position. So the total capital of trade n to increase an existing position will be: tradeTotalBtc * percentage * tradingAmountIncreaseFactor * n
     profitPercent: number; // optional, default 2.1% - After the total position size reached this profit the position will no longer be increased. Instead a trailing stop with 'trailingStopPerc' will be placed.
+    // TODO add pauseTicks after a trade
 
     interval: number; // optional, default 24 - The number of candles to compute the volume profile and average volume from. Also the number of data points to keep in history.
     volumeRows: number; // default 24 - The number of equally-sized price zones the price range is divided into.
@@ -269,7 +270,7 @@ export default class FishingNet extends AbstractTrailingStop {
     }
 
     public getOrderAmount(tradeTotalBtc: number, leverage: number = 1): number {
-        let amount = tradeTotalBtc * leverage;
+        let amount = super.getOrderAmount(tradeTotalBtc, leverage);
         if (nconf.get("trader") !== "Backtester") { // backtester uses BTC as unit, live mode USD
             if (leverage >= 10 && this.isPossibleFuturesPair(this.action.pair) === true)
                 amount = tradeTotalBtc * leverage * /*this.ticker.last*/this.avgMarketPrice;
@@ -290,7 +291,7 @@ export default class FishingNet extends AbstractTrailingStop {
             return amount;
         let tradeAmount = amount / 100 * this.orderAmountPercent;
         if (this.strategyPosition !== "none" && this.positionIncreasedCount > 0)
-            tradeAmount *= this.action.tradingAmountIncreaseFactor * this.positionIncreasedCount; // counter is increased before order is submitted
+            tradeAmount = tradeAmount + tradeAmount / 100.0 * this.action.tradingAmountIncreaseFactor * this.positionIncreasedCount; // counter is increased before order is submitted
         return tradeAmount;
     }
 
