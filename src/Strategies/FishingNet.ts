@@ -270,7 +270,13 @@ export default class FishingNet extends AbstractTrailingStop {
     }
 
     public getOrderAmount(tradeTotalBtc: number, leverage: number = 1): number {
+        const prevPercentage = this.orderAmountPercent;
+        //this.action.percentage = 100.0; // used in parent function differently
+        this.orderAmountPercent = 100.0;
         let amount = super.getOrderAmount(tradeTotalBtc, leverage);
+        this.orderAmountPercent = prevPercentage;
+        if (this.limitClosedPositions === true)
+            return amount;
         if (nconf.get("trader") !== "Backtester") { // backtester uses BTC as unit, live mode USD
             if (leverage >= 10 && this.isPossibleFuturesPair(this.action.pair) === true)
                 amount = tradeTotalBtc * leverage * /*this.ticker.last*/this.avgMarketPrice;
@@ -287,9 +293,9 @@ export default class FishingNet extends AbstractTrailingStop {
          */
 
         this.orderAmountPercent = this.action.percentage;
-        if (!this.orderAmountPercent || this.orderAmountPercent === 100)
-            return amount;
-        let tradeAmount = amount / 100 * this.orderAmountPercent;
+        let tradeAmount = amount;
+        if (this.orderAmountPercent > 0.0 && this.orderAmountPercent < 100.0)
+            tradeAmount = tradeAmount / 100 * this.orderAmountPercent;
         if (this.strategyPosition !== "none" && this.positionIncreasedCount > 0)
             tradeAmount = tradeAmount + tradeAmount / 100.0 * this.action.tradingAmountIncreaseFactor * this.positionIncreasedCount; // counter is increased before order is submitted
         return tradeAmount;

@@ -21,6 +21,7 @@ import EventStream from "../Trade/EventStream";
 import {Currency, Ticker, Trade, TradeHistory, MarketOrder} from "@ekliptor/bit-models";
 import {MarketAction} from "../Trade/MarketStream";
 import {OrderBook} from "../Trade/OrderBook";
+import KrakenCcxt from "./KrakenCcxt";
 
 export class KrakenCurrencies implements Currency.ExchangeCurrencies {
     protected exchange: AbstractExchange;
@@ -140,6 +141,7 @@ export class KrakenCurrencies implements Currency.ExchangeCurrencies {
 
 export default class Kraken extends AbstractExchange {
     protected currencies: KrakenCurrencies;
+    protected krakenCcxt: KrakenCcxt;
 
     constructor(options: ExOptions) {
         super(options)
@@ -152,6 +154,9 @@ export default class Kraken extends AbstractExchange {
         this.fee = 0.0026; // TODO find API call to get actual fees (if we trade higher volumes)
         this.maxLeverage = 5.0;
         this.currencies = new KrakenCurrencies(this);
+
+        this.krakenCcxt = new KrakenCcxt(options);
+        this.krakenCcxt.setPollTrades(false);
     }
 
     public repeatFailedTrade(error: any, currencyPair: Currency.CurrencyPair) {
@@ -238,6 +243,7 @@ export default class Kraken extends AbstractExchange {
     }
 
     public fetchOrderBook(currencyPair: Currency.CurrencyPair, depth: number) {
+        /*
         return new Promise<OrderBookUpdate<MarketOrder.MarketOrder>>((resolve, reject) => {
             const pairStr = this.currencies.getExchangePair(currencyPair)
             // they also have a call for recent spread data: https://api.kraken.com/0/public/Spread?pair=XBTUSD
@@ -259,6 +265,8 @@ export default class Kraken extends AbstractExchange {
                 reject(err)
             })
         })
+         */
+        return this.krakenCcxt.fetchOrderBook(currencyPair, depth);
     }
 
     public importHistory(currencyPair: Currency.CurrencyPair, start: Date, end: Date) {
@@ -310,6 +318,8 @@ export default class Kraken extends AbstractExchange {
     }
 
     public buy(currencyPair: Currency.CurrencyPair, rate: number, amount: number, params: OrderParameters = {}) {
+        // call CCXT library for buying/selling to always have the correct minimum order size
+        /*
         return new Promise<OrderResult>((resolve, reject) => {
             this.verifyTradeRequest(currencyPair, rate, amount, params).then((outParams) => {
                 outParams.type = "buy"
@@ -320,9 +330,12 @@ export default class Kraken extends AbstractExchange {
                 reject(err)
             })
         })
+         */
+        return this.krakenCcxt.buy(currencyPair, rate, amount, params);
     }
 
     public sell(currencyPair: Currency.CurrencyPair, rate: number, amount: number, params: OrderParameters = {}) {
+        /*
         return new Promise<OrderResult>((resolve, reject) => {
             this.verifyTradeRequest(currencyPair, rate, amount, params).then((outParams) => {
                 outParams.type = "sell"
@@ -333,25 +346,30 @@ export default class Kraken extends AbstractExchange {
                 reject(err)
             })
         })
+         */
+        return this.krakenCcxt.sell(currencyPair, rate, amount, params);
     }
 
     public cancelOrder(currencyPair: Currency.CurrencyPair, orderNumber: number | string) {
+        /*
         return new Promise<CancelOrderResult>((resolve, reject) => {
             let outParams = {
                 txid: orderNumber
             }
             this.privateReq("CancelOrder", outParams).then((result) => {
-                resolve({exchangeName: this.className, orderNumber: orderNumber, cancelled: /*!result.result.error*/true}) // errors already caught in res
+                resolve({exchangeName: this.className, orderNumber: orderNumber, cancelled: /*!result.result.error******true}) // errors already caught in res
             }).catch((err) => {
                 // check if already filled (or cancelled)
                 if (!err.error || err.error.length === 0)
                     return resolve({exchangeName: this.className, orderNumber: orderNumber, cancelled: true})
                 reject(err)
             })
-        })
+        })*/
+        return this.krakenCcxt.cancelOrder(currencyPair, orderNumber);
     }
 
     public getOpenOrders(currencyPair: Currency.CurrencyPair) {
+        /*
         return new Promise<OpenOrders>((resolve, reject) => {
             let outParams = {
             }
@@ -382,7 +400,8 @@ export default class Kraken extends AbstractExchange {
             }).catch((err) => {
                 reject(err)
             })
-        })
+        })*/
+        return this.krakenCcxt.getOpenOrders(currencyPair);
     }
 
     public moveOrder(currencyPair: Currency.CurrencyPair, orderNumber: number | string, rate: number, amount: number, params: OrderParameters) {
@@ -392,6 +411,7 @@ export default class Kraken extends AbstractExchange {
          2017-09-05 01:36:12 - error: Moving order BTC_ETH in Kraken failed. Order has been cancelled
          2017-09-05 01:36:12 - error: Error moving BTC_ETH order on Kraken {"txt":"Error on exchange API call","exchange":"Kraken","method":"AddOrder","error":["EGeneral:Invalid arguments:volume"]}
          */
+        /*
         return new Promise<OrderResult>((resolve, reject) => {
             // kraken doesn't have a "move order" function. so we have to cancel the order and place it again
             let outParams;
@@ -438,11 +458,12 @@ export default class Kraken extends AbstractExchange {
             }).catch((err) => {
                 reject(err)
             })
-        })
+        })*/
+        return this.krakenCcxt.moveOrder(currencyPair, orderNumber, rate, amount, params);
     }
 
     public marginBuy(currencyPair: Currency.CurrencyPair, rate: number, amount: number, params: MarginOrderParameters) {
-        return new Promise<OrderResult>((resolve, reject) => {
+        return new Promise<OrderResult>((resolve, reject) => { // TODO add ccxt support for margin trading
             this.verifyTradeRequest(currencyPair, rate, amount, params).then((outParams) => {
                 outParams.type = "buy"
                 outParams.leverage = this.maxLeverage + ":1";

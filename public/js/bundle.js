@@ -4583,8 +4583,8 @@ class Home extends AbstractController_1.AbstractController {
         });
     }
 }
-Home.STRATEGY_TOPLIST_URL = "https://wolfbot.org/wp-json/tradebot/v1/popular-strategies";
 exports.Home = Home;
+Home.STRATEGY_TOPLIST_URL = "https://wolfbot.org/wp-json/tradebot/v1/popular-strategies";
 
 
 /***/ }),
@@ -6193,6 +6193,8 @@ class AppClass {
                         title: i18next.t('unauthorized'),
                         text: i18next.t('unauthorizedTxt')
                     };
+                    if (AppF.getCookie("apiKey"))
+                        AppF.setCookie("apiKey", "", -1); // delete it if existing
                     break;
                 case "UnauthorizedPremium":
                     vars = null;
@@ -6385,13 +6387,13 @@ class AppClass {
         this.webSocket.subscribe(this.controllers.get("Config"), true);
     }
 }
+exports.AppClass = AppClass;
 AppClass.cfg = {
     tpl: '',
     appSel: '#app',
     contentWidget: '#content',
     successMsgRemoveSec: pageData.successMsgRemoveSec
 };
-exports.AppClass = AppClass;
 // TODO settings ?
 var App = null; // delay until page load to inherit before (not needed anymore with TS)
 exports.App = App;

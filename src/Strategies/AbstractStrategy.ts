@@ -1354,7 +1354,7 @@ export abstract class AbstractStrategy extends AbstractGenericStrategy {
     }
 
     protected initRestartCheck() {
-        const maxTickMin = nconf.get("serverConfig:restartLastCandleTickMin");
+        const maxTickMin = Math.max(nconf.get("serverConfig:restartLastCandleTickMin"), this.action.candleSize ? this.action.candleSize : 1);
         if (maxTickMin <= 0 || nconf.get("trader") === "Backtester")
             return;
         setTimeout(() => { // wait til it's decided if main strategy (usually in constructor)

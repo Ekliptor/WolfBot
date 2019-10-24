@@ -60,6 +60,7 @@ export abstract class AbstractTrailingStop extends /*AbstractStopStrategy*/Techn
         this.addInfo("stopCountStart", "stopCountStart");
         this.addInfo("entryPrice", "entryPrice");
         this.addInfo("done", "done");
+        this.addInfo("limitClosedPositions", "limitClosedPositions");
 
         this.addInfoFunction("positionState", () => {
             return this.getPositionState();
@@ -97,7 +98,7 @@ export abstract class AbstractTrailingStop extends /*AbstractStopStrategy*/Techn
         let amount =  super.getOrderAmount(tradeTotalBtc, leverage);
         if (this.limitClosedPositions === false)
             return amount;
-        return Math.abs(this.getPositionAmount()) * leverage;
+        return Math.abs(this.getPositionAmount()) * this.avgMarketPrice * leverage;
     }
 
     public serialize() {

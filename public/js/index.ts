@@ -113,6 +113,8 @@ export class AppClass {
                         title: i18next.t('unauthorized'),
                         text: i18next.t('unauthorizedTxt')
                     }
+                    if (AppF.getCookie("apiKey"))
+                        AppF.setCookie("apiKey", "", -1); // delete it if existing
                     break;
                 case "UnauthorizedPremium":
                     vars = null
