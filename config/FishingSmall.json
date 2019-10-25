@@ -42,7 +42,7 @@
                         "down": -0.055,
                         "up": 0.05
                     },
-                    "candleSize": 5,
+                    "candleSize": 2,
                     "tradeStrategy": "",
                     "enableLog": true
                 },
