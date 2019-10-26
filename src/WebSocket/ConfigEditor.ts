@@ -151,6 +151,7 @@ export class ConfigEditor extends AppPublisher {
     protected lastWorkingExchanges: string[] = [];
     protected pairChangePendingRestart = false;
     protected initialPairs = new Set<string>();
+    protected static restarting: boolean = false;
 
     constructor(serverSocket: ServerSocket, advisor: AbstractAdvisor) {
         super(serverSocket, advisor)
@@ -299,10 +300,11 @@ export class ConfigEditor extends AppPublisher {
 
     protected onData(data: ConfigReq, clientSocket: ClientSocketOnServer, initialRequest: http.IncomingMessage): void {
         if (typeof data.configChange === "string") {
-            this.readConfigFile(data.configChange).then((configFileData) => {
+            this.readConfigFile(data.configChange, true, true).then((configFileData) => {
                 let configName = this.getPlainConfigName(data.configChange);
-                if (configName)
+                if (configName) {
                     this.selectedConfig = configName;
+                }
                 this.send(clientSocket, {
                     configFileData: configFileData
                 });
@@ -516,6 +518,10 @@ export class ConfigEditor extends AppPublisher {
     }
 
     public restart(forceDefaults = false, resetMode = false) {
+        if (ConfigEditor.restarting === true) {
+            logger.warn("Ignoring restart request because bot is already restarting");
+            return;
+        }
         const configFile = this.getFirstFileForMode(resetMode ? "trading" : this.selectedTradingMode);
         if (resetMode)
             this.selectedTradingMode = "trading"; // just to be sure
@@ -547,6 +553,7 @@ export class ConfigEditor extends AppPublisher {
             nconf.set("serverConfig:lastRestartTime", new Date()); // only count forced (auto) restarts
             serverConfig.saveConfigLocal();
         }
+        ConfigEditor.restarting = true;
         this.saveState().then(async () => {
             await utils.promiseDelay(3500); // ensure LastParams is deleted and give the restart more time
             let processArgs = Object.assign([], process.execArgv)
@@ -575,7 +582,8 @@ export class ConfigEditor extends AppPublisher {
             child.unref()
             process.exit(0)
         }).catch((err) => {
-            logger.error("Error restarting bot", err)
+            logger.error("Error restarting bot", err);
+            ConfigEditor.restarting = false;
         })
     }
 
@@ -643,14 +651,18 @@ export class ConfigEditor extends AppPublisher {
         return lastRestart.getTime() + nconf.get("serverConfig:restartPreviouslyIntervalMin")*utils.constants.MINUTE_IN_SECONDS*1000 >= Date.now();
     }
 
-    protected async readConfigFile(name: string, updateStrategyValues: boolean = true): Promise<string> {
+    protected async readConfigFile(name: string, updateStrategyValues: boolean = true, updateExchange: boolean = false): Promise<string> {
         let dataStr = await this.readConfigFileSafe(name, updateStrategyValues, false);
         if (dataStr)
             return dataStr;
         logger.warn("Loading config JSON failed. Retrying with backup");
         dataStr = await this.readConfigFileSafe(name, updateStrategyValues, true);
-        if (dataStr)
+        if (dataStr) {
+            // if only 1 exchange API key is present always modify the config to show that exchange
+            if (updateExchange === true && nconf.get("serverConfig:singleExchangeMode") === true && this.usingSingleExchangeKey() === true)
+                return this.updateConfigToSingleExchange(dataStr);
             return dataStr;
+        }
         // TODO also try with updateStrategyValues = false ?
         this.sendConfigNotification("Config error", "Please check your config JSON and exchange API keys. Trading disabled!");
         return "";
@@ -700,14 +712,6 @@ export class ConfigEditor extends AppPublisher {
             }
         });
         return utils.stringifyBeautiful(json);
-    }
-
-    /**
-     * Return the fixed JSON if it can be repaired or null otherwise.
-     * @param json
-     */
-    protected canFixInvalidConfigJson(json: any): any {
-        return json;
     }
 
     protected ensureCurrencyPairString(pair: any): string {
@@ -1659,5 +1663,50 @@ export class ConfigEditor extends AppPublisher {
         setTimeout(() => {
             this.restart(false);
         }, 1000);
+    }
+
+    protected usingSingleExchangeKey() {
+        return this.getSingleExchangeName() !== null;
+    }
+
+    protected getSingleExchangeName(): string {
+        let apiKeyCount = 0;
+        let firstExchange = "";
+        try {
+            let currentExchangeKeys = nconf.get("serverConfig:apiKey:exchange");
+            for (let exchangeName in currentExchangeKeys)
+            {
+                const keys = currentExchangeKeys[exchangeName];
+                keys.forEach((key) => {
+                    if (key.key && key.secret) {
+                        apiKeyCount++;
+                        if (firstExchange.length === 0)
+                            firstExchange = exchangeName;
+                    }
+                });
+            }
+        }
+        catch (err) {
+            logger.error("Error checking for single exchange usage, API keys %s", apiKeyCount, err);
+        }
+        if (apiKeyCount === 1) // only if exactly 1 key entered by the user
+            return firstExchange;
+        return null;
+    }
+
+    protected updateConfigToSingleExchange(configStr: string): string {
+        const exchangeName = this.getSingleExchangeName();
+        if (exchangeName === null)
+            return configStr; // already checked, shouldn't happen
+        let json = this.validateConfigArray(configStr);
+        if (json === null) {
+            logger.warn("Unable to update invalid config to use single exchange %s", exchangeName);
+            return configStr;
+        }
+        json.data.forEach((pairConfig) => {
+            pairConfig.exchanges = [exchangeName];
+        });
+        logger.info("Updated config with %s currency pairs to use single exchange %s", json.data.length, exchangeName);
+        return utils.stringifyBeautiful(json);
     }
 }

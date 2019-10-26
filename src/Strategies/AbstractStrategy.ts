@@ -1362,7 +1362,9 @@ export abstract class AbstractStrategy extends AbstractGenericStrategy {
                 return;
             setInterval(async () => {
                 if (!this.candle || !this.candle.start || this.candle.start.getTime() + maxTickMin*utils.constants.MINUTE_IN_SECONDS*1000 < Date.now()) {
-                    logger.error("Last candle tick was longer than %s minutes ago. Scheduling restart", maxTickMin);
+                    const msg = utils.sprintf("Last candle tick was longer than %s minutes ago. Scheduling restart", maxTickMin);
+                    logger.error(msg);
+                    this.sendNotification("Restarting bot", msg, false, true);
                     const controller = await import("../Controller");
                     controller.controller.restart();
                 }
