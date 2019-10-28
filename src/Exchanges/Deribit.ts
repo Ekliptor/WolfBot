@@ -19,7 +19,7 @@ import {
     OrderParameters,
     PushApiConnectionType
 } from "./AbstractExchange";
-import {AbstractContractExchange} from "./AbstractContractExchange";
+import {AbstractContractExchange, AbstractContractExchangeCurrencies} from "./AbstractContractExchange";
 import {OrderResult} from "../structs/OrderResult";
 import {MarginPosition, MarginPositionList} from "../structs/MarginPosition";
 import MarginAccountSummary from "../structs/MarginAccountSummary";
@@ -38,10 +38,11 @@ const logger = utils.logger
     , nconf = utils.nconf;
 
 
-export class DeribitCurrencies implements Currency.ExchangeCurrencies {
+export class DeribitCurrencies extends AbstractContractExchangeCurrencies {
     protected exchange: /*AbstractExchange*/Deribit;
 
     constructor(exchange: Deribit) {
+        super();
         this.exchange = exchange;
     }
 
@@ -53,6 +54,10 @@ export class DeribitCurrencies implements Currency.ExchangeCurrencies {
     }
 
     public getExchangePair(localPair: Currency.CurrencyPair): string {
+        let contractPair = this.getExchangeContractForPair(localPair);
+        if (contractPair)
+            return contractPair;
+
         // present in Deribit and DeribitCcxt
         let quoteCurrencyStr = Currency.getCurrencyLabel(localPair.to);
         if (quoteCurrencyStr === "ETH")
@@ -62,6 +67,10 @@ export class DeribitCurrencies implements Currency.ExchangeCurrencies {
         return "BTC"; // fallback
     }
     public getLocalPair(exchangePair: string): Currency.CurrencyPair {
+        let localPairFromContract = this.getLocalPairFromContract(exchangePair);
+        if (localPairFromContract)
+            return localPairFromContract;
+
         // exchamgePair: 'BTC-PERPETUAL'
         if (exchangePair === "ETH-PERPETUAL")
             return new Currency.CurrencyPair(Currency.Currency.USD, Currency.Currency.ETH);

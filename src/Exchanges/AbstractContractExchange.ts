@@ -14,6 +14,43 @@ export class ContractValueMap extends Map<string, number> { // (contract currenc
     }
 }
 
+export abstract class AbstractContractExchangeCurrencies implements Currency.ExchangeCurrencies {
+    constructor() {
+    }
+
+    public abstract getExchangeName(localCurrencyName: string): string;
+    public abstract getLocalName(exchangeCurrencyName: string): string;
+
+    public abstract getExchangePair(localPair: Currency.CurrencyPair): string;
+    public abstract getLocalPair(exchangePair: string): Currency.CurrencyPair;
+
+    public abstract toLocalTicker(exchangeTicker: any): Ticker.Ticker;
+
+    public getExchangeContractForPair(localPair: Currency.CurrencyPair): string {
+        const params: string[] = nconf.get("exchangeParams");
+        if (params.length < 2)
+            return null;
+        const configPair = Currency.CurrencyPair.fromString(params[1]);
+        if (configPair === null)
+            return null; // invalid pair in config
+        if (configPair.equals(localPair) === false)
+            return null; // another pair
+        return params[0]; // return the contract name as currency pair
+    }
+
+    public getLocalPairFromContract(exchangePair: string): Currency.CurrencyPair {
+        const params: string[] = nconf.get("exchangeParams");
+        if (params.length < 2)
+            return null;
+        if (exchangePair !== params[0])
+            return null; // another pair
+        const configPair = Currency.CurrencyPair.fromString(params[1]);
+        if (configPair === null)
+            return null; // invalid pair in config
+        return configPair;
+    }
+}
+
 export abstract class AbstractContractExchange extends AbstractExchange {
     protected contractValues = new ContractValueMap();
 

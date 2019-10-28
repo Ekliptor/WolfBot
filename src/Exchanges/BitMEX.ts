@@ -7,7 +7,7 @@ import * as utils from "@ekliptor/apputils";
 const logger = utils.logger
     , nconf = utils.nconf;
 import {AbstractExchange, ExOptions, ExApiKey, OrderBookUpdate, OpenOrders, OpenOrder, ExRequestParams, ExResponse, OrderParameters, MarginOrderParameters, CancelOrderResult, PushApiConnectionType} from "./AbstractExchange";
-import {AbstractContractExchange} from "./AbstractContractExchange";
+import {AbstractContractExchange, AbstractContractExchangeCurrencies} from "./AbstractContractExchange";
 import {OrderResult} from "../structs/OrderResult";
 import {MarginPosition, MarginPositionList} from "../structs/MarginPosition";
 import MarginAccountSummary from "../structs/MarginAccountSummary";
@@ -31,10 +31,11 @@ const argv = argvFunction(process.argv.slice(2));
 const bitmexFix = nconf.get("serverConfig:premium") === true || argv.bitmex === true ? require("./BitmexFix").bitmexFix : null;
 
 
-export class BitMEXCurrencies implements Currency.ExchangeCurrencies {
+export class BitMEXCurrencies extends AbstractContractExchangeCurrencies {
     protected exchange: /*AbstractExchange*/BitMEX;
 
     constructor(exchange: BitMEX) {
+        super();
         this.exchange = exchange;
     }
 
@@ -50,6 +51,10 @@ export class BitMEXCurrencies implements Currency.ExchangeCurrencies {
     }
 
     public getExchangePair(localPair: Currency.CurrencyPair): string {
+        let contractPair = this.getExchangeContractForPair(localPair);
+        if (contractPair)
+            return contractPair;
+
         let str1 = Currency.Currency[localPair.from]
         let str2 = Currency.Currency[localPair.to]
         if (!str1 || !str2) // currency not supported by exchange
@@ -61,6 +66,10 @@ export class BitMEXCurrencies implements Currency.ExchangeCurrencies {
         return str1 + str2 // reverse the order: BTC_USD -> XBTUSD
     }
     public getLocalPair(exchangePair: string): Currency.CurrencyPair {
+        let localPairFromContract = this.getLocalPairFromContract(exchangePair);
+        if (localPairFromContract)
+            return localPairFromContract;
+
         let pair = [exchangePair.substr(0, 3), exchangePair.substr(3)]
         let cur1 = Currency.Currency[this.getLocalName(pair[0])] // reverse the order back
         let cur2 = Currency.Currency[this.getLocalName(pair[1])]

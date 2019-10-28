@@ -1369,7 +1369,7 @@ export abstract class AbstractStrategy extends AbstractGenericStrategy {
                     controller.controller.restart();
                 }
             }, nconf.get("serverConfig:checkRestartIntervalMin")*utils.constants.MINUTE_IN_SECONDS*1000);
-        }, 5000);
+        }, 5000 + utils.getRandomInt(0, 15000)); // add some randomness to avoid multiple strategies firing at the same time
     }
 }
 

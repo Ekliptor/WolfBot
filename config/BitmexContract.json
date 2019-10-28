@@ -1,0 +1,25 @@
+{
+    "data": [
+        {
+            "exchanges": [
+                "BitMEX"
+            ],
+            "marginTrading": true,
+            "tradeTotalBtc": 200.0,
+            "notifyTrades": true,
+            "warmUpMin": 0,
+            "exchangeParams": [
+                "XBTZ19",
+                "USD_BTC"
+            ],
+            "strategies": {
+                "NOOP": {
+                    "sample": "in here come strategy parameteres & config in real trading strategies",
+                    "pair": "USD_BTC",
+                    "candleSize": 2,
+                    "enableLog": true
+                }
+            }
+        }
+    ]
+}

@@ -424,11 +424,11 @@ Controller.loadServerConfig(() => {
         //testPolo();
         //testBittrex();
         //testBinance();
-        //testBitmex();
+        testBitmex();
         //testBitmexLiquidations();
         //testDeribit();
         //testBx();
-        testCcxt();
+        //testCcxt();
         //testPaetio();
         //updateHistory();
     })
