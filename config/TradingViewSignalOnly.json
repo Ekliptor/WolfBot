@@ -26,7 +26,7 @@
                     "forceMaker": false,
                     "pair": "USD_BTC",
                     "candleSize": 1,
-                    "tradeStrategy": "RSIScalpOrderer",
+                    "tradeStrategy": "",
                     "enableLog": true
                 }
             }

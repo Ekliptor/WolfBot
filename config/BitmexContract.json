@@ -13,12 +13,24 @@
                 "USD_BTC"
             ],
             "strategies": {
-                "NOOP": {
-                    "sample": "in here come strategy parameteres & config in real trading strategies",
-                    "pair": "USD_BTC",
-                    "candleSize": 2,
-                    "enableLog": true
-                }
+              "TradingViewSignal": {
+                "email": "tradingview@wolfbot.org",
+                "password": "",
+                "host": "",
+                "port": 0,
+                "tls": true,
+                "checkMailSec": 120,
+                "tradeDirection": "both",
+                "buyWords": "buy",
+                "sellWords": "sell",
+                "closeWords": "close",
+                "alwaysAllowPosIncrease": false,
+                "forceMaker": false,
+                "pair": "USD_BTC",
+                "candleSize": 1,
+                "tradeStrategy": "",
+                "enableLog": true
+              }
             }
         }
     ]
