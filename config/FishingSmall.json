@@ -28,6 +28,10 @@
                     "short": 10,
                     "long": 16,
                     "signal": 9,
+                    "bollingerBandProtection": true,
+                    "N": 20,
+                    "K": 2,
+                    "MAType": 0,
                     "feed": "BitmexMarketData",
                     "currencyPairs": [
                         "USD_BTC"

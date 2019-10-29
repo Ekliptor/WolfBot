@@ -1403,6 +1403,7 @@
       "short": "optional, default 10 - The number of candles for the short EMA of the MACD indicator (or the moving average of trendIndicator).",
       "long": "optional, default 26 - The number of candles for the long EMA of the MACD indicator (or the moving average of trendIndicator).",
       "signal": "optional, default 9 - The number of candles for the signal line of the MACD line (short EMA - long EMA).",
+      "bollingerBandProtection": "optional, default true - Only open new positions within Bollinger Bands to protect against volatile markets where it is more likely that our stop-loss will get hit.",
       "feed": "optional, default BitmexMarketData - The exchange feed to use to get liquidations from. This is not available during backtesting, so results might differ. Values: BitmexMarketData",
       "currencyPairs": "optional, default [\"USD_BTC\"] - The currency pairs to subscribe to for liquidation data.",
       "supportLines": "The price levels where we want to open long a position. Leave empty to open at any price level.",

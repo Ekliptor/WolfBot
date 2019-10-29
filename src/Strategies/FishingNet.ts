@@ -41,6 +41,12 @@ interface FishingNetAction extends AbstractTrailingStopAction {
     long: number; // 26
     signal: number; // 9
 
+    // optional, for defaults see BolloingerBandsParams. Used a a protection to only place orders within Bands.
+    bollingerBandProtection: boolean; // optional, default true - Only open new positions within Bollinger Bands to protect against volatile markets where it is more likely that our stop-loss will get hit.
+    N: number; // The time period for MA of BollingerBands.
+    K: number; // The factor for upper/lower band of BollingerBands.
+    MAType: number; // The moving average type of BollingerBands. 0 = SMA
+
     feed: ExchangeFeed; // optional, default BitmexMarketData - The exchange feed to use to get liquidations from. This is not available during backtesting, so results might differ. Values: BitmexMarketData
     currencyPairs: string[]; // optional, default ["USD_BTC"] - The currency pairs to subscribe to for liquidation data.
 
@@ -100,6 +106,8 @@ export default class FishingNet extends AbstractTrailingStop {
                 this.action.long = 26;
             if (!this.action.signal)
                 this.action.signal = 9;
+            if (typeof this.action.bollingerBandProtection !== "boolean")
+                this.action.bollingerBandProtection = true;
             //if (!this.action.feed) // allow empty string = disabled
                 //this.action.feed = "BitmexMarketData";
             if (Array.isArray(this.action.currencyPairs) === false || this.action.currencyPairs.length === 0)
@@ -121,10 +129,12 @@ export default class FishingNet extends AbstractTrailingStop {
             if (nconf.get("trader") !== "Backtester" && this.action.feed) {
                 this.addIndicator("Liquidator", "Liquidator", this.action);
             }
+            this.addIndicator("BollingerBands", "BollingerBands", this.action);
 
             const volumeProfile = this.getVolumeProfile("VolumeProfile");
             const averageVolume = this.getVolume("AverageVolume");
             const liquidator = nconf.get("trader") !== "Backtester" && this.action.feed ? this.getLiquidator("Liquidator") : null;
+            const bollinger = this.getBollinger("BollingerBands");
             this.addInfo("positionIncreasedCount", "positionIncreasedCount");
             this.addInfo("lastIncreasedRate", "lastIncreasedRate");
             this.addInfoFunction("valueAreaHigh", () => {
@@ -167,6 +177,26 @@ export default class FishingNet extends AbstractTrailingStop {
             this.addInfoFunction("MaxVolumeCandle", () => {
                 let i = averageVolume.getHighestVolumeCandleIndex();
                 return i === -1 || i >= this.candleHistory.length ? "" : ("index: " + i + ", " + this.candleHistory[i].toString());
+            });
+            this.addInfoFunction("percentB", () => {
+                if (!this.candle)
+                    return -1;
+                return bollinger.getPercentB(this.candle.close);
+            });
+            this.addInfoFunction("Bandwidth", () => {
+                return bollinger.getBandwidth();
+            });
+            this.addInfoFunction("BandwidthAvgFactor", () => {
+                return bollinger.getBandwidthAvgFactor();
+            });
+            this.addInfoFunction("upperValue", () => {
+                return bollinger.getUpperValue();
+            });
+            this.addInfoFunction("middleValue", () => {
+                return bollinger.getMiddleValue();
+            });
+            this.addInfoFunction("lowerValue", () => {
+                return bollinger.getLowerValue();
             });
             this.addInfoFunction("trendUp", () => {
                 return this.isUpwardsMarketTrend();
@@ -334,6 +364,20 @@ export default class FishingNet extends AbstractTrailingStop {
         const volumeProfile = this.getVolumeProfile("VolumeProfile");
         //let profileBars = volumeProfile.getVolumeProfile();
         const valueArea = volumeProfile.getValueArea();
+
+        if (this.action.bollingerBandProtection === true) {
+            const bollinger = this.getBollinger("BollingerBands");
+            if (bollinger.isReady() === true) {
+                if (this.avgMarketPrice > bollinger.getUpperValue()) {
+                    this.log(utils.sprintf("Skipped opening position because rate %s is above Bollinger Up %s", this.avgMarketPrice.toFixed(8), bollinger.getUpperValue().toFixed(8)));
+                    return;
+                }
+                else if (this.avgMarketPrice < bollinger.getLowerValue()) {
+                    this.log(utils.sprintf("Skipped opening position because rate %s is below Bollinger Low %s", this.avgMarketPrice.toFixed(8), bollinger.getLowerValue().toFixed(8)));
+                    return;
+                }
+            }
+        }
 
         if (this.action.fishingMode === "up" || (this.action.fishingMode === "trend" && this.isUpwardsMarketTrend() === true)) {
             if (this.isSufficientVolume(this.action.minVolumeSpike) === false)
