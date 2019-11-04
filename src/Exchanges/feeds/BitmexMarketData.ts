@@ -38,26 +38,9 @@ export default class BitmexMarketData extends AbstractMarketData {
         this.currencies = new BitMEXCurrencies(this as any); // we only need it to convert currency pairs
         this.pushApiConnectionType = PushApiConnectionType.API_WEBSOCKET;
         this.webSocketTimeoutMs = 0; // disabled it. few data, but stable library handling reconnects automatically
-        this.reconnectWebsocketDelayMs = 6000; // BitMEX is currently (August 2019) very unstable
+        this.reconnectWebsocketDelayMs = 16000; // BitMEX is currently (August 2019) very unstable
 
-        try {
-            this.apiClient = new BitMEXClient({
-                //testnet: this.apiKey.testnet === true,
-                //apiKeyID: this.apiKey.key,
-                //apiKeySecret: this.apiKey.secret,
-                maxTableLen: 1000,  // the maximum number of table elements to keep in memory (FIFO queue)
-                wsExtras: bitmexFix ? bitmexFix.getWebsocketExtras() : null
-            });
-        }
-        catch (err) {
-            /**
-             * 2019-08-21 17:40:09 - warn: Uncaught Exception
-             2019-08-21 17:40:09 - warn: Error: Forbidden
-             at Request.callback (/home/bitbrain2/nodejs/BitBrain2/Sensor1/node_modules/superagent/lib/node/index.js:706:15)
-             at IncomingMessage.<anonymous>
-             */
-            logger.error("Error initializing %s. Please check your config and API key permissions.", this.className, err);
-        }
+        this.createApiClient();
     }
 
     // ################################################################
@@ -65,6 +48,7 @@ export default class BitmexMarketData extends AbstractMarketData {
 
     protected createApiWebsocketConnection(): any {
         try {
+            this.createApiClient();
             const bws = this.apiClient.socket/*(2)*/; // TODO proxy/options
 
             let closeSocketTimerID = null;
@@ -292,5 +276,26 @@ export default class BitmexMarketData extends AbstractMarketData {
         if (fundingRate.timestamp)
             fundingObj.date = new Date(fundingRate.timestamp); // from ISO string
         return fundingObj;
+    }
+
+    protected createApiClient() {
+        try {
+            this.apiClient = new BitMEXClient({
+                //testnet: this.apiKey.testnet === true,
+                //apiKeyID: this.apiKey.key,
+                //apiKeySecret: this.apiKey.secret,
+                maxTableLen: 1000,  // the maximum number of table elements to keep in memory (FIFO queue)
+                wsExtras: bitmexFix ? bitmexFix.getWebsocketExtras() : null
+            });
+        }
+        catch (err) {
+            /**
+             * 2019-08-21 17:40:09 - warn: Uncaught Exception
+             2019-08-21 17:40:09 - warn: Error: Forbidden
+             at Request.callback (/home/bitbrain2/nodejs/BitBrain2/Sensor1/node_modules/superagent/lib/node/index.js:706:15)
+             at IncomingMessage.<anonymous>
+             */
+            logger.error("Error initializing %s. Please check your config and API key permissions.", this.className, err);
+        }
     }
 }

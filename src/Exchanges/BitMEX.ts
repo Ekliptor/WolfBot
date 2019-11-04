@@ -206,30 +206,12 @@ export default class BitMEX extends AbstractContractExchange {
         //this.maxTimeAheadMs = 20000; // their clock goes ahead?
         this.currencies = new BitMEXCurrencies(this);
         this.webSocketTimeoutMs = nconf.get('serverConfig:websocketTimeoutMs')*6; // they don't send pings too often
-        this.reconnectWebsocketDelayMs = 6000; // BitMEX is currently (August 2019) very unstable
+        this.reconnectWebsocketDelayMs = 16000; // BitMEX is currently (August 2019) very unstable
         this.httpKeepConnectionsAlive = true; // they have full support for it. allegedly as fast as websockets
         if (!options || !this.apiKey.key)
             return; // temp instance to check exchange type
 
-        try {
-            this.apiClient = new BitMEXClient({
-                testnet: this.apiKey.testnet === true,
-                apiKeyID: this.apiKey.key,
-                apiKeySecret: this.apiKey.secret,
-                maxTableLen: 2000,  // the maximum number of table elements to keep in memory (FIFO queue)
-                wsExtras: bitmexFix ? bitmexFix.getWebsocketExtras() : null
-            });
-        }
-        catch (err) {
-            /**
-             * 2019-08-21 17:40:09 - warn: Uncaught Exception
-                 2019-08-21 17:40:09 - warn: Error: Forbidden
-                 at Request.callback (/home/bitbrain2/nodejs/BitBrain2/Sensor1/node_modules/superagent/lib/node/index.js:706:15)
-                 at IncomingMessage.<anonymous>
-             */
-            logger.error("Error initializing %s. Please check your config and API key permissions.", this.className, err);
-        }
-        // TODO support for time-spread arbitrage, i.e. multiple contracts of the same currency pair
+        this.createApiClient();
 
         /*
         this.futureContractType.set("LTC", nconf.get("serverConfig:futureContractType")); // TODO ?
@@ -726,6 +708,7 @@ export default class BitMEX extends AbstractContractExchange {
             const marketEventStreamMap = new Map<string, EventStream<any>>(); // (exchange currency name, stream instance)
 
             //let conn: WebSocket = new WebSocket(this.pushApiUrl, this.getWebsocketOptions());
+            this.createApiClient();
             const bws = this.apiClient.socket/*(2)*/; // TODO proxy/options
 
             let closeSocketTimerID = null;
@@ -980,6 +963,27 @@ export default class BitMEX extends AbstractContractExchange {
             }
         }
         return fetchPairs;
+    }
+
+    protected createApiClient() {
+        try {
+            this.apiClient = new BitMEXClient({
+                testnet: this.apiKey.testnet === true,
+                apiKeyID: this.apiKey.key,
+                apiKeySecret: this.apiKey.secret,
+                maxTableLen: 2000,  // the maximum number of table elements to keep in memory (FIFO queue)
+                wsExtras: bitmexFix ? bitmexFix.getWebsocketExtras() : null
+            });
+        }
+        catch (err) {
+            /**
+             * 2019-08-21 17:40:09 - warn: Uncaught Exception
+             2019-08-21 17:40:09 - warn: Error: Forbidden
+             at Request.callback (/home/bitbrain2/nodejs/BitBrain2/Sensor1/node_modules/superagent/lib/node/index.js:706:15)
+             at IncomingMessage.<anonymous>
+             */
+            logger.error("Error initializing %s. Please check your config and API key permissions.", this.className, err);
+        }
     }
 
     protected getFetchCurrencies() {

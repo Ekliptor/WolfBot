@@ -1,0 +1,34 @@
+{
+    "data": [
+        {
+            "exchanges": [
+                "BitMEX"
+            ],
+            "marginTrading": true,
+            "tradeTotalBtc": 200.0,
+            "notifyTrades": true,
+            "warmUpMin": 0,
+            "exchangeParams": [
+                "XBTZ19",
+                "USD_BTC"
+            ],
+            "strategies": {
+              "StopLossTurn": {
+                "order": "closeShort",
+                "stop": 10870.6,
+                "stopLong": 7170.3,
+                "time": 30,
+                "closePosition": "always",
+                "reduceTimeByVolatility": false,
+                "keepTrendOpen": false,
+                "notifyBeforeStopSec": 120,
+                "low": 40,
+                "high": 65,
+                "candleSize": 5,
+                "pair": "USD_BTC",
+                "enableLog": true
+              }
+            }
+        }
+    ]
+}

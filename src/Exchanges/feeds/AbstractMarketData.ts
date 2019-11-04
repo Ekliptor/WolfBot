@@ -31,7 +31,7 @@ export abstract class AbstractMarketData extends EventEmitter {
     protected websocketTimeoutTimerID: NodeJS.Timer = null;
     //protected websocketPingTimerID: NodeJS.Timer = null;
     protected webSocketTimeoutMs: number = nconf.get('serverConfig:websocketTimeoutMs'); // set to 0 to disable it
-    protected reconnectWebsocketDelayMs = 2500;
+    protected reconnectWebsocketDelayMs = 12500;
     protected reconnectWebsocketTimerID: NodeJS.Timer = null;
     protected websocketCleanupFunction: () => boolean = null;
     protected static pushApiConnections = new Map<string, autobahn.Connection | WebSocket>(); // (className, instance)
@@ -110,7 +110,7 @@ export abstract class AbstractMarketData extends EventEmitter {
                 else if (typeof socket.close === "function")
                     socket.close(); // bitfinex and other APIs // TODO already done in BF class on error. but shouldn't matter?
                 else
-                    logger.error("Unanble to close unknown WebSocket connection from %s", this.className)
+                    logger.error("Unable to close unknown WebSocket connection from %s", this.className)
                 if (socket instanceof EventEmitter/*typeof socket.removeAllListeners === "function"*/)
                     socket.removeAllListeners()
             }

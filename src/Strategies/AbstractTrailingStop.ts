@@ -90,9 +90,10 @@ export abstract class AbstractTrailingStop extends /*AbstractStopStrategy*/Techn
             this.trailingStopPrice = -1;
             this.limitClosedPositions = false;
         }
-        else if (this.limitClosedPositions === true && previousAmount !== this.getPositionAmount()) { // sometimes faster than filled order callback
+        else if (this.limitClosedPositions === true && utils.calc.round(previousAmount, 8) !== utils.calc.round(this.getPositionAmount(), 8)) { // sometimes faster than filled order callback
             this.cancelAllOrders(utils.sprintf("Closing remaining %s position on sync", this.strategyPosition.toUpperCase()));
             // TODO add a timeout to wait x minutes for partially filled closed orders before closing the remaining amount with a market order
+            // amount is in BTC (on bitmex)
             this.emitClose(Number.MAX_VALUE, utils.sprintf("Closing remaining %s position amount %s on position sync after limit CLOSE order.", this.strategyPosition.toUpperCase(), this.getPositionAmount().toFixed(8)));
         }
     }

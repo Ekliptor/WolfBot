@@ -1354,14 +1354,20 @@ export abstract class AbstractStrategy extends AbstractGenericStrategy {
     }
 
     protected initRestartCheck() {
-        const maxTickMin = Math.max(nconf.get("serverConfig:restartLastCandleTickMin"), this.action.candleSize ? this.action.candleSize : 1);
+        // be safe and allow 2*candleSize. important because after restarts the last candle tick might already be candleSize ago
+        const maxTickMin = Math.max(nconf.get("serverConfig:restartLastCandleTickMin"), this.action.candleSize ? 2*this.action.candleSize : 2);
         if (maxTickMin <= 0 || nconf.get("trader") === "Backtester")
             return;
         setTimeout(() => { // wait til it's decided if main strategy (usually in constructor)
             if (this.isMainStrategy() === false)
                 return;
             setInterval(async () => {
-                if (!this.candle || !this.candle.start || this.candle.start.getTime() + maxTickMin*utils.constants.MINUTE_IN_SECONDS*1000 < Date.now()) {
+                const latest1MinCandle = this.candles1min.length !== 0 ? this.candles1min[0] : null;
+                if (!this.candle || !this.candle.start || !latest1MinCandle || !latest1MinCandle.start)
+                    logger.error("No candle data available after %s minutes. Please check your API key permissions and the bot connection.", maxTickMin);
+                else if (/*!this.candle.start || */this.candle.start.getTime() + maxTickMin*utils.constants.MINUTE_IN_SECONDS*1000 < Date.now() &&
+                    latest1MinCandle.start.getTime() + nconf.get("serverConfig:restart1MinCandleTimePassedMin")*utils.constants.MINUTE_IN_SECONDS*1000 < Date.now()) {
+                    // TODO also ensure we are > running the bot at least n minutes (from AbstractAdvisor)
                     const msg = utils.sprintf("Last candle tick was longer than %s minutes ago. Scheduling restart", maxTickMin);
                     logger.error(msg);
                     this.sendNotification("Restarting bot", msg, false, true);

@@ -421,10 +421,13 @@ export class Controller extends AbstractController { // TODO implement graceful 
             });
         }
         setTimeout(() => {
+            process.exit(1); // let it get restarted by monitoring script
+            /*
             this.restart();
             setTimeout(() => { // as a fallback if graceful restart doesn't work. will be restarted by shell script via cron
                 process.exit(1);
             }, 20*1000);
+             */
         }, 8000);
         return true;
     }

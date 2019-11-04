@@ -252,7 +252,7 @@ export class ConfigEditor extends AppPublisher {
             configFiles = files;
             return this.readConfigFile(this.selectedConfig)
         }).then((configFileData) => {
-            let validConfigFile = this.validateConfigArray(configFileData); // TODO how does this error happen on restart? external/manual edit?
+            let validConfigFile = this.validateConfigArray(configFileData, true); // TODO how does this error happen on restart? external/manual edit?
             if (validConfigFile)
                 configFileData = utils.stringifyBeautiful(validConfigFile);
             else
@@ -1469,7 +1469,15 @@ export class ConfigEditor extends AppPublisher {
      * Return a valid config object or null if if the schema is invalid
      * @param clientConfig
      */
-    protected validateConfigArray(clientConfig: any): any {
+    protected validateConfigArray(clientConfig: any, allowRestart: boolean = false): any {
+        let restartNeeded = false;
+        if (allowRestart === true) {
+            setTimeout(() => {
+                if (restartNeeded === true)
+                    this.restart(false, false);
+            }, 10000);
+        }
+
         if (typeof clientConfig === "string") {
             clientConfig = utils.parseJson(clientConfig);
             if (clientConfig === null)
@@ -1505,7 +1513,8 @@ export class ConfigEditor extends AppPublisher {
                     logger.error("Filtered invalid exchange %s from config", exchangeName);
             }
             if (validExchanges.length === 0 || (nconf.get("arbitrage") === true && validExchanges.length !== 2)) {
-                logger.error("Invalid number of of exchanges %s in config. Going back to previous setting", validExchanges.length);
+                logger.error("Invalid number of of exchanges %s in config. Going back to previous setting. You must restart your bot.", validExchanges.length);
+                restartNeeded = true;
                 const requiredLen = nconf.get("arbitrage") === true ? 2 : 1;
                 const existingExchanges = Array.from(Currency.ExchangeName.keys());
                 let count = 0;
