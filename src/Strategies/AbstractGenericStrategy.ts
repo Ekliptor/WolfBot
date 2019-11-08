@@ -434,6 +434,14 @@ export abstract class AbstractGenericStrategy extends EventEmitter {
         })
     }
 
+    /**
+     * Receives updates of 1min candles regardless of the strategy's config candleSize.
+     * @param candle
+     */
+    protected async candleTick1min(candle: Candle.Candle): Promise<void> {
+        // overwrite this in your subclass if your strategy needs periodic updates every minute
+    }
+
     protected abstract getCandleBatcher(candleSize: number): CandleBatcher<Trade.SimpleTrade>;
 
     protected addInfo(label: string, property: string) {

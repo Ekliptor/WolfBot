@@ -15,7 +15,7 @@
             "strategies": {
               "StopLossTurn": {
                 "order": "closeShort",
-                "stop": 10870.6,
+                "stop": 10670.6,
                 "stopLong": 7170.3,
                 "time": 30,
                 "closePosition": "always",

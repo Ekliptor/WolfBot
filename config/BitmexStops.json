@@ -1,56 +1,68 @@
 {
-  "data": [
-    {
-      "exchanges": [
-        "BitMEX"
-      ],
-      "marginTrading": true,
-      "tradeTotalBtc": 200.0,
-      "notifyTrades": true,
-      "warmUpMin": 0,
-      "strategies": {
-        "StopLossTurn": {
-          "order": "closeShort",
-          "stop": 9820.6,
-          "stopLong": 8961.3,
-          "time": 30,
-          "closePosition": "always",
-          "reduceTimeByVolatility": false,
-          "keepTrendOpen": false,
-          "notifyBeforeStopSec": 120,
-          "low": 40,
-          "high": 65,
-          "candleSize": 5,
-          "pair": "USD_BTC",
-          "enableLog": true
+    "data": [
+        {
+            "exchanges": [
+                "BitMEX"
+            ],
+            "marginTrading": true,
+            "tradeTotalBtc": 200,
+            "notifyTrades": true,
+            "warmUpMin": 0,
+            "strategies": {
+                "StopLossTurn": {
+                    "order": "closeShort",
+                    "stop": 9820.6,
+                    "stopLong": 9379.3,
+                    "time": 30,
+                    "closePosition": "always",
+                    "reduceTimeByVolatility": false,
+                    "keepTrendOpen": false,
+                    "notifyBeforeStopSec": 120,
+                    "low": 40,
+                    "high": 65,
+                    "candleSize": 5,
+                    "pair": "USD_BTC",
+                    "enableLog": true
+                },
+                "OpenInterestMonitor": {
+                    "changePercent": 0.9,
+                    "candleSize": 60,
+                    "pair": "USD_BTC",
+                    "enableLog": true
+                }
+            }
+        },
+        {
+            "exchanges": [
+                "BitMEX"
+            ],
+            "marginTrading": true,
+            "tradeTotalBtc": 200,
+            "notifyTrades": true,
+            "warmUpMin": 0,
+            "strategies": {
+                "StopLossTurn": {
+                    "order": "closeLong",
+                    "stop": 194.9,
+                    "stopLong": 175.2,
+                    "time": 30,
+                    "closePosition": "always",
+                    "reduceTimeByVolatility": false,
+                    "keepTrendOpen": false,
+                    "notifyBeforeStopSec": 120,
+                    "low": 40,
+                    "high": 65,
+                    "candleSize": 5,
+                    "pair": "USD_ETH",
+                    "enableLog": true
+                },
+                "OpenInterestMonitor": {
+                    "changePercent": 2.1,
+                    "candleSize": 60,
+                    "pair": "USD_ETH",
+                    "enableLog": true
+                }
+            }
         }
-      }
-    },
-    {
-      "exchanges": [
-        "BitMEX"
-      ],
-      "marginTrading": true,
-      "tradeTotalBtc": 200.0,
-      "notifyTrades": true,
-      "warmUpMin": 0,
-      "strategies": {
-        "StopLossTurn": {
-          "order": "closeLong",
-          "stop": 194.9,
-          "stopLong": 177.9,
-          "time": 30,
-          "closePosition": "always",
-          "reduceTimeByVolatility": false,
-          "keepTrendOpen": false,
-          "notifyBeforeStopSec": 120,
-          "low": 40,
-          "high": 65,
-          "candleSize": 5,
-          "pair": "USD_ETH",
-          "enableLog": true
-        }
-      }
-    }
-  ]
+    ]
 }

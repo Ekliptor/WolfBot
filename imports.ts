@@ -42,6 +42,7 @@ import "./src/Strategies/MomentumTurn";
 import "./src/Strategies/MoneyFlowStrategy";
 import "./src/Strategies/NOOP";
 import "./src/Strategies/OneTimeOrder";
+import "./src/Strategies/OpenInterestMonitor"
 import "./src/Strategies/OrderBookPressure";
 import "./src/Strategies/OrderBookPressureLeverage";
 import "./src/Strategies/OrderPartitioner";

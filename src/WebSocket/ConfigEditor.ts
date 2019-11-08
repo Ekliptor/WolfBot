@@ -814,7 +814,7 @@ export class ConfigEditor extends AppPublisher {
             if (!json || Array.isArray(json.data) === false || json.data.length === 0)
                 throw Error("Invalid config file data");
             let outData = utils.stringifyBeautiful({
-                data: json.data[0]
+                data: [json.data[0]]
             });
             await fs.promises.writeFile(configFilePath, outData, {encoding: "utf8"});
         }
