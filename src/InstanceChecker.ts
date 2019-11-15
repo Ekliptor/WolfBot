@@ -19,7 +19,7 @@ const argv = argvFunction(process.argv.slice(2));
 
 
 export default class InstanceChecker extends AbstractSubController {
-    public static readonly INSTANCE_CHECK_INTERVAL_SEC = 300; // must be >= 5min (time the cron will restart crashed bots)
+    public static readonly INSTANCE_CHECK_INTERVAL_SEC = 360; // must be >= 5min (time the cron will restart crashed bots)
 
     protected lastCheck: Date = null;
     protected lastPort: number = 0;
@@ -83,10 +83,10 @@ export default class InstanceChecker extends AbstractSubController {
         return new Promise<void>((resolve, reject) => {
             if (this.lastCheck && this.lastCheck.getTime() + InstanceChecker.INSTANCE_CHECK_INTERVAL_SEC * 1000 > Date.now())
                 return resolve()
+            this.lastCheck = new Date();
 
             let name = this.getNextInstanceName()
             this.checkInstanceRunning(name).then(() => {
-                this.lastCheck = new Date();
                 this.checkLastRespnseTime(name);
                 resolve()
             }).catch((err) => {

@@ -20,6 +20,7 @@ export default class OpenInterestMonitor extends TechnicalStrategy {
     protected currentTicker: Ticker.Ticker = null;
     protected tickerLastH: Ticker.Ticker = null;
     protected ticker24H: Ticker.Ticker = null;
+    protected lastTickerID: string = "";
 
     constructor(options) {
         super(options)
@@ -62,6 +63,7 @@ export default class OpenInterestMonitor extends TechnicalStrategy {
             await this.loadTickers();
             this.checkOpenInterestChange();
         }, 300)*/
+        // TODO check if we are in cloud environment and issue warning otherwise (database doesn't contain open interest data)
     }
 
     public serialize() {
@@ -69,6 +71,7 @@ export default class OpenInterestMonitor extends TechnicalStrategy {
         state.currentTicker = this.currentTicker;
         state.tickerLastH = this.tickerLastH;
         state.ticker24H = this.ticker24H;
+        state.lastTickerID = this.lastTickerID;
         return state;
     }
 
@@ -77,6 +80,7 @@ export default class OpenInterestMonitor extends TechnicalStrategy {
         this.currentTicker = Object.assign(new Ticker.Ticker(state.currentTicker.exchange), state.currentTicker);
         this.tickerLastH = Object.assign(new Ticker.Ticker(state.tickerLastH.exchange), state.tickerLastH);
         this.ticker24H = Object.assign(new Ticker.Ticker(state.ticker24H.exchange), state.ticker24H);
+        this.lastTickerID = state.lastTickerID || "";
     }
 
     // ################################################################
@@ -100,9 +104,15 @@ export default class OpenInterestMonitor extends TechnicalStrategy {
             return;
         const percentChange = helper.getDiffPercent(this.currentTicker.openInterest, this.tickerLastH.openInterest);
         if (Math.abs(percentChange) >= this.action.changePercent) {
-            const text = utils.sprintf("Change %s%%\r\nCurrent %s mio USD\r\nPrevious H %s mio USD", percentChange.toFixed(2), (this.currentTicker.openInterest / 1000000).toFixed(2),
-                (this.tickerLastH.openInterest / 1000000).toFixed(2));
-            this.sendNotification("BitMEX open interest changed", text, false, true);
+            const currentInterest = (this.currentTicker.openInterest / 1000000).toFixed(2);
+            const lastHInterest = (this.tickerLastH.openInterest / 1000000).toFixed(2);
+            const text = utils.sprintf("Change %s%%\r\nCurrent %s mio USD\r\nPrevious H %s mio USD", percentChange.toFixed(2), currentInterest,
+                lastHInterest);
+            const currentTickerID = this.currentTicker._id.toHexString(); // sometimes BitMEX feed stops, ensure it's a new ticker
+            if (currentInterest !== lastHInterest && currentTickerID !== this.lastTickerID) {
+                this.lastTickerID = currentTickerID;
+                this.sendNotification("BitMEX open interest changed", text, false, true);
+            }
         }
     }
 

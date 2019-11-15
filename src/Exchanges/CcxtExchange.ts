@@ -440,6 +440,10 @@ export abstract class CcxtExchange extends AbstractExchange {
         })
     }
 
+    public getApiClient(): ccxt.Exchange {
+        return this.apiClient;
+    }
+
     // ################################################################
     // ###################### PRIVATE FUNCTIONS #######################
 

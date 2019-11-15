@@ -791,9 +791,13 @@ export default class Kraken extends AbstractExchange {
             if (amount > 0 && /*rate * */amount < this.minTradingValue)
                 return reject({txt: "Value is below the min trading value", exchange: this.className, value: amount, minTradingValue: this.minTradingValue, permanent: true})
 
+            // use CCXT to round max decimals
+            const ccxtExchange = this.krakenCcxt.getApiClient();
+            const ccxtCurrencies = this.krakenCcxt.getCurrencies();
             let outParams: any = {
                 ordertype: params.matchBestPrice ? "market" : "limit",
-                price: helper.roundDecimals(rate, 6),
+                //price: helper.roundDecimals(rate, 6),
+                price: ccxtExchange.priceToPrecision(ccxtCurrencies.getExchangePair(currencyPair), rate),
                 expiretm: Math.floor(Date.now()/1000 + 45*utils.constants.MINUTE_IN_SECONDS), // TODO remove after moveOrder() works properly
                 trading_agreement: "agree"
             }
