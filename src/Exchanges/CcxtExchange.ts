@@ -290,7 +290,6 @@ export abstract class CcxtExchange extends AbstractExchange {
     public async buy(currencyPair: Currency.CurrencyPair, rate: number, amount: number, params: OrderParameters = {}): Promise<OrderResult> {
         let outParams = await this.verifyTradeRequest(currencyPair, rate, amount, params)
         try {
-            debugger
             let result = await this.apiClient.createOrder(outParams.pairStr as string, outParams.orderType as any, "buy", Math.abs(amount), outParams.rate as number);
             return OrderResult.fromJson(result, currencyPair, this)
         }

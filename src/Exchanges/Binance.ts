@@ -127,7 +127,7 @@ export default class Binance extends AbstractExchange implements ExternalTickerE
         this.exchangeLabel = Currency.Exchange.BINANCE;
         this.minTradingValue = 0.001; // https://support.binance.com/hc/en-us/articles/115000594711-Trading-Rule
         this.fee = 0.001; // https://support.binance.com/hc/en-us/articles/115000429332-Fee-Structure-on-Binance
-        this.maxLeverage = 0.0; // no margin trading
+        this.maxLeverage = 3.0; // now supports margin // TODO ??
         this.currencies = new BinanceCurrencies(this);
         this.webSocketTimeoutMs = nconf.get('serverConfig:websocketTimeoutMs')*2; // small coin markets -> less updates
 
@@ -455,27 +455,23 @@ export default class Binance extends AbstractExchange implements ExternalTickerE
     }
 
     public marginBuy(currencyPair: Currency.CurrencyPair, rate: number, amount: number, params: MarginOrderParameters) {
+        /*
         return new Promise<OrderResult>((resolve, reject) => {
             reject({txt: "Margin trading is not supported.", exchange: this.className})
-        })
+        })*/
+        return this.binanceCCxt.sell(currencyPair, rate, amount, params);
     }
 
     public marginSell(currencyPair: Currency.CurrencyPair, rate: number, amount: number, params: MarginOrderParameters) {
-        return new Promise<OrderResult>((resolve, reject) => {
-            reject({txt: "Margin trading is not supported.", exchange: this.className})
-        })
+        return this.binanceCCxt.sell(currencyPair, rate, amount, params);
     }
 
     public marginCancelOrder(currencyPair: Currency.CurrencyPair, orderNumber: number | string) {
-        return new Promise<CancelOrderResult>((resolve, reject) => {
-            reject({txt: "Margin trading is not supported.", exchange: this.className})
-        })
+        return this.cancelOrder(currencyPair, orderNumber); // TODO really same?
     }
 
     public moveMarginOrder(currencyPair: Currency.CurrencyPair, orderNumber: number | string, rate: number, amount: number, params: MarginOrderParameters) {
-        return new Promise<OrderResult>((resolve, reject) => {
-            reject({txt: "Margin trading is not supported.", exchange: this.className})
-        })
+        return this.moveMarginOrder(currencyPair, orderNumber, rate, amount, params); // TODO really same?
     }
 
     public getAllMarginPositions() {
