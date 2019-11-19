@@ -403,7 +403,8 @@ export abstract class AbstractExchange {
     }
 
     public marginTradingSupport() {
-        return this.maxLeverage !== 0; // should be > 1
+        //return this.maxLeverage !== 0; // should be > 1
+        return this.maxLeverage > 1.0;
     }
 
     public getTickerMap() {
