@@ -299,7 +299,8 @@ let testBitmex = async () => {
     //bitmex.marginOrder(pair, 9000, 0.001).then((test) => {
     //bitmex.getBalances().then((balances) => {
     //bitmex.marginCancelOrder(pair, "955d5624-5442-8e8a-f4cb-bdc87786adf3").then((test) => {
-    bitmex.marginBuy(pair, 123.44303, 12.3, params).then((test) => {
+    //bitmex.marginBuy(pair, 123.44303, 12.3, params).then((test) => {
+    bitmex.getAllMarginPositions().then((test) => {
         //binance.moveOrder(pair, 25959783, 0.00000723, 360, params).then((balances) => {
         console.log(test)
     }).catch((err) => {
@@ -424,8 +425,8 @@ Controller.loadServerConfig(() => {
         //testBitfinex()
         //testPolo();
         //testBittrex();
-        testBinance();
-        //testBitmex();
+        //testBinance();
+        testBitmex();
         //testBitmexLiquidations();
         //testDeribit();
         //testBx();

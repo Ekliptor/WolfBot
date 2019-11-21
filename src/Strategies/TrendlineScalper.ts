@@ -15,6 +15,7 @@ interface TrendlineScalperAction extends StrategyAction {
     tradeBreakout: boolean; // default false - A value of false means we will assume the price will bounce back within the trading range. If set to true we wait for the support/resistance to get broken and trade the breakout direction.
     expirationPercent: number; // default 3%. Only execute orders at price levels that are within x% of the set support/resistance lines.
     // TODO automatically detect lines (see this.trendlines and IntervalExtremes.ts)
+    // TODO count how many times support/resistance on small candle size (5min) has been hit. assume it will break if hit > n times
 }
 
 /**

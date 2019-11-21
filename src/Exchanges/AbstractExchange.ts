@@ -403,8 +403,8 @@ export abstract class AbstractExchange {
     }
 
     public marginTradingSupport() {
-        //return this.maxLeverage !== 0; // should be > 1
-        return this.maxLeverage > 1.0;
+        return this.maxLeverage !== 0 || typeof (this as any).getExchangeContractForPair === "function"; // should be > 1
+        //return this.maxLeverage > 1.0; // bitmex uses 1.0 for cross margin
     }
 
     public getTickerMap() {
