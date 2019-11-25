@@ -38,6 +38,13 @@
 // Updater config
 // --update: only update to latest version. exit after update (or if we are already running the latest version)
 
+const cloudMessage = "***DISCOUNT*** Having trouble setting up WolfBot on your local machine? Try the cloud version at https://wolfbot.org with a 30% discount with this code: gitsource7393";
+try {
+    require('@ekliptor/apputils');
+}
+catch (err) {
+    console.log(cloudMessage);
+}
 require('source-map-support').install();
 import * as utils from '@ekliptor/apputils';
 const nconf = utils.nconf;
@@ -72,7 +79,7 @@ nconf.set("uiDev", argv.uiDev === true);
 if (argv.config !== undefined && typeof argv.config !== "string")
     argv.config = argv.config.toString();
 if (argv.noBrowser)
-    logger.info("***DISCOUNT*** Having trouble setting up WolfBot on your local machine? Try the cloud version at https://wolfbot.org with a 30% discount with this code: gitsource7393");
+    logger.info(cloudMessage);
 
 nconf.set("ai", argv.train === true || argv.predict === true);
 nconf.set("lending", argv.lending === true);

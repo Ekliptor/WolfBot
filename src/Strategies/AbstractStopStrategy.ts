@@ -226,8 +226,12 @@ export abstract class AbstractStopStrategy extends /*AbstractStrategy*/Technical
             (this.useProfitStop() ? "profit " : ""), this.getStopPrice().toFixed(8), this.strategyPosition);
         if (this.position)
             message += ", p/l: " + this.position.pl.toFixed(8) + " " + this.action.pair.getBase();
-        this.sendNotification("Stop imminent", message);
-        this.stopNotificationSent = true;
+        if (this.strategyPosition !== "none") {
+            this.sendNotification("Stop imminent", message);
+            this.stopNotificationSent = true;
+        }
+        else
+            logger.info("Skipped sending 'stop imminent' notification because there is no open position: %s", message);
     }
 
     protected getPositionState(): ClosePositionState {

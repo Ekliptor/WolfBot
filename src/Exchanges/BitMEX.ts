@@ -549,6 +549,7 @@ export default class BitMEX extends AbstractContractExchange {
                         let marketPair = this.currencies.getExchangePair(this.currencyPairs[j]);
                         if(marketPair == positions[i].symbol) {
                             let position = this.currencies.getMarginPosition(positions[i], this.getMaxLeverage());
+                            // TODO value is often still off
                             if (position) {
                                 position.amount = this.getBaseCurrencyAmount(this.currencyPairs[j], positions[i].lastPrice, position.amount);
                                 //position.pl *= positions[i].lastPrice;
