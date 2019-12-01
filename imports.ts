@@ -54,6 +54,7 @@ import "./src/Strategies/PingPong";
 import "./src/Strategies/PivotReversal";
 import "./src/Strategies/PlanRunner";
 import "./src/Strategies/PlanRunnerLeverage";
+import "./src/Strategies/PositionReopener";
 import "./src/Strategies/PriceDifference";
 import "./src/Strategies/PriceRangeTrader";
 import "./src/Strategies/PriceSpikeDetector";

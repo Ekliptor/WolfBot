@@ -854,8 +854,8 @@ export default class Backtester extends PortfolioTrader {
         let refundBalanceBtc = this.pendingOrders.get(order.orderID);
         if (refundBalanceBtc === undefined)
             return logger.error("Order with ID %s to refund doesn't exist. Balances are wrong", order.orderID);
-        PortfolioTrader.baseCurrencyBalance += refundBalanceBtc;
-        PortfolioTrader.coinCurrencyBalance -= refundBalanceBtc / order.rate;
+        //PortfolioTrader.baseCurrencyBalance += refundBalanceBtc; // only updated after order is executed
+        //PortfolioTrader.coinCurrencyBalance -= refundBalanceBtc / order.rate;
 
         //this.emitClose(order, [], {strategy: {}, pl: 0.0, reason: "cancelled order", exchange: exchange});
         //this.emit("close", order, [], {strategy: {}, pl: 0.0, reason: "cancelled order", exchange: exchange});

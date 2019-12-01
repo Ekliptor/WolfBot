@@ -385,22 +385,31 @@ export abstract class AbstractTrader extends AbstractGenericTrader {
             const lastRate = strategy.getLastAvgMarketPrice();
             if (curRate <= 0.0 || lastRate <= 0.0) {
                 logger.warn("No orderbook and trade data available to place maker order in %s", strategy.getClassName());
-                return rate;
+                return AbstractTrader.adjustRateToEnsureMakerOrder(rate, action, strategy);
             }
             let spread = Math.abs(helper.getDiffPercent(curRate, lastRate));
             if (spread < 0.01)
                 spread = 0.01;
             if (action === "buy")
-                return curRate - curRate/100.0*spread;
-            return curRate + curRate/100.0*spread;
+                return AbstractTrader.adjustRateToEnsureMakerOrder(curRate - curRate/100.0*spread, action, strategy);
+            return AbstractTrader.adjustRateToEnsureMakerOrder(curRate + curRate/100.0*spread, action, strategy);
         }
         const bookRate = action === "buy" ? Math.min(rate, book.getBid()) : Math.max(rate, book.getAsk());
         const bookSpreadPercent = Math.abs(helper.getDiffPercent(bookRate, curRate));
         if (bookSpreadPercent > nconf.get("serverConfig:maxBidAskToLastTradeSpreadPerc") && curRate > 0.0) {
             logger.warn("Orderbook spread to last trade is %s%% on trade from %s. Ignoring bid/ask rates", bookSpreadPercent, strategy.getClassName());
-            return rate;
+            return AbstractTrader.adjustRateToEnsureMakerOrder(rate, action, strategy);
         }
-        return bookRate;
+        return AbstractTrader.adjustRateToEnsureMakerOrder(bookRate, action, strategy);
+    }
+
+    protected static adjustRateToEnsureMakerOrder(rate: number, action: BuySellAction, strategy: AbstractStrategy): number {
+        const adjustPerc = nconf.get("serverConfig:increaseBookSpreadForOrderPerc");
+        if (!adjustPerc)
+            return rate;
+        if (action === "buy")
+            return rate - rate/100.0*adjustPerc;
+        return rate + rate/100.0*adjustPerc; // sell
     }
 
     protected isStopOrTakeProfitStrategy(strategy: AbstractStrategy) {
