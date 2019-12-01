@@ -454,39 +454,56 @@ export default class Binance extends AbstractExchange implements ExternalTickerE
         }
     }
 
-    public marginBuy(currencyPair: Currency.CurrencyPair, rate: number, amount: number, params: MarginOrderParameters) {
+    public async marginBuy(currencyPair: Currency.CurrencyPair, rate: number, amount: number, params: MarginOrderParameters): Promise<OrderResult> {
         /*
         return new Promise<OrderResult>((resolve, reject) => {
             reject({txt: "Margin trading is not supported.", exchange: this.className})
         })*/
-        return this.binanceCCxt.sell(currencyPair, rate, amount, params);
+        //return this.binanceCCxt.sell(currencyPair, rate, amount, params);
+        //return this.binanceCCxt.getApiClient.(currencyPair, rate, amount, params);
+        let outParams = await this.verifyTradeRequest(currencyPair, rate, amount, params)
+        //return this.binanceCCxt.getApiClient().sapiPostMarginOrder(outParams.pairStr as string, outParams.orderType as any, "buy", Math.abs(amount), outParams.rate as number);
+        return this.binanceCCxt.getApiClient().sapiPostMarginOrder({
+            symbol: outParams.pairStr as string,
+            type: outParams.orderType as any,
+            side: "BUY",
+            quantity: Math.abs(amount),
+            price: outParams.rate as number
+        });
     }
 
-    public marginSell(currencyPair: Currency.CurrencyPair, rate: number, amount: number, params: MarginOrderParameters) {
-        return this.binanceCCxt.sell(currencyPair, rate, amount, params);
+    public async marginSell(currencyPair: Currency.CurrencyPair, rate: number, amount: number, params: MarginOrderParameters): Promise<OrderResult> {
+        let outParams = await this.verifyTradeRequest(currencyPair, rate, amount, params)
+        return this.binanceCCxt.getApiClient().sapiPostMarginOrder({
+            symbol: outParams.pairStr as string,
+            type: outParams.orderType as any,
+            side: "SELL",
+            quantity: Math.abs(amount),
+            price: outParams.rate as number
+        });
     }
 
-    public marginCancelOrder(currencyPair: Currency.CurrencyPair, orderNumber: number | string) {
+    public marginCancelOrder(currencyPair: Currency.CurrencyPair, orderNumber: number | string): Promise<CancelOrderResult> {
         return this.cancelOrder(currencyPair, orderNumber); // TODO really same?
     }
 
-    public moveMarginOrder(currencyPair: Currency.CurrencyPair, orderNumber: number | string, rate: number, amount: number, params: MarginOrderParameters) {
+    public moveMarginOrder(currencyPair: Currency.CurrencyPair, orderNumber: number | string, rate: number, amount: number, params: MarginOrderParameters): Promise<OrderResult> {
         return this.moveMarginOrder(currencyPair, orderNumber, rate, amount, params); // TODO really same?
     }
 
-    public getAllMarginPositions() {
+    public getAllMarginPositions(): Promise<MarginPositionList> {
         return new Promise<MarginPositionList>((resolve, reject) => {
             reject({txt: "Margin trading is not supported.", exchange: this.className})
         })
     }
 
-    public getMarginPosition(currencyPair: Currency.CurrencyPair) {
+    public getMarginPosition(currencyPair: Currency.CurrencyPair): Promise<MarginPosition> {
         return new Promise<MarginPosition>((resolve, reject) => {
             reject({txt: "Margin trading is not supported.", exchange: this.className})
         })
     }
 
-    public closeMarginPosition(currencyPair: Currency.CurrencyPair) {
+    public closeMarginPosition(currencyPair: Currency.CurrencyPair): Promise<OrderResult> {
         return new Promise<OrderResult>((resolve, reject) => {
             reject({txt: "Margin trading is not supported.", exchange: this.className})
         })

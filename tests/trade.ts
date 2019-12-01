@@ -425,8 +425,8 @@ Controller.loadServerConfig(() => {
         //testBitfinex()
         //testPolo();
         //testBittrex();
-        //testBinance();
-        testBitmex();
+        testBinance();
+        //testBitmex();
         //testBitmexLiquidations();
         //testDeribit();
         //testBx();
