@@ -638,6 +638,14 @@
       },
       "waitRepeatingTradeMin": "optional, default 600 min. Wait x minutes before executing the same order again (in case the market moves rapidly)."
     },
+    "PositionReopener": {
+      "desc": "A strategy that re-open a previously closed position (closed by WolfBot or manually) after price moves again a certain percentage in the direction of your previous position (from the close price).<br>This is helpful if you have a strong bias in one direction but also want to trade cautious at a support/resistance line and always place a stop.<br>This strategy should run on a low candle size (1min) to react quickly.",
+      "reOpenRateFactorLong": "optional, default 1.0 - The rate that must be reached (higher than previous closing rate) to re-open a previously closed long position. The current market rate will be multiplied by this. Values above 1.0 mean a higher rate, below 1.0 mean a lower rate.",
+      "reOpenRateFactorShort": "optional, default 1.0 - The rate that must be reached (lower than previous closing rate) to re-open a previously closed short position. The current market rate will be multiplied by this. Values above 1.0 mean a higher rate, below 1.0 mean a lower rate.",
+      "reOpenAmountPerc": "optional, default 100%. The amount in percentage of the previously closed position that shall be re-opened. You may use values above 100% to increase your position site.",
+      "expiryMin": "optional, default 360 min - How many minutes a previously closed position shall be queued for re-opening. Use 0 to never let scheduled orders expire.",
+      "makerMode": "optional, default false. Whether to adjust all order rates below/above bid ask rates to ensure we only pay the lower (maker) fee."
+    },
     "BitmexSwagger": {
       "desc": "Strategy looks at the BitMEX leaderboard and publicly posted positions (in shoutbox) and goes with the trend of the last 24 hours. It will wait for the chosen indicator high/low to join the direction of the majority of traders.<br>This strategy works very well for daytrading with candle sizes from 30min to 2h.<br>This strategy will only positions. You should combine it with a stop-loss and/or take profit strategy.<br>You can run this strategy on any exchange with any currency pair (that you think behaves similar to XBTUSD on BitMEX).",
       "goLongPercentage": "optional, default 65% - The minimum percentage of leaders and shoutbox traders that must go long to open a long position with them.<br>You can use values below 50% to trade with the minority of the last 24 hours.",

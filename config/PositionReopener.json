@@ -1,0 +1,51 @@
+{
+    "data": [
+        {
+            "exchanges": [
+                "BitMEX"
+            ],
+            "marginTrading": true,
+            "tradeTotalBtc": 200,
+            "warmUpMin": 0,
+            "strategies": {
+                "PositionReopener": {
+                    "reOpenRateFactorLong": 1,
+                    "reOpenRateFactorShort": 1,
+                    "reOpenAmountPerc": 100,
+                    "expiryMin": 360,
+                    "makerMode": false,
+                    "pair": "USD_BTC",
+                    "candleSize": 1,
+                    "tradeStrategy": "",
+                    "enableLog": true
+                },
+                "StopLossTurn": {
+                    "order": "closeLong",
+                    "stop": 0,
+                    "stopLong": 0,
+                    "setback": 5.5,
+                    "setbackLong": 5.5,
+                    "time": 300,
+                    "updateTrailingStop": false,
+                    "setbackProfit": 4.1,
+                    "triggerProfit": 6.5,
+                    "timeProfit": 120,
+                    "reduceTimeByVolatility": false,
+                    "low": 20,
+                    "high": 80,
+                    "candleSize": 5,
+                    "pair": "USD_BTC",
+                    "enableLog": false
+                },
+                "TakeProfit": {
+                    "order": "closeLong",
+                    "profit": 5.2,
+                    "time": 300,
+                    "candleSize": 5,
+                    "pair": "USD_BTC",
+                    "enableLog": false
+                }
+            }
+        }
+    ]
+}
