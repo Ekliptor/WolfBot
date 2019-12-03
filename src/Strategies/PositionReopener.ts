@@ -80,6 +80,11 @@ export default class PositionReopener extends TechnicalStrategy {
         }
     }
 
+    public getOrderAmount(tradeTotalBtc: number, leverage: number = 1): number {
+        let amount = super.getOrderAmount(tradeTotalBtc, leverage);
+        return amount / 100.0 * this.action.reOpenAmountPerc;
+    }
+
     public serialize() {
         let state = super.serialize();
         state.lastPositionAmount = this.lastPositionAmount;
@@ -108,7 +113,13 @@ export default class PositionReopener extends TechnicalStrategy {
             this.lastClosedPositionTime = null;
             return;
         }
+        else if (this.action.reOpenAmountPerc <= 0.0) {
+            this.log("Skipped re-opening position because 'reOpenAmountPerc' config value is not positive.");
+            this.lastClosedPositionTime = null;
+            return;
+        }
 
+        // re-open the position
         if (this.lastPositionDirection === "long") {
             const openTargetRate = this.lastCloseRate * this.action.reOpenRateFactorLong;
             if (this.avgMarketPrice > openTargetRate) {
