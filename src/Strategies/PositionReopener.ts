@@ -81,7 +81,10 @@ export default class PositionReopener extends TechnicalStrategy {
     }
 
     public getOrderAmount(tradeTotalBtc: number, leverage: number = 1): number {
-        let amount = super.getOrderAmount(tradeTotalBtc, leverage);
+        //let amount = super.getOrderAmount(tradeTotalBtc, leverage);
+        let amount = this.lastPositionAmount;
+        if (leverage > 1.0)
+            amount /= leverage; // don't increase it on every re-opening
         return amount / 100.0 * this.action.reOpenAmountPerc;
     }
 
@@ -118,6 +121,8 @@ export default class PositionReopener extends TechnicalStrategy {
             this.lastClosedPositionTime = null;
             return;
         }
+        else if (this.lastClosedPositionTime.getTime() + 2*nconf.get("serverConfig:updatePortfolioSec")*1000 > this.getMarketTime().getTime())
+            return; // don't try to re-open it yet or else stop strategy might close it again immediately (as a remaining open position)
 
         // re-open the position
         if (this.lastPositionDirection === "long") {
