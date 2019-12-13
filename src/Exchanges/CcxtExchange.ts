@@ -291,6 +291,7 @@ export abstract class CcxtExchange extends AbstractExchange {
         let outParams = await this.verifyTradeRequest(currencyPair, rate, amount, params)
         try {
             let result = await this.apiClient.createOrder(outParams.pairStr as string, outParams.orderType as any, "buy", Math.abs(amount), outParams.rate as number);
+            this.verifyTradeResponse(result, null, "buy");
             return OrderResult.fromJson(result, currencyPair, this)
         }
         catch (err) {
@@ -302,6 +303,7 @@ export abstract class CcxtExchange extends AbstractExchange {
         let outParams = await this.verifyTradeRequest(currencyPair, rate, amount, params)
         try {
             let result = await this.apiClient.createOrder(outParams.pairStr as string, outParams.orderType as any, "sell", Math.abs(amount), outParams.rate as number);
+            this.verifyTradeResponse(result, null, "sell");
             return OrderResult.fromJson(result, currencyPair, this)
         }
         catch (err) {
@@ -580,6 +582,20 @@ export abstract class CcxtExchange extends AbstractExchange {
         return new Promise<any>((resolve, reject) => {
             return reject({txt: "verifyExchangeResponse is not implemented", exchange: this.className})
         })
+    }
+
+    /**
+     * Verify if the trade response is valid. It will throw an Error if it is not valid.
+     * You can overwrite this method in subclasses to check for exchange specific error messages such as "insufficient balance".
+     * Your implementation always call the parent method first.
+     * @param result
+     * @param response
+     * @param method
+     */
+    protected verifyTradeResponse(result: ccxt.Order, response: request.RequestResponse, method: string): boolean {
+        if (!result)
+            throw new Error(utils.sprintf("Invalid trade response from %s in %s: %s", this.className, method, result));
+        return true;
     }
 
     protected onExchangeReady() {

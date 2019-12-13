@@ -159,6 +159,11 @@ class ServerConfig {
                 secret: "",
                 marginNotification: 0.5
             }],
+            Coss: [{
+                key: "",
+                secret: "",
+                marginNotification: 0.5
+            }],
             Peatio: [{
                 key: "",
                 secret: "",
