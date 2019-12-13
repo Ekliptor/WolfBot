@@ -87,7 +87,7 @@ export default class PositionReopener extends TechnicalStrategy {
         //let amount = super.getOrderAmount(tradeTotalBtc, leverage);
         //if (leverage > 1.0)
             //amount /= leverage; // don't increase it on every re-opening
-        let amount = this.lastPositionAmount;
+        let amount = this.lastPositionAmount * this.avgMarketPrice; // rate is stored in coin amount, order is submitted in base currency
         return amount / 100.0 * this.action.reOpenAmountPerc;
     }
 
@@ -127,7 +127,7 @@ export default class PositionReopener extends TechnicalStrategy {
         }
         else if (this.lastClosedPositionTime.getTime() + 2*nconf.get("serverConfig:updatePortfolioSec")*1000 > now)
             return; // don't try to re-open it yet or else stop strategy might close it again immediately (as a remaining open position)
-        else if (this.lastClosedPositionTime.getTime() + this.action.waitOpenMin*utils.constants.MINUTE_IN_SECONDS*1000 > now) {
+        else if (this.action.waitOpenMin > 0 && this.lastClosedPositionTime.getTime() + this.action.waitOpenMin*utils.constants.MINUTE_IN_SECONDS*1000 > now) {
             this.logOnce(utils.sprintf("Skipped re-opening position because %s min have not passed yet since close.", this.action.waitOpenMin));
             return;
         }
@@ -136,14 +136,16 @@ export default class PositionReopener extends TechnicalStrategy {
         if (this.lastPositionDirection === "long") {
             const openTargetRate = this.lastCloseRate * this.action.reOpenRateFactorLong;
             if (this.avgMarketPrice > openTargetRate) {
-                this.emitBuy(this.defaultWeight, utils.sprintf("Re-opening LONG position closed at rate %s after %s", this.lastCloseRate.toFixed(8), utils.test.getPassedTime(this.lastClosedPositionTime.getTime(), now)));
+                this.emitBuy(this.defaultWeight, utils.sprintf("Re-opening %s %s LONG position closed at rate %s after %s", this.lastPositionAmount.toFixed(8), Currency.getCurrencyLabel(this.action.pair.to),
+                    this.lastCloseRate.toFixed(8), utils.test.getPassedTime(this.lastClosedPositionTime.getTime(), now)));
                 this.lastClosedPositionTime = null; // to ensure we don't re-open multiple times
             }
         }
         else if (this.lastPositionDirection === "short") {
             const openTargetRate = this.lastCloseRate * this.action.reOpenRateFactorShort;
             if (this.avgMarketPrice < openTargetRate) {
-                this.emitBuy(this.defaultWeight, utils.sprintf("Re-opening SHORT position closed at rate %s after %s", this.lastCloseRate.toFixed(8), utils.test.getPassedTime(this.lastClosedPositionTime.getTime(), now)));
+                this.emitBuy(this.defaultWeight, utils.sprintf("Re-opening %s %s SHORT position closed at rate %s after %s", this.lastPositionAmount.toFixed(8), Currency.getCurrencyLabel(this.action.pair.to),
+                    this.lastCloseRate.toFixed(8), utils.test.getPassedTime(this.lastClosedPositionTime.getTime(), now)));
                 this.lastClosedPositionTime = null; // to ensure we don't re-open multiple times
             }
         }
