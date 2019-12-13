@@ -644,6 +644,7 @@
       "reOpenRateFactorShort": "optional, default 1.0 - The rate that must be reached (lower than previous closing rate) to re-open a previously closed short position. The current market rate will be multiplied by this. Values above 1.0 mean a higher rate, below 1.0 mean a lower rate.",
       "reOpenAmountPerc": "optional, default 100%. The amount in percentage of the previously closed position that shall be re-opened. You may use values above 100% to increase your position site.",
       "expiryMin": "optional, default 360 min - How many minutes a previously closed position shall be queued for re-opening. Use 0 to never let scheduled orders expire.",
+      "waitOpenMin": "optional, default 0 = immediately - How many minutes to wait at least before re-opening a position.",
       "makerMode": "optional, default false. Whether to adjust all order rates below/above bid ask rates to ensure we only pay the lower (maker) fee."
     },
     "BitmexSwagger": {

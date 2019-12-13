@@ -133,7 +133,7 @@ export class OKEXCurrencies implements Currency.ExchangeCurrencies {
          * { result: true,
                 holding:
                  [ { long_qty: '2',
-                     long_avail_qty: '2',
+                     long_avail_qty: '2', // is lower if there is already an order placed to close. don't use it!
                      long_avg_cost: '141.76499982',
                      long_settlement_price: '141.76499982',
                      realised_pnl: '-0.00003527',
@@ -159,12 +159,12 @@ export class OKEXCurrencies implements Currency.ExchangeCurrencies {
         }
         else {
             if (margin.holding[0].long_qty != 0) {
-                //position.amount = margin.holding[0].long_qty; // we can only close available amount, so use this. the difference is the amount allocated to open orders
-                position.amount = margin.holding[0].long_avail_qty;
+                //position.amount = margin.holding[0].long_qty; // we can only close available amount, so use this. the difference is the amount allocated to open orders. we now use raw contracts to close
+                position.amount = margin.holding[0].long_qty; // long_avail_qty
                 position.type = "long";
             } else {
                 //position.amount = margin.holding[0].short_qty;
-                position.amount = margin.holding[0].short_avail_qty;
+                position.amount = margin.holding[0].short_qty;
                 position.type = "short";
             }
         }

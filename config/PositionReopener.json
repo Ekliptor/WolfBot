@@ -13,6 +13,7 @@
                     "reOpenRateFactorShort": 1,
                     "reOpenAmountPerc": 100,
                     "expiryMin": 360,
+                    "waitOpenMin": 0,
                     "makerMode": false,
                     "pair": "USD_BTC",
                     "candleSize": 1,

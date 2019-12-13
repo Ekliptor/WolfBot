@@ -14,6 +14,7 @@ interface PositionReopenerAction extends TechnicalStrategyAction {
     reOpenRateFactorShort: number; // optional, default 1.0 - The rate that must be reached (lower than previous closing rate) to re-open a previously closed short position. The current market rate will be multiplied by this. Values above 1.0 mean a higher rate, below 1.0 mean a lower rate.
     reOpenAmountPerc: number; // optional, default 100%. The amount in percentage of the previously closed position that shall be re-opened. You may use values above 100% to increase your position site.
     expiryMin: number; // optional, default 360 min - How many minutes a previously closed position shall be queued for re-opening. Use 0 to never let scheduled orders expire.
+    waitOpenMin: number; // optional, default 0 = immediately - How many minutes to wait at least before re-opening a position.
 
     makerMode: boolean; // optional, default false. Whether to adjust all order rates below/above bid ask rates to ensure we only pay the lower (maker) fee.
 }
@@ -42,6 +43,8 @@ export default class PositionReopener extends TechnicalStrategy {
             this.action.reOpenAmountPerc = 100.0;
         if (typeof this.action.expiryMin !== "number")
             this.action.expiryMin = 360;
+        if (typeof this.action.waitOpenMin !== "number")
+            this.action.waitOpenMin = 0;
         if (typeof this.action.makerMode !== "boolean")
             this.action.makerMode = false;
 
@@ -82,9 +85,9 @@ export default class PositionReopener extends TechnicalStrategy {
 
     public getOrderAmount(tradeTotalBtc: number, leverage: number = 1): number {
         //let amount = super.getOrderAmount(tradeTotalBtc, leverage);
+        //if (leverage > 1.0)
+            //amount /= leverage; // don't increase it on every re-opening
         let amount = this.lastPositionAmount;
-        if (leverage > 1.0)
-            amount /= leverage; // don't increase it on every re-opening
         return amount / 100.0 * this.action.reOpenAmountPerc;
     }
 
@@ -109,9 +112,10 @@ export default class PositionReopener extends TechnicalStrategy {
     // ###################### PRIVATE FUNCTIONS #######################
 
     protected checkIndicators() {
+        const now = this.getMarketTime().getTime();
         if (this.lastClosedPositionTime === null)
             return;
-        else if (this.action.expiryMin > 0 && this.lastClosedPositionTime.getTime() + this.action.expiryMin*utils.constants.MINUTE_IN_SECONDS*1000 < this.getMarketTime().getTime()) {
+        else if (this.action.expiryMin > 0 && this.lastClosedPositionTime.getTime() + this.action.expiryMin*utils.constants.MINUTE_IN_SECONDS*1000 < now) {
             this.log(utils.sprintf("Scheduled action to re-open position has expired after %s min", this.action.expiryMin));
             this.lastClosedPositionTime = null;
             return;
@@ -121,21 +125,25 @@ export default class PositionReopener extends TechnicalStrategy {
             this.lastClosedPositionTime = null;
             return;
         }
-        else if (this.lastClosedPositionTime.getTime() + 2*nconf.get("serverConfig:updatePortfolioSec")*1000 > this.getMarketTime().getTime())
+        else if (this.lastClosedPositionTime.getTime() + 2*nconf.get("serverConfig:updatePortfolioSec")*1000 > now)
             return; // don't try to re-open it yet or else stop strategy might close it again immediately (as a remaining open position)
+        else if (this.lastClosedPositionTime.getTime() + this.action.waitOpenMin*utils.constants.MINUTE_IN_SECONDS*1000 > now) {
+            this.logOnce(utils.sprintf("Skipped re-opening position because %s min have not passed yet since close.", this.action.waitOpenMin));
+            return;
+        }
 
         // re-open the position
         if (this.lastPositionDirection === "long") {
             const openTargetRate = this.lastCloseRate * this.action.reOpenRateFactorLong;
             if (this.avgMarketPrice > openTargetRate) {
-                this.emitBuy(this.defaultWeight, utils.sprintf("Re-opening LONG position closed at rate %s after %s", this.lastCloseRate.toFixed(8), utils.test.getPassedTime(this.lastClosedPositionTime.getTime(), this.getMarketTime().getTime())));
+                this.emitBuy(this.defaultWeight, utils.sprintf("Re-opening LONG position closed at rate %s after %s", this.lastCloseRate.toFixed(8), utils.test.getPassedTime(this.lastClosedPositionTime.getTime(), now)));
                 this.lastClosedPositionTime = null; // to ensure we don't re-open multiple times
             }
         }
         else if (this.lastPositionDirection === "short") {
             const openTargetRate = this.lastCloseRate * this.action.reOpenRateFactorShort;
             if (this.avgMarketPrice < openTargetRate) {
-                this.emitBuy(this.defaultWeight, utils.sprintf("Re-opening SHORT position closed at rate %s after %s", this.lastCloseRate.toFixed(8), utils.test.getPassedTime(this.lastClosedPositionTime.getTime(), this.getMarketTime().getTime())));
+                this.emitBuy(this.defaultWeight, utils.sprintf("Re-opening SHORT position closed at rate %s after %s", this.lastCloseRate.toFixed(8), utils.test.getPassedTime(this.lastClosedPositionTime.getTime(), now)));
                 this.lastClosedPositionTime = null; // to ensure we don't re-open multiple times
             }
         }
