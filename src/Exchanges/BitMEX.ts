@@ -323,8 +323,8 @@ export default class BitMEX extends AbstractContractExchange {
             let importNext = () => {
                 let outParams = {
                     symbol: marketPair,
-                    startTime: utils.getUnixTimeStr(true, start),
-                    endTime: utils.getUnixTimeStr(true, end),
+                    startTime: utils.getUnixTimeStr(true, start, true),
+                    endTime: utils.getUnixTimeStr(true, end, true),
                     count: count, // note 500 is max, 100 is default
                     start: offset
                 }
