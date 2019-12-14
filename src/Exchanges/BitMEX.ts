@@ -334,7 +334,8 @@ export default class BitMEX extends AbstractContractExchange {
                         let tradeObj = new Trade.Trade();
                         tradeObj.date = new Date(rawTrade.timestamp);
                         tradeObj.type = rawTrade.side == "Sell" ? Trade.TradeType.SELL : Trade.TradeType.BUY;
-                        tradeObj.amount = Math.abs(rawTrade.size); // todo: is teh unit right?
+                        // NB: {rawTrade.homeNotional} as well as {rawTrade.grossValue}/10e8 would be equiv. to {size} div. by {price} besides some nasty rounding errors
+                        tradeObj.amount = Math.abs(rawTrade.size / rawTrade.price); // Unit: Home (e.g. USD)
                         tradeObj.rate = rawTrade.price;
                         tradeObj.tradeID = Math.floor(tradeObj.date.getTime() * tradeObj.amount)
                         tradeObj = Trade.Trade.verifyNewTrade(tradeObj, currencyPair, this.getExchangeLabel(), this.getFee())
