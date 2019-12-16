@@ -335,7 +335,8 @@ export default class BitMEX extends AbstractContractExchange {
                         // NB: {rawTrade.homeNotional} as well as {rawTrade.grossValue}/10e8 would be equiv. to {size} div. by {price} besides some nasty rounding errors
                         tradeObj.amount = Math.abs(rawTrade.size / rawTrade.price); // Unit: Home (e.g. USD)
                         tradeObj.rate = rawTrade.price;
-                        tradeObj.tradeID = Math.floor(tradeObj.date.getTime() * tradeObj.amount)
+                        let tradeHash = crypto.createHash('sha1').update(rawTrade.trdMatchID).digest('hex'); // Original: 128bit hex-ID
+                        tradeObj.tradeID = parseInt(tradeHash.slice(0, 13), 16); //JS's number type has at most an 53bit integer-part thus a 13.25 digit hex-number could at max fit into 53bits.
                         tradeObj = Trade.Trade.verifyNewTrade(tradeObj, currencyPair, this.getExchangeLabel(), this.getFee())
 
                         trades.push(tradeObj)
