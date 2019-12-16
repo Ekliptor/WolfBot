@@ -35,7 +35,7 @@
     "eventemitter2": "^4.1.0",
     "feedparser": "^2.2.8",
     "functional-red-black-tree": "^1.0.1",
-    "genetic-js": "subprotocol/genetic-js#14/head",
+    "genetic-js": "richardklafter/genetic-js",
     "html-minifier": "^3.5.2",
     "https-proxy-agent": "^2.0.0",
     "i18next": "^8.4.1",
