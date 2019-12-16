@@ -10,6 +10,7 @@ import {Currency, Ticker, Liquidation, Trade, FundingRate} from "@ekliptor/bit-m
 import * as argvFunction from "minimist";
 import {PushApiConnectionType} from "../AbstractExchange";
 import {BitMEXCurrencies} from "../BitMEX";
+import * as crypto from "crypto";
 const argv = argvFunction(process.argv.slice(2));
 const bitmexFix = nconf.get("serverConfig:premium") === true || argv.bitmex === true ? require("../BitmexFix").bitmexFix : null;
 
@@ -260,9 +261,12 @@ export default class BitmexMarketData extends AbstractMarketData {
         let tradeObj = new Trade.Trade();
         tradeObj.date = new Date(timestampMs);
         tradeObj.type = trade.side == "Buy" ? Trade.TradeType.BUY : Trade.TradeType.SELL;
-        tradeObj.amount = trade.size;
+        // NB: {rawTrade.homeNotional} as well as {rawTrade.grossValue}/10e8 would be equiv. to {size} div. by {price} besides some nasty rounding errors
+        tradeObj.amount = Math.abs(trade.size / trade.price); // Unit: Home (e.g. USD)
         tradeObj.rate = trade.price;
-        tradeObj.tradeID = trade.trdMatchID;
+        //tradeObj.tradeID = trade.trdMatchID;
+        let tradeHash = crypto.createHash('sha1').update(trade.trdMatchID).digest('hex'); // Original: 128bit hex-ID
+        tradeObj.tradeID = parseInt(tradeHash.slice(0, 13), 16); //JS's number type has at most an 53bit integer-part thus a 13.25 digit hex-number could at max fit into 53bits.
         tradeObj = Trade.Trade.verifyNewTrade(tradeObj, currencyPair, Currency.Exchange.BITMEX, 0.0);
         return tradeObj;
     }

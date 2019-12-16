@@ -266,15 +266,20 @@ export default class ExchangeController extends AbstractSubController {
     protected ensureAllExchangesPresent() {
         const emptyConfig = new serverConfig.ServerConfig();
         let exchanges = Array.from(Currency.ExchangeName.keys());
+        let saveKeys = false;
         exchanges.forEach((exchange) => {
             let exchangeConf = nconf.get("serverConfig:apiKey:exchange:" + exchange);
             if (exchangeConf && Array.isArray(exchangeConf) === true)
                 return;
             const msg = utils.sprintf("Exchange %s api key config is missing or invalid, restoring defaults", exchange);
             logger.error(msg);
-            this.notifyError(msg);
+            this.notifyError(msg); // TODO add a list of recently added exchanges and skip this error message for them
             nconf.set("serverConfig:apiKey:exchange:" + exchange, emptyConfig.apiKey.exchange[exchange]);
+            saveKeys = true;
         });
+        // @ts-ignore
+        if (saveKeys === true)
+            serverConfig.saveConfigLocal();
     }
 
     protected loadConfig() {
