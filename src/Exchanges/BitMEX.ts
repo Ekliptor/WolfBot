@@ -108,9 +108,7 @@ export class BitMEXCurrencies extends AbstractContractExchangeCurrencies {
     }
 
     public toMarginAccountSummary(margins: any[]) {
-        /**
 
-         */
         let summary = new MarginAccountSummary();
         summary.currentMargin = 1.0;
         margins.forEach((margin) => {
