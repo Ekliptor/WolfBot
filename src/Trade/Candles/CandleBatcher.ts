@@ -136,25 +136,13 @@ export class CandleBatcher<T extends TradeBase> extends CandleStream<T> {
             return; // shouldn't happen
         else if (ensureInterval === true) { // keep the candles in sync with the clock (independently of bot start time)
             const candleMinutes = this.lastSmallCandle.start.getMinutes();
-            if (this.interval % 60 === 0) {
-                if (candleMinutes % 60 !== 0)
-                    return;
-            }
-            else if (this.interval % 30 === 0) {
-                if (candleMinutes % 30 !== 0)
-                    return;
-            }
-            else if (this.interval % 15 === 0) {
-                if (candleMinutes % 15 !== 0)
-                    return;
-            }
-            else if (this.interval % 5 === 0) {
-                if (candleMinutes % 5 !== 0)
-                    return;
-            }
-            else if (this.interval % 3 === 0) {
-                if (candleMinutes % 3 !== 0)
-                    return;
+            const intervals = [1440 /*1 day*/, 240, 180, 120, 60, 30, 15, 5, 3]; // the order from highest to lowest is important
+            for (let i = 0; i < intervals.length; i++)
+            {
+                if (this.interval % intervals[i] === 0) { // this candle config is a multiple of one of our specified intervals
+                    if (candleMinutes % intervals[i] !== 0) // return if the current candle minute is not a multiple of that same interval
+                        return;
+                }
             }
             if (this.minuteCandles.length < this.interval)
                 return; // not enough data yet
