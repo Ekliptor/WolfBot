@@ -335,4 +335,4 @@ export abstract class AbstractBackfinder {
 // force loading dynamic imports for TypeScript
 import "./Backfinder";
 import "./Evolution";
-import "./ForexAnalytics";
+//import "./ForexAnalytics";

@@ -2,7 +2,7 @@ import * as utils from "@ekliptor/apputils";
 const logger = utils.logger
     , nconf = utils.nconf;
 // add to package.json: "forex.analytics": "git+https://github.com/mkmarek/forex.analytics.git",
-import analytics from "forex.analytics";
+//import analytics from "forex.analytics"; // removed
 import * as fs from "fs";
 
 // TODO wait for this pull request: https://github.com/carlos8f/zenbot/pull/299
