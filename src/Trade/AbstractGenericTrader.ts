@@ -6,6 +6,8 @@ import {Trade, Order, Currency, Candle, serverConfig} from "@ekliptor/bit-models
 import {AbstractExchange, ExchangeMap, OrderParameters} from "../Exchanges/AbstractExchange";
 import * as fs from "fs";
 import {CoinMap} from "./PortfolioTrader";
+import {AbstractNotification} from "../Notifications/AbstractNotification";
+import {default as Notification} from "../Notifications/Notification";
 
 
 export class ActiveTradesMap extends Map<string, boolean> { // (currency (pair) name, true)
@@ -21,6 +23,7 @@ export abstract class AbstractGenericTrader extends EventEmitter {
     protected pausedTrading = nconf.get("serverConfig:pausedTrading"); // trader instance (thus this value) not loaded if no valid config present
     protected restartPausedTimerID: NodeJS.Timer = null;
     protected tradeNotifier: AbstractGenericTrader = null; // TradeNotifier
+    protected notifiedPaused: boolean = false;
 
     protected logQueue = Promise.resolve();
     protected logPath: string = ""; // set this to a file to log trades
@@ -120,6 +123,17 @@ export abstract class AbstractGenericTrader extends EventEmitter {
         }
         logger.warn("Exchange %s not found in exchange map", exchange.toString());
         return "";
+    }
+
+    protected checkSendPausedNotification(message: string, currencyStr: string) {
+        if (this.notifiedPaused === true/* || this.tradeNotifier === null*/)
+            return;
+        this.notifiedPaused = true;
+        let notifier = AbstractNotification.getInstance();
+        let notification = new Notification(utils.sprintf("%s trading is paused", currencyStr), message, true);
+        notifier.send(notification).catch((err) => {
+            logger.error("Error sending trading paused notification", err);
+        });
     }
 
     protected loadModule(modulePath: string, options = undefined) {

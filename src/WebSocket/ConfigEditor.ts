@@ -1268,7 +1268,13 @@ export class ConfigEditor extends AppPublisher {
             logger.error("Error loading config file data from disk", jsonData)
             return data;
         }
-        let properties = this.createSchemaProperties(jsonData.data[0])
+        //let properties = this.createSchemaProperties(jsonData.data[0])
+        let properties: any = {}
+        for (let i = 0; i < jsonData.data.length; i++)
+        {
+            let curProps = this.createSchemaProperties(jsonData.data[i]);
+            properties = utils.objects.deepAssign(properties, curProps); // we have to use deep assign because some properties/strategies might only be defined for 1 pair
+        }
         // enabling/disablen properties is done on client side. via schema we can only set global editor options (for all properties)?
         let defautlSchema = {
             title: configName,

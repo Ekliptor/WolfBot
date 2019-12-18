@@ -1,71 +1,71 @@
 {
-  "data": [
-    {
-      "exchanges": "default",
-      "marginTrading": true,
-      "tradeTotalBtc": 0.15,
-      "warmUpMin": 0,
-      "strategies": {
-        "MACD": {
-          "short": 10,
-          "long": 26,
-          "signal": 9,
-          "pair": "BTC_ETH",
-          "candleSize": 60,
-          "enableLog": true
+    "data": [
+        {
+            "exchanges": "default",
+            "marginTrading": true,
+            "tradeTotalBtc": 0.15,
+            "warmUpMin": 0,
+            "strategies": {
+                "MACD": {
+                    "short": 10,
+                    "long": 26,
+                    "signal": 9,
+                    "pair": "BTC_ETH",
+                    "candleSize": 60,
+                    "enableLog": true
+                },
+                "StopLossTurn": {
+                    "order": "closeShort",
+                    "stop": 0,
+                    "stopLong": 0,
+                    "setback": 1.29,
+                    "setbackLong": 1.29,
+                    "time": 180,
+                    "candleSize": 1,
+                    "pair": "BTC_ETH",
+                    "enableLog": true
+                },
+                "TakeProfit": {
+                    "order": "closeShort",
+                    "profit": 1.95,
+                    "time": 900,
+                    "candleSize": 1,
+                    "pair": "BTC_ETH",
+                    "enableLog": true
+                }
+            }
         },
-        "StopLossTurn": {
-          "order": "closeShort",
-          "stop": 0.0,
-          "stopLong": 0.0,
-          "setback": 1.29,
-          "setbackLong": 1.29,
-          "time": 180,
-          "candleSize": 1,
-          "pair": "BTC_ETH",
-          "enableLog": true
-        },
-        "TakeProfit": {
-          "order": "closeShort",
-          "profit": 1.95,
-          "time": 900,
-          "candleSize": 1,
-          "pair": "BTC_ETH",
-          "enableLog": true
+        {
+            "exchanges": "default",
+            "marginTrading": true,
+            "tradeTotalBtc": 0.15,
+            "warmUpMin": 0,
+            "strategies": {
+                "MACD": {
+                    "short": 10,
+                    "long": 26,
+                    "signal": 9,
+                    "pair": "BTC_LTC",
+                    "candleSize": 60,
+                    "enableLog": true
+                },
+                "StopLossTurn": {
+                    "order": "closeShort",
+                    "setback": 1.29,
+                    "time": 180,
+                    "candleSize": 1,
+                    "pair": "BTC_LTC",
+                    "enableLog": true
+                },
+                "TakeProfit": {
+                    "order": "closeShort",
+                    "profit": 1.95,
+                    "time": 900,
+                    "candleSize": 1,
+                    "pair": "BTC_LTC",
+                    "enableLog": true
+                }
+            }
         }
-      }
-    },
-    {
-      "exchanges": "default",
-      "marginTrading": true,
-      "tradeTotalBtc": 0.15,
-      "warmUpMin": 0,
-      "strategies": {
-        "MACD": {
-          "short": 10,
-          "long": 26,
-          "signal": 9,
-          "pair": "BTC_LTC",
-          "candleSize": 60,
-          "enableLog": true
-        },
-        "StopLossTurn": {
-          "order": "closeShort",
-          "setback": 1.29,
-          "time": 180,
-          "candleSize": 1,
-          "pair": "BTC_LTC",
-          "enableLog": true
-        },
-        "TakeProfit": {
-          "order": "closeShort",
-          "profit": 1.95,
-          "time": 900,
-          "candleSize": 1,
-          "pair": "BTC_LTC",
-          "enableLog": true
-        }
-      }
-    }
-  ]
+    ]
 }

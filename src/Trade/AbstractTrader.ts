@@ -126,12 +126,14 @@ export abstract class AbstractTrader extends AbstractGenericTrader {
                 const msg = utils.sprintf("Skipping %s %s in %s because trading is paused: %s - %s", action, pairStr, this.className, strategy.getClassName(), reason)
                 logger.info(msg)
                 this.writeLogLine(msg)
+                this.checkSendPausedNotification(msg, pairStr);
                 return;
             }
             if (this.pausedOpeningPositions && action !== "close" && !this.isStopOrTakeProfitStrategy(strategy)) {
                 const msg = utils.sprintf("Skipping %s %s in %s because opening positions is paused: %s - %s", action, pairStr, this.className, strategy.getClassName(), reason)
                 logger.info(msg)
                 this.writeLogLine(msg)
+                this.checkSendPausedNotification(msg, pairStr);
                 return;
             }
         }

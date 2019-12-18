@@ -117,7 +117,7 @@ export default class PositionReopener extends TechnicalStrategy {
             return;
         else if (this.action.expiryMin > 0 && this.lastClosedPositionTime.getTime() + this.action.expiryMin*utils.constants.MINUTE_IN_SECONDS*1000 < now) {
             this.log(utils.sprintf("Scheduled action to re-open position has expired after %s min", this.action.expiryMin));
-            this.lastClosedPositionTime = null;
+            this.lastClosedPositionTime = null; // delete the scheduled action to re-open
             return;
         }
         else if (this.action.reOpenAmountPerc <= 0.0) {
@@ -129,6 +129,11 @@ export default class PositionReopener extends TechnicalStrategy {
             return; // don't try to re-open it yet or else stop strategy might close it again immediately (as a remaining open position)
         else if (this.action.waitOpenMin > 0 && this.lastClosedPositionTime.getTime() + this.action.waitOpenMin*utils.constants.MINUTE_IN_SECONDS*1000 > now) {
             this.logOnce(utils.sprintf("Skipped re-opening position because %s min have not passed yet since close.", this.action.waitOpenMin));
+            return;
+        }
+        else if (this.strategyPosition !== "none") {
+            this.log(utils.sprintf("Skipped re-opening position because there is already a %s position open again.", this.strategyPosition.toUpperCase()));
+            this.lastClosedPositionTime = null;
             return;
         }
 

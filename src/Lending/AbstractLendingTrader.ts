@@ -732,6 +732,7 @@ export abstract class AbstractLendingTrader extends AbstractGenericTrader {
             const msg = utils.sprintf("Skipping %s %s in %s because trading is paused: %s", action, currencyStr, this.className, reason)
             logger.info(msg)
             this.writeLogLine(msg)
+            this.checkSendPausedNotification(msg, currencyStr);
             return true;
         }
         return false;

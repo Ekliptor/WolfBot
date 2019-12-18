@@ -522,7 +522,7 @@ export default class Backtester extends PortfolioTrader {
                             this.updateBalance(exchange, coinPair, -1*sellAmount, rate);
                             PortfolioTrader.baseCurrencyBalance += sellAmountWithFees;
                             PortfolioTrader.coinCurrencyBalance -= sellAmount;
-                            this.updateOrderBalance(sellBtc, orderResult.orderNumber);
+                            this.updateOrderBalance(sellBtc, orderResult.orderNumber, false);
                             let order = Order.Order.getOrder(coinPair, exchange.getExchangeLabel(), sellAmount, rate, Trade.TradeType.SELL, orderResult.orderNumber.toString(), false)
                             order.date = this.marketTime;
                             this.addOrder(exchange, order);
@@ -854,8 +854,7 @@ export default class Backtester extends PortfolioTrader {
         let refundBalanceBtc = this.pendingOrders.get(order.orderID);
         if (refundBalanceBtc === undefined)
             return logger.error("Order with ID %s to refund doesn't exist. Balances are wrong", order.orderID);
-        //PortfolioTrader.baseCurrencyBalance += refundBalanceBtc; // only updated after order is executed
-        //PortfolioTrader.coinCurrencyBalance -= refundBalanceBtc / order.rate;
+        this.refundPortfolioAmount(order, exchange);
 
         //this.emitClose(order, [], {strategy: {}, pl: 0.0, reason: "cancelled order", exchange: exchange});
         //this.emit("close", order, [], {strategy: {}, pl: 0.0, reason: "cancelled order", exchange: exchange});
@@ -870,6 +869,35 @@ export default class Backtester extends PortfolioTrader {
         let positions = PortfolioTrader.marginPositions.get(exchange.getClassName())
         if (!positions.has(order.currencyPair.toString()))
             this.emitClose(order, [], {strategy: this.lastTradeStrategy, pl: 0, reason: "cancelled order", exchange: exchange}); // to reset strategy values such as "done"
+    }
+
+    protected refundPortfolioAmount(submittedOrder: Order.Order, exchange: AbstractExchange) {
+        let refundBalanceBtc = this.pendingOrders.get(submittedOrder.orderID);
+        if (refundBalanceBtc <= 0.0)
+            return; // shouldn't happen here
+        //PortfolioTrader.baseCurrencyBalance += refundBalanceBtc; // only updated after order is executed
+        //PortfolioTrader.coinCurrencyBalance -= refundBalanceBtc / order.rate;
+        if (this.config.marginTrading === true) { // refund amount depends on what got deducted based on: 1. margin trading 2. buy/sell
+            switch (submittedOrder.type) {
+                case Trade.TradeType.BUY:
+                    PortfolioTrader.baseCurrencyBalance += refundBalanceBtc * submittedOrder.rate; // USD etc...
+                    break; // nothing
+                case Trade.TradeType.SELL:
+                    PortfolioTrader.baseCurrencyBalance -= refundBalanceBtc * submittedOrder.rate;
+                    break;
+            }
+        }
+        else {
+            switch (submittedOrder.type) {
+                case Trade.TradeType.BUY:
+                    PortfolioTrader.coinCurrencyBalance -= refundBalanceBtc;
+                    break; // nothing
+                case Trade.TradeType.SELL:
+                    PortfolioTrader.baseCurrencyBalance -= refundBalanceBtc;
+                    PortfolioTrader.coinCurrencyBalance += refundBalanceBtc;
+                    break;
+            }
+        }
     }
 
     /**

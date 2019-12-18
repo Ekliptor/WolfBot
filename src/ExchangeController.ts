@@ -343,6 +343,9 @@ export default class ExchangeController extends AbstractSubController {
         }
         fs.writeFileSync(filePath, utils.stringifyBeautiful(json), {encoding: "utf8"});
         let connectedExchanges = [];
+        const filterExchanges: string[] = nconf.get("serverConfig:filterExchanges");
+        const lastWorking = new Date(nconf.get("serverConfig:lastWorkingConfigTime") || 0);
+        let configChanged = false;
         try {
             if (nconf.get("lending") && json.data.length === 1)
                 json.data = LendingConfig.expandConfig(json.data[0]);
@@ -363,8 +366,24 @@ export default class ExchangeController extends AbstractSubController {
 
                 // just get the names
                 //const configExchanges = this.pipeMarketStreams(config);
+                let replacedExchange = false;
+                if (nconf.get("debug") !== true && lastWorking.getTime() + nconf.get("serverConfig:lastWorkingResetConfigMin")*utils.constants.MINUTE_IN_SECONDS*1000 < Date.now()) {
+                    filterExchanges.forEach((filterEx) => {
+                        let removePos = config.exchanges.indexOf(filterEx);
+                        if (removePos !== -1) {
+                            logger.warn("Replacing %s exchange with %s in config %s due to unstable connection", filterEx, nconf.get("serverConfig:replaceExchange"), this.configFilename);
+                            //config.exchanges.splice(removePos, 1);
+                            config.exchanges[removePos] = nconf.get("serverConfig:replaceExchange");
+                            replacedExchange = true;
+                            configChanged = true;
+                        }
+                    });
+                }
                 const exchangeNames = config.exchanges;
                 connectedExchanges = connectedExchanges.concat(exchangeNames);
+                // @ts-ignore
+                if (replacedExchange === true)
+                    config.exchanges = utils.uniqueArrayValues(config.exchanges);
             });
         }
         catch (err) {
@@ -373,6 +392,9 @@ export default class ExchangeController extends AbstractSubController {
             return;
         }
 
+        // @ts-ignore
+        if (configChanged === true)
+            fs.writeFileSync(filePath, utils.stringifyBeautiful(json), {encoding: "utf8"});
         TradeConfig.resetCounter();
         LendingConfig.resetCounter();
         this.connectedExchanges = utils.uniqueArrayValues(connectedExchanges); // shouldn't change anything
