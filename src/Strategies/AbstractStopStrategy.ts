@@ -161,6 +161,30 @@ export abstract class AbstractStopStrategy extends /*AbstractStrategy*/Technical
         this.closedPositions = false;
     }
 
+    public getPositionStopPrice(): number {
+        const stopPrice = this.getStopPrice(); // own child implementation
+        if (stopPrice > 0.0)
+            return stopPrice;
+
+        // try various fallbacks
+        const subClass: any = this;
+        if (this.strategyPosition === "long") {
+            if (typeof subClass.getStopSell === "function")
+                return subClass.getStopSell();
+            else if (typeof subClass.action.stopLong === "number" && subClass.action.stopLong > 0.0)
+                return subClass.action.stopLong;
+            else if (typeof subClass.action.stop === "number" && subClass.action.stop > 0.0) // stop can be used for long + short positions
+                return subClass.action.stop;
+        }
+        else if (this.strategyPosition === "short") {
+            if (typeof subClass.getStopBuy === "function")
+                return subClass.getStopBuy();
+            else if (typeof subClass.action.stop === "number" && subClass.action.stop > 0.0) // stop can be used for long + short positions
+                return subClass.action.stop;
+        }
+        return -1.0;
+    }
+
     // ################################################################
     // ###################### PRIVATE FUNCTIONS #######################
 

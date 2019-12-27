@@ -52,6 +52,9 @@ export default class PositionReopener extends TechnicalStrategy {
         this.addInfo("lastCloseRate", "lastCloseRate");
         this.addInfo("lastPositionDirection", "lastPositionDirection");
         this.addInfo("lastClosedPositionTime", "lastClosedPositionTime");
+        this.addInfoFunction("nearestStop", () => {
+            return this.strategyGroup.getNearestStop();
+        });
         this.saveState = true;
 
         // testing code
@@ -136,6 +139,16 @@ export default class PositionReopener extends TechnicalStrategy {
             this.lastClosedPositionTime = null;
             return;
         }
+        const nearestStop = this.strategyGroup.getNearestStop();
+        if (this.lastPositionDirection === "long" && nearestStop > this.avgMarketPrice) {
+            this.logOnce(utils.sprintf("Skipped re-opening LONG position because there is a stop above current market price: %s > %s", nearestStop.toFixed(8), this.avgMarketPrice.toFixed(8)));
+            return;
+        }
+        else if (this.lastPositionDirection === "short" && nearestStop < this.avgMarketPrice) {
+            this.logOnce(utils.sprintf("Skipped re-opening SHORT position because there is a stop below current market price: %s < %s", nearestStop.toFixed(8), this.avgMarketPrice.toFixed(8)));
+            return;
+        }
+        // TODO also iterate over abstract take profit strategies and ensure we have not reached the stop? (avoid trading fees by closing immediately with 0.xx% profit only)
 
         // re-open the position
         if (this.lastPositionDirection === "long") {
