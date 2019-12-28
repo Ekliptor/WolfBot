@@ -32,6 +32,7 @@ export default class PositionReopener extends TechnicalStrategy {
     protected lastCloseRate: number = -1.0;
     protected lastPositionDirection: StrategyPosition = "none";
     protected lastClosedPositionTime: Date = null;
+    protected lastNearestStop: number = -1.0;
 
     constructor(options) {
         super(options)
@@ -52,9 +53,7 @@ export default class PositionReopener extends TechnicalStrategy {
         this.addInfo("lastCloseRate", "lastCloseRate");
         this.addInfo("lastPositionDirection", "lastPositionDirection");
         this.addInfo("lastClosedPositionTime", "lastClosedPositionTime");
-        this.addInfoFunction("nearestStop", () => {
-            return this.strategyGroup.getNearestStop();
-        });
+        this.addInfo("nearestStop", "lastNearestStop");
         this.saveState = true;
 
         // testing code
@@ -100,6 +99,7 @@ export default class PositionReopener extends TechnicalStrategy {
         state.lastCloseRate = this.lastCloseRate;
         state.lastPositionDirection = this.lastPositionDirection;
         state.lastClosedPositionTime = this.lastClosedPositionTime;
+        state.lastNearestStop = this.lastNearestStop;
         return state;
     }
 
@@ -109,12 +109,27 @@ export default class PositionReopener extends TechnicalStrategy {
         this.lastCloseRate = state.lastCloseRate;
         this.lastPositionDirection = state.lastPositionDirection;
         this.lastClosedPositionTime = state.lastClosedPositionTime;
+        this.lastNearestStop = state.lastNearestStop || -1.0;
     }
 
     // ################################################################
     // ###################### PRIVATE FUNCTIONS #######################
 
     protected checkIndicators() {
+        const nearestStop = this.getNearestStop(); // do this first so we always update lastNearestStop
+        if (nearestStop > 0.0 && nearestStop !== Number.MAX_VALUE) {
+            this.lastNearestStop = nearestStop; // TODO expire? overwrite from new position stop should be enough. if we don't trade manually we don't want this to change (and won't update our stop settings)
+            if (this.lastPositionDirection === "long" && nearestStop > this.avgMarketPrice) {
+                this.logOnce(utils.sprintf("Skipped re-opening LONG position because there is a stop above current market price: %s > %s", nearestStop.toFixed(8), this.avgMarketPrice.toFixed(8)));
+                return;
+            }
+            else if (this.lastPositionDirection === "short" && nearestStop < this.avgMarketPrice) {
+                this.logOnce(utils.sprintf("Skipped re-opening SHORT position because there is a stop below current market price: %s < %s", nearestStop.toFixed(8), this.avgMarketPrice.toFixed(8)));
+                return;
+            }
+            // TODO also iterate over abstract take profit strategies and ensure we have not reached the stop? (avoid trading fees by closing immediately with 0.xx% profit only)
+        }
+
         const now = this.getMarketTime().getTime();
         if (this.lastClosedPositionTime === null)
             return;
@@ -139,16 +154,6 @@ export default class PositionReopener extends TechnicalStrategy {
             this.lastClosedPositionTime = null;
             return;
         }
-        const nearestStop = this.strategyGroup.getNearestStop();
-        if (this.lastPositionDirection === "long" && nearestStop > this.avgMarketPrice) {
-            this.logOnce(utils.sprintf("Skipped re-opening LONG position because there is a stop above current market price: %s > %s", nearestStop.toFixed(8), this.avgMarketPrice.toFixed(8)));
-            return;
-        }
-        else if (this.lastPositionDirection === "short" && nearestStop < this.avgMarketPrice) {
-            this.logOnce(utils.sprintf("Skipped re-opening SHORT position because there is a stop below current market price: %s < %s", nearestStop.toFixed(8), this.avgMarketPrice.toFixed(8)));
-            return;
-        }
-        // TODO also iterate over abstract take profit strategies and ensure we have not reached the stop? (avoid trading fees by closing immediately with 0.xx% profit only)
 
         // re-open the position
         if (this.lastPositionDirection === "long") {
@@ -175,6 +180,16 @@ export default class PositionReopener extends TechnicalStrategy {
             this.lastCloseRate = this.avgMarketPrice;
             this.lastPositionDirection = prevDirection;
             this.lastClosedPositionTime = this.getMarketTime();
+            //const nearestStop = this.getNearestStop(); // too late to call this after pos sync
         }
+    }
+
+    protected getNearestStop() {
+        let stop = this.strategyGroup.getNearestStop();
+        if (stop > 0.0 && stop !== Number.MAX_VALUE)
+            return stop;
+        // if position is closed we might have to fall back to the last stop. stop strategies return different values depending on position state
+        // TODO ideally every stop strategy would have a method getStopPriceForState(this.lastPositionDirection)
+        return this.lastNearestStop;
     }
 }
