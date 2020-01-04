@@ -11,6 +11,7 @@
                 "KAMA": {
                     "tradeDirection": "both",
                     "interval": 30,
+                    "useTrueRange": false,
                     "candleSize": 60,
                     "pair": "USD_BTC",
                     "tradeStrategy": "RSIScalpOrderer",

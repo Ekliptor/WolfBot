@@ -72,6 +72,9 @@ export class VIXParams implements IntervalIndicatorParams {
     constructor() {
     }
 }
+export interface KamaIndicatorParams extends IntervalIndicatorParams {
+    useTrueRange: boolean; // Use true range of candle close as KAMA input (instead of candle close)
+}
 export class TristarParams implements IntervalIndicatorParams {
     enableLog: boolean;
     interval: number = 30; // works better with this value
@@ -366,6 +369,21 @@ export abstract class AbstractIndicator extends DataPlotCollector {
         this.value = TaLib.getLatestResultPoint(result);
         //if (this.value >= 0)
             //logger.verbose("Computed %s value: %s", this.className, this.getValue())
+    }
+
+    protected getTrueRange(candle: Candle.Candle, previousCandle: Candle.Candle): number {
+        // custom true range
+        const range1 = candle.high - candle.low;
+        const range2 = candle.high - previousCandle.close;
+        const range3 = previousCandle.close - candle.low;
+        let trueRange = range1
+        if (range1 >= range2 && range1 >= range3)
+            trueRange = range1
+        if (range2 >= range1 && range2 >= range3)
+            trueRange = range2
+        if(range3 >= range1 && range3 >= range2)
+            trueRange = range3
+        return trueRange;
     }
 
     /**

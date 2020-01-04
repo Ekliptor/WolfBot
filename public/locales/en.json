@@ -808,6 +808,7 @@
     "KAMA": {
       "desc": "Strategy that emits buy/sell based on the KAMA indicator.",
       "interval": "optional, default 30 - The number of candles to use for the slow EMA for the slowest KAMA smoothing constant.",
+      "useTrueRange": "Use 'true range' for KAMA computation instead of candle close values.",
       "tradeDirection": "optional, default both - The direction in which this strategy shall open positions. 'watch' only computes the indicators for manual inspection. Values: up|down|both|watch"
     },
     "MakerFeeOrder": {

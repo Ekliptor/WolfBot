@@ -119,6 +119,7 @@ export default class PositionReopener extends TechnicalStrategy {
         const nearestStop = this.getNearestStop(); // do this first so we always update lastNearestStop
         if (nearestStop > 0.0 && nearestStop !== Number.MAX_VALUE) {
             this.lastNearestStop = nearestStop; // TODO expire? overwrite from new position stop should be enough. if we don't trade manually we don't want this to change (and won't update our stop settings)
+            // TODO add % setting rate must be above/below stop to prevent closing again too quickly and avoid fees
             if (this.lastPositionDirection === "long" && nearestStop > this.avgMarketPrice) {
                 this.logOnce(utils.sprintf("Skipped re-opening LONG position because there is a stop above current market price: %s > %s", nearestStop.toFixed(8), this.avgMarketPrice.toFixed(8)));
                 return;
@@ -143,7 +144,7 @@ export default class PositionReopener extends TechnicalStrategy {
             this.lastClosedPositionTime = null;
             return;
         }
-        else if (this.lastClosedPositionTime.getTime() + 2*nconf.get("serverConfig:updatePortfolioSec")*1000 > now)
+        else if (this.lastClosedPositionTime.getTime() + 3*nconf.get("serverConfig:updatePortfolioSec")*1000 > now)
             return; // don't try to re-open it yet or else stop strategy might close it again immediately (as a remaining open position)
         else if (this.action.waitOpenMin > 0 && this.lastClosedPositionTime.getTime() + this.action.waitOpenMin*utils.constants.MINUTE_IN_SECONDS*1000 > now) {
             this.logOnce(utils.sprintf("Skipped re-opening position because %s min have not passed yet since close.", this.action.waitOpenMin));
