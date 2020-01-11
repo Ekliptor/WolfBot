@@ -116,6 +116,16 @@ export default class PositionReopener extends TechnicalStrategy {
     // ###################### PRIVATE FUNCTIONS #######################
 
     protected checkIndicators() {
+        const now = this.getMarketTime().getTime();
+        // check expiry of re-opening first
+        if (this.lastClosedPositionTime === null)
+            return;
+        else if (this.action.expiryMin > 0 && this.lastClosedPositionTime.getTime() + this.action.expiryMin*utils.constants.MINUTE_IN_SECONDS*1000 < now) {
+            this.log(utils.sprintf("Scheduled action to re-open position has expired after %s min", this.action.expiryMin));
+            this.lastClosedPositionTime = null; // delete the scheduled action to re-open
+            return;
+        }
+
         const nearestStop = this.getNearestStop(); // do this first so we always update lastNearestStop
         if (nearestStop > 0.0 && nearestStop !== Number.MAX_VALUE) {
             this.lastNearestStop = nearestStop; // TODO expire? overwrite from new position stop should be enough. if we don't trade manually we don't want this to change (and won't update our stop settings)
@@ -131,14 +141,7 @@ export default class PositionReopener extends TechnicalStrategy {
             // TODO also iterate over abstract take profit strategies and ensure we have not reached the stop? (avoid trading fees by closing immediately with 0.xx% profit only)
         }
 
-        const now = this.getMarketTime().getTime();
-        if (this.lastClosedPositionTime === null)
-            return;
-        else if (this.action.expiryMin > 0 && this.lastClosedPositionTime.getTime() + this.action.expiryMin*utils.constants.MINUTE_IN_SECONDS*1000 < now) {
-            this.log(utils.sprintf("Scheduled action to re-open position has expired after %s min", this.action.expiryMin));
-            this.lastClosedPositionTime = null; // delete the scheduled action to re-open
-            return;
-        }
+        // check other conditions to re-open
         else if (this.action.reOpenAmountPerc <= 0.0) {
             this.log("Skipped re-opening position because 'reOpenAmountPerc' config value is not positive.");
             this.lastClosedPositionTime = null;
@@ -168,7 +171,7 @@ export default class PositionReopener extends TechnicalStrategy {
         else if (this.lastPositionDirection === "short") {
             const openTargetRate = this.lastCloseRate * this.action.reOpenRateFactorShort;
             if (this.avgMarketPrice < openTargetRate) {
-                this.emitBuy(this.defaultWeight, utils.sprintf("Re-opening %s %s SHORT position closed at rate %s after %s", this.lastPositionAmount.toFixed(8), Currency.getCurrencyLabel(this.action.pair.to),
+                this.emitSell(this.defaultWeight, utils.sprintf("Re-opening %s %s SHORT position closed at rate %s after %s", this.lastPositionAmount.toFixed(8), Currency.getCurrencyLabel(this.action.pair.to),
                     this.lastCloseRate.toFixed(8), utils.test.getPassedTime(this.lastClosedPositionTime.getTime(), now)));
                 this.lastClosedPositionTime = null; // to ensure we don't re-open multiple times
             }
