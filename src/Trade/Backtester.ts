@@ -803,7 +803,7 @@ export default class Backtester extends PortfolioTrader {
             orderID = orderID.toString();
         if (amountBtc < 0)
             amountBtc *= -1; // only store positive values to make refunds easier
-        this.pendingOrders.set(orderID, amountBtc); // we currently don't delete entries here, but order numbers are unique
+        this.pendingOrders.set(orderID, amountBtc); // amountBtc is base currency balance (USD possibly). we currently don't delete entries here, but order numbers are unique
     }
 
     protected refundOrder(submittedOrder: Order.Order, exchange: AbstractExchange) {
@@ -872,29 +872,31 @@ export default class Backtester extends PortfolioTrader {
     }
 
     protected refundPortfolioAmount(submittedOrder: Order.Order, exchange: AbstractExchange) {
-        let refundBalanceBtc = this.pendingOrders.get(submittedOrder.orderID);
-        if (refundBalanceBtc <= 0.0)
+        let refundBalanceBase = this.pendingOrders.get(submittedOrder.orderID);
+        if (refundBalanceBase <= 0.0)
             return; // shouldn't happen here
         //PortfolioTrader.baseCurrencyBalance += refundBalanceBtc; // only updated after order is executed
         //PortfolioTrader.coinCurrencyBalance -= refundBalanceBtc / order.rate;
         if (this.config.marginTrading === true) { // refund amount depends on what got deducted based on: 1. margin trading 2. buy/sell
             switch (submittedOrder.type) {
                 case Trade.TradeType.BUY:
-                    PortfolioTrader.baseCurrencyBalance += refundBalanceBtc * submittedOrder.rate; // USD etc...
+                    //PortfolioTrader.baseCurrencyBalance += refundBalanceBase * submittedOrder.rate; // USD etc...
+                    PortfolioTrader.baseCurrencyBalance += refundBalanceBase;
                     break; // nothing
                 case Trade.TradeType.SELL:
-                    PortfolioTrader.baseCurrencyBalance -= refundBalanceBtc * submittedOrder.rate;
+                    PortfolioTrader.baseCurrencyBalance -= refundBalanceBase;
                     break;
             }
         }
         else {
             switch (submittedOrder.type) {
                 case Trade.TradeType.BUY:
-                    PortfolioTrader.coinCurrencyBalance -= refundBalanceBtc;
+                    //PortfolioTrader.coinCurrencyBalance -= refundBalanceBtc;
+                    PortfolioTrader.coinCurrencyBalance -= refundBalanceBase * submittedOrder.rate;
                     break; // nothing
                 case Trade.TradeType.SELL:
-                    PortfolioTrader.baseCurrencyBalance -= refundBalanceBtc;
-                    PortfolioTrader.coinCurrencyBalance += refundBalanceBtc;
+                    PortfolioTrader.baseCurrencyBalance -= refundBalanceBase * submittedOrder.rate;
+                    PortfolioTrader.coinCurrencyBalance += refundBalanceBase * submittedOrder.rate;
                     break;
             }
         }
