@@ -8,6 +8,7 @@ import {Currency, Trade, Candle, Order} from "@ekliptor/bit-models";
 import * as _ from "lodash";
 import {TradeInfo} from "../Trade/AbstractTrader";
 import {MarginPosition} from "../structs/MarginPosition";
+import * as helper from "../utils/helper";
 
 interface PositionReopenerAction extends TechnicalStrategyAction {
     reOpenRateFactorLong: number; // optional, default 1.0 - The rate that must be reached (higher than previous closing rate) to re-open a previously closed long position. The current market rate will be multiplied by this. Values above 1.0 mean a higher rate, below 1.0 mean a lower rate.
@@ -15,6 +16,7 @@ interface PositionReopenerAction extends TechnicalStrategyAction {
     reOpenAmountPerc: number; // optional, default 100%. The amount in percentage of the previously closed position that shall be re-opened. You may use values above 100% to increase your position site.
     expiryMin: number; // optional, default 360 min - How many minutes a previously closed position shall be queued for re-opening. Use 0 to never let scheduled orders expire.
     waitOpenMin: number; // optional, default 0 = immediately - How many minutes to wait at least before re-opening a position.
+    expirationPercent: number; // optional default 1.0% - Only re-open a previous position if price has changed less than this amount in percent since the position was closed.
 
     makerMode: boolean; // optional, default false. Whether to adjust all order rates below/above bid ask rates to ensure we only pay the lower (maker) fee.
 }
@@ -46,6 +48,8 @@ export default class PositionReopener extends TechnicalStrategy {
             this.action.expiryMin = 360;
         if (typeof this.action.waitOpenMin !== "number")
             this.action.waitOpenMin = 0;
+        if (!this.action.expirationPercent)
+            this.action.expirationPercent = 1.0;
         if (typeof this.action.makerMode !== "boolean")
             this.action.makerMode = false;
 
@@ -158,6 +162,11 @@ export default class PositionReopener extends TechnicalStrategy {
             this.lastClosedPositionTime = null;
             return;
         }
+        else if (this.isWithinRange(this.avgMarketPrice, this.lastCloseRate) === false) {
+            this.log(utils.sprintf("Skipped re-opening position because rate %s is over %s%% away from previous close rate.", this.avgMarketPrice.toFixed(8), this.action.expirationPercent));
+            this.lastClosedPositionTime = null;
+            return;
+        }
 
         // re-open the position
         if (this.lastPositionDirection === "long") {
@@ -195,5 +204,12 @@ export default class PositionReopener extends TechnicalStrategy {
         // if position is closed we might have to fall back to the last stop. stop strategies return different values depending on position state
         // TODO ideally every stop strategy would have a method getStopPriceForState(this.lastPositionDirection)
         return this.lastNearestStop;
+    }
+
+    protected isWithinRange(currentRate: number, orderRate: number) {
+        let percentDiff = Math.abs(helper.getDiffPercent(currentRate, orderRate));
+        if (percentDiff <= this.action.expirationPercent)
+            return true;
+        return false;
     }
 }
