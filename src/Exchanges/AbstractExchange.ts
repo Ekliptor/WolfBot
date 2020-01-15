@@ -970,6 +970,7 @@ import "./HistoryDataExchange";
 import "./HitBTC";
 import "./Huobi";
 import "./Kraken";
+import "./KrakenFutures";
 import "./KuCoin";
 import "./Liquid";
 import "./Nova";

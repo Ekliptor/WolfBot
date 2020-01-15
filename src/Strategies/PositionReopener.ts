@@ -146,7 +146,7 @@ export default class PositionReopener extends TechnicalStrategy {
         }
 
         // check other conditions to re-open
-        else if (this.action.reOpenAmountPerc <= 0.0) {
+        if (this.action.reOpenAmountPerc <= 0.0) {
             this.log("Skipped re-opening position because 'reOpenAmountPerc' config value is not positive.");
             this.lastClosedPositionTime = null;
             return;
