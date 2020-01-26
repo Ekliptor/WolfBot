@@ -47,6 +47,10 @@ export class CcxtExchangeCurrencies implements Currency.ExchangeCurrencies/*, Cu
         this.switchCurrencyPair = pairSwitch;
     }
 
+    public isSwitchedCurrencyPair(): boolean {
+        return this.switchCurrencyPair;
+    }
+
     public getExchangeName(localCurrencyName: string): string {
         //if (localCurrencyName === "BCH")
             //return "BCC";
@@ -288,9 +292,11 @@ export abstract class CcxtExchange extends AbstractExchange {
     }
 
     public async buy(currencyPair: Currency.CurrencyPair, rate: number, amount: number, params: OrderParameters = {}): Promise<OrderResult> {
+        if (this.currencies.isSwitchedCurrencyPair() === true)
+            amount *= rate;
         let outParams = await this.verifyTradeRequest(currencyPair, rate, amount, params)
         try {
-            let result = await this.apiClient.createOrder(outParams.pairStr as string, outParams.orderType as any, "buy", Math.abs(amount), outParams.rate as number);
+            let result = await this.apiClient.createOrder(outParams.pairStr as string, outParams.orderType as any, "buy", amount, outParams.rate as number);
             this.verifyTradeResponse(result, null, "buy");
             return OrderResult.fromJson(result, currencyPair, this)
         }
@@ -300,9 +306,11 @@ export abstract class CcxtExchange extends AbstractExchange {
     }
 
     public async sell(currencyPair: Currency.CurrencyPair, rate: number, amount: number, params: OrderParameters = {}): Promise<OrderResult> {
+        if (this.currencies.isSwitchedCurrencyPair() === true)
+            amount /= rate;
         let outParams = await this.verifyTradeRequest(currencyPair, rate, amount, params)
         try {
-            let result = await this.apiClient.createOrder(outParams.pairStr as string, outParams.orderType as any, "sell", Math.abs(amount), outParams.rate as number);
+            let result = await this.apiClient.createOrder(outParams.pairStr as string, outParams.orderType as any, "sell", amount, outParams.rate as number);
             this.verifyTradeResponse(result, null, "sell");
             return OrderResult.fromJson(result, currencyPair, this)
         }

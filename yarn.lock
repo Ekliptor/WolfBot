@@ -1280,10 +1280,10 @@ catharsis@~0.8.8:
     bignumber.js "^9.0.0"
     nofilter "^1.0.3"
 
-ccxt@^1.20.77:
-  version "1.20.77"
-  resolved "https://registry.yarnpkg.com/ccxt/-/ccxt-1.20.77.tgz#351ab3b619fec919e07111e8179838be49d063c3"
-  integrity sha512-+Cjd2Baq5Ah+2GYKG9P1rz/o8vxLJxPhb530SWsVgYzhIhfG6mEWc0YK/exo/B75XvCaCxkvbgZvfI7yvZyulQ==
+ccxt@^1.21.85:
+  version "1.21.85"
+  resolved "https://registry.yarnpkg.com/ccxt/-/ccxt-1.21.85.tgz#3d17a4f50bc29aac239820e025bc45747bd23f8d"
+  integrity sha512-u8QT0fjQvbpAGz1GM4K0EoD8ku4T09cS5ZSfdZqE55Nz0I88HxQyBHg4kp/niB2ay98PdxlIBv6+ZSgvjMqvsQ==
 
 center-align@^0.1.1:
   version "0.1.3"

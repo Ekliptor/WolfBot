@@ -378,8 +378,12 @@ export default class Binance extends AbstractExchange implements ExternalTickerE
             return successResult;
         }
         catch (err) {
-            if (err && err.toString().indexOf("UNKNOWN_ORDER") !== -1)
+            if (err) {
+                const errStr = err.toString();
+                // https://github.com/binance-exchange/binance-official-api-docs/blob/master/errors.md#messages-for--1010-error_msg_received--2010-new_order_rejected-and--2011-cancel_rejected
+                if (errStr.indexOf("UNKNOWN_ORDER") !== -1 || errStr.indexOf("-2011") !== -1)
                 return successResult; // already cancelled or filled
+            }
             throw this.formatInvalidExchangeApiResponse(err);
         }
     }

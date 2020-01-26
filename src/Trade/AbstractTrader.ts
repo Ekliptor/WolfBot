@@ -301,7 +301,7 @@ export abstract class AbstractTrader extends AbstractGenericTrader {
             }
         }
         if (/*action === "close" && */this.config.tradeTotalBtc == 0.0) {
-            logger.warn("Skipping %s trade because %s trading is disabled", action.toUpperCase(), pairStr);
+            logger.warn("Skipping %s trade because %s trading is disabled (0 tradeTotalBtc in config)", action.toUpperCase(), pairStr);
             return true;
         }
         return false;
