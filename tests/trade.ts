@@ -270,7 +270,7 @@ let testBinance = () => {
     let pair = new Currency.CurrencyPair(Currency.Currency.USDT, Currency.Currency.BTC)
     binance.subscribeToMarkets([pair])
 
-    binance.buy(pair, 8000.0, 5.0).then((balances) => {
+    binance.buy(pair, 8000.0, 0.1).then((balances) => {
     //binance.marginBuy(pair, 0.0091495725, 1.0929472387917578, {}).then((balances) => {
     //binance.getOpenOrders(pair).then((balances) => {
     //binance.importHistory(pair, new Date(Date.now()-2*utils.constants.HOUR_IN_SECONDS*1000), new Date()).then((balances) => {
@@ -431,7 +431,7 @@ Controller.loadServerConfig(() => {
         //testBitmexLiquidations();
         //testDeribit();
         //testBx();
-        testCcxt();
+        //testCcxt();
         //testPaetio();
         //updateHistory();
     })

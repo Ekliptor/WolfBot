@@ -26,6 +26,7 @@ import {MarketOrder, Ticker, Trade, TradeHistory, Currency} from "@ekliptor/bit-
 import {default as BinanceAPI} from 'binance-api-node';
 import {ExternalTickerExchange} from "./ExternalTickerExchange";
 import BinanceCcxt from "./BinanceCcxt";
+import {CcxtOrderParameters} from "./CcxtExchange";
 
 const logger = utils.logger
     , nconf = utils.nconf;
@@ -342,7 +343,8 @@ export default class Binance extends AbstractExchange implements ExternalTickerE
             throw this.formatInvalidExchangeApiResponse(err);
         }
          */
-        return this.binanceCCxt.buy(currencyPair, rate, amount, params);
+        let binanceParams = this.addBinanceBrokerId(params);
+        return this.binanceCCxt.buy(currencyPair, rate, amount, binanceParams);
     }
 
     public async sell(currencyPair: Currency.CurrencyPair, rate: number, amount: number, params: OrderParameters = {}): Promise<OrderResult> {
@@ -363,7 +365,8 @@ export default class Binance extends AbstractExchange implements ExternalTickerE
             throw this.formatInvalidExchangeApiResponse(err);
         }
          */
-        return this.binanceCCxt.sell(currencyPair, rate, amount, params);
+        let binanceParams = this.addBinanceBrokerId(params);
+        return this.binanceCCxt.sell(currencyPair, rate, amount, binanceParams);
     }
 
     public async cancelOrder(currencyPair: Currency.CurrencyPair, orderNumber: number | string): Promise<CancelOrderResult> {
@@ -465,25 +468,33 @@ export default class Binance extends AbstractExchange implements ExternalTickerE
         })*/
         //return this.binanceCCxt.sell(currencyPair, rate, amount, params);
         //return this.binanceCCxt.getApiClient.(currencyPair, rate, amount, params);
-        let outParams = await this.verifyTradeRequest(currencyPair, rate, amount, params)
+        if (this.binanceCCxt.getCurrencies().isSwitchedCurrencyPair() === true)
+            amount *= rate;
+        let binanceParams = this.addBinanceBrokerId(params);
+        let outParams = await this.verifyTradeRequest(currencyPair, rate, amount, binanceParams)
         //return this.binanceCCxt.getApiClient().sapiPostMarginOrder(outParams.pairStr as string, outParams.orderType as any, "buy", Math.abs(amount), outParams.rate as number);
         return this.binanceCCxt.getApiClient().sapiPostMarginOrder({
             symbol: outParams.pairStr as string,
             type: outParams.orderType as any,
             side: "BUY",
             quantity: Math.abs(amount),
-            price: outParams.rate as number
+            price: outParams.rate as number,
+            newClientOrderId: binanceParams.newClientOrderId
         });
     }
 
     public async marginSell(currencyPair: Currency.CurrencyPair, rate: number, amount: number, params: MarginOrderParameters): Promise<OrderResult> {
-        let outParams = await this.verifyTradeRequest(currencyPair, rate, amount, params)
+        if (this.binanceCCxt.getCurrencies().isSwitchedCurrencyPair() === true)
+            amount /= rate;
+        let binanceParams = this.addBinanceBrokerId(params);
+        let outParams = await this.verifyTradeRequest(currencyPair, rate, amount, binanceParams)
         return this.binanceCCxt.getApiClient().sapiPostMarginOrder({
             symbol: outParams.pairStr as string,
             type: outParams.orderType as any,
             side: "SELL",
             quantity: Math.abs(amount),
-            price: outParams.rate as number
+            price: outParams.rate as number,
+            newClientOrderId: binanceParams.newClientOrderId
         });
     }
 
@@ -720,5 +731,12 @@ export default class Binance extends AbstractExchange implements ExternalTickerE
             };
         }
         return {err: "unknown error"};
+    }
+
+    protected addBinanceBrokerId(params: CcxtOrderParameters): CcxtOrderParameters {
+        if (!params)
+            params = {}
+        params.newClientOrderId = utils.sprintf("x-%s%s", nconf.get("serverConfig:binanceBrokerID"), utils.getRandomString(20));
+        return params;
     }
 }

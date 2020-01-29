@@ -24,13 +24,18 @@ import * as request from "request";
 import * as db from "../database";
 import * as helper from "../utils/helper";
 import {MarketOrder, Ticker, Trade, TradeHistory, Currency} from "@ekliptor/bit-models";
-import {default as BinanceAPI} from 'binance-api-node';
 import * as ccxt from "ccxt";
 
 const logger = utils.logger
     , nconf = utils.nconf;
 
 
+export interface CcxtOrderParameters extends OrderParameters {
+    newClientOrderId?: string;
+}
+export interface CcxtMarginOrderParameters extends MarginOrderParameters {
+    newClientOrderId?: string;
+}
 export interface CcxtBookPollCallback {
     (currencyPair: Currency.CurrencyPair, actions: /*MarketAction[]*/any[], seqNr: number): void;
 }
@@ -159,6 +164,10 @@ export abstract class CcxtExchange extends AbstractExchange {
         // use this to use CCXT exchange to fetch the orderbook
         // can be passed on directly to MarketStream (same params)
         this.pollCallbackFn = callback;
+    }
+
+    public getCurrencies() {
+        return this.currencies;
     }
 
     public async getTicker(): Promise<Ticker.TickerMap> {
@@ -291,12 +300,12 @@ export abstract class CcxtExchange extends AbstractExchange {
         })
     }
 
-    public async buy(currencyPair: Currency.CurrencyPair, rate: number, amount: number, params: OrderParameters = {}): Promise<OrderResult> {
+    public async buy(currencyPair: Currency.CurrencyPair, rate: number, amount: number, params: CcxtOrderParameters = {}): Promise<OrderResult> {
         if (this.currencies.isSwitchedCurrencyPair() === true)
             amount *= rate;
         let outParams = await this.verifyTradeRequest(currencyPair, rate, amount, params)
         try {
-            let result = await this.apiClient.createOrder(outParams.pairStr as string, outParams.orderType as any, "buy", amount, outParams.rate as number);
+            let result = await this.apiClient.createOrder(outParams.pairStr as string, outParams.orderType as any, "buy", amount, outParams.rate as number, params as any);
             this.verifyTradeResponse(result, null, "buy");
             return OrderResult.fromJson(result, currencyPair, this)
         }
@@ -305,12 +314,12 @@ export abstract class CcxtExchange extends AbstractExchange {
         }
     }
 
-    public async sell(currencyPair: Currency.CurrencyPair, rate: number, amount: number, params: OrderParameters = {}): Promise<OrderResult> {
+    public async sell(currencyPair: Currency.CurrencyPair, rate: number, amount: number, params: CcxtOrderParameters = {}): Promise<OrderResult> {
         if (this.currencies.isSwitchedCurrencyPair() === true)
             amount /= rate;
         let outParams = await this.verifyTradeRequest(currencyPair, rate, amount, params)
         try {
-            let result = await this.apiClient.createOrder(outParams.pairStr as string, outParams.orderType as any, "sell", amount, outParams.rate as number);
+            let result = await this.apiClient.createOrder(outParams.pairStr as string, outParams.orderType as any, "sell", amount, outParams.rate as number, params as any);
             this.verifyTradeResponse(result, null, "sell");
             return OrderResult.fromJson(result, currencyPair, this)
         }
@@ -380,7 +389,7 @@ export abstract class CcxtExchange extends AbstractExchange {
         }
     }
 
-    public async moveOrder(currencyPair: Currency.CurrencyPair, orderNumber: number | string, rate: number, amount: number, params: OrderParameters): Promise<OrderResult> {
+    public async moveOrder(currencyPair: Currency.CurrencyPair, orderNumber: number | string, rate: number, amount: number, params: CcxtOrderParameters): Promise<OrderResult> {
         // no API call for it. cancel the order and place it again
         let outParams = await this.verifyTradeRequest(currencyPair, rate, amount, params);
         try {
@@ -407,13 +416,13 @@ export abstract class CcxtExchange extends AbstractExchange {
         }
     }
 
-    public marginBuy(currencyPair: Currency.CurrencyPair, rate: number, amount: number, params: MarginOrderParameters) {
+    public marginBuy(currencyPair: Currency.CurrencyPair, rate: number, amount: number, params: CcxtMarginOrderParameters) {
         return new Promise<OrderResult>((resolve, reject) => {
             reject({txt: "Margin trading is not supported/implemented.", exchange: this.className})
         })
     }
 
-    public marginSell(currencyPair: Currency.CurrencyPair, rate: number, amount: number, params: MarginOrderParameters) {
+    public marginSell(currencyPair: Currency.CurrencyPair, rate: number, amount: number, params: CcxtMarginOrderParameters) {
         return new Promise<OrderResult>((resolve, reject) => {
             reject({txt: "Margin trading is not supported/implemented.", exchange: this.className})
         })
@@ -425,7 +434,7 @@ export abstract class CcxtExchange extends AbstractExchange {
         })
     }
 
-    public moveMarginOrder(currencyPair: Currency.CurrencyPair, orderNumber: number | string, rate: number, amount: number, params: MarginOrderParameters) {
+    public moveMarginOrder(currencyPair: Currency.CurrencyPair, orderNumber: number | string, rate: number, amount: number, params: CcxtMarginOrderParameters) {
         return new Promise<OrderResult>((resolve, reject) => {
             reject({txt: "Margin trading is not supported/implemented.", exchange: this.className})
         })
@@ -546,7 +555,7 @@ export abstract class CcxtExchange extends AbstractExchange {
         return tradeObj;
     }
 
-    protected verifyTradeRequest(currencyPair: Currency.CurrencyPair, rate: number, amount: number, params: OrderParameters = {}) {
+    protected verifyTradeRequest(currencyPair: Currency.CurrencyPair, rate: number, amount: number, params: CcxtOrderParameters = {}) {
         return new Promise<ExRequestParams>((resolve, reject) => {
             // TODO move more checks to parent class?
             if (currencyPair) {
