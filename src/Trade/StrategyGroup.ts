@@ -96,20 +96,21 @@ export class StrategyGroup {
         return this.strategies.filter(s => filterFn(s))
     }
 
-    public getNearestStop(): number {
-        const position = this.getStrategyGroupPosition();
-        let stopPrice = position === "long" ? 0.0 : Number.MAX_VALUE;
+    public getNearestStop(forPosition: StrategyPosition = null): number {
+        if (forPosition === null)
+            forPosition = this.getStrategyGroupPosition();
+        let stopPrice = forPosition !== "short" ? 0.0 : Number.MAX_VALUE;
         const stopStrategies = this.getStopStrategies();
         for (let i = 0; i < stopStrategies.length; i++)
         {
-            const curStop = stopStrategies[i].getPositionStopPrice();
+            const curStop = stopStrategies[i].getPositionStopPrice(forPosition);
             if (curStop <= 0.0 || curStop === Number.MAX_VALUE)
                 continue;
-            if (position === "long") {
+            if (forPosition === "long") {
                 if (curStop > stopPrice)
                     stopPrice = curStop;
             }
-            else if (position === "short") {
+            else if (forPosition === "short") {
                 if (curStop < stopPrice)
                     stopPrice = curStop;
             }
@@ -117,20 +118,21 @@ export class StrategyGroup {
         return stopPrice;
     }
 
-    public getNearestTakeProfit(): number {
-        const position = this.getStrategyGroupPosition();
-        let takeProfitPrice = position === "long" ? Number.MAX_VALUE : 0.0;
+    public getNearestTakeProfit(forPosition: StrategyPosition = null): number {
+        if (forPosition === null)
+            forPosition = this.getStrategyGroupPosition();
+        let takeProfitPrice = forPosition === "long" ? Number.MAX_VALUE : 0.0;
         const takeProfitStrategies = this.getTakeProfitStrategies();
         for (let i = 0; i < takeProfitStrategies.length; i++)
         {
             const curProfit = takeProfitStrategies[i].getTakeProfitPrice();
             if (curProfit <= 0.0 || curProfit === Number.MAX_VALUE)
                 continue;
-            if (position === "long") {
+            if (forPosition === "long") {
                 if (curProfit > takeProfitPrice) // same as for stops as we are interested in the nearest price
                     takeProfitPrice = curProfit;
             }
-            else if (position === "short") {
+            else if (forPosition === "short") {
                 if (curProfit < takeProfitPrice)
                     takeProfitPrice = curProfit;
             }

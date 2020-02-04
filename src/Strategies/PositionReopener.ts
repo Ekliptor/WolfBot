@@ -69,6 +69,9 @@ export default class PositionReopener extends TechnicalStrategy {
             }, 9000);
         }, 5000);
          */
+        setTimeout(() => {
+            this.getNearestStop()
+        }, 5000)
     }
 
     public onTrade(action: TradeAction, order: Order.Order, trades: Trade.Trade[], info: TradeInfo) {
@@ -198,7 +201,7 @@ export default class PositionReopener extends TechnicalStrategy {
     }
 
     protected getNearestStop() {
-        let stop = this.strategyGroup.getNearestStop();
+        let stop = this.strategyGroup.getNearestStop(this.lastPositionDirection); // TODO this should have a parameter forPosition = long|short
         if (stop > 0.0 && stop !== Number.MAX_VALUE)
             return stop;
         // if position is closed we might have to fall back to the last stop. stop strategies return different values depending on position state

@@ -1589,5 +1589,6 @@
   "thisArticle": "This article",
   "recentBacktests": "Recent backtests",
   "noRecentBacktests": "There are no recent backtets available. Use the controls above to start your first backtest.",
-  "demoVersion": "Demo Version"
+  "demoVersion": "Demo Version",
+  "affiliate": "Affiliate"
 }

@@ -1,7 +1,14 @@
 import * as utils from "@ekliptor/apputils";
 const logger = utils.logger
     , nconf = utils.nconf;
-import {AbstractStrategy, StrategyAction, TradeAction, StrategyOrder, StrategyEmitOrder} from "./AbstractStrategy";
+import {
+    AbstractStrategy,
+    StrategyAction,
+    TradeAction,
+    StrategyOrder,
+    StrategyEmitOrder,
+    StrategyPosition
+} from "./AbstractStrategy";
 import {TechnicalStrategy, TechnicalStrategyAction} from "./TechnicalStrategy";
 import {Currency, Trade, Candle, Order} from "@ekliptor/bit-models";
 import {MarginPosition} from "../structs/MarginPosition";
@@ -161,14 +168,21 @@ export abstract class AbstractStopStrategy extends /*AbstractStrategy*/Technical
         this.closedPositions = false;
     }
 
-    public getPositionStopPrice(): number {
-        const stopPrice = this.getStopPrice(); // own child implementation
-        if (stopPrice > 0.0)
+    public getPositionStopPrice(forPosition: StrategyPosition = null): number {
+        //const stopPrice = this.getStopPrice(); // own child implementation, decides forPosition independently
+        let stopPrice = 0.0;
+        const subClass: any = this;
+        if (forPosition === "long" && typeof subClass.getStopSell === "function")
+            stopPrice = subClass.getStopSell();
+        else if (forPosition === "short" && typeof subClass.getStopBuy === "function")
+            stopPrice = subClass.getStopBuy();
+        if (stopPrice > 0.0 && stopPrice !== Number.MAX_VALUE)
             return stopPrice;
 
         // try various fallbacks
-        const subClass: any = this;
-        if (this.strategyPosition === "long") {
+        if (forPosition === null)
+            forPosition = this.strategyPosition;
+        if (forPosition === "long") {
             if (typeof subClass.getStopSell === "function")
                 return subClass.getStopSell();
             else if (typeof subClass.action.stopLong === "number" && subClass.action.stopLong > 0.0)
@@ -176,10 +190,16 @@ export abstract class AbstractStopStrategy extends /*AbstractStrategy*/Technical
             else if (typeof subClass.action.stop === "number" && subClass.action.stop > 0.0) // stop can be used for long + short positions
                 return subClass.action.stop;
         }
-        else if (this.strategyPosition === "short") {
+        else if (forPosition === "short") {
             if (typeof subClass.getStopBuy === "function")
                 return subClass.getStopBuy();
             else if (typeof subClass.action.stop === "number" && subClass.action.stop > 0.0) // stop can be used for long + short positions
+                return subClass.action.stop;
+        }
+        else { // no position
+            if (typeof subClass.action.stopLong === "number" && subClass.action.stopLong > 0.0) // try long-stop first
+                return subClass.action.stopLong;
+            else if (typeof subClass.action.stop === "number" && subClass.action.stop > 0.0)
                 return subClass.action.stop;
         }
         return -1.0;
