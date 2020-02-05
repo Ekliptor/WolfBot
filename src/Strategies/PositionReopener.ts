@@ -5,7 +5,6 @@ import {AbstractStrategy, StrategyAction, StrategyPosition, TradeAction} from ".
 import {TechnicalStrategy, TechnicalStrategyAction} from "./TechnicalStrategy";
 import {AbstractIndicator} from "../Indicators/AbstractIndicator";
 import {Currency, Trade, Candle, Order} from "@ekliptor/bit-models";
-import * as _ from "lodash";
 import {TradeInfo} from "../Trade/AbstractTrader";
 import {MarginPosition} from "../structs/MarginPosition";
 import * as helper from "../utils/helper";
@@ -166,8 +165,8 @@ export default class PositionReopener extends TechnicalStrategy {
             return;
         }
         else if (this.isWithinRange(this.avgMarketPrice, this.lastCloseRate) === false) {
-            this.log(utils.sprintf("Skipped re-opening position because rate %s is over %s%% away from previous close rate.", this.avgMarketPrice.toFixed(8), this.action.expirationPercent));
-            this.lastClosedPositionTime = null;
+            this.logOnce(utils.sprintf("Skipped re-opening position because rate %s is over %s%% away from previous close rate.", this.avgMarketPrice.toFixed(8), this.action.expirationPercent));
+            //this.lastClosedPositionTime = null; // let it open later
             return;
         }
 
