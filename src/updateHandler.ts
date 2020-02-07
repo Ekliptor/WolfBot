@@ -95,7 +95,8 @@ export function runUpdater(callback) {
 async function prepareConfigBackup() {
     if (nconf.get("serverConfig:premium") !== true)
         return; // always overwrite configs in developer instances
-    await AbstractAdvisor.backupOriginalConfig(); // TODO add force overwrite parameter to create backups if the user modified original sample configs (which maybe he shouldn't?)
+    // the parameter is to create backups of user configs. // TODO what if the user modified original sample configs (which maybe he shouldn't?)
+    await AbstractAdvisor.backupOriginalConfig(nconf.get("serverConfig:userConfigs"));
     nconf.set("serverConfig:user:restoreCfg", true);
     await serverConfig.saveConfigLocal();
 }

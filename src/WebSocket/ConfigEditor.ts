@@ -1244,7 +1244,11 @@ export class ConfigEditor extends AppPublisher {
             return;
         setTimeout(() => {
             this.saveState().then(() => {
-                return AbstractAdvisor.backupOriginalConfig(nconf.get("serverConfig:userConfigs"));
+                let existingConfigs = nconf.get("serverConfig:userConfigs") || [];
+                const currentConfig = ConfigEditor.activeConfig + ".json"; // Foo.json (without / or path)
+                if (existingConfigs.indexOf(currentConfig) === -1)
+                    logger.warn("Bot default config %s may be overwritten on restart. You should copy it to your own own config under a different name.", ConfigEditor.activeConfig);
+                return AbstractAdvisor.backupOriginalConfig(existingConfigs);
             }).then(() => {
                 this.scheduleSaveState();
             }).catch((err) => {

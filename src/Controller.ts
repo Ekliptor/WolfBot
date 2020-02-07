@@ -488,7 +488,14 @@ export class Controller extends AbstractController { // TODO implement graceful 
         let output = {added: false}
         if (postReq.params && postReq.params.signal) {
             // TradingView has the message in the raw body
-            const signal = decodeURIComponent(postReq.params.signal).replace(/\+/, " "); // decodeURIComponent() is safe to be called multiple times
+            let signal = "";
+            try {
+                signal = decodeURIComponent(postReq.params.signal).replace(/\+/, " "); // decodeURIComponent() is safe to be called multiple times
+            }
+            catch (err) {
+                logger.verbose("Unable to decode URL encoded signal (retrying fallback): %s", postReq.params.signal, err);
+                signal = postReq.params.signal.replace(/%20/g, " ").replace(/\+/, " ");
+            }
             logger.info("Received Webhook API signal: %s", signal);
             Controller.GLOBAL_SIGNALS.addSignal(signal);
             output.added = true;

@@ -1073,8 +1073,10 @@ export default class TradeAdvisor extends AbstractAdvisor {
                 batchers.push(exchangeName + " " + bat[1].getCurrencyPair().toString() + ": " + bat[1].getInterval() + " min")
             }
         }
-        if (this.candleCurrencies.length !== 0)
+        if (this.candleCurrencies.length !== 0) {
             logger.info("Active candle makers:", this.candleCurrencies);
+            this.sendNotification("Bot started", utils.sprintf("Config: %s\r\nActive markets: %s", this.getConfigName(), this.candleCurrencies));
+        }
         if (batchers.length !== 0)
             logger.info("Active candle batchers:", batchers);
     }

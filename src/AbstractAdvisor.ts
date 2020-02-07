@@ -21,6 +21,8 @@ import {TradeBook} from "./Trade/TradeBook";
 import ExchangeController from "./ExchangeController";
 import {AbstractGenericStrategy} from "./Strategies/AbstractGenericStrategy";
 import * as childProcess from "child_process";
+import Notification from "./Notifications/Notification";
+import {AbstractNotification} from "./Notifications/AbstractNotification";
 const fork = childProcess.fork;
 
 const processFiles = [path.join(utils.appDir, 'app.js'),
@@ -87,11 +89,13 @@ export abstract class AbstractAdvisor extends AbstractSubController {
     protected pendingBacktests: PendingBacktest[] = [];
     protected backtestRunning = false;
     protected backtestWarmupState: BacktestWarmupState = BacktestWarmupState.IDLE;
+    protected notifier: AbstractNotification;
 
     protected errorState = false;
 
     constructor() {
         super()
+        this.notifier = AbstractNotification.getInstance();
     }
 
     public getStarted() {
@@ -676,5 +680,16 @@ export abstract class AbstractAdvisor extends AbstractSubController {
                     logger.error("Unable to find default fallback config file %s", fallbackConfigFile)
             }
         })
+    }
+
+    protected sendNotification(headline: string, text: string = "-", requireConfirmation = false) {
+        if (nconf.get("trader") === "Backtester" || nconf.get("serverConfig:premium") !== true)
+            return;
+        let notification = new Notification(headline, text, requireConfirmation);
+        this.notifier.send(notification).then(() => {
+        }).catch((err) => {
+            logger.error("Error sending %s notification", this.className, err)
+        });
+        //this.lastNotification = new Date();
     }
 }
