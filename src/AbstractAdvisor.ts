@@ -682,6 +682,12 @@ export abstract class AbstractAdvisor extends AbstractSubController {
         })
     }
 
+    protected onCandleSubscriptionsStart() {
+        this.sendNotification("Bot started", utils.sprintf("Config: %s\r\nActive markets: %s", this.getConfigName(), this.candleCurrencies));
+        const userConfigs = nconf.get("serverConfig:userConfigs") || [];
+        logger.info("User specific configurations: %s", (userConfigs.length !== 0 ? userConfigs.join(", ") : "none"));
+    }
+
     protected sendNotification(headline: string, text: string = "-", requireConfirmation = false) {
         if (nconf.get("trader") === "Backtester" || nconf.get("serverConfig:premium") !== true)
             return;

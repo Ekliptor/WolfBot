@@ -1075,7 +1075,7 @@ export default class TradeAdvisor extends AbstractAdvisor {
         }
         if (this.candleCurrencies.length !== 0) {
             logger.info("Active candle makers:", this.candleCurrencies);
-            this.sendNotification("Bot started", utils.sprintf("Config: %s\r\nActive markets: %s", this.getConfigName(), this.candleCurrencies));
+            this.onCandleSubscriptionsStart();
         }
         if (batchers.length !== 0)
             logger.info("Active candle batchers:", batchers);

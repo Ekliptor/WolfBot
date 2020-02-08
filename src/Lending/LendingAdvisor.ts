@@ -682,8 +682,10 @@ export class LendingAdvisor extends AbstractAdvisor {
                 batchers.push(bat[1].getCurrencyPair().toString() + ": " + bat[1].getInterval() + " min")
             }
         }
-        if (this.candleCurrencies.length !== 0)
+        if (this.candleCurrencies.length !== 0) {
             logger.info("Active lending candle makers:", this.candleCurrencies);
+            this.onCandleSubscriptionsStart();
+        }
         if (batchers.length !== 0)
             logger.info("Active lending candle batchers:", batchers);
     }
