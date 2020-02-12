@@ -165,7 +165,9 @@ export default class PositionReopener extends TechnicalStrategy {
             return;
         }
         else if (this.isWithinRange(this.avgMarketPrice, this.lastCloseRate) === false) {
-            this.logOnce(utils.sprintf("Skipped re-opening position because rate %s is over %s%% away from previous close rate.", this.avgMarketPrice.toFixed(8), this.action.expirationPercent));
+            const percentDif = helper.getDiffPercent(this.avgMarketPrice, this.lastCloseRate)
+            this.logOnce(utils.sprintf("Skipped re-opening position because rate %s is over %s%% away from previous close rate. Away %s%%", this.avgMarketPrice.toFixed(8),
+                this.action.expirationPercent, percentDif.toFixed(2)));
             //this.lastClosedPositionTime = null; // let it open later
             return;
         }

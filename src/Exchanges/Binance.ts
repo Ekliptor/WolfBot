@@ -736,7 +736,9 @@ export default class Binance extends AbstractExchange implements ExternalTickerE
     protected addBinanceBrokerId(params: CcxtOrderParameters): CcxtOrderParameters {
         if (!params)
             params = {}
-        params.newClientOrderId = utils.sprintf("x-%s%s", nconf.get("serverConfig:binanceBrokerID"), utils.getRandomString(20));
+        //const brokerID = nconf.get("serverConfig:binanceBrokerIDSpot"); // futures
+        const brokerID = nconf.get("serverConfig:binanceBrokerIDSpot"); // spot + margin
+        params.newClientOrderId = utils.sprintf("x-%s%s", brokerID, utils.getRandomString(20));
         return params;
     }
 }
