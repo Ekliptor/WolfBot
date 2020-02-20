@@ -204,7 +204,9 @@ class ServerConfig {
         startBalance: 1.0, // for every coin (leveraged *2.5 when margin trading)
         slippage: 0.0, // in %, for example 0.05%
         cacheCandles: false,
-        walk: true // Walk Forward Analysis: load previously optimized parameters and continue optimizing on them
+        walk: true, // Walk Forward Analysis: load previously optimized parameters and continue optimizing on them
+        resetWarmupBacktestErrorSec: 30,
+        timeOffsetMin: 0
     }
 }
 

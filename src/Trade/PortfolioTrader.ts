@@ -950,9 +950,10 @@ export abstract class PortfolioTrader extends AbstractTrader {
             let candles = this.maxCandles.get(pairStr);
             if (candles === undefined)
                 candles =[];
+            const timeOffsetMs: number = nconf.get("serverConfig:backtest:timeOffsetMin") * utils.constants.MINUTE_IN_SECONDS*1000;
             let data = candles.map((period) => {
                 return {
-                    time: period.start.getTime(),
+                    time: period.start.getTime() + timeOffsetMs,
                     open: period.open,
                     high: period.high,
                     low: period.low,
@@ -962,6 +963,13 @@ export abstract class PortfolioTrader extends AbstractTrader {
             })
             // add trades (main data)
             let trades = this.myTrades.get(pairStr) || [];
+            if (timeOffsetMs !== 0) {
+                trades.forEach((tr) => {
+                    tr.date = new Date(tr.date.getTime() + timeOffsetMs);
+                    //tr.time =
+                    //tr.execution_time =
+                });
+            }
             let code = 'var data = ' + JSON.stringify(data) + ';\n'
             code += 'var trades = ' + JSON.stringify(trades) + ';\n';
 
