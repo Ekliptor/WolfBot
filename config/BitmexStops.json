@@ -57,7 +57,7 @@
                     "enableLog": true
                 },
                 "OpenInterestMonitor": {
-                    "changePercent": 2.1,
+                    "changePercent": 1.6,
                     "candleSize": 60,
                     "pair": "USD_ETH",
                     "enableLog": true

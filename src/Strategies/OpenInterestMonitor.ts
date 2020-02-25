@@ -5,6 +5,7 @@ import {TechnicalStrategy, TechnicalStrategyAction} from "./TechnicalStrategy";
 import {Candle, Ticker, Currency} from "@ekliptor/bit-models";
 import * as db from "../database";
 import * as helper from "../utils/helper";
+import {TradeConfig} from "../Trade/TradeConfig";
 
 interface OpenInterestMonitorAction extends TechnicalStrategyAction {
     changePercent: number; // optional, default 1.1% - How many percent the open interest has to change (per candleSize) to trigger a notification.
@@ -66,6 +67,12 @@ export default class OpenInterestMonitor extends TechnicalStrategy {
         // TODO check if we are in cloud environment and issue warning otherwise (database doesn't contain open interest data)
     }
 
+    public setConfig(config: TradeConfig) {
+        super.setConfig(config);
+        if (this.config.exchanges.indexOf("BitMEX") === -1)
+            this.warn(utils.sprintf("%s is only supported on BitMEX", this.className));
+    }
+
     public serialize() {
         let state = super.serialize();
         state.currentTicker = this.currentTicker;
@@ -77,9 +84,12 @@ export default class OpenInterestMonitor extends TechnicalStrategy {
 
     public unserialize(state: any) {
         super.unserialize(state);
-        this.currentTicker = Object.assign(new Ticker.Ticker(state.currentTicker.exchange), state.currentTicker);
-        this.tickerLastH = Object.assign(new Ticker.Ticker(state.tickerLastH.exchange), state.tickerLastH);
-        this.ticker24H = Object.assign(new Ticker.Ticker(state.ticker24H.exchange), state.ticker24H);
+        if (state.currentTicker)
+            this.currentTicker = Object.assign(new Ticker.Ticker(state.currentTicker.exchange), state.currentTicker);
+        if (state.tickerLastH)
+            this.tickerLastH = Object.assign(new Ticker.Ticker(state.tickerLastH.exchange), state.tickerLastH);
+        if (state.ticker24H)
+         this.ticker24H = Object.assign(new Ticker.Ticker(state.ticker24H.exchange), state.ticker24H);
         this.lastTickerID = state.lastTickerID || "";
     }
 
