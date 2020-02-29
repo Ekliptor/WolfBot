@@ -24,12 +24,12 @@
   dependencies:
     ejson "^2.1.2"
 
-"@okfe/okex-node@^0.0.51":
-  version "0.0.51"
-  resolved "https://registry.yarnpkg.com/@okfe/okex-node/-/okex-node-0.0.51.tgz#b50752dd70b0321f10f0f5904d0006e929337f2c"
-  integrity sha512-gfLBYz06V99VSKaVV0GVcV3PcynKoGlDctDCGMLrhFv+k5Y6UWXW5t6BvhghPmDHORksDsI34DdLgpBZcYBuqQ==
+"@ekliptor/okex-node-fix@^0.0.53":
+  version "0.0.53"
+  resolved "https://registry.yarnpkg.com/@ekliptor/okex-node-fix/-/okex-node-fix-0.0.53.tgz#cf392d94b0ad624e8e568c27a189e12a7e3bb633"
+  integrity sha512-QFO/sOlUWWoJVAnKqAgk4fCcgj3bcYXiMRRlDe/bWvw+e1n5BfGrTflWFDDlLzBeN2oYgQs0dJjnWVdfcwSyYw==
   dependencies:
-    axios "^0.18.0"
+    axios "^0.18.1"
     crc-32 "^1.2.0"
     pako "^1.0.8"
     run-script "^0.1.1"
@@ -967,7 +967,7 @@ axios@^0.17.1:
     follow-redirects "^1.2.5"
     is-buffer "^1.1.5"
 
-axios@^0.18.0:
+axios@^0.18.1:
   version "0.18.1"
   resolved "https://registry.yarnpkg.com/axios/-/axios-0.18.1.tgz#ff3f0de2e7b5d180e757ad98000f1081b87bcea3"
   integrity sha512-0BfJq4NSfQXd+SkFdrvFbG7addhYSBA2mQwISr46pD6E5iqkWg02RAs8vyTT/j0RTnoYmeXauBuSv1qKwR179g==

@@ -18,7 +18,8 @@ import EventStream from "../Trade/EventStream";
 import {Currency, Ticker, Trade, TradeHistory, MarketOrder} from "@ekliptor/bit-models";
 import {MarketAction} from "../Trade/MarketStream";
 import {OrderBook} from "../Trade/OrderBook";
-import * as okexApi from "@okfe/okex-node";
+//import * as okexApi from "@okfe/okex-node";
+import * as okexApi from "@ekliptor/okex-node-fix";
 
 
 
@@ -1297,6 +1298,7 @@ export default class OKEX extends AbstractContractExchange {
             this.getClientMarket().getInstruments().then((contracts) => {
                 if (this.lastLoadedContractTypes.getTime() + OKEX.RELOAD_CONTRACT_TYPES_H*utils.constants.HOUR_IN_SECONDS*1000 > Date.now())
                     return resolve();
+                const selectType: string = nconf.get("serverConfig:futureContractType");
                 contracts.forEach((contract) => {
                     let instrument: OKEXInstrument = Object.assign(new OKEXInstrument(), contract);
                     instrument.validate();
@@ -1305,7 +1307,14 @@ export default class OKEX extends AbstractContractExchange {
                     // TODO option to choose contract duration, use same map with different key
                     // for now just take the longest one, which also takes care of new contracts
                     // no contract replacements for perp swap
-                    if (existing === undefined || (OKEX.isPerpetual() === false && existing.delivery.getTime() < instrument.delivery.getTime()))
+                    // they come in in order from shortest to longest
+                    if (existing === undefined)
+                        this.contractTypes.set(currencyPairKey, instrument);
+                    else if (selectType != "") {
+                        if (selectType === instrument.alias)
+                            this.contractTypes.set(currencyPairKey, instrument);
+                    }
+                    else if (OKEX.isPerpetual() === false && existing.delivery.getTime() < instrument.delivery.getTime())
                         this.contractTypes.set(currencyPairKey, instrument);
                 });
                 this.lastLoadedContractTypes = new Date();
