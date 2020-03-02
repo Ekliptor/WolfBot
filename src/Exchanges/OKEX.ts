@@ -1008,7 +1008,9 @@ export default class OKEX extends AbstractContractExchange {
 
     protected createApiWebsocketConnection(): any {
         this.websocketChannelType = OKEX.isPerpetual() === true ? "swap" : "futures";
-        this.wssClient = new okexApi.V3WebsocketClient();
+        //const okexWs = "wss://real.okex.com:10442/ws/v3"; // default
+        const okexWs = "wss://okexcomreal.bafang.com:8443/ws/v3"; // website
+        this.wssClient = new okexApi.V3WebsocketClient(okexWs);
         const marketEventStreamMap = new Map<string, EventStream<any>>(); // (exchange currency name, stream instance)
         //this.localSeqNr = 0; // keep counting upwards
         this.wssClient.on("open", (data) => {
