@@ -46,7 +46,6 @@ export default class ProtectProfit extends AbstractStopStrategy {
     public action: ProtectProfitAction;
     protected stopCountStart: Date = null;
     //protected priceTime: Date = new Date(Date.now() +  365*utils.constants.DAY_IN_SECONDS * 1000); // time of the last high/low
-    protected positionOpened: Date = null;
     protected positionProfitableStart: Date = null; // TODO reset if we turn into a loss? (stop doesn't fire, error, fast market,...)
 
     constructor(options) {
@@ -99,25 +98,18 @@ export default class ProtectProfit extends AbstractStopStrategy {
     }
 
     public onTrade(action: TradeAction, order: Order.Order, trades: Trade.Trade[], info: TradeInfo) {
-        const previousPosition = this.strategyPosition;
         super.onTrade(action, order, trades, info);
         if (action === "close") {
             this.entryPrice = -1;
-            this.positionOpened = null;
             this.positionProfitableStart = null;
         }
         else if (this.entryPrice === -1) // else it's TakeProfit
             this.entryPrice = order.rate; // TODO sometimes not getting set. but get's set in onSyncPortfolio(). set entryPrice in parent class?
-        if (action !== "close" && previousPosition !== this.strategyPosition)
-            this.positionOpened = this.marketTime;
     }
 
     public onSyncPortfolio(coins: number, position: MarginPosition, exchangeLabel: Currency.Exchange) {
         super.onSyncPortfolio(coins, position, exchangeLabel)
-        if (this.strategyPosition !== "none" && this.positionOpened == null)
-            this.positionOpened = this.marketTime; // assume now
         if (this.strategyPosition === "none") {
-            this.positionOpened = null;
             this.positionProfitableStart = null;
         }
         else if (this.action.useRealProfitLoss && this.position && !this.positionProfitableStart && !this.position.isEmpty() && this.position.pl > 0.0)
@@ -126,14 +118,12 @@ export default class ProtectProfit extends AbstractStopStrategy {
 
     public serialize() {
         let state = super.serialize();
-        state.positionOpened = this.positionOpened;
         state.positionProfitableStart = this.positionProfitableStart;
         return state;
     }
 
     public unserialize(state: any) {
         super.unserialize(state);
-        this.positionOpened = state.positionOpened;
         this.positionProfitableStart = state.positionProfitableStart;
     }
 

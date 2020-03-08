@@ -970,11 +970,14 @@ export default class OKEX extends AbstractContractExchange {
                                 // TODO sometimes close orders don't get filled and wait pending forever
                             })
                         }
-                    })
+                    }).then(() => {
+                        this.afterClosePosition(currencyPair);
+                    });
                 }
-                else
+                else {
                     this.futureContractType.set(currencyPair.toString(), nconf.get("serverConfig:futureContractType")); // reset it to default for the next opening
-                this.verifyPositionSize(currencyPair, 0)
+                    this.afterClosePosition(currencyPair);
+                }
             }).catch((err) => {
                 reject(err)
             });
@@ -983,6 +986,16 @@ export default class OKEX extends AbstractContractExchange {
 
     // ################################################################
     // ###################### PRIVATE FUNCTIONS #######################
+
+    protected async afterClosePosition(currencyPair: Currency.CurrencyPair): Promise<void> {
+        try {
+            await this.verifyPositionSize(currencyPair, 0);
+            await this.cancelAllOrders(currencyPair); // sometimes there are still orders left (already called before closing)
+        }
+        catch (err) {
+            logger.error("Error after closed position checks of pair %s", currencyPair.toString(), err);
+        }
+    }
 
     protected publicReq(method: string, params: ExRequestParams = {}) {
         return new Promise<ExResponse>((resolve, reject) => {

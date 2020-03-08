@@ -144,6 +144,7 @@ export abstract class AbstractStrategy extends AbstractGenericStrategy {
     protected tradeOnce = false; // set to true so that this strategy can not emit multiple buy/sell events
     protected disabled = false;
     private wasMainStrategy = false; // cache it for re-enabling ot
+    protected positionOpened: Date = null; // market time the position was opened, null if no position is open
 
     // start with dummy objects to avoid null pointer exceptions during startup
     // will get replaced below
@@ -317,6 +318,7 @@ export abstract class AbstractStrategy extends AbstractGenericStrategy {
         // overwrite this function in your strategy to get feedback of the trades done by our AbstractTrader implementation
         if (info.strategy.isIgnoreTradeStrategy() === true)
             return;
+        const previousPosition = this.strategyPosition;
         const isSameClass = info.strategy.getClassName() === this.className || info.strategy.getInitiatorClassName() === this.className;
         if (isSameClass) {
             this.lastTrade = action; // do this here and not when emitting the signal because our signal might be ignored
@@ -338,6 +340,7 @@ export abstract class AbstractStrategy extends AbstractGenericStrategy {
             this.strategyPosition = "none";
             this.entryPrice = -1;
             this.tradePosition = null;
+            this.positionOpened = null;
             //this.closedPositions = true; // only close again in the strategy that emitted the close
         } else {
             if (this.entryPrice === -1)
@@ -353,6 +356,8 @@ export abstract class AbstractStrategy extends AbstractGenericStrategy {
 
         if (action === "close")
             return;
+        else if (/*action !== "close" && */previousPosition !== this.strategyPosition)
+            this.positionOpened = this.marketTime; // mark is as opened now
     }
 
     /**
@@ -429,6 +434,7 @@ export abstract class AbstractStrategy extends AbstractGenericStrategy {
             this.entryPrice = -1;
             this.lastTrade = "close";
             this.positionOpenTicks = -1;
+            this.positionOpened = null;
         } else if (this.entryPrice === -1)
             this.entryPrice = this.avgMarketPrice; // assume we just opened our position
         else if (this.strategyPosition !== lastStrategyPosition) {
@@ -448,6 +454,9 @@ export abstract class AbstractStrategy extends AbstractGenericStrategy {
             if (this.isMainStrategy()) // only true for main strategy? StopLoss has it's own sync() implementation either way
                 this.done = false;
         }
+        if (this.strategyPosition !== "none" && this.positionOpened == null)
+            this.positionOpened = this.marketTime; // assume now
+
         // TODO reset values if last position != position? useful to update stops (or do it in subclass?) see onConfigChanged() + set position back
         this.adjustStaticOrder();
     }
@@ -748,6 +757,7 @@ export abstract class AbstractStrategy extends AbstractGenericStrategy {
         state.previousBalance = this.previousBalance;
         state.pendingOrder = this.pendingOrder;
         state.openOrders = this.openOrders;
+        state.positionOpened = this.positionOpened;
         return state;
     }
 
@@ -795,6 +805,8 @@ export abstract class AbstractStrategy extends AbstractGenericStrategy {
                 this.openOrders.addOrder(order);
             });
         }
+        if (state.positionOpened)
+            this.positionOpened = state.positionOpened;
     }
 
     public emit(event: TradeAction | StrategyEvent, ...args: any[]) {

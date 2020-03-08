@@ -20,6 +20,7 @@
                     "notifyBeforeStopSec": 0,
                     "reduceTimeByVolatility": false,
                     "keepTrendOpen": true,
+                    "minOpenTime": 0,
                     "low": 52,
                     "high": 56,
                     "candleSize": 5,
