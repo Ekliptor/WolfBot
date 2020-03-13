@@ -32,11 +32,12 @@ export class CandleMaker<T extends TradeBase> extends CandleStream<T> {
         //if (_.isEmpty(trades)) // shouldn't happen
             //return;
 
+        const previousEndTime: Date = this.lastTrade ? this.lastTrade.date : null;
         trades = this.filter(trades);
         this.fillBuckets(trades);
         let candles = this.calculateCandles();
 
-        candles = this.addEmptyCandles(candles);
+        candles = this.addEmptyCandles(candles, previousEndTime);
 
         // the last candle is not complete, don't emit it & keep it in here (in buckets)
         let last = candles.pop();
@@ -200,15 +201,15 @@ export class CandleMaker<T extends TradeBase> extends CandleStream<T> {
         return candle;
     }
 
-    protected addEmptyCandles(candles: Candle.Candle[]) {
-        // we need a candle every minute. if nothing happened during a particilar minute add empty candles with:
+    protected addEmptyCandles(candles: Candle.Candle[], previousEndTime: Date = null) {
+        // we need a candle every minute. if nothing happened during a particular minute add empty candles with:
         // - open, high, close, low, vwp are the same as the close of the previous candle.
         // - trades, volume are 0
         const amount = _.size(candles);
         if (!amount)
             return candles;
 
-        let start = new Date(_.first<Candle.Candle>(candles).start);
+        let start = new Date(previousEndTime ? previousEndTime : _.first<Candle.Candle>(candles).start);
         const end = _.last<Candle.Candle>(candles).start;
         let i, j = -1;
 

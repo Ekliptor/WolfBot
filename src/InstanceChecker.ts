@@ -240,7 +240,8 @@ export default class InstanceChecker extends AbstractSubController {
                 logger.verbose("Checking instance %s with URL: ", botName, apiUrl)
                 this.lastPort = port;
                 let data = {
-                    apiKey: helper.getFirstApiKey()
+                    apiKey: helper.getFirstApiKey(),
+                    //timeout: 10000 // in ms. default
                 }
                 let reqOptions = {skipCertificateCheck: true}
                 utils.postDataAsJson(apiUrl, data, (body, res) => {
