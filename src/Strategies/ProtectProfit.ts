@@ -265,7 +265,7 @@ export default class ProtectProfit extends AbstractStopStrategy {
             return false;
         if (this.strategyPosition === "short" && this.candleTrend === "down")
             return false;
-        return this.positionOpened && this.positionOpened.getTime() + this.action.minOpenTime*1000 < this.marketTime.getTime();
+        return this.positionOpened && this.positionOpened.getTime() + this.action.minOpenTime*1000 < this.getMarketTime().getTime();
     }
 
     protected closeNow() {

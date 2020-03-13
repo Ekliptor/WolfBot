@@ -1092,7 +1092,7 @@
       "triggerProfit": "optional, default 0 (disabled) - The minimum profit to be reached for setbackProfit to replace setback. Use this to either allow higher losses or set tighter trailing stops, depending on your trading strategy.",
       "timeProfit": "optional, default 0 (disabled) - A higher/lower time to close if position is in profit. Reduce/increase time by volatility doesn't apply to this value.",
       "ensureProfit": "optional, default true - Ensure there is really profit before closing at 'setbackProfit' (otherwise fallback to the normal stop). Keep in mind that open positions are only being synced every few minutes.",
-      "minOpenTime": "optional, default 0 (can close immediately). A parameter to keep position open at least n seconds before closing.",
+      "minOpenTime": "optional, default 0 (can close immediately). A parameter to keep the position open at least n seconds before closing.",
       "interval": "optional, default 9 - The number of candles to use for RSI computation.",
       "low": "optional, default 0 (disabled) - Below this value RSI will be considered oversold. This strategy will never close short positions during RSI oversold.",
       "high": "optional, default 0 (disabled) - Above this value RSI will be considered overbought. This strategy will never close long positions during RSI overbought.",

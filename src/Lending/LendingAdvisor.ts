@@ -322,13 +322,26 @@ export class LendingAdvisor extends AbstractAdvisor {
         })
     }
 
-    protected connectCandles() {
+    protected connectCandles(): void {
         // forward to strategies
         let attachedCurrentCandleListeners = false;
         for (let candle of this.candleMakers)
         {
             const currencyStr = Currency.Currency[candle[1].getCurrencyPair().from];
             let interestedBatchers = this.candleBatchers.get(currencyStr);
+
+            // forward 1min candles from CandleMaker -> CandleBatcher
+            if (!interestedBatchers || interestedBatchers.size === 0) {
+                logger.warn("No interested candle batchers found in %s", this.className);
+                continue;
+            }
+            for (let bat of interestedBatchers)
+            {
+
+                this.attachCandleBatcher(bat[1], attachedCurrentCandleListeners);
+                attachedCurrentCandleListeners = true;
+            }
+
             candle[1].on("candles", (candles: Candle.Candle[]) => {
                 // forward 1min candles to CandleBatcher
                 // TODO option to drop 1st candle here if we are in realtime mode (first candle is generally incomplete until we can fetch history data)
@@ -336,43 +349,7 @@ export class LendingAdvisor extends AbstractAdvisor {
                     return;
                 for (let bat of interestedBatchers)
                 {
-                    bat[1].removeAllListeners("candles"); // attach them again every round (every candles event from the maker) // TODO improve
-                    bat[1].on("candles", (candles: Candle.Candle[]) => {
-                        // forward x min candles from batcher to strategies which are interested in this specific interval
-                        candles.forEach((candle) => {
-                            for (let strategyList of this.strategies)
-                            {
-                                strategyList[1].forEach((strategyInstance) => {
-                                    if (strategyInstance.getAction().currency !== candle.currencyPair.from)
-                                        return; // this strategy is not set for this currency pair
-                                    if (candle.interval === 1)
-                                        strategyInstance.send1minCandleTick(candle);
-                                    if (strategyInstance.getAction().candleSize === candle.interval) // both can be true
-                                        strategyInstance.sendCandleTick(candle);
-                                })
-                            }
-
-                            // forward to traders
-                            //if (bat[1].getMax() === false)
-                                //return;
-                            this.trader.getAll().forEach((trader) => {
-                                trader.sendCandleTick(candle);
-                            })
-                        })
-                    });
-                    if (attachedCurrentCandleListeners === false) {
-                        attachedCurrentCandleListeners = true;
-                        bat[1].on("currentCandle", (candle: Candle.Candle) => {
-                            for (let strategyList of this.strategies)
-                            {
-                                strategyList[1].forEach((strategyInstance) => {
-                                    if (strategyInstance.getAction().currency !== candle.currencyPair.from)
-                                        return; // this strategy is not set for this currency pair
-                                    strategyInstance.sendCurrentCandleTick(candle);
-                                })
-                            }
-                        });
-                    }
+                    //bat[1].removeAllListeners("candles"); // attach them again every round (every candles event from the maker)
                     bat[1].addCandles(candles); // has to be called AFTER we attach the event above
                 }
             });
@@ -381,6 +358,45 @@ export class LendingAdvisor extends AbstractAdvisor {
                     return;
                 for (let bat of interestedBatchers)
                     bat[1].updateCurrentCandle(candle);
+            });
+        }
+    }
+
+    protected attachCandleBatcher(batcher: CandleBatcher<Funding.FundingTrade>, attachedCurrentCandleListeners: boolean) {
+        batcher.on("candles", (candles: Candle.Candle[]) => {
+            // forward x min candles from batcher to strategies which are interested in this specific interval
+            candles.forEach((candle) => {
+                for (let strategyList of this.strategies)
+                {
+                    strategyList[1].forEach((strategyInstance) => {
+                        if (strategyInstance.getAction().currency !== candle.currencyPair.from)
+                            return; // this strategy is not set for this currency pair
+                        if (candle.interval === 1)
+                            strategyInstance.send1minCandleTick(candle);
+                        if (strategyInstance.getAction().candleSize === candle.interval) // both can be true
+                            strategyInstance.sendCandleTick(candle);
+                    })
+                }
+
+                // forward to traders
+                //if (bat[1].getMax() === false)
+                //return;
+                this.trader.getAll().forEach((trader) => {
+                    trader.sendCandleTick(candle);
+                })
+            })
+        });
+        if (attachedCurrentCandleListeners === false) {
+            //attachedCurrentCandleListeners = true;
+            batcher.on("currentCandle", (candle: Candle.Candle) => {
+                for (let strategyList of this.strategies)
+                {
+                    strategyList[1].forEach((strategyInstance) => {
+                        if (strategyInstance.getAction().currency !== candle.currencyPair.from)
+                            return; // this strategy is not set for this currency pair
+                        strategyInstance.sendCurrentCandleTick(candle);
+                    })
+                }
             });
         }
     }

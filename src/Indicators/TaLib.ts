@@ -50,6 +50,11 @@ export class TaLibParams { // some indicator names have different parameters, se
     optInFastD_MAType?: number; // Type of Moving Average for Fast-D
 
     constructor(name: string, data: number[], timePeriod = 0) {
+        // TODO add all candle data here in constructor of all indicators
+        // then in calculate() use setting to decide if we use open, high, low or close (or combination)
+        // for indicator computation
+        // also for non-Talib indicators
+
         this.name = name;
         this.endIdx = data.length - 1;
         this.inReal = data;

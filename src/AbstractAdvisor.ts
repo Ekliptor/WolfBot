@@ -23,6 +23,7 @@ import {AbstractGenericStrategy} from "./Strategies/AbstractGenericStrategy";
 import * as childProcess from "child_process";
 import Notification from "./Notifications/Notification";
 import {AbstractNotification} from "./Notifications/AbstractNotification";
+import {CandleBatcher} from "./Trade/Candles/CandleBatcher";
 const fork = childProcess.fork;
 
 const processFiles = [path.join(utils.appDir, 'app.js'),
@@ -681,6 +682,9 @@ export abstract class AbstractAdvisor extends AbstractSubController {
             }
         })
     }
+
+    protected abstract connectCandles(): void;
+    protected abstract attachCandleBatcher(batcher: CandleBatcher<any>, attachedCurrentCandleListeners: boolean): void;
 
     protected onCandleSubscriptionsStart() {
         this.sendNotification("Bot started", utils.sprintf("Config: %s\r\nActive markets: %s", this.getConfigName(), this.candleCurrencies));

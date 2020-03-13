@@ -39,7 +39,7 @@ interface StopLossTurnAction extends AbstractStopStrategyAction {
     timeProfit: number; // in seconds. A higher/lower time to close if position is in profit. Reduce/increase time by volatility doesn't apply to this value.
     ensureProfit: boolean; // default true. Ensure there is really profit before closing at 'setbackProfit' (otherwise fallback to the normal stop). Keep in mind that open positions are only being synced every few minutes.
     // TODO decrease time counter on high volatility, see TakeProfit?
-    minOpenTime: number; // optional, default 0 (can close immediately). A parameter to keep position open at least n seconds before closing.
+    minOpenTime: number; // optional, default 0 (can close immediately). A parameter to the keep position open at least n seconds before closing.
 
     // optional RSI values: don't close short if RSI < low (long if RSI > high)
     low: number; // 52 // default 0 = disabled // This strategy will never close short positions during RSI oversold.
@@ -264,8 +264,8 @@ export default class StopLossTurn extends AbstractStopStrategy {
             return this.logOnce("skipping stop SELL because RSI value indicates up:", this.lastRSI);
         else if (this.canClosePositionByState() === false)
             return this.logOnce("skipping stop SELL because of required position state:", this.action.closePosition);
-        else if (this.positionOpened && this.action.minOpenTime > 0 && this.positionOpened.getTime() + this.action.minOpenTime*1000 >= this.marketTime.getTime())
-            return this.logOnce("skipping stop SELL because position is not open > %s seconds: %s", this.action.minOpenTime, utils.test.getPassedTime(this.positionOpened.getTime(), this.marketTime.getTime()));
+        else if (this.positionOpened && this.action.minOpenTime > 0 && this.positionOpened.getTime() + this.action.minOpenTime*1000 >= this.getMarketTime().getTime())
+            return this.logOnce("skipping stop SELL because position is not open > %s seconds: %s", this.action.minOpenTime, utils.test.getPassedTime(this.positionOpened.getTime(), this.getMarketTime().getTime()));
         else if (this.stopCountStart.getTime() + this.getStopTimeSec() * 1000 <= this.marketTime.getTime())
             this.closeLongPosition();
     }
@@ -288,8 +288,8 @@ export default class StopLossTurn extends AbstractStopStrategy {
             return this.logOnce("skipping stop BUY because RSI value indicates down:", this.lastRSI);
         else if (this.canClosePositionByState() === false)
             return this.logOnce("skipping stop BUY because of required position state:", this.action.closePosition);
-        else if (this.positionOpened && this.action.minOpenTime > 0 && this.positionOpened.getTime() + this.action.minOpenTime*1000 >= this.marketTime.getTime())
-            return this.logOnce("skipping stop BUY because position is not open > %s seconds: %s", this.action.minOpenTime, utils.test.getPassedTime(this.positionOpened.getTime(), this.marketTime.getTime()));
+        else if (this.positionOpened && this.action.minOpenTime > 0 && this.positionOpened.getTime() + this.action.minOpenTime*1000 >= this.getMarketTime().getTime())
+            return this.logOnce("skipping stop BUY because position is not open > %s seconds: %s", this.action.minOpenTime, utils.test.getPassedTime(this.positionOpened.getTime(), this.getMarketTime().getTime()));
         else if (this.stopCountStart.getTime() + this.getStopTimeSec() * 1000 <= this.marketTime.getTime())
             this.closeShortPosition();
     }
