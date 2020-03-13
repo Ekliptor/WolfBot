@@ -126,7 +126,7 @@ export class LoginController extends AbstractSubController {
                 // ensure there is at least 1 API key
                 if (!helper.getFirstApiKey()) {
                     if (Object.keys(config.root.apiKeys).length !== 0)
-                        nconf.set("apiKeys", config.root.apiKeys);
+                        nconf.set("apiKeys", Object.assign({}, config.root.apiKeys)); // ensure assignment gets evaluated first
                     else
                         this.generateApiKey();
                 }
