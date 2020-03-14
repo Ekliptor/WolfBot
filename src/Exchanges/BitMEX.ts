@@ -213,17 +213,10 @@ export default class BitMEX extends AbstractContractExchange {
 
         /*
         this.futureContractType.set("LTC", nconf.get("serverConfig:futureContractType")); // TODO ?
-        this.contractValues.set("BTC", 100);
-        this.contractValues.set("LTC", 10);
-        this.contractValues.set("ETH", 10);
-        this.contractValues.set("ETC", 10);
-        this.contractValues.set("BCH", 10);
-        this.contractValues.set("BTG", 10);
-        this.contractValues.set("XRP", 10);
-        this.contractValues.set("EOS", 10);
         */
         this.contractValues.set("BTC", 1);
         this.contractValues.set("ETH", 1);
+        this.contractValues.set("XRP", 1);
     }
 
     public repeatFailedTrade(error: any, currencyPair: Currency.CurrencyPair) {
@@ -453,7 +446,9 @@ export default class BitMEX extends AbstractContractExchange {
                     // 'side': "Buy" / "Sell", can be ommited if orderQty or simpleOrderQty is present positive value means buy negative measns sell
                     //orderQty: amount, this would require amount = this.getContractAmount(currencyPair, rate, amount); // simpleOrderQty X at price Y: orderQty = Y * round( X, 8 ) * [Leverage?]
                     //simpleOrderQty: amount
-                    orderQty: this.getContractAmount(currencyPair, rate, amount), // can be negative for sell, but better use "side"
+                    //orderQty: this.getContractAmount(currencyPair, rate, amount), // can be negative for sell, but better use "side"
+                    //orderQty: this.getContractAmount(currencyPair, rate, amount), // TODO what about non-USD markets?
+                    orderQty: Math.abs(amount),
                     side: amount < 0.0 ? "Sell" : "Buy"
                 }
                 if(params && params.fillOrKill) {
