@@ -524,7 +524,8 @@ export default class BitMEX extends AbstractContractExchange {
                         if(!result.cancelled) {
                             return Promise.reject({err: "not failed"})
                         }
-                        return this.marginOrder(currencyPair,  rate, amount, params)
+                        const orderAmount = amount === 0 ? orders.getOrder(orderNumber).amount : amount; // amount might be 0 from parent class
+                        return this.marginOrder(currencyPair, rate, orderAmount, params)
                     })
                 }
                 else
