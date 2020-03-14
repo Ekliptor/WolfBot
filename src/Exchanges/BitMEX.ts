@@ -199,7 +199,7 @@ export default class BitMEX extends AbstractContractExchange {
         this.exchangeLabel = Currency.Exchange.BITMEX;
         //this.minTradingValue = 1.0; // for margin positions, min 1 contract (100 USD with BTC, 10 USD with LTC)
         this.minTradingValue = 0.001; // actually different for LTC and BTC, depending on contract value
-        this.fee = 0.003; // only for opening positions
+        this.fee = 0.0025; // only for opening positions
         this.maxLeverage = 1; // 2 - 100 // 1 is easier in cross-margin mode
         //this.maxTimeAheadMs = 20000; // their clock goes ahead?
         this.currencies = new BitMEXCurrencies(this);
