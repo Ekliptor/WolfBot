@@ -5,7 +5,22 @@
 import * as utils from "@ekliptor/apputils";
 const logger = utils.logger
     , nconf = utils.nconf;
-import {AbstractExchange, ExOptions, ExApiKey, OrderBookUpdate, OpenOrders, OpenOrder, ExRequestParams, ExResponse, OrderParameters, MarginOrderParameters, CancelOrderResult, PushApiConnectionType, ExchangePairMap} from "./AbstractExchange";
+import {
+    AbstractExchange,
+    ExOptions,
+    ExApiKey,
+    OrderBookUpdate,
+    OpenOrders,
+    OpenOrder,
+    ExRequestParams,
+    ExResponse,
+    OrderParameters,
+    MarginOrderParameters,
+    CancelOrderResult,
+    PushApiConnectionType,
+    ExchangePairMap,
+    AbstractExchangeCurrencies
+} from "./AbstractExchange";
 import {OrderResult} from "../structs/OrderResult";
 import {MarginPosition, MarginPositionList} from "../structs/MarginPosition";
 import MarginAccountSummary from "../structs/MarginAccountSummary";
@@ -23,18 +38,18 @@ import {MarketAction} from "../Trade/MarketStream";
 import {OrderBook} from "../Trade/OrderBook";
 import KrakenCcxt from "./KrakenCcxt";
 
-export class KrakenCurrencies implements Currency.ExchangeCurrencies {
+export class KrakenCurrencies extends AbstractExchangeCurrencies {
     protected exchange: AbstractExchange;
 
     constructor(exchange: AbstractExchange) {
-        this.exchange = exchange;
+        super(exchange);
     }
 
     public getExchangeName(localCurrencyName: string): string {
         if (localCurrencyName === "BTC")
             return "XBT";
         // TODO conversion to add X and Z?
-        return localCurrencyName
+        return super.getExchangeName(localCurrencyName);
     }
     public getLocalName(exchangeCurrencyName: string): string {
         if (exchangeCurrencyName === "XBT" || exchangeCurrencyName === "XXBT")

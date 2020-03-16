@@ -5,7 +5,21 @@
 import * as utils from "@ekliptor/apputils";
 const logger = utils.logger
     , nconf = utils.nconf;
-import {AbstractExchange, ExOptions, ExApiKey, OrderBookUpdate, OpenOrders, OpenOrder, ExRequestParams, ExResponse, OrderParameters, MarginOrderParameters, CancelOrderResult, PushApiConnectionType} from "./AbstractExchange";
+import {
+    AbstractExchange,
+    ExOptions,
+    ExApiKey,
+    OrderBookUpdate,
+    OpenOrders,
+    OpenOrder,
+    ExRequestParams,
+    ExResponse,
+    OrderParameters,
+    MarginOrderParameters,
+    CancelOrderResult,
+    PushApiConnectionType,
+    AbstractExchangeCurrencies
+} from "./AbstractExchange";
 import {AbstractContractExchange} from "./AbstractContractExchange";
 import {OrderResult} from "../structs/OrderResult";
 import {MarginPosition, MarginPositionList} from "../structs/MarginPosition";
@@ -27,23 +41,23 @@ const OKEX_TIMEZONE_SUFFIX = " GMT+0800";
 
 type OkexWebsocketChannel = "futures" | "swap";
 
-export class OKEXCurrencies implements Currency.ExchangeCurrencies {
+export class OKEXCurrencies extends AbstractExchangeCurrencies {
     protected exchange: /*AbstractExchange*/OKEX;
 
     constructor(exchange: OKEX) {
-        this.exchange = exchange;
+        super(exchange);
     }
 
     public getExchangeName(localCurrencyName: string): string {
-        return localCurrencyName.toUpperCase()
+        return super.getExchangeName(localCurrencyName).toUpperCase()
     }
     public getLocalName(exchangeCurrencyName: string): string {
         return exchangeCurrencyName.toUpperCase()
     }
 
     public getExchangePair(localPair: Currency.CurrencyPair): string {
-        let str1 = Currency.Currency[localPair.from]
-        let str2 = Currency.Currency[localPair.to]
+        let str1 = this.getExchangeName(Currency.Currency[localPair.from])
+        let str2 = this.getExchangeName(Currency.Currency[localPair.to])
         if (!str1 || !str2) // currency not supported by exchange
             return undefined;
         if (str1 === "USD")
@@ -298,7 +312,7 @@ export default class OKEX extends AbstractContractExchange {
 
         // TODO store & load last contract type on restart
         OKEX.FETCH_CURRENCIES.forEach((currency) => {
-            this.futureContractType.set(currency.toUpperCase(), nconf.get("serverConfig:futureContractType"));
+            this.futureContractType.set(currency.toUpperCase(), this.getFutureContractType());
         })
         this.contractValues.set("BTC", 100);
         this.contractValues.set("LTC", 10);
@@ -960,7 +974,7 @@ export default class OKEX extends AbstractContractExchange {
                     this.closeMarginPosition(currencyPair).then((orderResult) => {
                         // don't return this response
                         // reset it to default for the next opening, shouln't be needed here
-                        this.futureContractType.set(currencyPair.toString(), nconf.get("serverConfig:futureContractType"));
+                        this.futureContractType.set(currencyPair.toString(), this.getFutureContractType());
                     }).catch((err) => {
                         logger.error("Error closing 2nd %s open margin position", currencyPair.toString(), err)
                         this.sendNotification("Error closing 2nd open margin position", utils.sprintf("CurrencyPair %s", currencyPair.toString()))
@@ -975,7 +989,7 @@ export default class OKEX extends AbstractContractExchange {
                     });
                 }
                 else {
-                    this.futureContractType.set(currencyPair.toString(), nconf.get("serverConfig:futureContractType")); // reset it to default for the next opening
+                    this.futureContractType.set(currencyPair.toString(), this.getFutureContractType()); // reset it to default for the next opening
                     this.afterClosePosition(currencyPair);
                 }
             }).catch((err) => {
@@ -1313,7 +1327,7 @@ export default class OKEX extends AbstractContractExchange {
             this.getClientMarket().getInstruments().then((contracts) => {
                 if (this.lastLoadedContractTypes.getTime() + OKEX.RELOAD_CONTRACT_TYPES_H*utils.constants.HOUR_IN_SECONDS*1000 > Date.now())
                     return resolve();
-                const selectType: string = nconf.get("serverConfig:futureContractType");
+                const selectType: string = this.getFutureContractType();
                 contracts.forEach((contract) => {
                     let instrument: OKEXInstrument = Object.assign(new OKEXInstrument(), contract);
                     instrument.validate();

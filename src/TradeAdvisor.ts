@@ -591,10 +591,12 @@ export default class TradeAdvisor extends AbstractAdvisor {
                                 const exchangeInstance = this.exchanges.get(exchange);
                                 const pairStr = strategyInstance.getAction().pair.toString();
                                 const orderBook = exchangeInstance.getOrderBook().get(pairStr);
-                                if (!strategyInstance.isOrderBookReady()) {
+                                if (!strategyInstance.isOrderBookReady() || !strategyInstance.isOrderBook2Ready()) {
                                     if (orderBook) {
-                                        if (first === true) // use the 1st one when doing arbitrage (the bigger exchange) // TODO support multiple in arbitrage strategies
+                                        if (first === true) // use the 1st one when doing arbitrage (the bigger exchange)
                                             strategyInstance.setOrderBook(orderBook);
+                                        else if (!strategyInstance.isOrderBook2Ready())
+                                            strategyInstance.setOrderBook2(orderBook);
                                     }
                                     else if (startCheck + checkIntrevalMs*notifyMissingAfterChecks > Date.now())
                                         logger.warn("%s Order book of %s not ready", pairStr, exchange)

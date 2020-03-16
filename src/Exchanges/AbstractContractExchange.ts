@@ -1,7 +1,21 @@
 import * as utils from "@ekliptor/apputils";
 const logger = utils.logger
     , nconf = utils.nconf;
-import {AbstractExchange, ExOptions, ExApiKey, OrderBookUpdate, OpenOrders, OpenOrder, ExRequestParams, ExResponse, OrderParameters, MarginOrderParameters, CancelOrderResult, PushApiConnectionType} from "./AbstractExchange";
+import {
+    AbstractExchange,
+    ExOptions,
+    ExApiKey,
+    OrderBookUpdate,
+    OpenOrders,
+    OpenOrder,
+    ExRequestParams,
+    ExResponse,
+    OrderParameters,
+    MarginOrderParameters,
+    CancelOrderResult,
+    PushApiConnectionType,
+    AbstractExchangeCurrencies
+} from "./AbstractExchange";
 import {OrderResult} from "../structs/OrderResult";
 import {MarginPosition, MarginPositionList} from "../structs/MarginPosition";
 import MarginAccountSummary from "../structs/MarginAccountSummary";
@@ -14,8 +28,9 @@ export class ContractValueMap extends Map<string, number> { // (contract currenc
     }
 }
 
-export abstract class AbstractContractExchangeCurrencies implements Currency.ExchangeCurrencies {
-    constructor() {
+export abstract class AbstractContractExchangeCurrencies extends AbstractExchangeCurrencies {
+    constructor(exchange: AbstractContractExchange) {
+        super(exchange);
     }
 
     public abstract getExchangeName(localCurrencyName: string): string;
@@ -106,5 +121,16 @@ export abstract class AbstractContractExchange extends AbstractExchange {
         if (baseValue < 0.0)
             return 0.0;
         return baseValue;
+    }
+
+    protected getFutureContractType(): string {
+        let params: string[] = nconf.get("exchangeParams");
+        for (let i = 0; i < params.length; i++)
+        {
+            if (params[i].indexOf("contract=") === 0)
+                return params[i].substr(9);
+        }
+        const contractType: string = nconf.get("serverConfig:futureContractType");
+        return contractType; // default
     }
 }

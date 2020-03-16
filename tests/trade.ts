@@ -31,6 +31,7 @@ import Peatio from "../src/Exchanges/Peatio";
 import * as db from "../src/database";
 import * as ccxt from "ccxt";
 import Bybit from "../src/Exchanges/Bybit";
+import Bitkub from "../src/Exchanges/Bitkub";
 
 const logger = utils.logger
     , nconf = utils.nconf;
@@ -290,19 +291,19 @@ let testBitmex = async () => {
     let params = {}
 
     //let pair =[Currency.Currency.BTC, Currency.Currency.ETH]
-    let pair = new Currency.CurrencyPair(Currency.Currency.USD, Currency.Currency.ETH)
+    let pair = new Currency.CurrencyPair(Currency.Currency.USD, Currency.Currency.BTC)
     bitmex.subscribeToMarkets([pair])
     await utils.promiseDelay(500);
 
-    //binance.buy(pair, 0.00004040, 30).then((balances) => {
-    //binance.getOpenOrders(pair).then((balances) => {
+    //bitmex.buy(pair, 0.00004040, 30).then((balances) => {
+    //bitmex.getOpenOrders(pair).then((balances) => {
     //bitmex.importHistory(pair, new Date(Date.now()-22*utils.constants.HOUR_IN_SECONDS*1000), new Date()).then((test) => {
-    //binance.sell(pair, 0.00000623, 350).then((balances) => {
+    bitmex.marginSell(pair, 133, 350, params).then((test) => {
     //bitmex.marginOrder(pair, 9000, 0.001).then((test) => {
     //bitmex.getBalances().then((balances) => {
     //bitmex.marginCancelOrder(pair, "955d5624-5442-8e8a-f4cb-bdc87786adf3").then((test) => {
     //bitmex.marginBuy(pair, 123.44303, 12.3, params).then((test) => {
-    bitmex.getAllMarginPositions().then((test) => {
+    //bitmex.getAllMarginPositions().then((test) => {
         //binance.moveOrder(pair, 25959783, 0.00000723, 360, params).then((balances) => {
         console.log(test)
     }).catch((err) => {
@@ -358,18 +359,19 @@ let testBx = async () => {
 
 let testCcxt = async () => {
     //let coinbase = new Coss(nconf.get("serverConfig:apiKey:exchange:Coss")[0])
-    let coinbase = new Bybit(nconf.get("serverConfig:apiKey:exchange:Bybit")[0])
+    let coinbase = new Bitkub(nconf.get("serverConfig:apiKey:exchange:Bitkub")[0])
     let params = {}
 
     //let pair = new Currency.CurrencyPair(Currency.Currency.BTC, Currency.Currency.ETH)
-    let pair = new Currency.CurrencyPair(Currency.Currency.USD, Currency.Currency.ETH)
+    //let pair = new Currency.CurrencyPair(Currency.Currency.USD, Currency.Currency.ETH)
+    let pair = new Currency.CurrencyPair(Currency.Currency.THB, Currency.Currency.ETH)
     coinbase.subscribeToMarkets([pair]);
     await utils.promiseDelay(800); // wait til we are connected
 
     //coinbase.getTicker().then((test) => {
-    coinbase.fetchOrderBook(pair, 10).then((test) => {
+    //coinbase.fetchOrderBook(pair, 10).then((test) => {
     //coinbase.importHistory(pair, new Date(Date.now()-9*utils.constants.HOUR_IN_SECONDS*1000), new Date()).then((test) => {
-    //coinbase.buy(pair, 3500, 0.08, params).then((test) => {
+    coinbase.buy(pair, 3500, 0.08, params).then((test) => {
     //coinbase.sell(pair, 410, 0.08, params).then((test) => {
     //coinbase.cancelOrder(pair, 11054256).then((test) => {
     //coinbase.getOpenOrders(pair).then((test) => {

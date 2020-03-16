@@ -106,6 +106,7 @@ config/DeribitTradingViewImmediate.json
 config/FishingStraight.json
 config/HullSwinger.json
 config/arbitrage/Leg.json
+config/arbitrage/Leg-FX.json
 config/arbitrage/LegDouble.json
 src/Browser
 

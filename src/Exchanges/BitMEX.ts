@@ -35,8 +35,7 @@ export class BitMEXCurrencies extends AbstractContractExchangeCurrencies {
     protected exchange: /*AbstractExchange*/BitMEX;
 
     constructor(exchange: BitMEX) {
-        super();
-        this.exchange = exchange;
+        super(exchange);
     }
 
     public getExchangeName(localCurrencyName: string): string {

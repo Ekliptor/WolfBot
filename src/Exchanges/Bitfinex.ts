@@ -5,7 +5,21 @@
 import * as utils from "@ekliptor/apputils";
 const logger = utils.logger
     , nconf = utils.nconf;
-import {AbstractExchange, ExOptions, ExApiKey, OrderBookUpdate, OpenOrders, OpenOrder, ExRequestParams, ExResponse, OrderParameters, MarginOrderParameters, CancelOrderResult, PushApiConnectionType} from "./AbstractExchange";
+import {
+    AbstractExchange,
+    ExOptions,
+    ExApiKey,
+    OrderBookUpdate,
+    OpenOrders,
+    OpenOrder,
+    ExRequestParams,
+    ExResponse,
+    OrderParameters,
+    MarginOrderParameters,
+    CancelOrderResult,
+    PushApiConnectionType,
+    AbstractExchangeCurrencies
+} from "./AbstractExchange";
 import {
     AbstractLendingExchange, ActiveLoan, ExchangeActiveLoanMap, LoanOffers,
     MarginLendingParams
@@ -31,11 +45,11 @@ import {OfferResult} from "../structs/OfferResult";
 import {ExternalTickerExchange, filterCurrencyPairs} from "./ExternalTickerExchange";
 
 
-export class BitfinexCurrencies implements Currency.ExchangeCurrencies, Currency.ExternalExchangeTicker {
+export class BitfinexCurrencies extends AbstractExchangeCurrencies implements Currency.ExternalExchangeTicker {
     protected exchange: AbstractExchange;
 
     constructor(exchange: AbstractExchange) {
-        this.exchange = exchange;
+        super(exchange);
     }
 
     public getExchangeName(localCurrencyName: string): string {
@@ -51,7 +65,7 @@ export class BitfinexCurrencies implements Currency.ExchangeCurrencies, Currency
             return "spk";
         if (localCurrencyName === "BCH")
             return "bab";
-        return localCurrencyName.toLowerCase();
+        return super.getExchangeName(localCurrencyName).toLowerCase();
     }
     public getLocalName(exchangeCurrencyName: string): string {
         let exNameLower = this.removePrefix(exchangeCurrencyName).toLowerCase();
@@ -71,8 +85,8 @@ export class BitfinexCurrencies implements Currency.ExchangeCurrencies, Currency
     }
 
     public getExchangePair(localPair: Currency.CurrencyPair): string {
-        let str1 = Currency.Currency[localPair.from]
-        let str2 = Currency.Currency[localPair.to]
+        let str1 = this.getExchangeName(Currency.Currency[localPair.from])
+        let str2 = this.getExchangeName(Currency.Currency[localPair.to])
         if (!str1 || !str2) // currency pair not supported
             return undefined;
         //return "t" + str2 + str1 // tBTCLTC, no separator, t optional

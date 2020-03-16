@@ -3,7 +3,7 @@
 
 import * as utils from "@ekliptor/apputils";
 import {
-    AbstractExchange,
+    AbstractExchange, AbstractExchangeCurrencies,
     CancelOrderResult,
     ExOptions,
     ExRequestParams,
@@ -38,17 +38,17 @@ class LastTradePriceMap extends Map<string, number> { // (local currency string,
     }
 }
 
-export class BinanceCurrencies implements Currency.ExchangeCurrencies, Currency.ExternalExchangeTicker {
+export class BinanceCurrencies extends AbstractExchangeCurrencies implements Currency.ExternalExchangeTicker {
     protected exchange: AbstractExchange;
 
     constructor(exchange: AbstractExchange) {
-        this.exchange = exchange;
+        super(exchange);
     }
 
     public getExchangeName(localCurrencyName: string): string {
         if (localCurrencyName === "BCH")
             return "BCC";
-        return localCurrencyName
+        return super.getExchangeName(localCurrencyName);
     }
     public getLocalName(exchangeCurrencyName: string): string {
         if (exchangeCurrencyName === "BCC")
@@ -57,8 +57,8 @@ export class BinanceCurrencies implements Currency.ExchangeCurrencies, Currency.
     }
 
     public getExchangePair(localPair: Currency.CurrencyPair): string {
-        let str1 = Currency.Currency[localPair.from]
-        let str2 = Currency.Currency[localPair.to]
+        let str1 = this.getExchangeName(Currency.Currency[localPair.from])
+        let str2 = this.getExchangeName(Currency.Currency[localPair.to])
         if (!str1 || !str2)
             return undefined;
         return str2 + str1 // BTCLTC // pairs are reversed as on other exchanges. str2 before str1

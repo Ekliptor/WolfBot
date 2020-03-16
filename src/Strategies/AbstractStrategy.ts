@@ -152,6 +152,8 @@ export abstract class AbstractStrategy extends AbstractGenericStrategy {
     protected ticker: Ticker.Ticker = new Ticker.Ticker(Currency.Exchange.ALL);
     protected orderbookReady = false;
     protected tickerReady = false;
+    protected orderBook2: OrderBook<MarketOrder.MarketOrder> = new OrderBook<MarketOrder.MarketOrder>(); // for arbitrage we have 2 orderbooks
+    protected orderbook2Ready = false;
 
     protected rate = -1; // return a rate > 0 if this strategy forces AbstractTrader to buy/sell at a specific price
     protected closedPositions = false; // our strategy is already running for a while and closed (not just started). needed for sync
@@ -614,6 +616,17 @@ export abstract class AbstractStrategy extends AbstractGenericStrategy {
 
     public isOrderBookReady() {
         return this.orderbookReady;
+    }
+
+    public setOrderBook2(book: OrderBook<MarketOrder.MarketOrder>) {
+        if (this.orderbook2Ready)
+            return logger.warn("More than 2 Exchanges/Orderbooks per strategy are currently not supported") // and probably never will? we run on single exchanges
+        this.orderBook2 = book;
+        this.orderbook2Ready = true;
+    }
+
+    public isOrderBook2Ready() {
+        return this.orderbook2Ready;
     }
 
     public setTicker(ticker: Ticker.Ticker) {

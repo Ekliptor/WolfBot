@@ -19,6 +19,7 @@ import {AbstractNotification} from "./Notifications/AbstractNotification";
 import Notification from "./Notifications/Notification";
 
 
+
 export default class ExchangeController extends AbstractSubController {
     protected static readonly WAIT_CONFIG_ONCE_MS = 3000;
     protected static readonly EXCHANGE_KEYS_BACKUP_FILE = "exchangeKeys.json";

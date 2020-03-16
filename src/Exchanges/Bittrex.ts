@@ -5,7 +5,21 @@
 import * as utils from "@ekliptor/apputils";
 const logger = utils.logger
     , nconf = utils.nconf;
-import {AbstractExchange, ExOptions, ExApiKey, OrderBookUpdate, OpenOrders, OpenOrder, ExRequestParams, ExResponse, OrderParameters, MarginOrderParameters, CancelOrderResult, PushApiConnectionType} from "./AbstractExchange";
+import {
+    AbstractExchange,
+    ExOptions,
+    ExApiKey,
+    OrderBookUpdate,
+    OpenOrders,
+    OpenOrder,
+    ExRequestParams,
+    ExResponse,
+    OrderParameters,
+    MarginOrderParameters,
+    CancelOrderResult,
+    PushApiConnectionType,
+    AbstractExchangeCurrencies
+} from "./AbstractExchange";
 import {OrderResult} from "../structs/OrderResult";
 import {MarginPosition, MarginPositionList} from "../structs/MarginPosition";
 import MarginAccountSummary from "../structs/MarginAccountSummary";
@@ -26,17 +40,17 @@ import * as bittrex from "@ekliptor/node-bittrex-api-fix";
 import {ExternalTickerExchange, filterCurrencyPairs, isDesiredCurrencyPair} from "./ExternalTickerExchange";
 
 
-export class BittrexCurrencies implements Currency.ExchangeCurrencies, Currency.ExternalExchangeTicker {
+export class BittrexCurrencies extends AbstractExchangeCurrencies implements Currency.ExternalExchangeTicker {
     protected exchange: AbstractExchange;
 
     constructor(exchange: AbstractExchange) {
-        this.exchange = exchange;
+        super(exchange);
     }
 
     public getExchangeName(localCurrencyName: string): string {
         if (localCurrencyName === "BCH")
             return "BCC";
-        return localCurrencyName
+        return super.getExchangeName(localCurrencyName);
     }
     public getLocalName(exchangeCurrencyName: string): string {
         if (exchangeCurrencyName === "BCC")
@@ -49,7 +63,7 @@ export class BittrexCurrencies implements Currency.ExchangeCurrencies, Currency.
         let str2 = Currency.Currency[localPair.to]
         if (!str1 || !str2)
             return undefined;
-        return str1 + "-" + str2 // BTC-LTC
+        return this.getExchangeName(str1) + "-" + this.getExchangeName(str2) // BTC-LTC
     }
     public getLocalPair(exchangePair: string): Currency.CurrencyPair {
         let pair = exchangePair.split("-")

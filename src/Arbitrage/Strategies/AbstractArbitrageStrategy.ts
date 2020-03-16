@@ -242,7 +242,7 @@ export abstract class AbstractArbitrageStrategy extends AbstractStrategy {
             const missingExchangeName = Currency.getExchangeName(missingExchange);
             const latestCandle = this.getLastCandleForExchange(missingExchange, 1); // last one (offset=0) we just checked
             if (latestCandle === null) {
-                this.log(utils.sprintf("No recent candle present because no trades happened on %s. Delaying arbitrage", missingExchangeName));
+                this.logOnce(utils.sprintf("No recent candle present because no trades happened on %s. Delaying arbitrage", missingExchangeName));
                 return;
             }
             let mergedExistingCandles: ExchangeCandles = Object.assign(new ExchangeCandles(), existingCandles);

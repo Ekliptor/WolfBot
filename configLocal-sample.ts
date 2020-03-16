@@ -164,6 +164,16 @@ class ServerConfig {
                 secret: "",
                 marginNotification: 0.5
             }],
+            Bybit: [{
+                key: "",
+                secret: "",
+                marginNotification: 0.5
+            }],
+            Bitkub: [{
+                key: "",
+                secret: "",
+                marginNotification: 0.5
+            }],
             Peatio: [{
                 key: "",
                 secret: "",

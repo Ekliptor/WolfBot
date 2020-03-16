@@ -25,6 +25,42 @@ import {PendingOrder} from "../Trade/AbstractOrderTracker";
 import {AbstractNotification} from "../Notifications/AbstractNotification";
 import Notification from "../Notifications/Notification";
 
+
+export abstract class AbstractExchangeCurrencies implements Currency.ExchangeCurrencies {
+    protected exchange: AbstractExchange;
+    protected replaceCurrencyMap = new Map<string, string>(); // (from, to) - replace currency in outgoing exchange requests. Used for arbitrage with different fiat pairs
+
+    constructor(exchange: AbstractExchange) {
+        this.exchange = exchange;
+        let params: string[] = nconf.get("exchangeParams");
+        params.forEach((param) => {
+            if (param.indexOf(this.exchange.getClassName() + "=") !== 0)
+                return;
+            // look for ExchangeName=USD-THB
+            let coins = param.replace(/^[a-z0-9]+=/i, "").split("-");
+            if (coins.length !== 2) {
+                logger.warn("Unable to parse replace currencies for exchange %s: %s", this.exchange.getClassName(), param);
+                return;
+            }
+            this.replaceCurrencyMap.set(coins[0], coins[1]);
+        });
+    }
+
+    public getExchangeName(localCurrencyName: string): string {
+        let params: string[] = nconf.get("exchangeParams");
+        let replaceCurrency = this.replaceCurrencyMap.get(localCurrencyName);
+        return replaceCurrency === undefined ? localCurrencyName : replaceCurrency;
+    }
+
+    public abstract getExchangePair(localPair: Currency.CurrencyPair): string;
+
+    public abstract getLocalName(exchangeCurrencyName: string): string;
+
+    public abstract getLocalPair(exchangePair: string): Currency.CurrencyPair;
+
+    public abstract toLocalTicker(exchangeTicker: any): Ticker.Ticker;
+}
+
 export interface ExOptions {
     [key: string]: any;
 }
@@ -956,10 +992,12 @@ import "./Binance";
 import "./BinanceCcxt";
 import "./Bitfinex";
 import "./BitForex";
+import "./Bitkub";
 import "./BitMEX";
 import "./Bitstamp";
 import "./Bittrex";
 import "./BxCo";
+import "./Bybit";
 import "./CexIo";
 import "./Cobinhood";
 import "./CoinbasePro";

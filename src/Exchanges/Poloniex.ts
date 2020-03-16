@@ -3,7 +3,21 @@
 import * as utils from "@ekliptor/apputils";
 const logger = utils.logger
     , nconf = utils.nconf;
-import {AbstractExchange, ExOptions, ExApiKey, OrderBookUpdate, OpenOrders, OpenOrder, ExRequestParams, ExResponse, OrderParameters, MarginOrderParameters, CancelOrderResult, PushApiConnectionType} from "./AbstractExchange";
+import {
+    AbstractExchange,
+    ExOptions,
+    ExApiKey,
+    OrderBookUpdate,
+    OpenOrders,
+    OpenOrder,
+    ExRequestParams,
+    ExResponse,
+    OrderParameters,
+    MarginOrderParameters,
+    CancelOrderResult,
+    PushApiConnectionType,
+    AbstractExchangeCurrencies
+} from "./AbstractExchange";
 import {OrderResult} from "../structs/OrderResult";
 import {MarginPosition, MarginPositionList} from "../structs/MarginPosition";
 import MarginAccountSummary from "../structs/MarginAccountSummary";
@@ -33,17 +47,17 @@ const markets_currencies = {"bySymbol":{"1CR":{"id":1,"symbol":"1CR","name":"1CR
 
 
 
-export class PoloniexCurrencies implements Currency.ExchangeCurrencies, Currency.ExternalExchangeTicker {
+export class PoloniexCurrencies extends AbstractExchangeCurrencies implements Currency.ExternalExchangeTicker {
     protected exchange: AbstractExchange;
 
     constructor(exchange: AbstractExchange) {
-        this.exchange = exchange;
+        super(exchange);
     }
 
     public getExchangeName(localCurrencyName: string): string {
         if (localCurrencyName === "NEO")
             return "NEOS";
-        return localCurrencyName
+        return super.getExchangeName(localCurrencyName);
     }
     public getLocalName(exchangeCurrencyName: string): string {
         if (exchangeCurrencyName === "NEOS")

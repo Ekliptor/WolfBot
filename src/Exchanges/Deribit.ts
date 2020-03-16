@@ -42,8 +42,7 @@ export class DeribitCurrencies extends AbstractContractExchangeCurrencies {
     protected exchange: /*AbstractExchange*/Deribit;
 
     constructor(exchange: Deribit) {
-        super();
-        this.exchange = exchange;
+        super(exchange);
     }
 
     public getExchangeName(localCurrencyName: string): string {

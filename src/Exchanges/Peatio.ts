@@ -6,7 +6,7 @@
 
 import * as utils from "@ekliptor/apputils";
 import {
-    AbstractExchange,
+    AbstractExchange, AbstractExchangeCurrencies,
     CancelOrderResult,
     ExOptions,
     ExRequestParams,
@@ -31,11 +31,11 @@ import * as crypto from "crypto";
 const logger = utils.logger
     , nconf = utils.nconf;
 
-export class PeatioCurrencies implements Currency.ExchangeCurrencies {
+export class PeatioCurrencies extends AbstractExchangeCurrencies {
     protected exchange: AbstractExchange;
 
     constructor(exchange: AbstractExchange) {
-        this.exchange = exchange;
+        super(exchange);
     }
 
     public getExchangeName(localCurrencyName: string): string {
@@ -46,7 +46,7 @@ export class PeatioCurrencies implements Currency.ExchangeCurrencies {
             else if (exchangeName === "eth")
                 exchangeName = "fth";
         }
-        return exchangeName;
+        return super.getExchangeName(exchangeName).toLowerCase();
     }
     public getLocalName(exchangeCurrencyName: string): string {
         let localName = exchangeCurrencyName.toUpperCase();
@@ -60,8 +60,8 @@ export class PeatioCurrencies implements Currency.ExchangeCurrencies {
     }
 
     public getExchangePair(localPair: Currency.CurrencyPair): string {
-        let str1 = Currency.Currency[localPair.from]
-        let str2 = Currency.Currency[localPair.to]
+        let str1 = this.getExchangeName(Currency.Currency[localPair.from])
+        let str2 = this.getExchangeName(Currency.Currency[localPair.to])
         if (!str1 || !str2)
             return undefined;
         return this.getExchangeName(str2) + this.getExchangeName(str1); // ethusd
