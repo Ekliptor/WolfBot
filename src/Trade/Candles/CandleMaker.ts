@@ -49,7 +49,7 @@ export class CandleMaker<T extends TradeBase> extends CandleStream<T> {
         if (nconf.get('trader') !== "Backtester") { // don't spam our backtest log
             const exchange = Currency.Exchange[this.exchange];
             candles.forEach((candle) => {
-                logger.verbose("1min %s candle %s: high %s, low %s, close %s, volume %s, trades %s", exchange, candle.currencyPair.toString(),
+                logger.verbose("1min %s candle %s at %s: high %s, low %s, close %s, volume %s, trades %s", exchange, candle.currencyPair.toString(), utils.date.toDateTimeStr(candle.start, true, true),
                     candle.high.toFixed(8), candle.low.toFixed(8), candle.close.toFixed(8), candle.volume.toFixed(8), candle.trades);
             })
         }

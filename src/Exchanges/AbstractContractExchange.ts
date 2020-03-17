@@ -124,7 +124,7 @@ export abstract class AbstractContractExchange extends AbstractExchange {
     }
 
     protected getFutureContractType(): string {
-        let params: string[] = nconf.get("exchangeParams");
+        let params: string[] = nconf.get("exchangeParams") || [];
         for (let i = 0; i < params.length; i++)
         {
             if (params[i].indexOf("contract=") === 0)

@@ -112,6 +112,20 @@ export abstract class AbstractCurrencyRates {
         return amount * rate;
     }
 
+    /**
+     * Convert a given amount. This function ignores the cache expiry time and never initiates a cache update.
+     * @param from
+     * @param to
+     * @param amount
+     * @return the converted amount or 0.0 on error.
+     */
+    public convertFromCache(from: string, to: string, amount: number): number {
+        const rate = this.getRateFromCache(from, to);
+        if (rate === undefined)
+            return 0.0;
+        return amount * rate;
+    }
+
     // ################################################################
     // ###################### PRIVATE FUNCTIONS #######################
 

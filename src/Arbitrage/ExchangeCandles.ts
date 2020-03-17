@@ -13,7 +13,9 @@ export class ExchangeCandles {
     public addCandle(candle: Candle.Candle) {
         let existingCandle = this.getExchangeCandle(candle.exchange);
         if (existingCandle) {
-            logger.error("Can not add multiple exchange candles (%s, %s) for the same time interval", existingCandle.exchange, candle.exchange);
+            logger.warn("Can not add multiple exchange candles (existing: %s %s, new: %s %s) for the same time interval",
+                Currency.getExchangeName(existingCandle.exchange), utils.date.toDateTimeStr(existingCandle.start, true, true),
+                Currency.getExchangeName(candle.exchange), utils.date.toDateTimeStr(candle.start, true, true));
             return;
         }
         this.candles.push(candle);

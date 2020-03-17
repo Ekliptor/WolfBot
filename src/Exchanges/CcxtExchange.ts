@@ -1,5 +1,6 @@
 
 // https://github.com/ccxt/ccxt
+// https://github.com/ccxt/ccxt/wiki/Manual
 // alternative with ws: https://github.com/altangent/ccxws
 
 import * as utils from "@ekliptor/apputils";
@@ -526,17 +527,19 @@ export abstract class CcxtExchange extends AbstractExchange {
                     else
                         this.marketStream.write(this.currencyPairs[i], tradeResults[i], this.localSeqNr);
                 }
-                schedulePoll()
             }).catch((err) => {
                 logger.error("Error polling %s order book and trades", this.className, err)
+            }).then(() => {
                 schedulePoll() // continue
-            })
+            });
         }
         let schedulePoll = () => {
             clearTimeout(this.httpPollTimerID); // be sure
             this.httpPollTimerID = setTimeout(() => {
-                if (this.pollTrades === false)
+                if (this.pollTrades === false) {
+                    logger.warn("Stopped polling trades in %s due to settings change", this.className);
                     return;
+                }
                 pollBook()
             }, this.httpPollIntervalSec * 1000)
         }

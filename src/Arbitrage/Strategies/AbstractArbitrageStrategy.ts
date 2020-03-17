@@ -35,6 +35,17 @@ export interface ArbitrageStrategyAction extends StrategyAction {
     tradingFeeDefault: number; // default 0.1%. fee used when the exchange is not listed in "tradingFees"
 }
 
+export interface ExchangeFiatConversion {
+    from: string; // currency name: USD...
+    to: string; // currency name: THB...
+}
+
+export class ExchangeFiatConversionMap extends Map<string, ExchangeFiatConversion> {
+    constructor() {
+        super();
+    }
+}
+
 /**
  * An arbitrage strategy is a special kind of trading strategy. Here we create
  * candle ticks for all exchanges together (to compare prices and do arbitrage).
@@ -52,6 +63,10 @@ export abstract class AbstractArbitrageStrategy extends AbstractStrategy {
     protected arbitrageExchangePair: ArbitrageExchangePair = null;
     protected arbitrageRate: ArbitrageRate = null;
     protected arbitrageState: ArbitrageState = "none";
+    protected exchangeCandlesReady: boolean = false;
+
+    protected exchangeRates = new ExchangeRates();
+    protected fiatConversions = new ExchangeFiatConversionMap();
 
     protected exchangeCandles: ExchangeCandles[] = []; // history starting at pos 0 with most recent candle
     protected exchangeCandleMap = new ExchangeCandleMap(); // map where we collect current candles
@@ -82,6 +97,11 @@ export abstract class AbstractArbitrageStrategy extends AbstractStrategy {
         this.exchangeNames = exchangeNames;
         if (this.exchanges.length !== this.exchangeNames.length)
             logger.error("Exchange labels and names must have the same length. labels %s, names %s", this.exchanges.length, this.exchangeNames.length)
+    }
+
+    public setConfig(config: TradeConfig) {
+        super.setConfig(config);
+        this.loadCurrencyConversionSettings();
     }
 
     public getCurrentArbitrageExchangePair(): ArbitrageExchangePair {
@@ -215,6 +235,7 @@ export abstract class AbstractArbitrageStrategy extends AbstractStrategy {
     protected candleTick(candle: Candle.Candle): Promise<void> {
         return new Promise<void>((resolve, reject) => {
             this.groupExchangeCandles(candle);
+            this.updateFiatCurrencyRates();
             resolve()
         })
     }
@@ -232,8 +253,14 @@ export abstract class AbstractArbitrageStrategy extends AbstractStrategy {
             this.exchangeCandleMap.set(key, existingCandles);
         }
         existingCandles.addCandle(candle);
-        if (existingCandles.candles.length === this.exchanges.length)
+        if (existingCandles.candles.length === this.exchanges.length) {
+            if (this.exchangeCandlesReady === false) {
+                setTimeout(() => { // wait for initial trades to replay
+                    this.exchangeCandlesReady = true;
+                }, 1000);
+            }
             this.sendExchangeCandleTick(existingCandles);
+        }
         else if (this.exchanges.length === 2 && existingCandles.candles.length === 1) {
             // simple solution if we do arbitrage between 2 exchanges and one of them doesn't have any trades
             // we try to get the most recent candle of the other exchange and do arbitrage between those 2 candles
@@ -242,12 +269,14 @@ export abstract class AbstractArbitrageStrategy extends AbstractStrategy {
             const missingExchangeName = Currency.getExchangeName(missingExchange);
             const latestCandle = this.getLastCandleForExchange(missingExchange, 1); // last one (offset=0) we just checked
             if (latestCandle === null) {
-                this.logOnce(utils.sprintf("No recent candle present because no trades happened on %s. Delaying arbitrage", missingExchangeName));
+                if (this.exchangeCandlesReady === true)
+                    this.logOnce(utils.sprintf("No recent candle present because no trades happened on %s. Delaying arbitrage", missingExchangeName));
                 return;
             }
             let mergedExistingCandles: ExchangeCandles = Object.assign(new ExchangeCandles(), existingCandles);
             mergedExistingCandles.addCandle(latestCandle);
-            this.log(utils.sprintf("Only %s exchange has new trades. Using older trades for %s exchange", presentExchangeName, missingExchangeName));
+            if (this.exchangeCandlesReady === true)
+                this.log(utils.sprintf("Only %s exchange has new trades. Using older trades for %s exchange", presentExchangeName, missingExchangeName));
             this.sendExchangeCandleTick(mergedExistingCandles);
         }
         else {
@@ -338,6 +367,56 @@ export abstract class AbstractArbitrageStrategy extends AbstractStrategy {
         return null;
     }
 
+    protected loadCurrencyConversionSettings() {
+        let params: string[] = nconf.get("exchangeParams");
+        params.forEach((param) => {
+            this.config.exchanges.forEach((exchangeName) => {
+                if (param.indexOf(exchangeName + "=") !== 0)
+                    return;
+                // look for ExchangeName=USD-THB
+                let coins = param.replace(/^[a-z0-9]+=/i, "").split("-");
+                if (coins.length !== 2) {
+                    this.warn(utils.sprintf("Unable to parse replace currencies in %s for exchange %s: %s", this.className, exchangeName, param));
+                    return;
+                }
+                this.fiatConversions.set(exchangeName, {from: coins[0], to: coins[1]});
+            });
+        });
+        this.updateFiatCurrencyRates();
+    }
+
+    protected async updateFiatCurrencyRates(): Promise<void> {
+        for (let rate of this.fiatConversions)
+        {
+            const conversion = rate[1];
+            await this.exchangeRates.getRate(conversion.to, conversion.from); // trigger a fetch if expired in cache
+        }
+    }
+
+    /**
+     * Converts rate into the config base currency (USD, ...) in case the 2 exchanges use different fiat currencies.
+     * @param amount
+     */
+    protected getFirstExchangeRate(amount: number): number {
+        const exchangeName = this.config.exchanges[0];
+        const conversion = this.fiatConversions.get(exchangeName);
+        if (conversion === undefined)
+            return amount;
+        return this.exchangeRates.convertFromCache(conversion.to, conversion.from, amount); // convert back
+    }
+
+    /**
+     * Converts rate into the config base currency (USD, ...) in case the 2 exchanges use different fiat currencies.
+     * @param amount
+     */
+    protected getSecondExchangeRate(amount: number): number {
+        const exchangeName = this.config.exchanges[1];
+        const conversion = this.fiatConversions.get(exchangeName);
+        if (conversion === undefined)
+            return amount;
+        return this.exchangeRates.convertFromCache(conversion.to, conversion.from, amount); // convert back
+    }
+
     protected resetValues(): void {
         super.resetValues();
     }
@@ -345,3 +424,6 @@ export abstract class AbstractArbitrageStrategy extends AbstractStrategy {
 
 // force loading dynamic imports for TypeScript
 import "./Spread";
+import "./LegInwards";
+import "./Leg";
+import {ExchangeRates} from "../../Fiat/ExchangeRates";

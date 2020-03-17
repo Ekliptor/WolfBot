@@ -16,6 +16,9 @@ export default class Bybit extends CcxtExchange {
         this.currencies.setSwitchCurrencyPair(true);
         let config = this.getExchangeConfig();
         //config.uid = this.apiKey.passphrase;
+        config.headers = {
+            tag: "wolfbot"
+        }
         this.apiClient = new ccxt.bybit(config);
         this.apiClient.loadMarkets().then(() => {
             this.onExchangeReady();

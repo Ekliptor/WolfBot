@@ -126,7 +126,7 @@ export abstract class AbstractGenericTrader extends EventEmitter {
     }
 
     protected checkSendPausedNotification(message: string, currencyStr: string) {
-        if (this.notifiedPaused === true/* || this.tradeNotifier === null*/)
+        if (this.notifiedPaused === true/* || this.tradeNotifier === null*/ || nconf.get("debug") === true)
             return;
         this.notifiedPaused = true;
         let notifier = AbstractNotification.getInstance();
