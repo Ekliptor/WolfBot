@@ -126,6 +126,8 @@ export abstract class AbstractOrderTracker {
         let timeoutSec = pendingOrder.strategy.getMoveOpenOrderSec(pendingOrder);
         if (timeoutSec > 0)
             return timeoutSec * 1000;
+        if (nconf.get("arbitrage"))
+            return nconf.get("serverConfig:checkOrdersFilledArbitrageSec") * 1000;
         if (pendingOrder.exchange.isContractExchange())
             return nconf.get("serverConfig:orderContractExchangeAdjustSec") * 1000
         if (pendingOrder.orderParameters.postOnly)

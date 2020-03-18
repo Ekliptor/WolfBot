@@ -82,6 +82,7 @@ src/Social/Feeds
 src/Social/Watcher
 config/social
 src/Arbitrage/Strategies/Leg.ts
+src/Arbitrage/Strategies/LegInwards.ts
 src/Strategies/BitmexSwagger.ts
 src/Strategies/MarketMakerOffset.ts
 src/Strategies/MarketMakerMartingale.ts

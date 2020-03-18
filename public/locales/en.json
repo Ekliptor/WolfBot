@@ -1486,6 +1486,7 @@
       "priceAddPercent": "default 0.05% - The percentage the prices on the market we make shall differ from the leg exchange we mirror the orderbook from. This is our profit. Therefore this value must be higher than your trading fees on both exchanges combined plus the maximum possible rounding up loss depending on each exchange's minimum trade tick size (see bookDepthPerSide).",
       "bookDepthPerSide": "default 20 - The price-depth of bids and asks that shall be mirrored. It is measured as the number of orderbook price-level entries, so depending on the minimum trade tick size of each exchange the actual number of orders might be different on both exchanges. Yet they both with go the same price-depth into the bids and asks.<br>Keep in mind that increasing this value will increase the number of trade API requests to the smaller exchange, so be sure your request limit is sufficiently high.",
       "maxAmountPerOrder": "optional, default tradeTotalBtc - The max amount (in coin = quote currency) of a single order. The actual amount will be min(maxAmountPerOrder, amount on leg exchange). This value can't be higher than tradeTotalBtc.",
+      "fixedAmountPerOrder": "optional, default 0.0 (copy from each order) - Use a fixed amount for each order instead. Takes precedence over maxAmountPerOrder.",
       "maxTotalExposure": "optional, default 500.000 - Max amount in base currency of all open orders combined (in coin = quote currency).",
       "minDelayAdjustOrdersMs": "default 300 ms - The minimum delay in milliseconds before updating orders."
     }
@@ -1494,6 +1495,7 @@
     "desc": "Arbitrage strategy using limit orders with 1 leg \"standing\" on the current price rate of the higher-volume exchange. Thereby offering liquidity to the lower-volume exchange by copying the orderbook.<br>Unlike the Leg strategy this strategy places orders inwards on the smaller exchange (to reduce the spread). The leg strategy just copies orders with a configurable price offset in percent.<br>It uses limit orders at market rate on the stronger exchange with more liquidity after an order has been filled.",
     "copySide": "default \"bids\" - Which side of the orderbook shall be mirrored. Values: bids|asks",
     "maxAmountPerOrder": "optional, default tradeTotalBtc - The max amount (in coin = quote currency) of a single order. The actual amount will be min(maxAmountPerOrder, amount on leg exchange). This value can't be higher than tradeTotalBtc.",
+    "fixedAmountPerOrder": "optional, default 0.0 (copy from each order) - Use a fixed amount for each order instead. Takes precedence over maxAmountPerOrder.",
     "maxTotalExposure": "optional, default 500.000 - Max amount in base currency of all open orders combined (in coin = quote currency).",
     "pricePointsAddWeak": "optional, default 0 - How many units of price (base currency) shall we go inwards to reduce the spread in the orderbook when placing orders on the small exchange.",
     "minSpreadPercent": "optional, default 0.1% - The minimum spread that must exist to place new orders.",

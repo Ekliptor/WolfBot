@@ -371,7 +371,7 @@ let testCcxt = async () => {
     //coinbase.getTicker().then((test) => {
     //coinbase.fetchOrderBook(pair, 10).then((test) => {
     //coinbase.importHistory(pair, new Date(Date.now()-9*utils.constants.HOUR_IN_SECONDS*1000), new Date()).then((test) => {
-    coinbase.buy(pair, 3500, 0.08, params).then((test) => {
+    coinbase.sell(pair, 3990, 0.08, params).then((test) => {
     //coinbase.sell(pair, 410, 0.08, params).then((test) => {
     //coinbase.cancelOrder(pair, 11054256).then((test) => {
     //coinbase.getOpenOrders(pair).then((test) => {
