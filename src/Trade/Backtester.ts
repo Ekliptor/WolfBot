@@ -57,6 +57,8 @@ export default class Backtester extends PortfolioTrader {
 
         // check if we have fully imported that range
         let history = new TradeHistory.TradeHistory(this.config.markets[0], exchange.getExchangeLabel(), start, end);
+        if (process.env.END_TOLERANCE_MIN)
+            history.endToleranceMin = parseInt(process.env.END_TOLERANCE_MIN);
         TradeHistory.isAvailable(db.get(), history).then((available) => {
             if (available === false) {
                 if (this.tradeImportStarted === false) {

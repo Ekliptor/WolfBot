@@ -16,6 +16,7 @@ import Kraken from "../src/Exchanges/Kraken";
 import Bitfinex from "../src/Exchanges/Bitfinex";
 import {MultipleCurrencyImportExchange, currencyImportMap} from "../configLocal";
 import * as db from "../src/database";
+import BitMEX from "../src/Exchanges/BitMEX";
 
 
 let scheduleExit = (delayMs = 500, code = 0) => {
@@ -53,12 +54,13 @@ let importTrades = () => {
 }
 
 let completeHistoryImport = () => {
-   // let ex = new Poloniex(nconf.get("serverConfig:apiKey:exchange:Poloniex"))
+    let ex = new Poloniex(nconf.get("serverConfig:apiKey:exchange:Poloniex"))
     //let ex = new OKEX(nconf.get("serverConfig:apiKey:exchange:OKEX")[0])
     //let ex = new Kraken(nconf.get("serverConfig:apiKey:exchange:Kraken")[0])
-    let ex = new Bitfinex(nconf.get("serverConfig:apiKey:exchange:Bitfinex")[0]);
+    //let ex = new Bitfinex(nconf.get("serverConfig:apiKey:exchange:Bitfinex")[0]);
+    //let ex = new BitMEX(nconf.get("serverConfig:apiKey:exchange:BitMEX")[0]);
 
-    let pair = new Currency.CurrencyPair(Currency.Currency.USD, Currency.Currency.XRP)
+    let pair = new Currency.CurrencyPair(Currency.Currency.USDT, Currency.Currency.BTC)
 
     let start = utils.date.parseAsGmt0(nconf.get("serverConfig:backtest:from"))
     let end = utils.date.parseAsGmt0(nconf.get("serverConfig:backtest:to"))

@@ -24,6 +24,7 @@ import * as childProcess from "child_process";
 import Notification from "./Notifications/Notification";
 import {AbstractNotification} from "./Notifications/AbstractNotification";
 import {CandleBatcher} from "./Trade/Candles/CandleBatcher";
+import {liveTradeImportMap, MultipleCurrencyImportExchange} from "../configLocal";
 const fork = childProcess.fork;
 
 const processFiles = [path.join(utils.appDir, 'app.js'),
@@ -296,6 +297,18 @@ export abstract class AbstractAdvisor extends AbstractSubController {
         })
     }
 
+    public static liveTradeImportsAvailable(exchangeName: string, currencyPair: Currency.CurrencyPair): boolean {
+        const exchangePairs = liveTradeImportMap.get(exchangeName as MultipleCurrencyImportExchange);
+        if (exchangePairs === undefined)
+            return false;
+        for (let i = 0; i < exchangePairs.length; i++)
+        {
+            if (exchangePairs[i].equals(currencyPair) === true)
+                return true;
+        }
+        return false;
+    }
+
     // ################################################################
     // ###################### PRIVATE FUNCTIONS #######################
 
@@ -514,6 +527,7 @@ export abstract class AbstractAdvisor extends AbstractSubController {
             backtest.endMs = Date.now();
             env.START_TIME_MS = backtest.endMs - backtest.minutes*utils.constants.MINUTE_IN_SECONDS*1000; // TODO pack data into a message and send it via JSON
             env.END_TIME_MS = backtest.endMs;
+            env.END_TOLERANCE_MIN = nconf.get("serverConfig:backtestImportToleranceMin");
             env.START_BALANCE = ""; // use default values. only the time range matters here
             env.SLIPPAGE = "";
             env.TRADING_FEE = "";

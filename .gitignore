@@ -100,6 +100,7 @@ config/WeekPredictor.json
 src/Exchanges/BitmexFix.ts
 src/Indicators/MarketDepth.ts
 config/BitmexWeek.json
+config/OkexBiQuarter.json
 config/OkexWeek.json
 config/OkexWeekSwap.json
 config/BitmexWeekStops.json

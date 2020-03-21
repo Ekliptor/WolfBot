@@ -1160,7 +1160,7 @@ export default class TradeAdvisor extends AbstractAdvisor {
         let exchange = this.exchanges.get(config.exchanges[0]);
         if (!exchange)
             logger.error("Echange %s to start backtest for warmup isn't loaded", config.exchanges[0]); // shouldn't happen
-        else if (exchange.supportsAutomaticImports() === false) {
+        else if (exchange.supportsAutomaticImports() === false && AbstractAdvisor.liveTradeImportsAvailable(exchange.getClassName(), currencyPair) === false) {
             logger.info("WolfBot doesn't support automatic trade history imports for %s (yet). Your bot will have to run for some time to collect enough live data before trading...", config.exchanges[0]);
             return; // checked again in Backtester before import, but faster to abort here
         }
