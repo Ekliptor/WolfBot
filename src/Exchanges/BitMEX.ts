@@ -257,11 +257,7 @@ export default class BitMEX extends AbstractContractExchange {
             let params = {
                 currency: "XBt" // BitMEX wallet only holds XBT
             }
-<<<<<<< HEAD
-            this.privateReq("GET /user/wallet", params).then((balance) => {
-=======
-            this.privateReq("GET /user/walletSummary", params).then((balance) => { // TODO use /wallet instead of walletSummary
->>>>>>> 46be85a724b3b8eb65bb21ff1ddd86e4722a86a3
+            this.privateReq("GET /user/wallet", params).then((balance) => { // instead of /walletSummary
                 //console.log(balance)
                 if (!balance || balance.error)
                     return reject({txt: "Error getting bitmex balance", err: balance});
@@ -437,9 +433,9 @@ export default class BitMEX extends AbstractContractExchange {
 
             this.verifyTradeRequest(currencyPair, rate, amount, params).then((oP) => {
                 let marketPair = this.currencies.getExchangePair(currencyPair);
-                
+
                 // fix amount for XBTUSD pair since it is expecting USD instead of BTC
-                if (currencyPair.equals(new Currency.CurrencyPair(Currency.Currency.USD, Currency.Currency.BTC))) {
+                if (currencyPair.equals(new Currency.CurrencyPair(Currency.Currency.USD, Currency.Currency.BTC)) || currencyPair.equals(new Currency.CurrencyPair(Currency.Currency.USD, Currency.Currency.ETH))) {
                     amount = Math.round(amount * rate);
                 }
 
@@ -666,7 +662,7 @@ export default class BitMEX extends AbstractContractExchange {
                 }, options)
             }
             else if (verb == "POST" || verb == "DELETE") {
-                logger.info('Posting', urlStr, 'with:', params);
+                //logger.verbose('Posting to %s:', urlStr, params);
                 if (verb == "DELETE") {
                     options.method = "DELETE"
                 }

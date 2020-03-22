@@ -144,6 +144,16 @@ class ServerConfig {
                 secret: "",
                 marginNotification: 0.5
             }],
+            BinanceFutures: [{
+                key: "",
+                secret: "",
+                marginNotification: 0.5
+            }],
+            KrakenFutures: [{
+                key: "",
+                secret: "",
+                marginNotification: 0.5
+            }],
             BxCo: [{
                 key: "",
                 secret: "",
