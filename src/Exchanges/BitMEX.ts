@@ -257,18 +257,13 @@ export default class BitMEX extends AbstractContractExchange {
             let params = {
                 currency: "XBt" // BitMEX wallet only holds XBT
             }
-            this.privateReq("GET /user/walletSummary", params).then((balance) => {
+            this.privateReq("GET /user/wallet", params).then((balance) => {
                 //console.log(balance)
                 if (!balance || balance.error)
                     return reject({txt: "Error getting bitmex balance", err: balance});
                 let balances = {}
-                // 0 = deposit, 1 = total
-                if (balance.length > 1 && typeof balance[1].walletBalance === "number")
-                    balances["BTC"] = BitMEX.satoshi2BTC(balance[1].walletBalance);
-                else if (balance.length > 0)
-                    balances["BTC"] = balance[0].amount || 0.0;
-                else
-                    balances["BTC"] = 0.0;
+                balances["BTC"] = BitMEX.satoshi2BTC(balance.amount);
+
                 resolve(Currency.fromExchangeList(balances, this.currencies))
             }).catch((err) => {
                 reject(err)
@@ -438,6 +433,11 @@ export default class BitMEX extends AbstractContractExchange {
 
             this.verifyTradeRequest(currencyPair, rate, amount, params).then((oP) => {
                 let marketPair = this.currencies.getExchangePair(currencyPair);
+                
+                // fix amount for XBTUSD pair since it is expecting USD instead of BTC
+                if (currencyPair.equals(new Currency.CurrencyPair(Currency.Currency.USD, Currency.Currency.BTC))) {
+                    amount = Math.round(amount * rate);
+                }
 
                 let outParams: any = {
                     'symbol': marketPair, //"XBTUSD",
@@ -629,19 +629,19 @@ export default class BitMEX extends AbstractContractExchange {
     protected myReq(base_url: string, method: string, params: ExRequestParams = {}) {
         return new Promise<ExResponse>((resolve, reject) => {
             if (!base_url || !this.apiKey)
-                return reject({txt: "PrivateApiUrl and apiKey must be provided for private exchange request", exchange: this.className})
+                return reject({ txt: "PrivateApiUrl and apiKey must be provided for private exchange request", exchange: this.className })
 
             let verb_method = method.split(" ");
 
             let verb = verb_method[0]
             let path = this.restApiPath + verb_method[1]
             let data = '';
-            if(verb == "GET") {
+            if (verb == "GET") {
                 path += "?" + querystring.stringify(params);
             }
-            else if(verb == "POST") {
+            else if (verb == "POST") {
                 data = JSON.stringify(params);
-            }else if(verb == "DELETE") {
+            } else if (verb == "DELETE") {
                 data = querystring.stringify(params);
             }
 
@@ -652,7 +652,7 @@ export default class BitMEX extends AbstractContractExchange {
             }
 
             const urlStr = base_url + path;
-            if(verb == "GET") {
+            if (verb == "GET") {
                 this.get(urlStr, (body, response) => {
                     this.verifyExchangeResponse(body, response, method).then((json) => {
                         resolve(json)
@@ -661,7 +661,8 @@ export default class BitMEX extends AbstractContractExchange {
                     })
                 }, options)
             }
-            else if(verb == "POST" || verb == "DELETE") {
+            else if (verb == "POST" || verb == "DELETE") {
+                logger.info('Posting', urlStr, 'with:', params);
                 if (verb == "DELETE") {
                     options.method = "DELETE"
                 }
