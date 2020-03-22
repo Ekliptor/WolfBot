@@ -16,7 +16,8 @@ export default class BinanceCcxt extends CcxtExchange {
         this.fee = 0.001;
         this.currencies.setSwitchCurrencyPair(true);
         let opts = this.getExchangeConfig();
-        //opts.options= {defaultMarket: "margin"} // also "futures" // TODO wait for this PR https://github.com/ccxt/ccxt/pull/5907
+        if (opts.defaultMarket !== undefined)
+            opts.options= {defaultMarket: "margin"} // also "futures"
         this.apiClient = new ccxt.binance(opts);
         this.apiClient.loadMarkets().then(() => {
             this.onExchangeReady();

@@ -272,7 +272,7 @@ let testBinance = () => {
     let pair = new Currency.CurrencyPair(Currency.Currency.USDT, Currency.Currency.BTC)
     binance.subscribeToMarkets([pair])
 
-    binance.buy(pair, 8000.0, 0.1).then((balances) => {
+    //binance.buy(pair, 8000.0, 0.1).then((balances) => {
     //binance.marginBuy(pair, 0.0091495725, 1.0929472387917578, {}).then((balances) => {
     //binance.getOpenOrders(pair).then((balances) => {
     //binance.importHistory(pair, new Date(Date.now()-2*utils.constants.HOUR_IN_SECONDS*1000), new Date()).then((balances) => {
@@ -280,6 +280,7 @@ let testBinance = () => {
     //binance.getOpenOrders(pair).then((balances) => {
     //binance.moveOrder(pair, 25959783, 0.00000723, 360, params).then((balances) => {
     //binance.getExternalTicker(["USD_BTC"]).then((balances) => {
+    binance.getAllMarginPositions().then((balances) => {
         console.log(balances)
     }).catch((err) => {
         logger.error("Error trading", err)
@@ -298,12 +299,12 @@ let testBitmex = async () => {
     //bitmex.buy(pair, 0.00004040, 30).then((balances) => {
     //bitmex.getOpenOrders(pair).then((balances) => {
     //bitmex.importHistory(pair, new Date(Date.now()-22*utils.constants.HOUR_IN_SECONDS*1000), new Date()).then((test) => {
-    bitmex.marginSell(pair, 133, 350, params).then((test) => {
+    //bitmex.marginSell(pair, 133, 350, params).then((test) => {
     //bitmex.marginOrder(pair, 9000, 0.001).then((test) => {
-    //bitmex.getBalances().then((balances) => {
+    //bitmex.getBalances().then((test) => {
     //bitmex.marginCancelOrder(pair, "955d5624-5442-8e8a-f4cb-bdc87786adf3").then((test) => {
     //bitmex.marginBuy(pair, 123.44303, 12.3, params).then((test) => {
-    //bitmex.getAllMarginPositions().then((test) => {
+    bitmex.getAllMarginPositions().then((test) => {
         //binance.moveOrder(pair, 25959783, 0.00000723, 360, params).then((balances) => {
         console.log(test)
     }).catch((err) => {
@@ -430,12 +431,12 @@ Controller.loadServerConfig(() => {
         //testBitfinex()
         //testPolo();
         //testBittrex();
-        //testBinance();
+        testBinance();
         //testBitmex();
         //testBitmexLiquidations();
         //testDeribit();
         //testBx();
-        testCcxt();
+        //testCcxt();
         //testPaetio();
         //updateHistory();
     })
