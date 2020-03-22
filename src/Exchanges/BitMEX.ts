@@ -257,7 +257,11 @@ export default class BitMEX extends AbstractContractExchange {
             let params = {
                 currency: "XBt" // BitMEX wallet only holds XBT
             }
+<<<<<<< HEAD
             this.privateReq("GET /user/wallet", params).then((balance) => {
+=======
+            this.privateReq("GET /user/walletSummary", params).then((balance) => { // TODO use /wallet instead of walletSummary
+>>>>>>> 46be85a724b3b8eb65bb21ff1ddd86e4722a86a3
                 //console.log(balance)
                 if (!balance || balance.error)
                     return reject({txt: "Error getting bitmex balance", err: balance});

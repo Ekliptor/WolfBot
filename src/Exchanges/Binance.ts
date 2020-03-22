@@ -116,6 +116,7 @@ export default class Binance extends AbstractExchange implements ExternalTickerE
     protected apiClient: /*BinanceAPI*/any; // TODO wait for typings update
     protected lastTradePrice = new LastTradePriceMap();
     protected binanceCCxt: BinanceCcxt; // this library updates binance LOT/tick sizes, so use it for buying/selling
+    protected binanceCCxtMargin: BinanceCcxt;
 
     constructor(options: ExOptions) {
         super(options)
@@ -138,6 +139,8 @@ export default class Binance extends AbstractExchange implements ExternalTickerE
         });
         this.binanceCCxt = new BinanceCcxt(options);
         this.binanceCCxt.setPollTrades(false);
+        this.binanceCCxtMargin = new BinanceCcxt(Object.assign({defaultMarket: "margin"}, options));
+        this.binanceCCxtMargin.setPollTrades(false);
     }
 
     public async getTicker(): Promise<Ticker.TickerMap> {
@@ -506,10 +509,25 @@ export default class Binance extends AbstractExchange implements ExternalTickerE
         return this.moveMarginOrder(currencyPair, orderNumber, rate, amount, params); // TODO really same?
     }
 
-    public getAllMarginPositions(): Promise<MarginPositionList> {
-        return new Promise<MarginPositionList>((resolve, reject) => {
-            reject({txt: "Margin trading is not supported.", exchange: this.className})
-        })
+    public async getAllMarginPositions(): Promise<MarginPositionList> {
+        let list = new MarginPositionList();
+        try {
+            // fapiPrivatePositionrisk, privateGetPosition
+            let exchangePos = await this.binanceCCxtMargin.getApiClient().fetchBalance({});
+            console.log(exchangePos)
+            let position = new MarginPosition(this.maxLeverage);
+            /** // TODO these don't exist on CCXT? we only get (locked) balances
+             * position.amount = helper.parseFloatVal(pos.amount);
+             position.basePrice = helper.parseFloatVal(pos.base);
+             position.type = position.amount > 0 ? "long" : "short";
+             position.pl = helper.parseFloatVal(pos.pl);
+             */
+            return undefined
+        }
+        catch (err) {
+            logger.error("Error getting all %s margin positions", this.className, err);
+            throw err;
+        }
     }
 
     public getMarginPosition(currencyPair: Currency.CurrencyPair): Promise<MarginPosition> {
