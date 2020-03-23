@@ -305,6 +305,7 @@ export default class TradeAdvisor extends AbstractAdvisor {
         configs.forEach((config) => {
             let pairs = config.listConfigCurrencyPairs();
             pairs.forEach((pair) => {
+                let confStrategies = strategies.get(pair);
                 if (!json[pair]) { // TODO don't restore if exchange changed with same currency pair? (should be a new config file)
                     let found = false;
                     if (nconf.get("serverConfig:searchAllPairsForState")) {
@@ -319,14 +320,17 @@ export default class TradeAdvisor extends AbstractAdvisor {
                             }
                         }
                     }
-                    if (!found)
-                        return logger.warn("Skipped restoring state for config currency pair %s because no data was provided", pair);
+                    if (!found) {
+                        logger.warn("Skipped restoring state for config currency pair %s because no data was provided", pair);
+                        const maxMinutes = this.getMaxWarmupMinutes(confStrategies);
+                        this.createStateFromBacktest(confStrategies[0].getAction().pair, maxMinutes, confStrategies, config);
+                        return;
+                    }
                 }
                 let restoreData = json[pair];
                 pair = pair.replace(/^[0-9]+/, config.configNr.toString()) // restore the real config number in case we changed it
                 let fallback = new RestoryStrategyStateMap();
                 let missingStrategyStates: AbstractStrategy[] = [];
-                let confStrategies = strategies.get(pair);
                 confStrategies.forEach((strategy) => {
                     let strategyName = strategy.getClassName();
                     if (!restoreData[strategyName]) {
