@@ -415,6 +415,10 @@ export abstract class AbstractAdvisor extends AbstractSubController {
         }
     }
 
+    /**
+     * Return the strategy with the most 1min candles.
+     * @param strategies
+     */
     protected getMaxCandleHistoryStrategy(strategies: AbstractGenericStrategy[]) {
         let maxStrategy: AbstractGenericStrategy = null;
         for (let i = 0; i < strategies.length; i++)

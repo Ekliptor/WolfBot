@@ -383,7 +383,8 @@ export default class TradeAdvisor extends AbstractAdvisor {
                             let state = strategy.createStateFromMinuteCandles(maxCandleHistoryStrategy.getCandles1Min());
                             try {
                                 strategy.unserialize(state);
-                                logger.info("Restored strategy state of %s %s using state created from 1min candles from %s in %s", pair, strategyName, maxCandleHistoryStrategy.getClassName(), path.basename(filePath))
+                                logger.info("Restored strategy state of %s %s using state created from %s 1min candles from %s in %s",
+                                    pair, strategyName, state.candles1min.length, maxCandleHistoryStrategy.getClassName(), path.basename(filePath))
                                 restored = true;
                                 restoreBacktestStates.delete(strategy);
                             }
