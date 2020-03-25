@@ -436,7 +436,7 @@ export default class BitMEX extends AbstractContractExchange {
 
                 // fix amount for XBTUSD pair since it is expecting USD instead of BTC
                 if (currencyPair.equals(new Currency.CurrencyPair(Currency.Currency.USD, Currency.Currency.BTC)) || currencyPair.equals(new Currency.CurrencyPair(Currency.Currency.USD, Currency.Currency.ETH))) {
-                    amount = Math.round(amount * rate);
+                    amount = Math.ceil(Math.round(amount * rate)); // fixed "invalid orderQty", must be integer for USD perp contracts
                 }
 
                 let outParams: any = {
