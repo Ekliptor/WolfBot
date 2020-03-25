@@ -424,6 +424,6 @@ export abstract class AbstractArbitrageStrategy extends AbstractStrategy {
 
 // force loading dynamic imports for TypeScript
 import "./Spread";
-import "./LegInwards";
-import "./Leg";
+//import "./LegInwards"; // only premium/cloud
+//import "./Leg"; // only premium/cloud
 import {ExchangeRates} from "../../Fiat/ExchangeRates";
