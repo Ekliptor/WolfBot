@@ -1615,7 +1615,7 @@ export class ConfigEditor extends AppPublisher {
                     nconf.set("serverConfig:lastWorkingConfigTime", new Date());
                     this.lastWorkingExchanges = utils.uniqueArrayValues<string>(Array.from(this.advisor.getExchanges().keys()));
                 }
-            }, 30*1000);
+            }, 15*1000);
             serverConfig.saveConfigLocal();
         }
     }

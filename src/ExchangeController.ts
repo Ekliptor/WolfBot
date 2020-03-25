@@ -164,6 +164,8 @@ export default class ExchangeController extends AbstractSubController {
         this.tryLoadExchangKeys(activeProcessCount);
         if (this.isExchangesIdle() ===  true) { // sometimes nconf is slower reading initial data?
             setTimeout(async () => {
+                if (this.isExchangesIdle() !==  true)
+                    return;
                 await this.loadExchangeKeyBackup();
                 this.tryLoadExchangKeys(activeProcessCount);
             }, 2500);
