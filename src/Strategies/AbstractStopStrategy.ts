@@ -259,6 +259,23 @@ export abstract class AbstractStopStrategy extends /*AbstractStrategy*/Technical
         let rsi = this.indicators.get("RSI");
         if (rsi)
             reason += ", RSI " + rsi.getValue().toFixed(2);
+
+        let stopPrice = "";
+        const action: any = this.action; // some properties only exist in subclasses
+        if (this.strategyPosition === "long") {
+            if (action.stopLong > 0)
+                stopPrice += action.stopLong.toFixed(8) + " " + Currency.getCurrencyLabel(this.action.pair.from);
+            else if (action.setbackLong > 0)
+                stopPrice += action.setbackLong.toFixed(2) + "%";
+        }
+        else if (this.strategyPosition === "short") {
+            if (action.stop > 0)
+                stopPrice += action.stop.toFixed(8) + " " + Currency.getCurrencyLabel(this.action.pair.from);
+            else if (action.setback > 0)
+                stopPrice += action.setback.toFixed(2) + "%";
+        }
+        if (stopPrice.length !== 0)
+            reason += "\r\nStop: " + stopPrice;
         return reason;
     }
 
