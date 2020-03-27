@@ -210,7 +210,7 @@ export abstract class AbstractStrategy extends AbstractGenericStrategy {
     }
 
     public sendCandleTick(candle: Candle.Candle) {
-        this.tickQueue = this.tickQueue.then(() => {
+        this.tickQueueCandles = this.tickQueueCandles.then(() => {
             this.candle = candle;
             this.candleTrend = candle.trend;
             this.candleTicks++;
@@ -229,7 +229,7 @@ export abstract class AbstractStrategy extends AbstractGenericStrategy {
     }
 
     public send1minCandleTick(candle: Candle.Candle) {
-        this.tickQueue = this.tickQueue.then(() => {
+        this.tickQueueCandles1Min = this.tickQueueCandles1Min.then(() => {
             candle = Object.assign(new Candle.Candle(candle.currencyPair), candle);
             if (candle.tradeData !== undefined)
                 delete candle.tradeData;

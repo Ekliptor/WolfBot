@@ -62,6 +62,9 @@ export abstract class AbstractGenericStrategy extends EventEmitter {
     protected currentCandle: Candle.Candle = null;
 
     protected tickQueue = Promise.resolve();
+    protected tickQueueCandles = Promise.resolve();
+    protected tickQueueCandles1Min = Promise.resolve();
+    protected tickQueueCurrentCandle = Promise.resolve();
     //protected candleTickQueue = Promise.resolve(); // use the same queue to ensure we never mix buy/sell events
     protected tradeTick = 0; // counter for debugging and print logs every x trades. gets reset
     protected candleTicks = 0; // counts the number of candle ticks received. NEVER gets reset
@@ -168,7 +171,7 @@ export abstract class AbstractGenericStrategy extends EventEmitter {
     }
 
     public sendCurrentCandleTick(candle: Candle.Candle) {
-        this.tickQueue = this.tickQueue.then(() => {
+        this.tickQueueCurrentCandle = this.tickQueueCurrentCandle.then(() => {
             candle = Object.assign(new Candle.Candle(candle.currencyPair), candle);
             let isNew = true;
             if (this.currentCandle && this.currentCandle.start.getTime() === candle.start.getTime())
