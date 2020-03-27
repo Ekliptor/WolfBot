@@ -12,6 +12,7 @@ interface TakeProfitPartialAction extends AbstractTakeProfitStrategyAction {
     // add interest rates for margin trading (0.13% on average for BTC on poloniex) ==> > 0.63%
     stop: number; // optional. A fixed stop price when to sell (> for long position) or buy (< for short position). If present takes precedence over 'profit'.
     profit: number; // 1.3% // in %
+    updateTrailingStop: boolean; // optional, default true - True means the setback value is used as trailing stop. False means it is set to a fixed rate once when opening a position.
     percentage: number; // 20% // how many percent of the open position shall be closed
     // TODO reopen percentage: how many % the price has to move back AFTER taking profit to increase the position again
 
