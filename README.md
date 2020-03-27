@@ -77,6 +77,10 @@ There is documentation available here: https://forum.wolfbot.org/forums/strategy
 
 Look into the `/src/Strategies` folder for more examples.
 
+[Incoming trades flow diagram](https://raw.githubusercontent.com/Ekliptor/WolfBot/master/tests/docs/diagram-incomgin.png)
+[Outgoing trades flow diagram](https://raw.githubusercontent.com/Ekliptor/WolfBot/master/tests/docs/diagram-outgoing.png)
+
+
 
 ### Modifying the UI
 In the project root directory, run:
