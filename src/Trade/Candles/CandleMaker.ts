@@ -22,6 +22,7 @@ export class CandleMaker<T extends TradeBase> extends CandleStream<T> {
     protected threshold: Date = new Date(0); // start date for candles. we filter trades older than this date
     //protected lastTrade: Trade.Trade = null;
     protected lastTrade: T = null;
+    protected lastCandleMinute: number = -1;
     protected candleCache: Candle.Candle[] = []; // cache for faster repeated backtests (on the same time period)
 
     constructor(currencyPair: Currency.CurrencyPair, exchange: Currency.Exchange = Currency.Exchange.ALL) {
@@ -98,7 +99,15 @@ export class CandleMaker<T extends TradeBase> extends CandleStream<T> {
     // ###################### PRIVATE FUNCTIONS #######################
 
     protected emitCandles(candles: Candle.Candle[]) {
-        if (candles.length !== 0 && nconf.get("serverConfig:backtest:cacheCandles") && nconf.get('trader') === "Backtester")
+        if (candles.length === 0)
+            return;
+        const latestCandle = candles[candles.length-1];
+        if (this.lastCandleMinute === latestCandle.start.getUTCMinutes()) {
+            logger.warn("Skipped emitting another candle for minute %s, last %s", this.lastCandleMinute, utils.date.toDateTimeStr(latestCandle.start, true, true));
+            return;
+        }
+        this.lastCandleMinute = latestCandle.start.getUTCMinutes();
+        if (nconf.get("serverConfig:backtest:cacheCandles") && nconf.get('trader') === "Backtester")
             this.candleCache = this.candleCache.concat(candles);
         super.emitCandles(candles)
     }
