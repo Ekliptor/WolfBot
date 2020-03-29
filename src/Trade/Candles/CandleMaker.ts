@@ -38,7 +38,19 @@ export class CandleMaker<T extends TradeBase> extends CandleStream<T> {
         this.fillBuckets(trades);
         let candles = this.calculateCandles();
 
-        candles = this.addEmptyCandles(candles, previousEndTime);
+        // find the max date where we stopped emitting to know where to start filling empty candle gaps (if there are no trades)
+        let maxDate = previousEndTime;
+        if (maxDate) {
+            if (this.threshold && this.threshold.getTime() > previousEndTime.getTime())
+                maxDate = this.threshold;
+            if (maxDate && this.lastCandleMinute >= 0) {
+                let lastEmitDate = new Date(maxDate); // copy
+                lastEmitDate.setUTCMinutes(this.lastCandleMinute+1); // increment to ensure we don't send the same
+                if (lastEmitDate.getTime() > maxDate.getTime())
+                    maxDate = previousEndTime;
+            }
+        }
+        candles = this.addEmptyCandles(candles, maxDate);
 
         // the last candle is not complete, don't emit it & keep it in here (in buckets)
         let last = candles.pop();
@@ -103,13 +115,15 @@ export class CandleMaker<T extends TradeBase> extends CandleStream<T> {
             return;
         const latestCandle = candles[candles.length-1];
         if (this.lastCandleMinute === latestCandle.start.getUTCMinutes()) {
-            logger.warn("Skipped emitting another candle for minute %s, last %s", this.lastCandleMinute, utils.date.toDateTimeStr(latestCandle.start, true, true));
+            //logger.warn("Skipped emitting another candle for minute %s, last %s", this.lastCandleMinute, utils.date.toDateTimeStr(latestCandle.start, true, true));
             return;
         }
         this.lastCandleMinute = latestCandle.start.getUTCMinutes();
         if (nconf.get("serverConfig:backtest:cacheCandles") && nconf.get('trader') === "Backtester")
             this.candleCache = this.candleCache.concat(candles);
-        super.emitCandles(candles)
+        //for (let i = 0; i < candles.length; i++)
+            //logger.verbose("emitting candle: %s", utils.date.toDateTimeStr(candles[i].start, true, true));
+        super.emitCandles(candles);
     }
 
     protected emitCurrentCandle(candle: Candle.Candle) {
@@ -156,6 +170,10 @@ export class CandleMaker<T extends TradeBase> extends CandleStream<T> {
                 this.buckets.delete(bucket[0]);
             candles.push(candle);
         }
+        // ensure candles are sorted by date ascending
+        candles = _.sortBy(candles, (candle) => {
+            return candle.start ? candle.start.getTime() : 0;
+        });
 
         return candles;
     }
@@ -218,7 +236,7 @@ export class CandleMaker<T extends TradeBase> extends CandleStream<T> {
         if (!amount)
             return candles;
 
-        let start = new Date(previousEndTime ? previousEndTime : _.first<Candle.Candle>(candles).start);
+        let start = new Date(previousEndTime ? utils.date.dateAdd(previousEndTime, "minute", 1) : _.first<Candle.Candle>(candles).start);
         const end = _.last<Candle.Candle>(candles).start;
         let i, j = -1;
 
@@ -239,6 +257,7 @@ export class CandleMaker<T extends TradeBase> extends CandleStream<T> {
             const emptyCandle = new Candle.Candle(this.currencyPair);
             emptyCandle.exchange = this.exchange;
             emptyCandle.start = new Date(start);
+            emptyCandle.start.setUTCSeconds(0, 0);
             emptyCandle.open = lastPrice;
             emptyCandle.high = lastPrice;
             emptyCandle.low = lastPrice;

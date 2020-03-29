@@ -1,0 +1,22 @@
+{
+    "data": [
+        {
+            "exchanges": [
+                "Bitfinex"
+            ],
+            "marginTrading": true,
+            "tradeTotalBtc": 0,
+            "warmUpMin": 0,
+            "updateIndicatorsOnTrade": false,
+            "flipPosition": false,
+            "closePositionFirst": false,
+            "strategies": {
+                "CandleTester": {
+                    "pair": "USD_BTC",
+                    "candleSize": 1,
+                    "enableLog": true
+                }
+            }
+        }
+    ]
+}

@@ -10,7 +10,6 @@
                     "fishingMode": "trend",
                     "percentage": 15.0,
                     "maxPosIncreases": 7,
-                    "scaleOutPerc": 0.0,
                     "tradingAmountIncreaseFactor": 1.1,
                     "profitPercent": 4.1,
                     "interval": 24,

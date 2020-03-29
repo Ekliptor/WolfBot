@@ -10,6 +10,7 @@ import "./src/Strategies/BollingerDayTrader";
 import "./src/Strategies/BollingerStop";
 import "./src/Strategies/BreakoutDetector";
 import "./src/Strategies/CandleRepeater";
+import "./src/Strategies/CandleTester";
 import "./src/Strategies/ChannelBreakout";
 import "./src/Strategies/CurrencyPairArbitrage";
 import "./src/Strategies/DayTrader";
