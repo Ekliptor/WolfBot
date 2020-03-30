@@ -148,9 +148,10 @@ export class CandleBatcher<T extends TradeBase> extends CandleStream<T> {
             }
         }
 
-        this.lastCandle = this.calculate();
+        this.lastCandle = this.calculate(this.interval);
         this.emitCandles([this.lastCandle]);
-        this.minuteCandles = [];
+        //this.minuteCandles = []; // don't remove all
+        this.minuteCandles.splice(0, this.interval); // modifies array
     }
 
     protected emitCurrentCandle(candle: Candle.Candle) {
@@ -161,8 +162,11 @@ export class CandleBatcher<T extends TradeBase> extends CandleStream<T> {
         }, 10);
     }
 
-    protected calculate() {
-        return CandleBatcher.batchCandles(this.minuteCandles, this.interval,false);
+    protected calculate(maxNumCandles: number = -1) {
+        let candlesToBatch = this.minuteCandles;
+        if (maxNumCandles !== -1)
+            candlesToBatch = candlesToBatch.slice(0, maxNumCandles);
+        return CandleBatcher.batchCandles(candlesToBatch, this.interval,false);
     }
 
     protected static cloneCandles(candles: Candle.Candle[]): Candle.Candle[] {
