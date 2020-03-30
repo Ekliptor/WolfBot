@@ -457,6 +457,8 @@ export default class BitMEX extends AbstractContractExchange {
                 if (outParams.ordType == "Limit") {
                     outParams.price = this.toTickSize(currencyPair, rate);
                 }
+                if (params && params.postOnly)
+                    outParams.ParticipateDoNotInitiate = "1";
 
                 return this.privateReq("POST /order", outParams)
             }).then((response) => {
