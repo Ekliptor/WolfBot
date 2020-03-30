@@ -56,6 +56,11 @@ export class CandleMaker<T extends TradeBase> extends CandleStream<T> {
         let last = candles.pop();
         if (last) { // the latest trades are kept in this.buckets
             this.threshold = last.start;
+            if (trades.length !== 0) {
+                const latestTrade = trades[trades.length-1]; // candle seconds get reset to 00
+                if (latestTrade.date.getTime() > last.start.getTime())
+                    this.threshold = latestTrade.date;
+            }
             this.emitCurrentCandle(last);
         }
 
