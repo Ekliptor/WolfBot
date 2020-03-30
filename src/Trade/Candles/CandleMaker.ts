@@ -43,7 +43,7 @@ export class CandleMaker<T extends TradeBase> extends CandleStream<T> {
         if (maxDate) {
             if (this.threshold && this.threshold.getTime() > previousEndTime.getTime())
                 maxDate = this.threshold;
-            if (maxDate && this.lastCandleMinute >= 0) {
+            if (this.lastCandleMinute >= 0) {
                 let lastEmitDate = new Date(maxDate); // copy
                 lastEmitDate.setUTCMinutes(this.lastCandleMinute+1); // increment to ensure we don't send the same
                 if (lastEmitDate.getTime() > maxDate.getTime())
@@ -236,7 +236,7 @@ export class CandleMaker<T extends TradeBase> extends CandleStream<T> {
         if (!amount)
             return candles;
 
-        let start = new Date(previousEndTime ? utils.date.dateAdd(previousEndTime, "minute", 1) : _.first<Candle.Candle>(candles).start);
+        let start = new Date(previousEndTime ? utils.date.dateAdd(previousEndTime, "second", 59) : _.first<Candle.Candle>(candles).start);
         const end = _.last<Candle.Candle>(candles).start;
         let i, j = -1;
 
