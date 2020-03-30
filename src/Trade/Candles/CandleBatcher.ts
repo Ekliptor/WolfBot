@@ -150,7 +150,7 @@ export class CandleBatcher<T extends TradeBase> extends CandleStream<T> {
 
         this.lastCandle = this.calculate(this.interval);
         this.emitCandles([this.lastCandle]);
-        //this.minuteCandles = []; // don't remove all
+        //this.minuteCandles = []; // don't remove all. if we get candles very fast (backtesting) some candles might get swallowed otherwise
         this.minuteCandles.splice(0, this.interval); // modifies array
     }
 
