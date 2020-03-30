@@ -22,7 +22,7 @@ export default class Telegram extends AbstractNotification {
             //throw new Error("Telegram receiver (token) and channel ID must be set to send Telegram notifications");
         if (!this.options.receiver || !this.options.channel)
             throw new Error("Telegram receiver (token) and channel ID must be set to send Telegram notifications");
-        else if (/^-*[0-9]+$/.test(this.options.channel) === false && this.options.channel[0] !== "@")
+        else if (/^-?[0-9]+$/.test(this.options.channel) === false && this.options.channel[0] !== "@")
             throw new Error("Telegram channel ID must start with @ or be a numeric channel ID from: curl -X POST https://api.telegram.org/bot[BOT_API_KEY]/getUpdates");
         // TODO add support for admin notifications
 
