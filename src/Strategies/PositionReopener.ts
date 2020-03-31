@@ -26,6 +26,7 @@ interface PositionReopenerAction extends TechnicalStrategyAction {
  * This is helpful if you have a strong bias in one direction but also want to trade cautious at a
  * support/resistance line and always place a stop.
  * This strategy should run on a low candle size (1min) to react quickly.
+ * You can use this strategy with manual stops too. It will re-open positions that have not been closed by WolfBot.
  */
 export default class PositionReopener extends TechnicalStrategy {
     public action: PositionReopenerAction;

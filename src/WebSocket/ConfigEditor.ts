@@ -151,6 +151,7 @@ export class ConfigEditor extends AppPublisher {
     protected lastWorkingExchanges: string[] = [];
     protected pairChangePendingRestart = false;
     protected initialPairs = new Set<string>();
+    protected saveStateTimerID: NodeJS.Timer = null;
     protected static restarting: boolean = false;
 
     constructor(serverSocket: ServerSocket, advisor: AbstractAdvisor) {
@@ -1242,7 +1243,8 @@ export class ConfigEditor extends AppPublisher {
     protected scheduleSaveState() {
         if (nconf.get("serverConfig:saveStateMin") == 0)
             return;
-        setTimeout(() => {
+        clearTimeout(this.saveStateTimerID);
+        this.saveStateTimerID = setTimeout(() => {
             this.saveState().then(() => {
                 let existingConfigs = nconf.get("serverConfig:userConfigs") || [];
                 const currentConfig = ConfigEditor.activeConfig + ".json"; // Foo.json (without / or path)
