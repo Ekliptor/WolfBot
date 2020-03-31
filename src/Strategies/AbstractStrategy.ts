@@ -204,6 +204,8 @@ export abstract class AbstractStrategy extends AbstractGenericStrategy {
         }).then(() => {
             this.emit("doneTick", this);
             this.emit("info", this.getInfo());
+        }).then(() => {
+            return this.waitCandlesInSync();
         }).catch((err) => {
             logger.error("Error in tick of %s", this.className, err)
         })

@@ -629,6 +629,23 @@ export abstract class AbstractGenericStrategy extends EventEmitter {
         return this.loadModule<AbstractCandlestickPatterns>(modulePath, options)
     }
 
+    protected async waitCandlesInSync(): Promise<void> {
+        if (nconf.get('trader') !== "Backtester")
+            return;
+
+        // during backtestin candles are often processed slower than trades
+        // (note that candles are generated from trades)
+        // to ensure they are in sync (affects mostly market time) we have to wait sometimes
+        // for pending events in event loop to finish
+        if (!this.candle || !this.marketTime)
+            return; // no candle yet
+        else if (this.action.candleSize < 1)
+            return; // shouldn't happen
+        while (this.candle.start.getTime() + this.action.candleSize*utils.constants.MINUTE_IN_SECONDS*1000 < this.marketTime.getTime()) {
+            await utils.promiseDelay(5);
+        }
+    }
+
     protected loadModule<T>(modulePath: string, options = undefined): T {
         try {
             let ModuleClass = require(modulePath)

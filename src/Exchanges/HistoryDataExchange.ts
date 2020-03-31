@@ -247,10 +247,10 @@ export default class HistoryDataExchange extends AbstractExchange {
                 //setTimeout(callback.bind(this), 0)
                 let doCallback = (count) => { // return to the event loop multiple times to ensure all async actions are being executed
                     if (count > 0)
-                        return setTimeout(doCallback.bind(this), --count);
+                        return setTimeout(doCallback.bind(this, --count), 0);
                     setTimeout(callback.bind(this), 0)
                 }
-                setTimeout(doCallback.bind(this), 3)
+                setTimeout(doCallback.bind(this, 1), 0)
             }
             let onFinish = () => {
                 if (count % HistoryDataExchange.REPLAY_TRADES_PER_CALL !== 0) { // add the remaining docs
