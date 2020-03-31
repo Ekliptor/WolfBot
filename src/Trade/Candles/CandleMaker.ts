@@ -118,9 +118,10 @@ export class CandleMaker<T extends TradeBase> extends CandleStream<T> {
         for (let i = 0; i < candles.length; i++)
         {
             const minute = candles[i].start.getUTCMinutes();
-            if (this.lastCandleMinutes.has(minute) === true)
+            if (this.lastCandleMinutes.has(minute) === true) {
+                //logger.warn("skipped duplicate candle: %s", utils.date.toDateTimeStr(candles[i].start, true, true));
                 continue;
-            //logger.verbose("emitting candle: %s", utils.date.toDateTimeStr(candles[i].start, true, true));
+            }
             uniqueCandles.push(candles[i]);
             this.addLastCandleMinute(minute);
         }
@@ -243,7 +244,9 @@ export class CandleMaker<T extends TradeBase> extends CandleStream<T> {
             return candles;
 
         let start = new Date(previousEndTime ? previousEndTime : _.first<Candle.Candle>(candles).start);
-        const end = _.last<Candle.Candle>(candles).start;
+        start.setUTCSeconds(0, 0);
+        const end = new Date(_.last<Candle.Candle>(candles).start);
+        end.setUTCSeconds(0, 0);
         let i, j = -1;
 
         let minutes = _.map(candles, (candle) => {

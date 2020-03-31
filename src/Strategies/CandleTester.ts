@@ -34,8 +34,9 @@ export default class CandleTester extends TechnicalStrategy {
     // ###################### PRIVATE FUNCTIONS #######################
     protected async candleTick(candle: Candle.Candle): Promise<void> {
         this.candleTickCounter += 1;
-        logger.verbose("%s candle: %s CandleTester Market time: %s",
-            this.candleTickCounter, utils.getUnixTimeStr(true, candle.start), utils.getUnixTimeStr(true, this.marketTime));
+        logger.verbose("%s candle: %s CandleTester Market time: %s, open %s, close %s, volume %s, trades %s",
+            this.candleTickCounter, utils.getUnixTimeStr(true, candle.start), utils.getUnixTimeStr(true, this.marketTime),
+            candle.open.toFixed(2), candle.close.toFixed(2), candle.volume.toFixed(2), candle.trades);
 
         return super.candleTick(candle);
     }
