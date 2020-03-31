@@ -418,7 +418,15 @@ export default class TradeAdvisor extends AbstractAdvisor {
     }
 
     public backtestDone() {
-        return new Promise<void>((resolve, reject) => {
+        return new Promise<void>(async (resolve, reject) => {
+            for (let batcherMap of this.candleBatchers)
+            {
+                for (let bat of batcherMap[1])
+                {
+                    bat[1].flush(); // emit all remaining candles
+                }
+            }
+            await utils.promiseDelay(nconf.get("serverConfig:waitCandlesInSyncMs"));
             let storeOps = []
             for (let maker of this.candleMakers)
             {

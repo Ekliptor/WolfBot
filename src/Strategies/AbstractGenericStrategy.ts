@@ -633,17 +633,19 @@ export abstract class AbstractGenericStrategy extends EventEmitter {
         if (nconf.get('trader') !== "Backtester")
             return;
 
-        // during backtestin candles are often processed slower than trades
+        // during backtesting candles are often processed slower than trades
         // (note that candles are generated from trades)
-        // to ensure they are in sync (affects mostly market time) we have to wait sometimes
+        // to ensure the strategy is in sync (affects mostly market time) we have to wait sometimes
         // for pending events in event loop to finish
         if (!this.candle || !this.marketTime)
             return; // no candle yet
         else if (this.action.candleSize < 1)
             return; // shouldn't happen
+        const waitMs = nconf.get("serverConfig:waitCandlesInSyncMs");
         while (this.candle.start.getTime() + this.action.candleSize*utils.constants.MINUTE_IN_SECONDS*1000 < this.marketTime.getTime()) {
-            await utils.promiseDelay(5);
+            await utils.promiseDelay(waitMs);
         }
+        // TODO do we need a sync function to wait if candles go ahead in time?
     }
 
     protected loadModule<T>(modulePath: string, options = undefined): T {
