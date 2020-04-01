@@ -220,7 +220,9 @@ export default class HistoryDataExchange extends AbstractExchange {
             let count = 0;
             let cb = () => {
                 setTimeout(() => { // wait until strategies are done
-                    logger.info("Done replaying %s %s %s trades", this.className, currencyPair.toString(), count)
+                    setTimeout(() => {
+                        logger.info("Done replaying %s %s %s trades", this.className, currencyPair.toString(), count)
+                    }, 10);
                     resolve();
                 }, 1000)
             }
