@@ -423,7 +423,9 @@ export default class TradeAdvisor extends AbstractAdvisor {
             {
                 for (let bat of batcherMap[1])
                 {
-                    bat[1].flush(); // emit all remaining candles
+                    //bat[1].flush(); // emit all remaining candles
+                    for (let i = 0; i < 10; i++)
+                        bat[1].addCandles([]); // emit full candles only
                 }
             }
             await utils.promiseDelay(nconf.get("serverConfig:waitCandlesInSyncMs"));

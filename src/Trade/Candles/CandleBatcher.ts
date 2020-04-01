@@ -30,6 +30,8 @@ export class CandleBatcher<T extends TradeBase> extends CandleStream<T> {
     public addCandles(candles: Candle.Candle[]) {
         if (candles.length !== 0)
             this.lastSmallCandle = candles[candles.length-1];
+        else
+            this.checkCandleReady();
         // loop through our 1 minute candles and emit x minute candles at the right time
         _.each(candles, (candle) => {
             this.minuteCandles.push(candle);
