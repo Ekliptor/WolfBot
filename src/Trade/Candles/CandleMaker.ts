@@ -33,18 +33,19 @@ export class CandleMaker<T extends TradeBase> extends CandleStream<T> {
         //if (_.isEmpty(trades)) // shouldn't happen
             //return;
 
-        const previousEndTime: Date = this.lastTrade ? this.lastTrade.date : null;
+        //const previousEndTime: Date = this.lastTrade ? this.lastTrade.date : null;
         trades = this.filter(trades);
         this.fillBuckets(trades);
         let candles = this.calculateCandles();
 
         // find the max date where we stopped emitting to know where to start filling empty candle gaps (if there are no trades)
+        /*
         let maxDate = previousEndTime;
         if (maxDate) {
             if (this.threshold && this.threshold.getTime() < previousEndTime.getTime()) // < // try to keep lower value since we filter duplicate candle emits either way
                 maxDate = this.threshold;
-        }
-        candles = this.addEmptyCandles(candles, maxDate);
+        }*/
+        candles = this.addEmptyCandles(candles/*, maxDate*/);
 
         // the last candle is not complete, don't emit it & keep it in here (in buckets)
         let last = candles.pop();
