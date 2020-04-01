@@ -836,6 +836,18 @@ export abstract class AbstractStrategy extends AbstractGenericStrategy {
             let mainStrategies = this.strategyGroup.getMainStrategies();
             if (mainStrategies.length === 0) {
                 logger.warn("No main strategy found in %s %s to unserialize 1min candle history", this.action.pair.toString(), this.className);
+                let allStrategies = this.strategyGroup.getAllStrategies(); // use the 1st other strategy with candles as fallback
+                let found = false;
+                for (let i = 0; i < allStrategies.length; i++)
+                {
+                    this.candles1min = allStrategies[i].getCandles1Min();
+                    if (this.candles1min.length !== 0) {
+                        found = true;
+                        break;
+                    }
+                    if (found === false)
+                        logger.warn("No strategy found in %s %s to unserialize 1min candle history", this.action.pair.toString(), this.className);
+                }
                 return;
             }
             this.candles1min = mainStrategies[0].getCandles1Min(); // don't copy them to save memory
