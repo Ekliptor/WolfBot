@@ -23,6 +23,7 @@ export class CandleMaker<T extends TradeBase> extends CandleStream<T> {
     //protected lastTrade: Trade.Trade = null;
     protected lastTrade: T = null;
     protected lastCandleMinutes = new Set<number>();
+    //protected lastCandleTime: Date = null;
     protected candleCache: Candle.Candle[] = []; // cache for faster repeated backtests (on the same time period)
 
     constructor(currencyPair: Currency.CurrencyPair, exchange: Currency.Exchange = Currency.Exchange.ALL) {
@@ -33,6 +34,7 @@ export class CandleMaker<T extends TradeBase> extends CandleStream<T> {
         //if (_.isEmpty(trades)) // shouldn't happen
             //return;
 
+        // previous end threshold shouldn't be needed anymore since we filter duplicates before emitting candles
         //const previousEndTime: Date = this.lastTrade ? this.lastTrade.date : null;
         trades = this.filter(trades);
         this.fillBuckets(trades);
@@ -45,7 +47,7 @@ export class CandleMaker<T extends TradeBase> extends CandleStream<T> {
             if (this.threshold && this.threshold.getTime() < previousEndTime.getTime()) // < // try to keep lower value since we filter duplicate candle emits either way
                 maxDate = this.threshold;
         }*/
-        candles = this.addEmptyCandles(candles/*, maxDate*/);
+        candles = this.addEmptyCandles(candles, /*maxDate*//*this.lastCandleTime*/);
 
         // the last candle is not complete, don't emit it & keep it in here (in buckets)
         let last = candles.pop();
@@ -125,6 +127,7 @@ export class CandleMaker<T extends TradeBase> extends CandleStream<T> {
             }
             uniqueCandles.push(candles[i]);
             this.addLastCandleMinute(minute);
+            //this.lastCandleTime = candles[i].start;
         }
         candles = uniqueCandles;
 
