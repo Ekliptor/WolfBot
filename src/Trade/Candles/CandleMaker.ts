@@ -23,7 +23,7 @@ export class CandleMaker<T extends TradeBase> extends CandleStream<T> {
     //protected lastTrade: Trade.Trade = null;
     protected lastTrade: T = null;
     protected lastCandleMinutes = new Set<number>();
-    //protected lastCandleTime: Date = null;
+    protected lastCandleTime: Date = null;
     protected candleCache: Candle.Candle[] = []; // cache for faster repeated backtests (on the same time period)
 
     constructor(currencyPair: Currency.CurrencyPair, exchange: Currency.Exchange = Currency.Exchange.ALL) {
@@ -47,7 +47,8 @@ export class CandleMaker<T extends TradeBase> extends CandleStream<T> {
             if (this.threshold && this.threshold.getTime() < previousEndTime.getTime()) // < // try to keep lower value since we filter duplicate candle emits either way
                 maxDate = this.threshold;
         }*/
-        candles = this.addEmptyCandles(candles, /*maxDate*//*this.lastCandleTime*/);
+        // during live trading the websocket trades stream might interrupt. ensure we always have candles every minute
+        candles = this.addEmptyCandles(candles, /*maxDate*/nconf.get('trader') !== "Backtester" ? this.lastCandleTime : null);
 
         // the last candle is not complete, don't emit it & keep it in here (in buckets)
         let last = candles.pop();
@@ -127,7 +128,7 @@ export class CandleMaker<T extends TradeBase> extends CandleStream<T> {
             }
             uniqueCandles.push(candles[i]);
             this.addLastCandleMinute(minute);
-            //this.lastCandleTime = candles[i].start;
+            this.lastCandleTime = candles[i].start;
         }
         candles = uniqueCandles;
 
