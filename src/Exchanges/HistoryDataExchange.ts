@@ -263,7 +263,7 @@ export default class HistoryDataExchange extends AbstractExchange {
                     cb();
                 }
             }
-            const batchTrades = nconf.get("serverConfig:batchTrades");
+            const batchTrades: boolean = nconf.get("serverConfig:batchTrades");
             let lastTrade: Trade.Trade = null;
             let that = this;
             let getNextDoc = () => {
@@ -277,11 +277,11 @@ export default class HistoryDataExchange extends AbstractExchange {
                         return onFinish();
                     doc.currencyPair = Currency.CurrencyPair.fromNr(doc.currencyPair);
                     let tradeDoc = Trade.init(doc);
-                    if (batchTrades) {
+                    if (batchTrades === true) {
                         // batch consecutive trades at the same rate together to 1 trade. this reduces the number of trades we emit = less overhead/CPU
                         if (!lastTrade)
                             lastTrade = tradeDoc;
-                        else if (lastTrade.rate === tradeDoc.rate) {
+                        else if (lastTrade.rate === tradeDoc.rate && tradeDoc.date.getUTCMinutes() === lastTrade.date.getUTCMinutes()) { // ensure we have a new trade every minute for candles
                             lastTrade.amount += tradeDoc.amount;
                             lastTrade.total = lastTrade.amount * lastTrade.rate;
                             // we can't really update buy/sell, just keep the 1st one
