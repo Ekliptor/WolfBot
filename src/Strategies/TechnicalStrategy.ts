@@ -119,6 +119,8 @@ export abstract class TechnicalStrategy extends AbstractStrategy implements Tech
         super.unserialize(state);
         this.candles = Candle.Candle.copy(state.candles);
         this.lastTrend = state.lastTrend;
+
+        // unserialize any indicator data we have stored for this strategy
         let calcCandle = (i) => {
             if (i >= this.candles.length)
                 return; // done
@@ -129,9 +131,9 @@ export abstract class TechnicalStrategy extends AbstractStrategy implements Tech
                 const indicatorName = ind[0];
                 let indicator: AbstractIndicator = ind[1];
                 indicator.sync(candle, this.avgMarketPrice); // only needed for plotting, shouldn't matter
-                candleCalcOps.push(indicator.addCandle(candle));
-                if (state.indicators && state.indicators[indicatorName])
+                if (i === 0 && state.indicators && state.indicators[indicatorName]) // unserialize stored data on first candle
                     indicator.unserialize(state.indicators[indicatorName]);
+                candleCalcOps.push(indicator.addCandle(candle)); // add all candles sequentialy to re-compute values that haven't been serialized
             }
             Promise.all(candleCalcOps).then(() => {
                 //this.indicators.get("RSI").addCandle(this.candles[this.candles.length-1]) // indicator will be ready once the next (live) candle arrives
