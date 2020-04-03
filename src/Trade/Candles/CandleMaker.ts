@@ -151,7 +151,7 @@ export class CandleMaker<T extends TradeBase> extends CandleStream<T> {
         return _.filter(trades, (trade) => {
             if (!trade.date)
                 return false; // filter invalid trades, shouldn't happen
-            return trade.date.getTime() > this.threshold.getTime(); // < or > will work with Dates (but not ==)
+            return trade.date.getTime() >= this.threshold.getTime(); // < or > will work with Dates (but not ==)
         });
     }
 
