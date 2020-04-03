@@ -207,13 +207,13 @@ export default class FishingNet extends AbstractTrailingStop {
             if (this.action.trendIndicator === "MACD") {
                 const macd = this.getMACD("MACD");
                 this.addInfoFunction("MACD", () => {
-                    return macd.getMACD();
+                    return macd ? macd.getMACD() : "-";
                 });
                 this.addInfoFunction("Signal", () => {
-                    return macd.getSignal();
+                    return macd ? macd.getSignal() : "-";
                 });
                 this.addInfoFunction("Histogram", () => {
-                    return macd.getHistogram();
+                    return macd ? macd.getHistogram() : "-";
                 });
             }
             else {
