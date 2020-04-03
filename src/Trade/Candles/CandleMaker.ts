@@ -175,9 +175,9 @@ export class CandleMaker<T extends TradeBase> extends CandleStream<T> {
         for (let bucket of this.buckets)
         {
             let candle = this.calculateCandle(bucket[1]);
-            // clean all buckets, except the last one:
-            // this candle is not complete
-            if(bucket[0] !== lastMinute)
+            // clean all buckets, except the last n ones:
+            // the last candle is not complete
+            if (lastMinute.length !== 0 && bucket[0] !== lastMinute)
                 this.buckets.delete(bucket[0]);
             candles.push(candle);
         }
