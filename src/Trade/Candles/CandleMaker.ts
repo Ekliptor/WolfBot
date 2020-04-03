@@ -52,7 +52,8 @@ export class CandleMaker<T extends TradeBase> extends CandleStream<T> {
         // the last candle is not complete, don't emit it & keep it in here (in buckets)
         let last = candles.pop();
         if (last) { // the latest trades are kept in this.buckets
-            this.threshold = last.start;
+            this.threshold = new Date(last.start);
+            this.threshold.setUTCSeconds(0, 0); // we only care about minutes with dates
             if (trades.length !== 0) {
                 const latestTrade = trades[trades.length-1]; // candle seconds get reset to 00
                 if (latestTrade.date.getTime() > last.start.getTime())
@@ -145,8 +146,12 @@ export class CandleMaker<T extends TradeBase> extends CandleStream<T> {
         // make sure we only include trades more recent
         // than the previous emitted candle
         // TODO remove since our market stream already orders trades strictly ascending?
+        if (!this.threshold)
+            return;
         return _.filter(trades, (trade) => {
-            return trade.date > this.threshold;
+            if (!trade.date)
+                return false; // filter invalid trades, shouldn't happen
+            return trade.date.getTime() > this.threshold.getTime(); // < or > will work with Dates (but not ==)
         });
     }
 
