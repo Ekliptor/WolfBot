@@ -11,11 +11,13 @@ export interface TradeBase extends Trade.SimpleTrade {
 export abstract class CandleStream<T extends TradeBase> extends EventEmitter {
     protected currencyPair: Currency.CurrencyPair;
     protected exchange: Currency.Exchange;
+    protected readonly isBacktester: boolean;
 
     constructor(currencyPair: Currency.CurrencyPair, exchange: Currency.Exchange = Currency.Exchange.ALL) {
         super()
         this.currencyPair = currencyPair;
         this.exchange = exchange;
+        this.isBacktester = nconf.get('trader') === "Backtester";
         this.setMaxListeners(nconf.get('maxEventListeners'));
     }
 

@@ -48,6 +48,10 @@ export class CandleMaker<T extends TradeBase> extends CandleStream<T> {
                 maxDate = this.threshold;
         }*/
         candles = this.addEmptyCandles(candles, /*maxDate*/ /*this.lastCandleTime*/);
+        // ensure candles are sorted by date ascending
+        candles = _.sortBy(candles, (candle) => {
+            return candle.start ? candle.start.getTime() : 0;
+        });
 
         // the last candle is not complete, don't emit it & keep it in here (in buckets)
         let last = candles.pop();
@@ -125,14 +129,14 @@ export class CandleMaker<T extends TradeBase> extends CandleStream<T> {
         }
         candles = uniqueCandles;
 
-        if (nconf.get('trader') !== "Backtester") { // don't spam our backtest log
+        if (this.isBacktester === false) { // don't spam our backtest log
             const exchange = Currency.Exchange[this.exchange];
             candles.forEach((candle) => {
                 logger.verbose("1min %s candle %s at %s: high %s, low %s, close %s, volume %s, trades %s", exchange, candle.currencyPair.toString(), utils.date.toDateTimeStr(candle.start, true, true),
                     candle.high.toFixed(8), candle.low.toFixed(8), candle.close.toFixed(8), candle.volume.toFixed(8), candle.trades);
             })
         }
-        if (nconf.get("serverConfig:backtest:cacheCandles") && nconf.get('trader') === "Backtester")
+        if (nconf.get("serverConfig:backtest:cacheCandles") && this.isBacktester === true)
             this.candleCache = this.candleCache.concat(candles);
 
         super.emitCandles(candles);
@@ -186,10 +190,6 @@ export class CandleMaker<T extends TradeBase> extends CandleStream<T> {
                 this.buckets.delete(bucket[0]);
             candles.push(candle);
         }
-        // ensure candles are sorted by date ascending
-        candles = _.sortBy(candles, (candle) => {
-            return candle.start ? candle.start.getTime() : 0;
-        });
 
         return candles;
     }
@@ -254,7 +254,7 @@ export class CandleMaker<T extends TradeBase> extends CandleStream<T> {
 
         let start = new Date(previousEndTime ? previousEndTime : _.first<Candle.Candle>(candles).start); // TODO go further back? duplicates get filtered
         // during live trading the websocket trades stream might interrupt. ensure we always have candles every minute
-        if (nconf.get('trader') !== "Backtester") {
+        if (this.isBacktester === false) {
             if (this.lastCandleTime && start && this.lastCandleTime.getTime() < start.getTime()) {
                 start = new Date(this.lastCandleTime);
             }
