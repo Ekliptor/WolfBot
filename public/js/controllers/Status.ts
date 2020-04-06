@@ -35,6 +35,7 @@ export class Status extends AbstractController {
                 this.$("#usernameRow, #tokenRow, #statusRow, #botIDRow, .premiumOnlyProp").addClass("hidden");
             }
             this.removeAsyncLoadingIcon();
+            this.addClickHandlers();
             Hlp.updateTimestampsRepeating();
 
             this.$("#restoreState").click(() => {
@@ -47,6 +48,10 @@ export class Status extends AbstractController {
             Hlp.showMsg(AppF.tr('restoredStrategyState'), 'success');
             this.$("#strategyState").val("");
         }
+        else if (data.log) {
+            this.$("#prevLog").fadeIn("slow");
+            this.$("#prevLog").text(data.log);
+        }
     }
 
     public render() {
@@ -58,4 +63,15 @@ export class Status extends AbstractController {
 
     // ################################################################
     // ###################### PRIVATE FUNCTIONS #######################
+
+    protected addClickHandlers() {
+        this.$("#showPrevLog").on("click", (event) => {
+            this.$("#showPrevLog").prop("disabled", true);
+            /*
+            setTimeout(() => {
+                this.$("#showPrevLog").removeProp("disabled");
+            }, 500);*/
+            this.send({getLog: true});
+        });
+    }
 }

@@ -5039,6 +5039,7 @@ class Status extends AbstractController_1.AbstractController {
                 this.$("#usernameRow, #tokenRow, #statusRow, #botIDRow, .premiumOnlyProp").addClass("hidden");
             }
             this.removeAsyncLoadingIcon();
+            this.addClickHandlers();
             Hlp.updateTimestampsRepeating();
             this.$("#restoreState").click(() => {
                 let jsonTxt = this.$("#strategyState").val().trim();
@@ -5050,11 +5051,27 @@ class Status extends AbstractController_1.AbstractController {
             Hlp.showMsg(AppF.tr('restoredStrategyState'), 'success');
             this.$("#strategyState").val("");
         }
+        else if (data.log) {
+            this.$("#prevLog").fadeIn("slow");
+            this.$("#prevLog").text(data.log);
+        }
     }
     render() {
         return new Promise((resolve, reject) => {
             let status = AppF.translate(pageData.html.status.main);
             resolve(status);
+        });
+    }
+    // ################################################################
+    // ###################### PRIVATE FUNCTIONS #######################
+    addClickHandlers() {
+        this.$("#showPrevLog").on("click", (event) => {
+            this.$("#showPrevLog").prop("disabled", true);
+            /*
+            setTimeout(() => {
+                this.$("#showPrevLog").removeProp("disabled");
+            }, 500);*/
+            this.send({ getLog: true });
         });
     }
 }

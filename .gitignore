@@ -74,6 +74,7 @@ configLocal2.ts
 config.json
 public/js/telegram-app.js
 tests/temp.html
+tests/export.ts
 tests/telegram.ts
 tests/tradingview.ts
 tests/system

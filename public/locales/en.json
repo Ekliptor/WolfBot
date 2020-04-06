@@ -1604,5 +1604,7 @@
   "noRecentBacktests": "There are no recent backtets available. Use the controls above to start your first backtest.",
   "demoVersion": "Demo Version",
   "affiliate": "Affiliate",
-  "docs": "Documentation"
+  "docs": "Documentation",
+  "showPreviousSessionLog": "Show previous session Log",
+  "noPrevLogfile": "Previous logfile does not exist."
 }

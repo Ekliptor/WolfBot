@@ -1,10 +1,9 @@
 import * as utils from "@ekliptor/apputils";
 const logger = utils.logger
     , nconf = utils.nconf;
-import * as WebSocket from "ws";
 import * as http from "http";
 import * as path from "path";
-import {ServerSocketPublisher, ServerSocket, ClientSocketOnServer} from "./ServerSocket";
+import {ServerSocketPublisher, ServerSocket, ClientSocketOnServer, ServerSocketSendOptions} from "./ServerSocket";
 import {AppPublisher} from "./AppPublisher";
 import {WebSocketOpcode} from "./opcodes";
 import TradeAdvisor from "../TradeAdvisor";
@@ -12,28 +11,41 @@ import {PortfolioTrader, BotEvaluation} from "../Trade/PortfolioTrader"
 import {AbstractAdvisor} from "../AbstractAdvisor";
 import * as helper from "../utils/helper";
 import {LoginController} from "../LoginController";
+import * as fs from "fs";
 
 export interface StatusUpdate {
-    name: string;
-    config: string;
-    trader: string;
-    premium: boolean;
-    serverTime: string;
-    started: Date;
-    installed: Date;
-    botApiKey: string;
-    botToken: string;
-    nodeVersion: string;
-    username: string;
-    subscriptionValid: boolean;
-    demoVersion: boolean;
-    botID: string;
-    //currencies: string[];
-    currencies: string;
-    evaluation: BotEvaluation;
+    error?: boolean;
+    errorTxt?: string;
+    errorCode?: string; // to be localized by client
+
+    name?: string;
+    config?: string;
+    trader?: string;
+    premium?: boolean;
+    serverTime?: string;
+    started?: Date;
+    installed?: Date;
+    botApiKey?: string;
+    botToken?: string;
+    nodeVersion?: string;
+    username?: string;
+    subscriptionValid?: boolean;
+    demoVersion?: boolean;
+    botID?: string;
+    //currencies?: string[];
+    currencies?: string;
+    evaluation?: BotEvaluation;
     // we can't fetch global exchange balances because we might have multiple bots running (+ manual trading)
     // every trader instance has to count this by watching trades (minus fees) internally
     // then all instances can report back here
+
+    restoredState?: boolean;
+    log?: string;
+}
+
+export interface StatusUpdateReq {
+    getLog?: boolean;
+    restoreState?: string;
 }
 
 export class StatusUpdater extends AppPublisher {
@@ -97,7 +109,7 @@ export class StatusUpdater extends AppPublisher {
     // ################################################################
     // ###################### PRIVATE FUNCTIONS #######################
 
-    protected onData(data: any, clientSocket: ClientSocketOnServer, initialRequest: http.IncomingMessage): void {
+    protected onData(data: StatusUpdateReq, clientSocket: ClientSocketOnServer, initialRequest: http.IncomingMessage): void {
         if (data.restoreState) {
             let unpackState = utils.text.isPossibleJson(data.restoreState) ? Promise.resolve(data.restoreState) : utils.text.unpackGzip(data.restoreState)
             unpackState.then((unpackedStr) => {
@@ -112,6 +124,8 @@ export class StatusUpdater extends AppPublisher {
                 logger.error("Error unpacking state string", err)
             })
         }
+        else if (data.getLog === true)
+            this.sendPreviousLog(clientSocket);
         else
             logger.warn("Received unknown message in %s", this.className, data)
     }
@@ -124,5 +138,25 @@ export class StatusUpdater extends AppPublisher {
 
     protected getBotDirName() {
         return path.basename(utils.appDir);
+    }
+
+    protected send(ws: ClientSocketOnServer, data: StatusUpdate, options?: ServerSocketSendOptions) {
+        return super.send(ws, data, options);
+    }
+
+    protected async sendPreviousLog(clientSocket: ClientSocketOnServer): Promise<void> {
+        const logfilePath = nconf.get('logfile') + ".bak"; // in working dir. written in appUtils
+        try {
+            let data = await fs.promises.readFile(logfilePath, {encoding: "utf8"});
+            this.send(clientSocket, {log: data});
+        }
+        catch (err) {
+            logger.error("Error getting previous logfile %s", logfilePath, err);
+            if (err.code === "ENOENT")
+                this.send(clientSocket, {
+                    error: true,
+                    errorCode: "noPrevLogfile"
+                });
+        }
     }
 }
