@@ -147,16 +147,20 @@ export class StatusUpdater extends AppPublisher {
     protected async sendPreviousLog(clientSocket: ClientSocketOnServer): Promise<void> {
         const logfilePath = nconf.get('logfile') + ".bak"; // in working dir. written in appUtils
         try {
-            let data = await fs.promises.readFile(logfilePath, {encoding: "utf8"});
-            this.send(clientSocket, {log: data});
+            //let data = await fs.promises.readFile(logfilePath, {encoding: "utf8"});
+            let data = await utils.tailPromise(logfilePath, 500);
+            this.send(clientSocket, {log: data.join("")});
         }
         catch (err) {
             logger.error("Error getting previous logfile %s", logfilePath, err);
-            if (err.code === "ENOENT")
+            if (err.code === "ENOENT" || err.err.code === "ENOENT") {
                 this.send(clientSocket, {
                     error: true,
                     errorCode: "noPrevLogfile"
                 });
+            }
+            else
+                this.send(clientSocket, {error: true});
         }
     }
 }
