@@ -10,9 +10,12 @@ export default class AbstractController {
     constructor() {
     }
 
-    scheduleProcessRepeating() {
+    // ################################################################
+    // ###################### PRIVATE FUNCTIONS #######################
+
+    protected scheduleProcessRepeating() {
         let nextTick = /*nconf.get('server:processIntervalBaseSec') +*/
-            nconf.get('serverConfig:processIntervalBaseSec') + utils.getRandomInt(0, nconf.get('serverConfig:processIntervalRandomSec'))
+            nconf.get('serverConfig:processIntervalBaseSec') + utils.getRandomInt(0, nconf.get('serverConfig:processIntervalRandomSec')) || 5;
         clearTimeout(this.processTimerID)
         this.processTimerID = setTimeout(() => {
             this.process((scheduleAgain) => {
@@ -22,7 +25,7 @@ export default class AbstractController {
         }, nextTick * 1000)
     }
 
-    stopProcessTimer() {
+    protected stopProcessTimer() {
         clearTimeout(this.processTimerID)
     }
 

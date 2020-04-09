@@ -99,6 +99,7 @@ export default class StopLossTurn extends AbstractStopStrategy {
 
         this.addInfo("highestPrice", "highestPrice");
         this.addInfo("lowestPrice", "lowestPrice");
+        this.addInfo("marketTime", "marketTime");
         this.addInfoFunction("stop", () => {
             return this.getStopPrice();
         });

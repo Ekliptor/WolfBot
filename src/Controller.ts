@@ -184,7 +184,14 @@ export class Controller extends AbstractController { // TODO implement graceful 
         })
     }
 
-    connect(cb) {
+    public restart(forceDefaults = false, resetMode = false) {
+        this.websocketController.getConfigEditor().restart(forceDefaults, resetMode);
+    }
+
+    // ################################################################
+    // ###################### PRIVATE FUNCTIONS #######################
+
+    protected connect(cb) {
         let connectUrl = nconf.get('mongoUrl')
         if (nconf.get('mongoTimeoutSec') > 10) {
             let timeoutMs = nconf.get('mongoTimeoutSec') * 1000;
@@ -202,13 +209,6 @@ export class Controller extends AbstractController { // TODO implement graceful 
             cb && cb()
         })
     }
-
-    public restart(forceDefaults = false, resetMode = false) {
-        this.websocketController.getConfigEditor().restart(forceDefaults, resetMode);
-    }
-
-    // ################################################################
-    // ###################### PRIVATE FUNCTIONS #######################
 
     protected process(cb) {
         let config = nconf.get("serverConfig")

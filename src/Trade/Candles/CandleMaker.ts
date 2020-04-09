@@ -31,6 +31,7 @@ export class CandleMaker<T extends TradeBase> extends CandleStream<T> {
     }
 
     public addTrades(trades: T[]) {
+        // TODO if there are no trades we get no candles. the gap is filled once there are trades again. use setTimeout() to create empty trades every minute?
         //if (_.isEmpty(trades)) // shouldn't happen
             //return;
 

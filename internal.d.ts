@@ -28,14 +28,16 @@ interface WebSocket {
     id: string;
 }
 
-interface IncomingMessage { // part of multihttpdispatcher module
-    query: {
-        [key: string] : string;
-    }
-    params: {
-        [key: string] : string;
-    }
-    formFields: {
-        [key: string] : string;
+declare module "http" {
+    interface IncomingMessage { // part of multihttpdispatcher module
+        query: {
+            [key: string] : string;
+        }
+        params: {
+            [key: string] : string;
+        }
+        formFields: {
+            [key: string] : string;
+        }
     }
 }
