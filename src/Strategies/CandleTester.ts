@@ -21,9 +21,8 @@ export default class CandleTester extends TechnicalStrategy {
 
     constructor(options) {
         super(options)
-        this.addInfoFunction("sample", () => {
-            return this.action.sample;
-        });
+        this.addInfo("marketTime", "marketTime");
+        this.addInfo("candleTickCounter", "candleTickCounter");
     }
 
     public getMinWarumCandles() {
