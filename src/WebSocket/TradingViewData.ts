@@ -144,7 +144,7 @@ export class TradingViewData extends AppPublisher {
                 description: name,
                 // TODO support for 2 charts in arbitrage mode (side by side?)
                 exchange: AbstractConfig.getExchangeNames(nconf.get("arbitrage") ? config.exchanges.slice(0, 1) : config.exchanges),
-                timezone: "UTC",
+                timezone: "Etc/UTC", // Etc/UTC
                 resolution: strategy.getAction().candleSize,
                 baseCurrency: currencyPair.split("_")[0]
             }
@@ -157,7 +157,7 @@ export class TradingViewData extends AppPublisher {
                 description: currency,
                 exchange: AbstractConfig.getExchangeNames(config.exchanges),
                 //timezone: "Europe/London", // GMT0, constant for now (always?)
-                timezone: "UTC",
+                timezone: "Etc/UTC",
                 resolution: strategy.getAction().candleSize,
                 baseCurrency: currency
             }

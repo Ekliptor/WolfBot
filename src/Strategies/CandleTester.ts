@@ -17,12 +17,15 @@ interface CandleTesterAction extends TechnicalStrategyAction {
 export default class CandleTester extends TechnicalStrategy {
     public action: CandleTesterAction;
     protected candleTickCounter: number = 0; // counts the number of candles after start — need for valid calculations with kama
-
+    // TODO store candle times and compute average time interval between candles
 
     constructor(options) {
         super(options)
         this.addInfo("marketTime", "marketTime");
         this.addInfo("candleTickCounter", "candleTickCounter");
+        this.addInfoFunction("candleTime", () => {
+            return this.candle ? this.candle.start.toISOString() : "";
+        });
     }
 
     public getMinWarumCandles() {
