@@ -50,7 +50,7 @@ export interface LendingStrategyUpdate extends GenericStrategyUpdate {
 
 export class StrategyUpdater extends AppPublisher {
     public readonly opcode = WebSocketOpcode.STRATEGIES;
-    protected lastUpdateMap = new Map<string, Date>(); // (strategy name, timestamp)
+    protected lastUpdateMap = new Map<string, Date>(); // (config nr - strategy name, timestamp)
     protected activeConfigCurrencyNr = 1; // for tabs
     protected maxConfigNr: number;
 
@@ -194,7 +194,8 @@ export class StrategyUpdater extends AppPublisher {
         strategy.on("info", (info) => {
             if (configNr !== this.activeConfigCurrencyNr)
                 return;
-            let lastUpdate = this.lastUpdateMap.get(strategy.getClassName());
+            const key = configNr + strategy.getClassName();
+            let lastUpdate = this.lastUpdateMap.get(key);
             if (lastUpdate && lastUpdate.getTime() + nconf.get("serverConfig:minStrategyUpdateMs") > Date.now())
                 return; // only update every x seconds to avoid browser hanging with many strategies
             let update: any = {
@@ -212,7 +213,7 @@ export class StrategyUpdater extends AppPublisher {
             }
             update.strategies[strategy.getClassName()] = info;
             this.publish(update);
-            this.lastUpdateMap.set(strategy.getClassName(), new Date());
+            this.lastUpdateMap.set(key, new Date());
         })
     }
 
