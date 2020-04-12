@@ -34,7 +34,7 @@ export default class Pushover extends AbstractNotification {
             if (notification.requireConfirmation) {
                 // high priority and retry every 60 sec for 1 h
                 data.priority = 2;
-                data.expire = 60*60;
+                data.expire = 15*60; // 15min
                 data.retry = 60
             }
             utils.postData(Pushover.API_URL, data, (body, response) => {

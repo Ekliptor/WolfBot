@@ -152,6 +152,7 @@ export class ConfigEditor extends AppPublisher {
     protected pairChangePendingRestart = false;
     protected initialPairs = new Set<string>();
     protected saveStateTimerID: NodeJS.Timer = null;
+    protected saveLastWorkingConfigTimerID: NodeJS.Timer = null;
     protected static restarting: boolean = false;
 
     constructor(serverSocket: ServerSocket, advisor: AbstractAdvisor) {
@@ -766,6 +767,7 @@ export class ConfigEditor extends AppPublisher {
             // ensure config is valid JSON (we had empty config on crashes)
             if (utils.parseJson(data) === null)
                 return reject({txt: "Skipped saving config because of invalid/empty JSON.", dataStr: data});
+            this.setLastWorkingConfig();
             fs.writeFile(configFile, data, {encoding: "utf8"}, (err) => {
                 if (err)
                     reject(err)
@@ -1600,8 +1602,12 @@ export class ConfigEditor extends AppPublisher {
         const dirPath = TradeConfig.getConfigDirForMode(mode);
         try {
             let files = fs.readdirSync(dirPath);
-            if (files.length > 0)
-                return files[0].replace(/\.json$/, "");
+            for (let i = 0; i < files.length; i++)
+            {
+                const configFileName = files[i].replace(/\.json$/, "");
+                if (TradeConfig.isUserConfig(configFileName) === false)
+                    return configFileName;
+            }
         }
         catch (err) {
             logger.error("Error getting 1st config file for mode %s in %s", mode, dirPath);
@@ -1611,7 +1617,8 @@ export class ConfigEditor extends AppPublisher {
 
     protected setLastWorkingConfig() {
         if (this.selectedTradingMode === "trading") {
-            setTimeout(() => {
+            clearInterval(this.saveLastWorkingConfigTimerID);
+            this.saveLastWorkingConfigTimerID = setTimeout(() => {
                 if (typeof this.selectedConfig === "string" && this.selectedConfig.length !== 0) {
                     nconf.set("serverConfig:lastWorkingConfigName", this.selectedConfig);
                     nconf.set("serverConfig:lastWorkingConfigTime", new Date());
