@@ -1349,6 +1349,7 @@ export default class OKEX extends AbstractContractExchange {
                 this.lastLoadedContractTypes = new Date();
                 resolve();
             }).catch((err) => {
+                // TODO if this happens 2-3 times in a row sometimes the whole bot becomes unresponsive. OKEX overloaded? nodejs HTTP issue? restart?
                 logger.error("Error loading %s contracts", this.className, err);
                 resolve(); // will get retried
             });

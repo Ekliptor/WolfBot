@@ -59,6 +59,7 @@ export default class PositionReopener extends TechnicalStrategy {
         this.addInfo("lastClosedPositionTime", "lastClosedPositionTime");
         this.addInfo("nearestStop", "lastNearestStop");
         this.saveState = true;
+        this.logOnceTimeoutMin = Math.max(5, this.action.candleSize);
 
         // testing code
         /*

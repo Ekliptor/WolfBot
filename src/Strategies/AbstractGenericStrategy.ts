@@ -75,6 +75,7 @@ export abstract class AbstractGenericStrategy extends EventEmitter {
     protected notifier: AbstractNotification;
     protected notificationPauseMin: number = nconf.get('serverConfig:notificationPauseMin'); // can be changed in subclasses
     protected lastNotification: Date = null;
+    protected logOnceTimeoutMin: number = nconf.get('serverConfig:logTimeoutMin');
 
     // date of the last closing price
     // ALWAYS use this instead of "new Date()" so that backtesting works properly!
@@ -477,7 +478,7 @@ export abstract class AbstractGenericStrategy extends EventEmitter {
         let clearMessages = () => {
             for (let log of this.logMap) // clear old logs of  messages
             {
-                if (log[1] + nconf.get('serverConfig:logTimeoutMin')*utils.constants.MINUTE_IN_SECONDS*1000 < now)
+                if (log[1] + this.logOnceTimeoutMin*utils.constants.MINUTE_IN_SECONDS*1000 < now)
                     this.logMap.delete(log[0]);
             }
         }
