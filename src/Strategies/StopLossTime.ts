@@ -37,9 +37,9 @@ export default class StopLossTime extends AbstractStopStrategy {
                 this.log("market price", this.avgMarketPrice)
             }
             if (this.strategyPosition !== "none") {
-                if (this.action.order === "sell" || this.action.order === "closeLong")
+                if (this.isCloseLongPending() === true)
                     this.checkStopSell();
-                else if (this.action.order === "buy" || this.action.order === "closeShort")
+                else if (this.isCloseShortPending() === true)
                     this.checkStopBuy();
             }
             resolve()

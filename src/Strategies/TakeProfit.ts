@@ -54,7 +54,7 @@ export default class TakeProfit extends AbstractTakeProfitStrategy {
         this.addInfo("highestPrice", "highestPrice");
         this.addInfo("lowestPrice", "lowestPrice");
         this.addInfoFunction("stop", () => {
-            if (this.action.order === "sell" || this.action.order === "closeLong")
+            if (this.isCloseLongPending() === true)
                 return this.getStopSell()
             return this.getStopBuy()
         });
@@ -106,9 +106,9 @@ export default class TakeProfit extends AbstractTakeProfitStrategy {
                     this.logStopValues();
 
                 if (this.strategyPosition !== "none") {
-                    if (this.action.order === "sell" || this.action.order === "closeLong")
+                    if (this.isCloseLongPending() === true)
                         this.checkStopSell();
-                    else if (this.action.order === "buy" || this.action.order === "closeShort")
+                    else if (this.isCloseShortPending() === true)
                         this.checkStopBuy();
                 }
                 resolve()
@@ -236,7 +236,7 @@ export default class TakeProfit extends AbstractTakeProfitStrategy {
     }
 
     protected logStopValues(force = false) {
-        const long = this.action.order === "sell" || this.action.order === "closeLong";
+        const long = this.isCloseLongPending() === true;
         const stop = long ? this.getStopSell() : this.getStopBuy();
         if (!force && this.lastLoggedStop === stop)
             return

@@ -209,9 +209,9 @@ export default class BollingerBouncer extends TechnicalStrategy {
             else if (this.strategyPosition !== "none") {
                 if (this.trailingStopPrice !== -1)
                     this.updateStop();
-                if (this.action.order === "sell" || this.action.order === "closeLong")
+                if (this.isCloseLongPending() === true)
                     this.checkStopSell();
-                else if (this.action.order === "buy" || this.action.order === "closeShort")
+                else if (this.isCloseShortPending() === true)
                     this.checkStopBuy();
             }
             super.tick(trades).then(() => {
@@ -371,7 +371,7 @@ export default class BollingerBouncer extends TechnicalStrategy {
     }
 
     protected getStopPrice() {
-        if (this.action.order === "sell" || this.action.order === "closeLong")
+        if (this.isCloseLongPending() === true)
             return this.getStopSell()
         return this.getStopBuy()
     }

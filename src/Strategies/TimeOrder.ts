@@ -44,9 +44,9 @@ export default class TimeOrder extends AbstractStopStrategy {
             //if (this.countStart === null) // count will be started after a trade (from another strategy) in resetValues()
                 //this.countStart = this.marketTime;
 
-            if (this.action.order === "sell" || this.action.order === "closeLong")
+            if (this.isCloseLongPending() === true)
                 this.checkSell();
-            else if (this.action.order === "buy" || this.action.order === "closeShort")
+            else if (this.isCloseShortPending() === true)
                 this.checkBuy();
             resolve()
         })

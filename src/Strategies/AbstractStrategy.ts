@@ -1383,6 +1383,18 @@ export abstract class AbstractStrategy extends AbstractGenericStrategy {
         }
     }
 
+    protected isCloseLongPending() {
+        // more reliable to look at position
+        // TODO remove "order" from config or add another parameter to enforce it
+        //return this.action.order === "sell" || this.action.order === "closeLong";
+        return this.strategyPosition === "long";
+    }
+
+    protected isCloseShortPending() {
+        //return this.action.order === "buy" || this.action.order === "closeShort";
+        return this.strategyPosition === "short";
+    }
+
     protected createSimpleOrder(order: Order.Order, info: TradeInfo) {
         let simpleOrder = new SimpleOrder(order.rate, order.amount);
         if (info && info.pendingOrder)

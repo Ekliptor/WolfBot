@@ -115,9 +115,9 @@ export default class TimeStop extends AbstractStopStrategy {
 
             if (this.strategyPosition !== "none") {
                 this.updateStop();
-                if (this.action.order === "sell" || this.action.order === "closeLong")
+                if (this.isCloseLongPending() === true)
                     this.checkStopSell();
-                else if (this.action.order === "buy" || this.action.order === "closeShort")
+                else if (this.isCloseShortPending() === true)
                     this.checkStopBuy();
             }
             super.tick(trades).then(() => {
@@ -241,7 +241,7 @@ export default class TimeStop extends AbstractStopStrategy {
     }
 
     protected getStopPrice() {
-        if (this.action.order === "sell" || this.action.order === "closeLong")
+        if (this.isCloseLongPending() === true)
             return this.getStopSell()
         return this.getStopBuy()
     }

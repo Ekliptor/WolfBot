@@ -154,7 +154,7 @@ export abstract class AbstractTakeProfitStrategy extends /*AbstractStrategy*/Tec
     }
 
     public getTakeProfitPrice() { // simpler than in AbstractStopStrategy where we also check config values
-        if (this.action.order === "sell" || this.action.order === "closeLong")
+        if (this.isCloseLongPending() === true)
             return this.getStopSell();
         return this.getStopBuy();
     }

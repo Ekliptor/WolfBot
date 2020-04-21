@@ -67,12 +67,12 @@ export default class ProtectProfit extends AbstractStopStrategy {
         this.addInfo("highestPrice", "highestPrice");
         this.addInfo("lowestPrice", "lowestPrice");
         this.addInfoFunction("stop", () => {
-            if (this.action.order === "sell" || this.action.order === "closeLong")
+            if (this.isCloseLongPending() === true)
                 return this.getStopSell()
             return this.getStopBuy()
         });
         this.addInfoFunction("stopClose", () => {
-            if (this.action.order === "sell" || this.action.order === "closeLong")
+            if (this.isCloseLongPending() === true)
                 return this.getStopSell(true)
             return this.getStopBuy(true)
         });
@@ -144,9 +144,9 @@ export default class ProtectProfit extends AbstractStopStrategy {
             }
 
             if (this.strategyPosition !== "none") {
-                if (this.action.order === "sell" || this.action.order === "closeLong")
+                if (this.isCloseLongPending() === true)
                     this.checkStopSell();
-                else if (this.action.order === "buy" || this.action.order === "closeShort")
+                else if (this.isCloseShortPending() === true)
                     this.checkStopBuy();
             }
             resolve()
@@ -166,7 +166,7 @@ export default class ProtectProfit extends AbstractStopStrategy {
     }
 
     protected getStopPrice() {
-        if (this.action.order === "sell" || this.action.order === "closeLong")
+        if (this.isCloseLongPending() === true)
             return this.getStopSell()
         return this.getStopBuy()
     }

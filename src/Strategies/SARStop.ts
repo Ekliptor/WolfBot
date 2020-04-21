@@ -113,9 +113,9 @@ export default class SARStop extends AbstractStopStrategy {
                 return resolve();
 
             if (this.strategyPosition !== "none") {
-                if (this.action.order === "sell" || this.action.order === "closeLong")
+                if (this.isCloseLongPending() === true)
                     this.checkStopSell();
-                else if (this.action.order === "buy" || this.action.order === "closeShort")
+                else if (this.isCloseShortPending() === true)
                     this.checkStopBuy();
             }
             super.tick(trades).then(() => {
@@ -234,7 +234,7 @@ export default class SARStop extends AbstractStopStrategy {
     }
 
     protected getStopPrice() {
-        if (this.action.order === "sell" || this.action.order === "closeLong")
+        if (this.isCloseLongPending() === true)
             return this.getStopSell()
         return this.getStopBuy()
     }
