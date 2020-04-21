@@ -206,6 +206,10 @@ export class ConfigEditor extends AppPublisher {
             nconf.set("serverConfig:user:sendTestNotificationOnRestart", null);
             serverConfig.saveConfigLocal();
         }
+        // update config file if edited externaly
+        setInterval(() => {
+            this.readConfigFile(this.selectedConfig, true, true)
+        }, 30000);
     }
 
     public static getInstance() {
@@ -891,8 +895,8 @@ export class ConfigEditor extends AppPublisher {
                                 if (prop === "pair" && (this.pairChangePendingRestart === true || this.initialPairs.has(strategyConf[prop]) === false))
                                     continue;
                                 if (ConfigEditor.HIDDEN_LOG_CONFIG_PROPS.indexOf(prop) === -1)
-                                    logger.verbose("updating strategy %s %s %s from %s to %s", strat.getAction().pair.toString(), strat.getClassName(), prop, strategyConf[prop], action[prop])
-                                strategyConf[prop] = action[prop];
+                                    logger.verbose("updating strategy %s %s %s from %s to %s", strat.getAction().pair.toString(), strat.getClassName(), prop, action[prop], strategyConf[prop])
+                                action[prop] = strategyConf[prop];
                             }
                         }
                     })
@@ -928,8 +932,8 @@ export class ConfigEditor extends AppPublisher {
                                 if ((prop === "pair" || prop === "currency") && (this.pairChangePendingRestart === true || this.initialPairs.has(strategyConf[prop]) === false))
                                     continue;
                                 if (ConfigEditor.HIDDEN_LOG_CONFIG_PROPS.indexOf(prop) === -1)
-                                    logger.verbose("updating strategy %s %s %s from %s to %s", strat.getAction().currency.toString(), strat.getClassName(), prop, strategyConf[prop], action[prop])
-                                strategyConf[prop] = action[prop];
+                                    logger.verbose("updating strategy %s %s %s from %s to %s", strat.getAction().currency.toString(), strat.getClassName(), prop, action[prop], strategyConf[prop])
+                                action[prop] = strategyConf[prop];
                             }
                         }
                     })
