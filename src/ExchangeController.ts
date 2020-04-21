@@ -370,7 +370,7 @@ export default class ExchangeController extends AbstractSubController {
                 // just get the names
                 //const configExchanges = this.pipeMarketStreams(config);
                 let replacedExchange = false;
-                if (nconf.get("debug") !== true && lastWorking.getTime() + nconf.get("serverConfig:lastWorkingResetConfigMin")*utils.constants.MINUTE_IN_SECONDS*1000 < Date.now()) {
+                if (nconf.get("debug") !== true && TradeConfig.getTradingMode() === "trading" && lastWorking.getTime() + nconf.get("serverConfig:lastWorkingResetConfigMin")*utils.constants.MINUTE_IN_SECONDS*1000 < Date.now()) {
                     filterExchanges.forEach((filterEx) => {
                         let removePos = config.exchanges.indexOf(filterEx);
                         if (removePos !== -1) {

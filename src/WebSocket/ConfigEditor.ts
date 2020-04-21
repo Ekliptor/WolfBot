@@ -206,10 +206,14 @@ export class ConfigEditor extends AppPublisher {
             nconf.set("serverConfig:user:sendTestNotificationOnRestart", null);
             serverConfig.saveConfigLocal();
         }
-        // update config file if edited externaly
-        setInterval(() => {
-            this.readConfigFile(this.selectedConfig, true, true)
-        }, 30000);
+        // update config file if edited externally
+        if (nconf.get("serverConfig:reloadConfigFileSec") > 0) {
+            setInterval(() => {
+                this.readConfigFile(this.selectedConfig, true, true).catch((err) => {
+                    logger.error("Error reloading config file", err);
+                });
+            }, nconf.get("serverConfig:reloadConfigFileSec")*1000);
+        }
     }
 
     public static getInstance() {
@@ -896,6 +900,8 @@ export class ConfigEditor extends AppPublisher {
                                     continue;
                                 if (ConfigEditor.HIDDEN_LOG_CONFIG_PROPS.indexOf(prop) === -1)
                                     logger.verbose("updating strategy %s %s %s from %s to %s", strat.getAction().pair.toString(), strat.getClassName(), prop, action[prop], strategyConf[prop])
+                                // we iterate over strategies: action is their real config object, strategyConf is what we just parsed from config
+                                //strategyConf[prop] = action[prop];
                                 action[prop] = strategyConf[prop];
                             }
                         }
@@ -1628,7 +1634,7 @@ export class ConfigEditor extends AppPublisher {
                     nconf.set("serverConfig:lastWorkingConfigTime", new Date());
                     this.lastWorkingExchanges = utils.uniqueArrayValues<string>(Array.from(this.advisor.getExchanges().keys()));
                 }
-            }, 15*1000);
+            }, nconf.get("serverConfig:saveLastWorkingConfigMin")*1000);
             serverConfig.saveConfigLocal();
         }
     }
