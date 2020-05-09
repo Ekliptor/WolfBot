@@ -606,6 +606,7 @@
       "limitClose": "optional, default false - If enabled the trailing stop will be placed as a limit order at the last trade price (or above/below if makerMode is enabled). Otherwise the position will be closed with a market order.",
       "makerMode": "optional, default false. Whether to adjust all order rates below/above bid ask rates to ensure we only pay the lower (maker) fee.",
       "forceMaker": "optional, default false - Only place a maker order (not paying the higher taker fee). Order will get adjusted in case the price moves away from it.",
+      "flipPosition": "Flip (reverse) a position on each trading signal. This means a buy signal will close an existing short position first (if any) and then open a long position with the amount specified in the signal (and vice versa for sell signals).<br> When this setting is disabled (default) it will just buy the amount specified in the signal which might mean there is still a net short position after buying.<br>This setting is mostly useful with TradingView signals. Most strategies will rather just do a close signal followed by a buy/sell.",
       "thresholds": {
         "up": "The minimum difference in percent EMA/SMA crossover strategies must have between the long and short line to make a buy trade.",
         "down": "The minimum difference in percent EMA/SMA crossover strategies must have between the long and short line to make a sell trade.",
