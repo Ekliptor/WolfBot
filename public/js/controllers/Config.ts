@@ -618,7 +618,7 @@ export class Config extends TableController {
         let exchangeKey = this.fullData.exchangeKeys[exchangeName];
         if (!exchangeKey)
             return AppF.log("Error getting exchange key " + exchangeName);
-        $("#exchangeLink").attr("href", this.exchangeLinks[exchangeName]);
+        $(".exchangeLink").attr("href", this.exchangeLinks[exchangeName]);
         $("#apiKey").val(exchangeKey.key);
         $("#apiSecret").val(exchangeKey.secret);
         $("#apiPassphrase").val(exchangeKey.secret || "");
