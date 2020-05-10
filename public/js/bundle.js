@@ -3366,7 +3366,9 @@ class Backtesting extends JsonEditor_1.JsonEditor {
             let from = this.$('#from');
             let to = this.$('#to');
             from.find(':input').attr("data-value", options.defaultDate.getTime());
-            from.datetimepicker(options).data("DateTimePicker").date(options.defaultDate);
+            let datePickerElements = from.datetimepicker(options).data("DateTimePicker");
+            if (datePickerElements)
+                datePickerElements.date(options.defaultDate);
             options.defaultDate = new Date(useLast ? init.lastToMs : now - init.toDays * 24 * 60 * 60 * 1000);
             if (useLast === false)
                 this.resetHours(options.defaultDate);
@@ -4180,7 +4182,10 @@ class Config extends TableController_1.TableController {
         // we have to use global $ because modal dialog is outside of this page
         let firstEx = true;
         data.exchanges.forEach((exchangeName) => {
-            $("#exchanges").append(this.getSelectOption(exchangeName, exchangeName, firstEx));
+            if (data.lastExchangeEdit != "") // select the exchange the user has edited last
+                $("#exchanges").append(this.getSelectOption(exchangeName, exchangeName, data.lastExchangeEdit === exchangeName));
+            else // otherwise select the first available
+                $("#exchanges").append(this.getSelectOption(exchangeName, exchangeName, firstEx));
             firstEx = false;
         });
         this.exchangeLinks = data.exchangeLinks;

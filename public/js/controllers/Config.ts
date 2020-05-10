@@ -561,7 +561,10 @@ export class Config extends TableController {
 
         let firstEx = true;
         data.exchanges.forEach((exchangeName) => {
-            $("#exchanges").append(this.getSelectOption(exchangeName, exchangeName, firstEx))
+            if (data.lastExchangeEdit != "") // select the exchange the user has edited last
+                $("#exchanges").append(this.getSelectOption(exchangeName, exchangeName, data.lastExchangeEdit === exchangeName));
+            else // otherwise select the first available
+                $("#exchanges").append(this.getSelectOption(exchangeName, exchangeName, firstEx));
             firstEx = false;
         });
         this.exchangeLinks = data.exchangeLinks;

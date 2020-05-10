@@ -94,6 +94,7 @@ export interface ConfigRes extends ConfigData {
     jsonEditorData?: ConfigEditorData;
     tabs?: ConfigTab[];
     exchanges?: string[];
+    lastExchangeEdit?: string;
     exchangeKeys?: ExchangeApiKeyMap;
     exchangeLinks?: ExchangeLinkMap;
     exchangePairs?: ExchangePairMap;
@@ -289,6 +290,7 @@ export class ConfigEditor extends AppPublisher {
                 tabs: CONFIG_TABS,
                 selectedTab: this.selectedTab,
                 exchanges: Array.from(Currency.ExchangeName.keys()),
+                lastExchangeEdit: nconf.get("serverConfig:lastExchangeEdit"),
                 exchangeKeys: this.getExchangeKeys(),
                 // @ts-ignore
                 exchangeLinks: Currency.ExchangeLink.toObject(),
@@ -402,6 +404,7 @@ export class ConfigEditor extends AppPublisher {
         else if (typeof data.saveKey === "object") {
             const wasEmpty = serverConfig.isEmptyApiKeys(nconf.get("serverConfig:apiKey:exchange"));
             let firstExchange = "";
+            let lastExchange = "";
             for (let exchangeName in data.saveKey)
             {
                 if (Currency.ExchangeName.has(exchangeName) === false) {
@@ -425,8 +428,10 @@ export class ConfigEditor extends AppPublisher {
                     continue; // ensure we never overwrite to empty keys
                 if (firstExchange.length === 0)
                     firstExchange = exchangeName;
+                lastExchange = exchangeName;
                 nconf.set("serverConfig:apiKey:exchange:" + exchangeName, [currentKey]);
             }
+            nconf.set("serverConfig:lastExchangeEdit", lastExchange);
             serverConfig.saveConfigLocal();
             if (wasEmpty === true && firstExchange.length !== 0)
                 this.setExchangeInConfig(firstExchange);

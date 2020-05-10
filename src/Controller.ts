@@ -122,7 +122,7 @@ export class Controller extends AbstractController { // TODO implement graceful 
                     }
                     else
                         updateDb()
-                }, 200);
+                }, 300);
             })
             this.ensureTempDir().then(() => {
                 return this.minifyResources();
@@ -131,6 +131,8 @@ export class Controller extends AbstractController { // TODO implement graceful 
                     //const wsPort = nconf.get('protocol') === 'https://' ? nconf.get('tlsPort') : nconf.get('port') // listen on the same port as the http server
                     if (this.webServer)
                         this.serverSocket = new ServerSocket({server: this.webServer}); // callback only fired when we create a new http server
+                    else
+                        logger.error("Can not create WebSocket server without open HTTP server port");
                     setTimeout(resolve, 0);
                 })
             }).then(() => {
