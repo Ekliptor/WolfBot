@@ -241,9 +241,11 @@ export default class InstanceChecker extends AbstractSubController {
                 this.lastPort = port;
                 let data = {
                     apiKey: helper.getFirstApiKey(),
-                    //timeout: 10000 // in ms. default
                 }
-                let reqOptions = {skipCertificateCheck: true}
+                let reqOptions = {
+                    skipCertificateCheck: true,
+                    timeout: 3*1000 // in ms. default 10000 // require faster responses or else bot likely hangs
+                }
                 utils.postDataAsJson(apiUrl, data, (body, res) => {
                     if (body === false || this.checkBotUptime(botName, body) === false) {
                         // do a 2nd check to be sure

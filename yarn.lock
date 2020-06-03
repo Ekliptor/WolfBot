@@ -1263,9 +1263,10 @@ catharsis@~0.8.8:
     bignumber.js "^9.0.0"
     nofilter "^1.0.3"
 
-ccxt@Ekliptor/ccxt:
-  version "1.24.34"
-  resolved "https://codeload.github.com/Ekliptor/ccxt/tar.gz/224dea2bc96a4f440e450e29ab89cb83d5e37804"
+ccxt@^1.28.97:
+  version "1.28.97"
+  resolved "https://registry.yarnpkg.com/ccxt/-/ccxt-1.28.97.tgz#297bd320d44bdf7dcccecb5b05a811a0e3694a21"
+  integrity sha512-KihHXeBNGSzfSCkrfZTNOZvNdpBP6BeJvAT2OLqMv7HibW9sJnJDkVU0xre1mjG0Jhfo9OgNLzlZHH/zLZh2AQ==
 
 center-align@^0.1.1:
   version "0.1.3"
@@ -4909,7 +4910,7 @@ minimist@0.0.8:
   resolved "https://registry.yarnpkg.com/minimist/-/minimist-0.0.8.tgz#857fcabfc3397d2625b8228262e86aa7a011b05d"
   integrity sha1-hX/Kv8M5fSYluCKCYuhqp6ARsF0=
 
-minimist@^1.1.0, minimist@^1.2.0:
+minimist@^1.1.0, minimist@^1.2.0, minimist@^1.2.2:
   version "1.2.5"
   resolved "https://registry.yarnpkg.com/minimist/-/minimist-1.2.5.tgz#67d66014b66a6a8aaa0c083c5fd58df4e4e97602"
   integrity sha512-FM9nNUYrRBAELZQT3xeZQ7fmMOBg6nWNmJKTcgsJeaLstP/UODVpGsr5OhXhhXg6f+qtJ8uiZ+PUxkDWcgIXLw==
@@ -7724,7 +7725,7 @@ ws@3.3.x, ws@^3.1.0:
     safe-buffer "~5.1.0"
     ultron "~1.1.0"
 
-"ws@>= 1.1.4", ws@^7.2.0:
+"ws@>= 1.1.4":
   version "7.2.3"
   resolved "https://registry.yarnpkg.com/ws/-/ws-7.2.3.tgz#a5411e1fb04d5ed0efee76d26d5c46d830c39b46"
   integrity sha512-HTDl9G9hbkNDk98naoR/cHDws7+EyYMOdL1BmjsZXRUjf7d+MficC4B7HLUPlSiho0vg+CWKrGIt/VJBd1xunQ==
@@ -7750,6 +7751,11 @@ ws@^6.0.0, ws@^6.1.0, ws@^6.1.4, ws@^6.2.0:
   integrity sha512-GIyAXC2cB7LjvpgMt9EKS2ldqr0MTrORaleiOno6TweZ6r3TKtoFQWay/2PceJ3RuBasOHzXNn5Lrw1X0bEjqA==
   dependencies:
     async-limiter "~1.0.0"
+
+ws@^7.3.0:
+  version "7.3.0"
+  resolved "https://registry.yarnpkg.com/ws/-/ws-7.3.0.tgz#4b2f7f219b3d3737bc1a2fbf145d825b94d38ffd"
+  integrity sha512-iFtXzngZVXPGgpTlP1rBqsUK82p9tKqsWRPg5L56egiljujJT3vGAYnHANvFxBieXrTFavhzhxW52jnaWV+w2w==
 
 xml2js@0.4.19:
   version "0.4.19"

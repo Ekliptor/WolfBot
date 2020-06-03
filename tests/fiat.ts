@@ -6,6 +6,7 @@ import {Currency} from "@ekliptor/bit-models";
 import * as fs from "fs";
 import * as path from "path";
 import {ExchangeRates} from "../src/Fiat/ExchangeRates";
+import {CoinMarketCap} from "../src/Social/CoinMarketCap";
 
 let testFiatRates = async () => {
     let rates = new ExchangeRates();
@@ -18,6 +19,12 @@ let testFiatRates = async () => {
     console.log("convert 500 USD", await rates.convert("USD", "THB", 500))
 }
 
+let testCoinmarketcap = async () => {
+    const coinMarketCap = new CoinMarketCap({apiKey: nconf.get("serverConfig:apiKey:coinMarketCap:apiKey")});
+    //coinMarketCap.getCurrencyTickerById()
+}
+
 Controller.loadServerConfig(() => {
-    testFiatRates()
+    //testFiatRates()
+    testCoinmarketcap()
 })

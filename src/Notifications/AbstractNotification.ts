@@ -104,4 +104,5 @@ export abstract class AbstractNotification {
 
 // force loading dynamic imports for TypeScript
 import "./Pushover";
+import "./Telegram";
 import NoNotificationService from "./NoNotificationService";

@@ -213,21 +213,31 @@ export class CoinMarketCap {
         }
     }
 
+    // ################################################################
+    // ###################### PRIVATE FUNCTIONS #######################
+
     protected isSupported(currency: Currency.Currency) {
         if (!currency || currency === Currency.Currency.PAC || currency === Currency.Currency.USD || currency === Currency.Currency.EUR ||
             currency === Currency.Currency.JPY || currency === Currency.Currency.GBP || currency === Currency.Currency.ALL || currency === Currency.Currency.FTH ||
-            currency === Currency.Currency.ETHOS)
+            currency === Currency.Currency.ETHOS || currency === Currency.Currency.RHOC)
             return false;
         return true;
     }
 
-    // ################################################################
-    // ###################### PRIVATE FUNCTIONS #######################
+    /*
+    protected isFiltered(currency: string) {
+        currency = currency.toUpperCase();
+        if (currency === "RHOC")
+            return true;
+        return false;
+    }*/
 
     protected getLatestData(queryParams: any) {
         return new Promise<CoinMarketCapTicker>((resolve, reject) => {
             //const url = utils.sprintf("https://api.coinmarketcap.com/v2/ticker/%s/", currencyID)
             const currencyID = queryParams.id ? queryParams.id : queryParams.symbol;
+            //if (this.isFiltered(currencyID) === true) // currencyID can be a comma-separated list
+                //return reject({txt: "Skipped getting filtered currency", currencyID: currencyID});
             const url = "https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest?" + querystring.stringify(queryParams);
             utils.getPageCode(url, (body, response) => {
                 // TODO send notification on "Invalid values for" error?
@@ -235,7 +245,10 @@ export class CoinMarketCap {
                     return reject({txt: "Error crawling CoinMarketCap ticker", currencyID: currencyID, err: response})
                 let json = utils.parseJson(body);
                 if (this.isInvalidResponse(json) === true) {
-                    this.notifyError(url, json);
+                    this.notifyError(url, {
+                        json: json,
+                        query: queryParams
+                    });
                     return reject({txt: "Received invalid ticker data JSON from CoinMarketCap", currencyID: currencyID, body: body})
                 }
                 resolve(json);
@@ -274,7 +287,8 @@ export class CoinMarketCap {
         let cmcStatus: CoinMarketCapApiStatus = null;
         if (json.status && json.status.timestamp)
             cmcStatus = json.status;
-        let message = utils.sprintf("URL: %s\nRes: %s", urlStr, JSON.stringify(json));
+        // logging the full URL (all GET params) causes the message to be truncated
+        let message = utils.sprintf("URL: %s\nRes: %s", urlStr.substr(0, 24), JSON.stringify(json));
         if (cmcStatus !== null)
             message = JSON.stringify(cmcStatus); // URL can be too long
         let notification = new Notification(headline, message, false);

@@ -5,7 +5,7 @@
                 "Bitfinex"
             ],
             "marginTrading": true,
-            "tradeTotalBtc": 200.0,
+            "tradeTotalBtc": 200,
             "warmUpMin": 0,
             "strategies": {
                 "PivotSniper": {

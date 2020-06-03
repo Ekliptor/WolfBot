@@ -13,7 +13,7 @@
             "strategies": {
                 "CandleTester": {
                     "pair": "USD_BTC",
-                    "candleSize": 1,
+                    "candleSize": 3,
                     "enableLog": true
                 }
             }
