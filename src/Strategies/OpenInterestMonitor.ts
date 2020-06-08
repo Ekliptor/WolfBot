@@ -112,6 +112,7 @@ export default class OpenInterestMonitor extends TechnicalStrategy {
     protected checkOpenInterestChange() {
         if (this.currentTicker === null || this.tickerLastH === null)
             return;
+        // TODO create a chart and of open interest and send it as photo attachment
         const percentChange = helper.getDiffPercent(this.currentTicker.openInterest, this.tickerLastH.openInterest);
         if (Math.abs(percentChange) >= this.action.changePercent) {
             const currentInterest = (this.currentTicker.openInterest / 1000000).toFixed(2);

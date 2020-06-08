@@ -23,12 +23,6 @@
                     "candleSize": 5,
                     "pair": "USD_BTC",
                     "enableLog": true
-                },
-                "OpenInterestMonitor": {
-                    "changePercent": 1.3,
-                    "candleSize": 60,
-                    "pair": "USD_BTC",
-                    "enableLog": true
                 }
             }
         },
@@ -53,12 +47,6 @@
                     "low": 40,
                     "high": 65,
                     "candleSize": 5,
-                    "pair": "USD_ETH",
-                    "enableLog": true
-                },
-                "OpenInterestMonitor": {
-                    "changePercent": 1.6,
-                    "candleSize": 60,
                     "pair": "USD_ETH",
                     "enableLog": true
                 }

@@ -71,8 +71,8 @@ export default class PositionReopener extends TechnicalStrategy {
         }, 5000);
          */
         setTimeout(() => {
-            this.getNearestStop()
-        }, 5000)
+            this.getNearestStop();
+        }, 5000);
     }
 
     public onTrade(action: TradeAction, order: Order.Order, trades: Trade.Trade[], info: TradeInfo) {

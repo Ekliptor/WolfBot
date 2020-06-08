@@ -272,7 +272,7 @@ let testBinance = () => {
     let pair = new Currency.CurrencyPair(Currency.Currency.USDT, Currency.Currency.BTC)
     binance.subscribeToMarkets([pair])
 
-    //binance.buy(pair, 8000.0, 0.1).then((balances) => {
+    binance.buy(pair, 8000.0, 0.1).then((balances) => {
     //binance.marginBuy(pair, 0.0091495725, 1.0929472387917578, {}).then((balances) => {
     //binance.getOpenOrders(pair).then((balances) => {
     //binance.importHistory(pair, new Date(Date.now()-2*utils.constants.HOUR_IN_SECONDS*1000), new Date()).then((balances) => {
@@ -280,7 +280,7 @@ let testBinance = () => {
     //binance.getOpenOrders(pair).then((balances) => {
     //binance.moveOrder(pair, 25959783, 0.00000723, 360, params).then((balances) => {
     //binance.getExternalTicker(["USD_BTC"]).then((balances) => {
-    binance.getAllMarginPositions().then((balances) => {
+    //binance.getAllMarginPositions().then((balances) => {
         console.log(balances)
     }).catch((err) => {
         logger.error("Error trading", err)

@@ -706,6 +706,7 @@ export abstract class AbstractStrategy extends AbstractGenericStrategy {
      * @returns {{name: string, avgMarketPrice: string, pair: string, candleSize: string}}
      */
     public getInfo(): StrategyInfo {
+        // TODO add a cache if called from outside (HTTP API,...)
         const baseCurrency = Currency.Currency[this.action.pair.from];
         let info: any = {
             name: this.className,

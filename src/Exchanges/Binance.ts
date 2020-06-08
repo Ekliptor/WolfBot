@@ -752,11 +752,15 @@ export default class Binance extends AbstractExchange implements ExternalTickerE
     }
 
     protected addBinanceBrokerId(params: CcxtOrderParameters): CcxtOrderParameters {
+        /*
+        // removed due to error: {"txt":"Invalid API response","err":"ExchangeError: binance {\ "code":-1104,"msg":"Not all sent parameters were read; read '11' parameter(s) but was sent '12'."}","permanent":true}
         if (!params)
             params = {}
         //const brokerID = nconf.get("serverConfig:binanceBrokerIDSpot"); // futures
         const brokerID = nconf.get("serverConfig:binanceBrokerIDSpot"); // spot + margin
         params.newClientOrderId = utils.sprintf("x-%s%s", brokerID, utils.getRandomString(20));
         return params;
+         */
+        return {}
     }
 }

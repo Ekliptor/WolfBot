@@ -19,12 +19,16 @@ const argv = argvFunction(process.argv.slice(2));
 
 
 export default class InstanceChecker extends AbstractSubController {
-    public static readonly INSTANCE_CHECK_INTERVAL_SEC = 360; // must be >= 5min (time the cron will restart crashed bots)
+    public static readonly INSTANCE_CHECK_INTERVAL_SEC = 120; // must be >= 2min (time the cron will restart crashed bots)
+    public static readonly INSTANCE_CHECK_API_INTERVAL_SEC = 30;
 
     protected lastCheck: Date = null;
+    protected lastCheckApi: Date = null;
     protected lastPort: number = 0;
+    //protected lastProcessRunning = new Date();
     protected lastResponse = new Date(); // assume working on startup
     protected lastOkRuntime = new Date(); // last time the runtime of the bot we are monitoring was high enough
+    protected lastPID: number = 0; // the PID of the process we monitor
     protected notifier: AbstractNotification;
     protected lastNotification: Date = null;
 
@@ -41,7 +45,7 @@ export default class InstanceChecker extends AbstractSubController {
 
             if (!nconf.get('serverConfig:checkInstances') || nconf.get('trader') === "Backtester"/*nconf.get('trader') !== "RealTimeTrader"*/ || process.env.IS_CHILD) {
                 if (argv.monitor === true)
-                    setTimeout(resolve.bind(this), InstanceChecker.INSTANCE_CHECK_INTERVAL_SEC);
+                    setTimeout(resolve.bind(this), InstanceChecker.INSTANCE_CHECK_API_INTERVAL_SEC);
                 else
                     return resolve();
             }
@@ -81,12 +85,17 @@ export default class InstanceChecker extends AbstractSubController {
 
     protected checkInstances() {
         return new Promise<void>((resolve, reject) => {
-            if (this.lastCheck && this.lastCheck.getTime() + InstanceChecker.INSTANCE_CHECK_INTERVAL_SEC * 1000 > Date.now())
-                return resolve()
-            this.lastCheck = new Date();
 
-            let name = this.getNextInstanceName()
-            this.checkInstanceRunning(name).then(() => {
+            let name = this.getNextInstanceName();
+            if (!name)
+                return resolve(); // no monitoring available (single instance use)
+            this.checkInstanceRunning(name).then(async () => {
+                if (await this.isUpdaterRunning(name) === true) {
+                    logger.info("Skipping bot %s API check because it's currently updating", name);
+                    return Promise.resolve();
+                }
+                return this.checkApiAndRestart(name);
+            }).then(() => {
                 this.checkLastRespnseTime(name);
                 resolve()
             }).catch((err) => {
@@ -125,6 +134,10 @@ export default class InstanceChecker extends AbstractSubController {
 
     protected checkInstanceRunning(botName: string) {
         return new Promise<void>((resolve, reject) => {
+            if (this.lastCheck && this.lastCheck.getTime() + InstanceChecker.INSTANCE_CHECK_INTERVAL_SEC * 1000 > Date.now())
+                return resolve()
+            this.lastCheck = new Date();
+
             if (os.platform() === 'win32') {
                 logger.warn('Process monitoring not supported on windows. Skipped')
                 return resolve()
@@ -138,39 +151,86 @@ export default class InstanceChecker extends AbstractSubController {
                 if (err)
                     return reject(err)
                 let processIds = stdout.toString().split("\n") // should only be 1 bot // should already be a string
+                //let found = false;
                 processIds.forEach((strPID) => {
                     if (strPID == '')
                         return
                     const PID = parseInt(strPID)
                     if (PID == process.pid)
                         return
+                    //found = true;
+                    this.lastPID = PID;
+                    //this.lastProcessRunning = new Date();
+                });
+                // we now always check the API
+                resolve();
+            })
+        })
+    }
 
-                    this.checkBotApiResponsive(botName).then((isResponsive) => {
-                        if (isResponsive === false) {
-                            // TODO verify again that it's still running?
-                            const msg = utils.sprintf("Killing possibly stuck process: PID %s, last response %s", PID, utils.test.getPassedTime(this.lastResponse.getTime()));
-                            logger.warn(msg)
-                            this.notifyBotError(botName, "is unresponsive", msg)
-                            try {
-                                process.kill(PID, "SIGKILL") // just kill it. bots get (re-)started by our bash script
-                            }
-                            catch (e) { // permission denied if we grep some wrong processes
-                                logger.error('Error killing process with PID %s', PID, e)
-                            }
-                            this.copyBotLogfile(botName);
+    protected checkApiAndRestart(botName: string) {
+        return new Promise<void>((resolve, reject) => {
+            if (this.lastCheckApi && this.lastCheckApi.getTime() + InstanceChecker.INSTANCE_CHECK_API_INTERVAL_SEC * 1000 > Date.now())
+                return resolve()
+            this.lastCheckApi = new Date();
+
+            this.checkBotApiResponsive(botName).then((isResponsive) => {
+                if (isResponsive === false) {
+                    if (this.lastPID === 0) {
+                        logger.warn("Bot %s API is unresponsive, but no PID to kill it is available", botName);
+                        return resolve();
+                    }
+                    // TODO verify again that it's still running?
+                    const msg = utils.sprintf("Killing possibly stuck process: PID %s, last response %s", this.lastPID, utils.test.getPassedTime(this.lastResponse.getTime()));
+                    logger.warn(msg)
+                    this.notifyBotError(botName, "is unresponsive", msg)
+                    try {
+                        process.kill(this.lastPID, "SIGKILL") // just kill it. bots get (re-)started by our bash script
+                    }
+                    catch (e) { // permission denied if we grep some wrong processes (or process doesn't exist)
+                        if (e && e.code === "ESRCH") {
+                            logger.warn("Process %s to kill doesn't exist aynmore", this.lastPID, e);
+                            this.lastPID = 0;
                         }
-                        else {
-                            logger.verbose("Bot %s with PID %s is running", botName, PID)
-                            // store timestamp when bot was last running and also send notification
-                            // checking modification timestamp of logfile doesn't mean bot is up (might crash on startup)
-                            this.lastResponse = new Date();
-                        }
-                        resolve()
-                    }).catch((err) => {
-                        logger.error("Error checking if bot api is responsive", err)
-                        resolve()
-                    })
-                })
+                        else
+                            logger.error('Error killing process with PID %s', this.lastPID, e)
+                    }
+                    this.copyBotLogfile(botName);
+                }
+                else {
+                    logger.verbose("Bot %s with PID %s is running", botName, this.lastPID)
+                    // store timestamp when bot was last running and also send notification
+                    // checking modification timestamp of logfile doesn't mean bot is up (might crash on startup)
+                    this.lastResponse = new Date();
+                }
+                resolve()
+            }).catch((err) => {
+                logger.error("Error checking if bot api is responsive", err)
+                resolve()
+            })
+        })
+    }
+
+    protected isUpdaterRunning(botName: string) {
+        return new Promise<boolean>((resolve, reject) => {
+            // check if installer is running (updateProcess.js) and skip killing it
+            let bundleRoot = path.resolve(utils.appDir + '..' + path.sep + botName + path.sep)
+            let options = null
+            const child = exec("ps aux | grep -v grep | grep '" + bundleRoot + "' | grep 'updateProcess.js' | awk '{print $2}'", options, (err, stdout, stderr) => {
+                if (err) {
+                    logger.error("Error checking if updater of bot %s is running", botName);
+                    return resolve(false); // assume no
+                }
+                let processIds = stdout.toString().split("\n") // should only be 1 bot // should already be a string
+                let found = false;
+                processIds.forEach((strPID) => {
+                    if (strPID == '')
+                        return
+                    const PID = parseInt(strPID)
+                    if (PID != process.pid)
+                        found = true;
+                });
+                resolve(found);
             })
         })
     }
@@ -244,7 +304,7 @@ export default class InstanceChecker extends AbstractSubController {
                 }
                 let reqOptions = {
                     skipCertificateCheck: true,
-                    timeout: 3*1000 // in ms. default 10000 // require faster responses or else bot likely hangs
+                    timeout: 5*1000 // in ms. default 10000 // require faster responses or else bot likely hangs
                 }
                 utils.postDataAsJson(apiUrl, data, (body, res) => {
                     if (body === false || this.checkBotUptime(botName, body) === false) {
