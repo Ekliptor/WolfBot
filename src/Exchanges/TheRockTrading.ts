@@ -5,29 +5,17 @@ import {MarketOrder, Ticker, Trade, TradeHistory, Currency} from "@ekliptor/bit-
 import {CcxtExchange} from "./CcxtExchange";
 import {ExOptions, OpenOrders, OrderParameters} from "./AbstractExchange";
 import * as ccxt from "ccxt";
-import * as crypto from "crypto";
 
 
-export default class KuCoin extends CcxtExchange {
+export default class TheRockTrading extends CcxtExchange {
     constructor(options: ExOptions) {
         super(options);
-        this.exchangeLabel = Currency.Exchange.KUCOIN;
-        this.minTradingValue = 0.001;
-        this.fee = 0.001;
+        this.exchangeLabel = Currency.Exchange.THEROCKTRADING;
+        this.minTradingValue = 0.001; // TODO?
+        this.fee = 0.0025;
         this.currencies.setSwitchCurrencyPair(true);
         let config = this.getExchangeConfig();
-        config.password = this.apiKey.passphrase;
-        const partnerID = "dfdce34c-7d83-4424-a0bc-0150ffe57809";
-        config.headers = {
-            // Tag: Wolf  Private key: dfdce34c-7d83-4424-a0bc-0150ffe57809
-            "KC-API-PARTNER": partnerID,
-            /*"KC-API-PARTNER-SIGN"() { // TODO wait https://github.com/ccxt/ccxt/issues/7176
-                return crypto.createHash('sha256')
-                    .update(Date.now().toString() + partnerID + this.apiKey.key, 'utf8')
-                    .digest('base64');
-            }*/
-        }
-        this.apiClient = new ccxt.kucoin(config);
+        this.apiClient = new ccxt.therock(config);
         this.apiClient.loadMarkets().then(() => {
             this.onExchangeReady();
         }).catch((err) => {

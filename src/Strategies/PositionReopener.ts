@@ -16,6 +16,7 @@ interface PositionReopenerAction extends TechnicalStrategyAction {
     expiryMin: number; // optional, default 360 min - How many minutes a previously closed position shall be queued for re-opening. Use 0 to never let scheduled orders expire.
     waitOpenMin: number; // optional, default 0 = immediately - How many minutes to wait at least before re-opening a position.
     expirationPercent: number; // optional default 1.0% - Only re-open a previous position if price has changed less than this amount in percent since the position was closed.
+    reopenOncePerMinutes: number; // optional, default 0 min = unlimited - How many times to re-open a position at most within this specified interval. Use this to prevent a position constantly flipping and costing fees.
 
     makerMode: boolean; // optional, default false. Whether to adjust all order rates below/above bid ask rates to ensure we only pay the lower (maker) fee.
 }
@@ -35,6 +36,7 @@ export default class PositionReopener extends TechnicalStrategy {
     protected lastPositionDirection: StrategyPosition = "none";
     protected lastClosedPositionTime: Date = null;
     protected lastNearestStop: number = -1.0;
+    protected lastPositionOpenTime = new Date(0);
 
     constructor(options) {
         super(options)
@@ -50,6 +52,8 @@ export default class PositionReopener extends TechnicalStrategy {
             this.action.waitOpenMin = 0;
         if (!this.action.expirationPercent)
             this.action.expirationPercent = 1.0;
+        if (!this.action.reopenOncePerMinutes)
+            this.action.reopenOncePerMinutes = 0;
         if (typeof this.action.makerMode !== "boolean")
             this.action.makerMode = false;
 
@@ -57,6 +61,7 @@ export default class PositionReopener extends TechnicalStrategy {
         this.addInfo("lastCloseRate", "lastCloseRate");
         this.addInfo("lastPositionDirection", "lastPositionDirection");
         this.addInfo("lastClosedPositionTime", "lastClosedPositionTime");
+        this.addInfo("lastPositionOpenTime", "lastPositionOpenTime");
         this.addInfo("nearestStop", "lastNearestStop");
         this.saveState = true;
         this.logOnceTimeoutMin = Math.max(5, this.action.candleSize);
@@ -173,6 +178,10 @@ export default class PositionReopener extends TechnicalStrategy {
             //this.lastClosedPositionTime = null; // let it open later
             return;
         }
+        else if (this.lastPositionOpenTime.getTime() + this.action.reopenOncePerMinutes*utils.constants.MINUTE_IN_SECONDS*1000 > this.marketTime.getTime()) {
+            this.logOnce(utils.sprintf("Skipped re-opening position because it was recently reopened: %s ago", utils.test.getPassedTime(this.lastPositionOpenTime.getTime(), this.marketTime.getTime())));
+            return;
+        }
 
         // re-open the position
         if (this.lastPositionDirection === "long") {
@@ -181,6 +190,7 @@ export default class PositionReopener extends TechnicalStrategy {
                 this.emitBuy(this.defaultWeight, utils.sprintf("Re-opening %s %s LONG position closed at rate %s after %s", this.lastPositionAmount.toFixed(8), Currency.getCurrencyLabel(this.action.pair.to),
                     this.lastCloseRate.toFixed(8), utils.test.getPassedTime(this.lastClosedPositionTime.getTime(), now)));
                 this.lastClosedPositionTime = null; // to ensure we don't re-open multiple times
+                this.lastPositionOpenTime = this.marketTime;
             }
         }
         else if (this.lastPositionDirection === "short") {
@@ -189,6 +199,7 @@ export default class PositionReopener extends TechnicalStrategy {
                 this.emitSell(this.defaultWeight, utils.sprintf("Re-opening %s %s SHORT position closed at rate %s after %s", this.lastPositionAmount.toFixed(8), Currency.getCurrencyLabel(this.action.pair.to),
                     this.lastCloseRate.toFixed(8), utils.test.getPassedTime(this.lastClosedPositionTime.getTime(), now)));
                 this.lastClosedPositionTime = null; // to ensure we don't re-open multiple times
+                this.lastPositionOpenTime = this.marketTime;
             }
         }
     }

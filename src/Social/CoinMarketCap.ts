@@ -1,7 +1,7 @@
 import * as utils from "@ekliptor/apputils";
 const logger = utils.logger
     , nconf = utils.nconf;
-import {Candle, Currency, Order, Ticker, SocialAction, CoinMarketInfo} from "@ekliptor/bit-models";
+import {Candle, Currency, Order, Ticker, SocialAction, CoinMarketInfo, serverConfig} from "@ekliptor/bit-models";
 import * as helper from "../utils/helper";
 import * as db from "../database";
 import * as querystring from "querystring";
@@ -110,7 +110,10 @@ export class CoinMarketCap {
                     return reject({txt: "Error crawling CoinMarketCap ticker", options: options, err: response})
                 let json = utils.parseJson(body);
                 if (this.isInvalidResponse(json) === true) {
-                    this.notifyError(url, json);
+                    this.notifyError(url, {
+                        api: "getLatestData",
+                        json: json
+                    });
                     return reject({txt: "Received invalid ticker data JSON from CoinMarketCap", options: options, body: body})
                 }
                 resolve(json);
@@ -178,6 +181,7 @@ export class CoinMarketCap {
             case "GLD":        	return "GLC";
             case "WAX":        	return "WAXP";
             case "NEOS":        return "NEO";
+            case "STORM":        return "StormGain";
         }
         return label;
     }
@@ -198,6 +202,7 @@ export class CoinMarketCap {
             case "GLC":     return Currency.Currency.GLD;
             case "WAXP":     return Currency.Currency.WAX;
             case "NEO":     return Currency.Currency.NEO; // NEOS also exists
+            case "StormGain":return Currency.Currency.STORM;
             default:
                 let currency = Currency.Currency[currencyStr];
                 if (currency)
@@ -220,6 +225,9 @@ export class CoinMarketCap {
         if (!currency || currency === Currency.Currency.PAC || currency === Currency.Currency.USD || currency === Currency.Currency.EUR ||
             currency === Currency.Currency.JPY || currency === Currency.Currency.GBP || currency === Currency.Currency.ALL || currency === Currency.Currency.FTH ||
             currency === Currency.Currency.ETHOS || currency === Currency.Currency.RHOC)
+            return false;
+        const currencyStr = Currency.getCurrencyLabel(currency);
+        if (this.isBlacklistCurrency(currencyStr) === true)
             return false;
         return true;
     }
@@ -246,9 +254,11 @@ export class CoinMarketCap {
                 let json = utils.parseJson(body);
                 if (this.isInvalidResponse(json) === true) {
                     this.notifyError(url, {
+                        api: "getLatestData",
                         json: json,
                         query: queryParams
                     });
+                    this.checkAndAndResponseToBlacklist(json);
                     return reject({txt: "Received invalid ticker data JSON from CoinMarketCap", currencyID: currencyID, body: body})
                 }
                 resolve(json);
@@ -288,7 +298,7 @@ export class CoinMarketCap {
         if (json.status && json.status.timestamp)
             cmcStatus = json.status;
         // logging the full URL (all GET params) causes the message to be truncated
-        let message = utils.sprintf("URL: %s\nRes: %s", urlStr.substr(0, 24), JSON.stringify(json));
+        let message = utils.sprintf("URL: %s\nRes: %s", urlStr.substr(0, 40), JSON.stringify(json));
         if (cmcStatus !== null)
             message = JSON.stringify(cmcStatus); // URL can be too long
         let notification = new Notification(headline, message, false);
@@ -297,5 +307,40 @@ export class CoinMarketCap {
             logger.error("Error sending %s notification", "CoinMarketCap", err)
         });
         this.lastNotification = new Date();
+    }
+
+    protected checkAndAndResponseToBlacklist(json: CoinMarketCapList) {
+        if (!json || !json.status || json.status.error_code !== 400)
+            return;
+        let options: utils.text.GetBetweenOptions = {
+            prestartTxt: ":"
+        }
+        let symbol = utils.text.getBetween(json.status.error_message, '\\"', '\\"', options);
+        if (symbol === false) {
+            options.startPos = 0;
+            symbol = utils.text.getBetween(json.status.error_message, '"', '"', options);
+        }
+        logger.info("Extracted bad symbol from CMC response: %s", symbol); // TODO remove
+        if (symbol !== false) {
+            symbol = symbol.replace("/[^0-9a-z]/i", "");
+            this.addCurrencyToBlacklist(symbol);
+        }
+    }
+
+    protected addCurrencyToBlacklist(currencyStr: string) {
+        const list: string[] = nconf.get("serverConfig:socialCrawlBlacklist");
+        if (list.indexOf(currencyStr) !== -1) {
+            logger.warn("Currency %s is already in social crawl blacklist: %s", currencyStr, list);
+            return;
+        }
+        list.push(currencyStr);
+        nconf.set("serverConfig:socialCrawlBlacklist", currencyStr);
+        serverConfig.saveConfigLocal();
+        logger.info("Added currency %s to social crawl blacklist: %s", currencyStr, list);
+    }
+
+    protected isBlacklistCurrency(currencyStr: string): boolean {
+        const list: string[] = nconf.get("serverConfig:socialCrawlBlacklist");
+        return list.indexOf(currencyStr) !== -1;
     }
 }

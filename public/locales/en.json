@@ -647,6 +647,7 @@
       "expiryMin": "optional, default 360 min - How many minutes a previously closed position shall be queued for re-opening. Use 0 to never let scheduled orders expire.",
       "waitOpenMin": "optional, default 0 = immediately - How many minutes to wait at least before re-opening a position.",
       "expirationPercent": "optional default 1.0% - Only re-open a previous position if price has changed less than this amount in percent since the position was closed.",
+      "reopenOncePerMinutes": "optional, default 0 min = unlimited - How many times to re-open a position at most within this specified interval. Use this to prevent a position constantly flipping and costing fees.",
       "makerMode": "optional, default false. Whether to adjust all order rates below/above bid ask rates to ensure we only pay the lower (maker) fee."
     },
     "BitmexSwagger": {
