@@ -112,6 +112,7 @@ export default class PositionReopener extends TechnicalStrategy {
         state.lastCloseRate = this.lastCloseRate;
         state.lastPositionDirection = this.lastPositionDirection;
         state.lastClosedPositionTime = this.lastClosedPositionTime;
+        state.lastPositionOpenTime = this.lastPositionOpenTime;
         state.lastNearestStop = this.lastNearestStop;
         return state;
     }
@@ -122,6 +123,7 @@ export default class PositionReopener extends TechnicalStrategy {
         this.lastCloseRate = state.lastCloseRate;
         this.lastPositionDirection = state.lastPositionDirection;
         this.lastClosedPositionTime = state.lastClosedPositionTime;
+        this.lastPositionOpenTime = state.lastPositionOpenTime;
         this.lastNearestStop = state.lastNearestStop || -1.0;
     }
 
@@ -178,7 +180,7 @@ export default class PositionReopener extends TechnicalStrategy {
             //this.lastClosedPositionTime = null; // let it open later
             return;
         }
-        else if (this.lastPositionOpenTime.getTime() + this.action.reopenOncePerMinutes*utils.constants.MINUTE_IN_SECONDS*1000 > this.marketTime.getTime()) {
+        else if (this.action.reopenOncePerMinutes > 0 && this.lastPositionOpenTime.getTime() + this.action.reopenOncePerMinutes*utils.constants.MINUTE_IN_SECONDS*1000 > this.marketTime.getTime()) {
             this.logOnce(utils.sprintf("Skipped re-opening position because it was recently reopened: %s ago", utils.test.getPassedTime(this.lastPositionOpenTime.getTime(), this.marketTime.getTime())));
             return;
         }
