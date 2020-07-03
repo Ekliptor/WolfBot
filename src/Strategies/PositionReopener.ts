@@ -123,7 +123,7 @@ export default class PositionReopener extends TechnicalStrategy {
         this.lastCloseRate = state.lastCloseRate;
         this.lastPositionDirection = state.lastPositionDirection;
         this.lastClosedPositionTime = state.lastClosedPositionTime;
-        this.lastPositionOpenTime = state.lastPositionOpenTime;
+        this.lastPositionOpenTime = state.lastPositionOpenTime || new Date(0);
         this.lastNearestStop = state.lastNearestStop || -1.0;
     }
 
@@ -131,6 +131,7 @@ export default class PositionReopener extends TechnicalStrategy {
     // ###################### PRIVATE FUNCTIONS #######################
 
     protected checkIndicators() {
+        // TODO also call this from onTick() ?
         const now = this.getMarketTime().getTime();
         // check expiry of re-opening first
         if (this.lastClosedPositionTime === null)

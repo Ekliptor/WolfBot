@@ -300,7 +300,7 @@ export abstract class AbstractTrader extends AbstractGenericTrader {
                 return true;
             }
         }
-        if (/*action === "close" && */this.config.tradeTotalBtc == 0.0) {
+        if (/*action === "close" && */this.config.tradeTotalBtc == 0.0 && nconf.get('trader') !== "Backtester") { // during backtesting we allow amount 0 = full amount
             logger.warn("Skipping %s trade because %s trading is disabled (0 tradeTotalBtc in config)", action.toUpperCase(), pairStr);
             return true;
         }
