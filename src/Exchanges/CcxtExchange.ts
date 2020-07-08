@@ -183,7 +183,8 @@ export abstract class CcxtExchange extends AbstractExchange {
                 let ticker = await this.apiClient.fetchTicker(exchangePair);
                 const tickerObj = this.currencies.toLocalTicker(ticker)
                 if (tickerObj)
-                    map.set(tickerObj.currencyPair.toString(), tickerObj)
+                    //map.set(tickerObj.currencyPair.toString(), tickerObj) // must always be: USD_BTC, EUR_BTC - use local pair name
+                    map.set(this.currencyPairs[i].toString(), tickerObj)
             }
             catch (err) {
                 logger.error("Error fetching %s %s ticker stats", this.className, this.currencyPairs[i].toString(), err)

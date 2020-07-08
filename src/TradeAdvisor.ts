@@ -608,7 +608,8 @@ export default class TradeAdvisor extends AbstractAdvisor {
                                 const orderBook = exchangeInstance.getOrderBook().get(pairStr);
                                 if (!strategyInstance.isOrderBookReady() || !strategyInstance.isOrderBook2Ready()) {
                                     if (orderBook) {
-                                        if (first === true) // use the 1st one when doing arbitrage (the bigger exchange)
+                                        // use the 1st one when doing arbitrage (the bigger exchange)
+                                        if (first === true && strategyInstance.isOrderBookReady() === false) // sometimes ticker is ready after
                                             strategyInstance.setOrderBook(orderBook);
                                         else if (!strategyInstance.isOrderBook2Ready())
                                             strategyInstance.setOrderBook2(orderBook);
