@@ -241,7 +241,7 @@ export abstract class AbstractLendingStrategy extends AbstractGenericStrategy {
     protected updateMarket(lastTrade: Funding.FundingTrade) {
         //this.lastMarketPrice = this.marketPrice;
         //this.marketPrice = lastTrade.rate;
-        this.marketTime = lastTrade.date;
+        this.setMarketTime(lastTrade.date);
         if (!this.strategyStart)
             this.strategyStart = this.marketTime;
         if (!this.lastTakenAllFunds) // this currency has just been added. start with max interest and decrease

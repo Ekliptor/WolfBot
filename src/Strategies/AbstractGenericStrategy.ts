@@ -649,6 +649,14 @@ export abstract class AbstractGenericStrategy extends EventEmitter {
         // TODO do we need a sync function to wait if candles go ahead in time?
     }
 
+    protected setMarketTime(time: Date) {
+        if (this.marketTime && this.marketTime.getTime() > time.getTime()) {
+            logger.warn("Prevented market time from going backwards in %s: from %s, to %s", this.className, this.marketTime, time);
+            return;
+        }
+        this.marketTime = time;
+    }
+
     protected loadModule<T>(modulePath: string, options = undefined): T {
         try {
             let ModuleClass = require(modulePath)

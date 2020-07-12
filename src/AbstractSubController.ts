@@ -34,7 +34,7 @@ export abstract class AbstractSubController {
         }
     }
 
-    protected ensureDir(rootStr, subPathArr) {
+    protected ensureDir(rootStr: string, subPathArr: string[]) {
         return new Promise((resolve, reject) => {
             if (!rootStr)
                 return reject({txt: 'Invalid root dir to ensure', path: rootStr})

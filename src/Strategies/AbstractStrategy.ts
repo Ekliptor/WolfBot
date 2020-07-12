@@ -1091,7 +1091,7 @@ export abstract class AbstractStrategy extends AbstractGenericStrategy {
     protected updateMarket(lastTrade: Trade.Trade) {
         this.lastMarketPrice = this.marketPrice;
         this.marketPrice = lastTrade.rate;
-        this.marketTime = lastTrade.date;
+        this.setMarketTime(lastTrade.date);
         if (!this.strategyStart)
             this.strategyStart = this.marketTime;
         if (this.runOnce && this.done && this.lastRun.getTime() + nconf.get("serverConfig:strategyRunOnceIntervalH")*utils.constants.HOUR_IN_SECONDS*1000 < this.marketTime.getTime())
