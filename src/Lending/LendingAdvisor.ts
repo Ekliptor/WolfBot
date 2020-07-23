@@ -11,7 +11,7 @@ import {CandleMaker} from "../Trade/Candles/CandleMaker";
 import {CandleBatcher} from "../Trade/Candles/CandleBatcher";
 import {
     GenericCandleMakerMap, GenericTraderMap, GenericStrategyMap, CurrencyCandleBatcherMap,
-    LastSentTradesGeneric
+    LastSentTradesGeneric, StrategyActionName
 } from "../TradeAdvisor";
 import * as path from "path";
 import * as fs from "fs";
@@ -22,6 +22,7 @@ import {CandleMarketStream} from "../Trade/CandleMarketStream";
 import {AbstractAdvisor, RestoryStrategyStateMap} from "../AbstractAdvisor";
 import {TradeBook} from "../Trade/TradeBook";
 import ExchangeController from "../ExchangeController";
+import {AbstractStrategy} from "../Strategies/AbstractStrategy";
 
 
 export class CandleMakerMap extends GenericCandleMakerMap<Funding.FundingTrade> {
@@ -42,6 +43,15 @@ export class StrategyMap extends GenericStrategyMap<AbstractLendingStrategy> {
 export class TraderMap extends GenericTraderMap<AbstractLendingTrader> {
     constructor() {
         super()
+    }
+
+    public callTraderAction(configNr: number, action: LendingStrategyOrder, strategy: AbstractLendingStrategy, reason = ""): void {
+        let trader = this.get(configNr);
+        if (trader === undefined) {
+            logger.error("Can not call trader of config %s with action %s, strategy %s, reason %s", configNr, action, strategy.getClassName(), reason);
+            return;
+        }
+        trader.callAction(action, strategy, reason);
     }
 }
 
@@ -505,7 +515,7 @@ export class LendingAdvisor extends AbstractAdvisor {
         const actions: LendingStrategyOrder[] = ["place"];
         actions.forEach((actionName) => {
             strategy.on(actionName, (reason: string) => {
-                this.trader.get(config.configNr).callAction(actionName, strategy, reason);
+                this.trader.callTraderAction(config.configNr, actionName, strategy, reason);
             })
         })
 

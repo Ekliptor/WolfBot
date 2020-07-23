@@ -883,7 +883,7 @@ export class ConfigEditor extends AppPublisher {
             for (let i = 0; i < json.data.length; i++) {
                 let conf = json.data[i]
                 if (!configs[i]) { // sometimes undefined when changing configs when removing currencies // TODO why?
-                    logger.error("Unable to get trading config at pos %s to show current strategy values, configs %s", i, JSON.stringify(configs))
+                    logger.error("Unable to get trading config in %s at pos %s to show current strategy values, configs %s", ConfigEditor.activeConfig, i, JSON.stringify(configs))
                     return jsonStr;
                 }
 

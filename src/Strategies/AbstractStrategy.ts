@@ -473,10 +473,11 @@ export abstract class AbstractStrategy extends AbstractGenericStrategy {
         // -2: market order (if supported by exchange), otherwise identical to -1
         let rate = 0.0;
         if (this.action.priceTolerancePercent > 0.0 && this.avgMarketPrice !== -1) {
+            // we can not use this for close because the close() API call of most exchanges doesn't accept a price
             if (action === "buy")
-                rate = this.avgMarketPrice + this.avgMarketPrice / 100.0 * this.action.priceTolerancePercent;
+                rate = this.avgMarketPrice - this.avgMarketPrice / 100.0 * this.action.priceTolerancePercent;
             else
-                rate = this.avgMarketPrice - this.avgMarketPrice / 100.0 * this.action.priceTolerancePercent; // sell
+                rate = this.avgMarketPrice + this.avgMarketPrice / 100.0 * this.action.priceTolerancePercent; // sell
         }
         else
             rate = this.rate;

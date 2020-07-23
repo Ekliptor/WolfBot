@@ -69,14 +69,14 @@ export class LoginController extends AbstractSubController {
         if (nconf.get("serverConfig:premium") !== true)
             return LoginController.BOT_ID_PREFIX + "000";
         let instance = LoginController.getInstance();
-        const firstStart = new Date(nconf.get("serverConfig:firstStart") || 0);
-        const threshold = new Date("2019-08-07T09:54:25.600Z"); // TODO remove after a few months
+        //const firstStart = new Date(nconf.get("serverConfig:firstStart") || 0);
+        //const threshold = new Date("2019-08-07T09:54:25.600Z"); // be backwards compatible
         let botIdData: any = {
             n: instance.getNodeConfig().id,
             pa: utils.appDir,
             k: nconf.get("serverConfig:premiumIdSeed")
         }
-        if (firstStart.getTime() > threshold.getTime()) // new tokens
+        //if (firstStart.getTime() > threshold.getTime()) // new tokens
             botIdData.u = nconf.get("serverConfig:username");
         return LoginController.BOT_ID_PREFIX + crypto.createHash('sha512')
             .update(JSON.stringify(botIdData), 'utf8')

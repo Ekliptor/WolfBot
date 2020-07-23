@@ -87,6 +87,15 @@ export class TraderMap extends GenericTraderMap<AbstractTrader> {
     constructor() {
         super()
     }
+
+    public callTraderAction(configNr: number, action: StrategyActionName, strategy: AbstractStrategy, reason = "", exchange: Currency.Exchange = Currency.Exchange.ALL): void {
+        let trader = this.get(configNr);
+        if (trader === undefined) {
+            logger.error("Can not call trader of config %s with action %s, strategy %s, reason %s", configNr, action, strategy.getClassName(), reason);
+            return;
+        }
+        trader.callAction(action, strategy, reason, exchange);
+    }
 }
 export class WaitingStrategyResultMap extends Map<string, number> { // (currency pair, waiting events)
     constructor() {
@@ -795,7 +804,7 @@ export default class TradeAdvisor extends AbstractAdvisor {
                     // execute MAX VAL events immediately (no other strategy can get higher)
                     // this also ensures that events emitted outside of candle ticks can get executed
                     // TODO exchange/currencyPair have their own trader instances. still according to logs we might emit close for others? how?
-                    this.trader.get(config.configNr).callAction(actionName, strategy, reason, exchange);
+                    this.trader.callTraderAction(config.configNr, actionName, strategy, reason, exchange);
                     // dirty way to ensure no action is stuck in the heap
                     this.actionHeap.set(pairStr, this.getNewHeap());
                     let waiting = this.waitingStrategyResultCount.get(pairStr);
@@ -813,13 +822,13 @@ export default class TradeAdvisor extends AbstractAdvisor {
         const orderActions: StrategyActionName[] = ["cancelOrder"];
         orderActions.forEach((actionName) => {
             strategy.on(actionName, (pendingOrder: PendingOrder, reason: string, exchange: Currency.Exchange = Currency.Exchange.ALL) => {
-                this.trader.get(config.configNr).callAction(actionName, strategy, reason, exchange);
+                this.trader.callTraderAction(config.configNr, actionName, strategy, reason, exchange);
             });
         });
         const batchOderActions: StrategyActionName[] = ["cancelAllOrders"];
         batchOderActions.forEach((actionName) => {
             strategy.on(actionName, (reason: string, exchange: Currency.Exchange) => {
-                this.trader.get(config.configNr).callAction(actionName, strategy, reason, exchange);
+                this.trader.callTraderAction(config.configNr, actionName, strategy, reason, exchange);
             });
         });
         const portfolioActions: StrategyActionName[] = ["updatePortfolio"];
@@ -909,7 +918,7 @@ export default class TradeAdvisor extends AbstractAdvisor {
     protected executeHeapAction(config: TradeConfig, currencyPair: string, heap: Heap) {
         let action = heap.get(currencyPair).remove();
         if (action) {
-            this.trader.get(config.configNr).callAction(action.action, action.strategy, action.reason, action.exchange);
+            this.trader.callTraderAction(config.configNr, action.action, action.strategy, action.reason, action.exchange);
             heap.set(currencyPair, this.getNewHeap());
         }
     }

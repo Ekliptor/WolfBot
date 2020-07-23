@@ -1,13 +1,10 @@
 import * as utils from "@ekliptor/apputils";
 const logger = utils.logger
     , nconf = utils.nconf;
-import * as WebSocket from "ws";
 import * as http from "http";
-import * as path from "path";
 import {ServerSocketPublisher, ServerSocket, ServerSocketSendOptions, ClientSocketOnServer} from "./ServerSocket";
 import {AppPublisher} from "./AppPublisher";
 import {WebSocketOpcode} from "./opcodes";
-import {AbstractTrader} from "../Trade/AbstractTrader";
 import TradeAdvisor, {StrategyMap} from "../TradeAdvisor";
 import {LendingAdvisor, StrategyMap as LendingStrategyMap} from "../Lending/LendingAdvisor";
 import {AbstractAdvisor} from "../AbstractAdvisor";
@@ -19,7 +16,6 @@ import {AbstractStrategy} from "../Strategies/AbstractStrategy";
 import {AbstractConfig} from "../Trade/AbstractConfig";
 import {AbstractLendingStrategy} from "../Lending/Strategies/AbstractLendingStrategy";
 import * as TradingView from "../../public/js/libs/tv/charting_library.min"
-import {CandleMaker} from "../Trade/Candles/CandleMaker";
 import {CandleBatcher} from "../Trade/Candles/CandleBatcher";
 
 export type CandleBarArray = number[][];

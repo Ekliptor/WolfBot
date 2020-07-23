@@ -18,7 +18,7 @@ export default class Bitkub extends CcxtExchange {
         this.currencies.setSwitchCurrencyPair(true);
         let config = this.getExchangeConfig();
         //config.uid = this.apiKey.passphrase;
-        this.apiClient = new ccxt.bitkub(config);
+        this.apiClient = new ccxt.bitkub(config); // https://github.com/ccxt/ccxt/issues/4488
         this.apiClient.loadMarkets().then(() => {
             this.onExchangeReady();
         }).catch((err) => {
