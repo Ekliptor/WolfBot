@@ -675,7 +675,9 @@ export default class RealTimeTrader extends PortfolioTrader {
                         PortfolioTrader.marginPositions.set(exchange.getClassName(), marginPositionList)
                         resolve()
                     }).catch((err) => {
-                        logger.error("Error updating margin positions for realtime exchange %s", exchange.getClassName(), err)
+                        const msg = utils.sprintf("Error updating margin positions for realtime exchange %s", exchange.getClassName());
+                        logger.error(msg, err);
+                        this.sendApiErrorNotification(msg, exchange);
                         resolve() // continue
                     })
                 }))
@@ -694,7 +696,9 @@ export default class RealTimeTrader extends PortfolioTrader {
                         PortfolioTrader.coinBalances.set(exchange.getClassName(), currencyList)
                         resolve()
                     }).catch((err) => {
-                        logger.error("Error updating balances for realtime exchange %s", exchange.getClassName(), err)
+                        const msg = utils.sprintf("Error updating balances for realtime exchange %s", exchange.getClassName());
+                        logger.error(msg, err)
+                        this.sendApiErrorNotification(msg, exchange);
                         resolve() // continue
                     })
                 }))

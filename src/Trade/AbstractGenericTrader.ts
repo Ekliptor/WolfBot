@@ -24,6 +24,7 @@ export abstract class AbstractGenericTrader extends EventEmitter {
     protected restartPausedTimerID: NodeJS.Timer = null;
     protected tradeNotifier: AbstractGenericTrader = null; // TradeNotifier
     protected notifiedPaused: boolean = false;
+    protected static notifiedApiErrorExchanges = new Set<string>();
 
     protected logQueue = Promise.resolve();
     protected logPath: string = ""; // set this to a file to log trades
@@ -131,6 +132,18 @@ export abstract class AbstractGenericTrader extends EventEmitter {
         this.notifiedPaused = true;
         let notifier = AbstractNotification.getInstance();
         let notification = new Notification(utils.sprintf("%s trading is paused", currencyStr), message, true);
+        notifier.send(notification).catch((err) => {
+            logger.error("Error sending trading paused notification", err);
+        });
+    }
+
+    protected sendApiErrorNotification(message: string, exchange: AbstractExchange) {
+        if (AbstractGenericTrader.notifiedApiErrorExchanges.has(exchange.getClassName()) === true)
+            return;
+        AbstractGenericTrader.notifiedApiErrorExchanges.add(exchange.getClassName());
+        let notifier = AbstractNotification.getInstance();
+        message += "\r\nTrading might be impacted currently!";
+        let notification = new Notification("Exchange API Error", message, false);
         notifier.send(notification).catch((err) => {
             logger.error("Error sending trading paused notification", err);
         });

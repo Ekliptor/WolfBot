@@ -308,7 +308,9 @@ export default class RealTimeLendingTrader extends AbstractLendingTrader {
                     this.computeBalancesTakenPercent(exchange);
                     resolve()
                 }).catch((err) => {
-                    logger.error("Error updating lending balances for realtime exchange %s", exchangeName, err)
+                    const msg = utils.sprintf("Error updating lending balances for realtime exchange %s", exchangeName);
+                    logger.error(msg, err)
+                    this.sendApiErrorNotification(msg, exchange);
                     resolve() // continue
                 })
             }))
