@@ -1,0 +1,41 @@
+{
+  "data": [
+    {
+      "exchanges": [
+        "Binance",
+        "Poloniex"
+      ],
+      "marginTrading": false,
+      "tradeTotalBtc": 0.0021,
+      "notifyTrades": false,
+      "longShortRatio": 1,
+      "maxTradeBalancePercentage": 99,
+      "strategies": {
+        "Spread": {
+          "spreadEntry": 0.75,
+          "spreadTarget": 0.45,
+          "trailingSpreadStop": 0.08,
+          "statelessArbitrage": true,
+          "tradingFees": {
+            "Binance": {
+              "maker": 0.075,
+              "taker": 0.075
+            },
+            "Kraken": {
+              "maker": 0.16,
+              "taker": 0.26
+            },
+            "Poloniex": {
+              "maker": 0.075,
+              "taker": 0.075
+            }
+          },
+          "candleSize": 1,
+          "pair": "BTC_ETC",
+          "tradeStrategy": "",
+          "enableLog": true
+        }
+      }
+    }
+  ]
+}
