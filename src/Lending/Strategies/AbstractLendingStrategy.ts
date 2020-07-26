@@ -75,6 +75,8 @@ export abstract class AbstractLendingStrategy extends AbstractGenericStrategy {
                 if (trades.length === 1)
                     this.avgMarketPrice = trades[0].rate;
             }
+            if (trades.length !== 0)
+                this.lastTradePrice = trades[trades.length-1].rate;
             // TODO add "microCandle" as a candle with the last 10 trades (or better 1/3 the number of trades of last minute)
 
             this.emit("startTick", this); // sync call to events

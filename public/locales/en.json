@@ -1090,6 +1090,7 @@
       "keepTrendOpen": "optional, default true - Don't close if the last candle moved in our direction (only applicable with 'time' and 'candleSize' being set).",
       "forceMaker": "optional, default false - Only place a maker order (not paying the higher taker fee). Order will get adjusted in case the price moves away from it.",
       "notifyBeforeStopSec": "optional, default 0 (disabled) - Send a push notification x seconds before the stop executes.",
+      "stopPriceType": "optional, default avg - Chose price that must be reached for the stop to get executed.<br>'last' means last trade price, 'avg' means volume-weighted average price of the latest batch of received trades (1-5 sec time window depending on exchange).",
       "setbackProfit": "optional, default 0 (disabled) - Use a higher stop after a certain profit has been reached. How much loss we allow once 'triggerProfit' is reached (same value for long and short positions). This value always takes precedence over 'setback' and 'setbackLong'.",
       "triggerProfit": "optional, default 0 (disabled) - The minimum profit to be reached for setbackProfit to replace setback. Use this to either allow higher losses or set tighter trailing stops, depending on your trading strategy.",
       "timeProfit": "optional, default 0 (disabled) - A higher/lower time to close if position is in profit. Reduce/increase time by volatility doesn't apply to this value.",
@@ -1112,6 +1113,7 @@
       "keepTrendOpen": "optional, default true - Don't close if the last candle moved in our direction (only applicable with 'time' and 'candleSize' being set).",
       "forceMaker": "optional, default false - Only place a maker order (not paying the higher taker fee). Order will get adjusted in case the price moves away from it.",
       "notifyBeforeStopSec": "optional, default 0 (disabled) - Send a push notification x seconds before the stop executes.",
+      "stopPriceType": "optional, default avg - Chose price that must be reached for the stop to get executed.<br>'last' means last trade price, 'avg' means volume-weighted average price of the latest batch of received trades (1-5 sec time window depending on exchange).",
       "setbackProfit": "optional, default 0 (disabled) - Use a higher stop after a certain profit has been reached. How much loss we allow once 'triggerProfit' is reached (same value for long and short positions). This value always takes precedence over 'setback' and 'setbackLong'.",
       "triggerProfit": "optional, default 0 (disabled) - The minimum profit to be reached for setbackProfit to replace setback. Use this to either allow higher losses or set tighter trailing stops, depending on your trading strategy.",
       "timeProfit": "optional, default 0 (disabled) - A higher/lower time to close if position is in profit. Reduce/increase time by volatility doesn't apply to this value.",
@@ -1129,6 +1131,7 @@
       "time": "optional, default 0 - After the price falls below your profit target again start a countdown of x seconds before closing the position. The countdown gets reset if the price moves above our profit target before the counter reaches 0 seconds.",
       "reduceTimeByVolatility": "optional, default true - Reduce the stop time during high volatility market moments (by a divisor between 1 and 2 computed from Bollinger Bandwidth).",
       "trailingStopPerc": "trailingStopPerc: number; // optional, default 0.0% (0 = trade immediately) - The trailing stop percentage that will be placed once the computed profit target of the strategy has been reached.",
+      "stopPriceType": "optional, default avg - Chose price that must be reached for the take-profit order to get executed.<br>'last' means last trade price, 'avg' means volume-weighted average price of the latest batch of received trades (1-5 sec time window depending on exchange).",
       "keepTrendOpen": "optional, default true - Don't close if the last candle moved in our direction (only applicable with 'time' and 'candleSize' being set).",
       "forceMaker": "optional, default false - Only place a maker order (not paying the higher taker fee). Order will get adjusted in case the price moves away from it.",
       "minRate": "optional, default 0 (disabled) - Only take profit once this market rate has been reached. Price must be above it for long positions and below it for short positions.",
@@ -1142,6 +1145,7 @@
       "time": "optional, default 0 - After the price falls below your profit target again start a countdown of x seconds before closing the position. The countdown gets reset if the price moves above our profit target before the counter reaches 0 seconds.",
       "reduceTimeByVolatility": "optional, default true - Reduce the stop time during high volatility market moments (by a divisor between 1 and 2 computed from Bollinger Bandwidth).",
       "trailingStopPerc": "trailingStopPerc: number; // optional, default 0.0% (0 = trade immediately) - The trailing stop percentage that will be placed once the computed profit target of the strategy has been reached.",
+      "stopPriceType": "optional, default avg - Chose price that must be reached for the take-profit order to get executed.<br>'last' means last trade price, 'avg' means volume-weighted average price of the latest batch of received trades (1-5 sec time window depending on exchange).",
       "keepTrendOpen": "optional, default true - Don't close if the last candle moved in our direction (only applicable with 'time' and 'candleSize' being set).",
       "forceMaker": "optional, default false - Only place a maker order (not paying the higher taker fee). Order will get adjusted in case the price moves away from it.",
       "minRate": "optional, default 0 (disabled) - Only take profit once this market rate has been reached. Price must be above it for long positions and below it for short positions.",
@@ -1161,7 +1165,8 @@
       "keepTrendOpen": "optional, default true - Don't close if the last candle moved in our direction (only applicable with 'time' and 'candleSize' being set).",
       "alwaysIncreaseStop": "optional, default false - Move the stop closer to the market price after every candle tick of this strategy even if RSI is no more oversold/overbought.",
       "ensureProfit": "optional, default true - Check if we still have profit after 'time' has passed. Otherwise don't close the position. Keep in mind that open positions are only being synced every few minutes.",
-      "minOpenTicks": "optional, default 12 - How many ticks a position shall be open at least before it can be closed. If this strategy uses the same candle size as the main strategy. it's implicitly open at least 1 tick with value 0."
+      "minOpenTicks": "optional, default 12 - How many ticks a position shall be open at least before it can be closed. If this strategy uses the same candle size as the main strategy. it's implicitly open at least 1 tick with value 0.",
+      "stopPriceType": "optional, default avg - Chose price that must be reached for the stop to get executed.<br>'last' means last trade price, 'avg' means volume-weighted average price of the latest batch of received trades (1-5 sec time window depending on exchange)."
     },
     "TakeProfitAdvanced": {
       "desc": "This is an advanced take profit strategy set which closes a position fully if it is x% in profit and its profit doesn't increase anymore for 5 minutes (configurable).<br>Additionally it will close 50% of your position if the 1h StochRSI is at its low (for a short position) or at its high (for a long position) - all parameters configurable.<br>You can optionally add your TradingView.com email address so that WolfBot receives TradingView alerts to trade on them. This allows you to open positions or place additional stops."

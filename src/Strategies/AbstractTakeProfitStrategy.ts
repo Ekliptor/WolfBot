@@ -7,11 +7,14 @@ import {TechnicalStrategy, TechnicalStrategyAction} from "./TechnicalStrategy";
 import {MarginPosition} from "../structs/MarginPosition";
 import {TradeInfo} from "../Trade/AbstractTrader";
 import * as helper from "../utils/helper";
+import {StopPriceType} from "./AbstractStopStrategy";
 
 export interface AbstractTakeProfitStrategyAction extends TechnicalStrategyAction {
     time: number; // in seconds, optional. only close the position if the price doesn't reach a new high/low within this time
     reduceTimeByVolatility: boolean; // optional, default true. reduce the stop time during high volatility market moments
     trailingStopPerc: number; // optional, default 0.0% (0 = trade immediately) - The trailing stop percentage that will be placed once the computed profit target of the strategy has been reached.
+    stopPriceType: StopPriceType; // optional, default avg - Chose price that must be reached for the take-profit order to get executed.
+    // 'last' means last trade price, 'avg' means volume-weighted average price of the latest batch of received trades (1-5 sec time window depending on exchange).
 
     // optional, for defaults see BolloingerBandsParams
     N: number; // time period for MA
@@ -41,6 +44,8 @@ export abstract class AbstractTakeProfitStrategy extends /*AbstractStrategy*/Tec
             this.action.reduceTimeByVolatility = false;
         if (typeof this.action.trailingStopPerc !== "number")
             this.action.trailingStopPerc = 0.0;
+        if (typeof this.action.stopPriceType !== "string")
+            this.action.stopPriceType = "avg";
         this.initialOrder = this.action.order;
         this.openOppositePositions = true; // sell on long position, buy on short position
         this.saveState = true; // our indicators need history
@@ -223,13 +228,13 @@ export abstract class AbstractTakeProfitStrategy extends /*AbstractStrategy*/Tec
             return;
         }
         if (this.strategyPosition === "long") {
-            const nextStop = this.avgMarketPrice - this.avgMarketPrice/100.0*this.action.trailingStopPerc;
+            const nextStop = this.getStopPriceForType() - this.getStopPriceForType()/100.0*this.action.trailingStopPerc;
             if (nextStop > this.trailingStopPrice)
                 this.trailingStopPrice = nextStop;
             //this.strategyPosition = "none"; // to prevent the strategy being stuck // Backtester can sync state now too
         }
         else if (this.strategyPosition === "short") {
-            const nextStop = this.avgMarketPrice + this.avgMarketPrice/100.0*this.action.trailingStopPerc;
+            const nextStop = this.getStopPriceForType() + this.getStopPriceForType()/100.0*this.action.trailingStopPerc;
             if (this.trailingStopPrice === -1 || nextStop < this.trailingStopPrice)
                 this.trailingStopPrice = nextStop;
             //this.strategyPosition = "none";
@@ -237,7 +242,7 @@ export abstract class AbstractTakeProfitStrategy extends /*AbstractStrategy*/Tec
     }
 
     protected checkStopSell() {
-        if (this.avgMarketPrice > this.getStopSell()) {
+        if (this.getStopPriceForType() > this.getStopSell()) {
             if (this.action.time)
                 this.stopCountStart = null;
             return;
@@ -251,7 +256,7 @@ export abstract class AbstractTakeProfitStrategy extends /*AbstractStrategy*/Tec
     }
 
     protected checkStopBuy() {
-        if (this.avgMarketPrice < this.getStopBuy()) {
+        if (this.getStopPriceForType() < this.getStopBuy()) {
             if (this.action.time)
                 this.stopCountStart = null;
             return;
@@ -264,14 +269,20 @@ export abstract class AbstractTakeProfitStrategy extends /*AbstractStrategy*/Tec
             this.closeShortPosition();
     }
 
+    protected getStopPriceForType(): number {
+        if (this.action.stopPriceType === "last")
+            return this.lastTradePrice;
+        return this.avgMarketPrice; // avg
+    }
+
     protected closeLongPosition() {
-        this.log("emitting sell because price dropped to", this.avgMarketPrice, "stop", this.getStopSell());
+        this.log("emitting sell because price dropped to", this.getStopPriceForType(), "stop", this.getStopSell());
         this.emitClose(Number.MAX_VALUE, this.getCloseReason(true)); // SellClose, TakeProfitPartial will just use another order amount
         this.done = true;
     }
 
     protected closeShortPosition() {
-        this.log("emitting buy because price rose to", this.avgMarketPrice, "stop", this.getStopBuy());
+        this.log("emitting buy because price rose to", this.getStopPriceForType(), "stop", this.getStopBuy());
         this.emitClose(Number.MAX_VALUE, this.getCloseReason(false)); // BuyClose, TakeProfitPartial will just use another order amount
         this.done = true;
     }
@@ -289,7 +300,7 @@ export abstract class AbstractTakeProfitStrategy extends /*AbstractStrategy*/Tec
     }
 
     protected getCloseReason(closeLong: boolean) {
-        let priceDiff = Math.round(helper.getDiffPercent(this.avgMarketPrice, this.entryPrice) * 100.0) / 100.0;
+        let priceDiff = Math.round(helper.getDiffPercent(this.getStopPriceForType(), this.entryPrice) * 100.0) / 100.0;
         const direction = closeLong ? "dropped" : "rose";
         let reason = "price " + direction + " " + priceDiff + "%";
         return reason;

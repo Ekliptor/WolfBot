@@ -52,7 +52,8 @@ export abstract class AbstractGenericStrategy extends EventEmitter {
     protected readonly runningCandleSize: number = -1;
     protected marketPrice: number = -1; // price of the last trade for the market this strategy is watching
     protected lastMarketPrice: number = -1;
-    protected avgMarketPrice: number = -1; // avg price of the currently received trades
+    protected avgMarketPrice: number = -1; // avg price of the currently received trades (volume weighted average price)
+    protected lastTradePrice: number = -1; // the rate of the last trade. faster than than avgMarketPrice
     protected positionSyncPrice: number = -1;
     protected lastAvgMarketPrice: number = -1;
     protected candle: Candle.Candle = null; // most recent candle. short for this.candleHistory[0]

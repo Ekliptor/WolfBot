@@ -15,6 +15,7 @@
           "keepTrendOpen": true,
           "forceMaker": true,
           "minRate": 0.0,
+          "stopPriceType": "avg",
           "candleSize": 6,
           "pair": "USD_BTC",
           "enableLog": false

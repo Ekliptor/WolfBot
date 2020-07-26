@@ -50,7 +50,7 @@ export default class TakeProfitPartial extends TakeProfit {
         // if StopLossTurn has a small candleSize it will do almost the same (but close the order completely)
         if (nconf.get("trader") !== "Backtester") { // backtester uses BTC as unit, live mode USD
             if (leverage >= 10 && this.isPossibleFuturesPair(this.action.pair) === true)
-                amount = tradeTotalBtc * leverage * /*this.ticker.last*/this.avgMarketPrice;
+                amount = tradeTotalBtc * leverage * /*this.ticker.last*/this.getStopPriceForType();
         }
 
         // TODO tradeTotalBtc is the value from config. compare with this.holdingCoins to ensure we don't "close" too much if config changed (or manual trade)
@@ -72,12 +72,12 @@ export default class TakeProfitPartial extends TakeProfit {
             if (this.strategyPosition === "none")
                 this.log("No open position to take profit from. Skipping SELL");
             else if (this.action.trailingStopPerc > 0.0) {
-                this.log("placing trailing stop to close long position partially because price is high with profit", this.avgMarketPrice, "entry", this.entryPrice,
+                this.log("placing trailing stop to close long position partially because price is high with profit", this.getStopPriceForType(), "entry", this.entryPrice,
                     "stop", this.getStopSell(), "increase %", this.getPriceDiffPercent(this.getStopSell()));
                 this.updateStop(true);
             }
             else {
-                this.log("closing long position partially because price is high with profit", this.avgMarketPrice, "entry", this.entryPrice,
+                this.log("closing long position partially because price is high with profit", this.getStopPriceForType(), "entry", this.entryPrice,
                     "stop", this.getStopSell(), "increase %", this.getPriceDiffPercent(this.getStopSell()));
                 this.emitSell(Number.MAX_VALUE, "price high with profit");
             }
@@ -90,12 +90,12 @@ export default class TakeProfitPartial extends TakeProfit {
             if (this.strategyPosition === "none")
                 this.log("No open position to take profit from. Skipping BUY");
             else if (this.action.trailingStopPerc > 0.0) {
-                this.log("placing trailing stop to close short position partially because price is low with profit", this.avgMarketPrice, "entry", this.entryPrice,
+                this.log("placing trailing stop to close short position partially because price is low with profit", this.getStopPriceForType(), "entry", this.entryPrice,
                     "stop", this.getStopBuy(), "decrease %", this.getPriceDiffPercent(this.getStopBuy()));
                 this.updateStop(true);
             }
             else {
-                this.log("closing short position partially because price is low with profit", this.avgMarketPrice, "entry", this.entryPrice,
+                this.log("closing short position partially because price is low with profit", this.getStopPriceForType(), "entry", this.entryPrice,
                     "stop", this.getStopBuy(), "decrease %", this.getPriceDiffPercent(this.getStopBuy()));
                 this.emitBuy(Number.MAX_VALUE, "price low with profit");
             }

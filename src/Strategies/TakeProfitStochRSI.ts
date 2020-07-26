@@ -7,6 +7,7 @@ import {Currency, Trade, Candle} from "@ekliptor/bit-models";
 import {TechnicalStrategyAction} from "./TechnicalStrategy";
 import {default as TriggerOrder} from "./TriggerOrder";
 import {AbstractTriggerOrder, TriggerOrderCommand} from "./AbstractTriggerOrder";
+import {StopPriceType} from "./AbstractStopStrategy";
 
 interface TakeProfitStochRSIAction extends AbstractTakeProfitStrategyAction {
     percentage: number; // optional, default 100%. Take profit by partially closing x% of the open position.
@@ -26,6 +27,9 @@ interface TakeProfitStochRSIAction extends AbstractTakeProfitStrategyAction {
     ensureProfit: boolean; // optional, default true. Check if we still have profit after 'time' has passed. Otherwise don't close the position.
     orderStrategy: string;
     minOpenTicks: number; // optional, default 12. How many ticks a position shall be open at least before it can be closed. If this strategy uses the same candle size as the main strategy. it's implicitly open at least 1 tick with value 0.
+
+    stopPriceType: StopPriceType; // optional, default avg - Chose price that must be reached for the take-profit order to get executed.
+    // 'last' means last trade price, 'avg' means volume-weighted average price of the latest batch of received trades (1-5 sec time window depending on exchange).
 }
 
 /**
@@ -76,7 +80,7 @@ export default class TakeProfitStochRSI extends AbstractTakeProfitStrategy {
         // if StopLossTurn has a small candleSize it will do almost the same (but close the order completely)
         if (nconf.get("trader") !== "Backtester") { // backtester uses BTC as unit, live mode USD
             if (leverage >= 10 && this.isPossibleFuturesPair(this.action.pair) === true)
-                amount = tradeTotalBtc * leverage * /*this.ticker.last*/this.avgMarketPrice;
+                amount = tradeTotalBtc * leverage * /*this.ticker.last*/this.getStopPriceForType();
         }
 
         this.orderAmountPercent = this.action.percentage;
@@ -168,11 +172,12 @@ export default class TakeProfitStochRSI extends AbstractTakeProfitStrategy {
     }
 
     protected getCloseLongRate() {
-        return this.avgMarketPrice * this.action.closeRateFactor;
+        return this.getStopPriceForType() * this.action.closeRateFactor;
     }
 
     protected getCloseShortRate() {
-        return this.avgMarketPrice + (1-this.action.closeRateFactor)*this.avgMarketPrice;
+        const stopRate = this.getStopPriceForType();
+        return stopRate + (1-this.action.closeRateFactor)*stopRate;
     }
 
     protected forwardOrder(tradeCmd: TriggerOrderCommand) {

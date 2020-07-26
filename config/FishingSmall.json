@@ -61,6 +61,8 @@
                     "setbackProfit": 4.1,
                     "triggerProfit": 6.5,
                     "timeProfit": 30,
+                    "notifyBeforeStopSec": 120,
+                    "stopPriceType": "avg",
                     "reduceTimeByVolatility": false,
                     "low": 20,
                     "high": 80,

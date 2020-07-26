@@ -81,7 +81,7 @@ export default class StopLossTurnPartial extends StopLossTurn {
         // if StopLossTurn has a small candleSize it will do almost the same (but close the order completely)
         if (nconf.get("trader") !== "Backtester") { // backtester uses BTC as unit, live mode USD
             if (leverage >= 10 && this.isPossibleFuturesPair(this.action.pair) === true)
-                amount = tradeTotalBtc * leverage * /*this.ticker.last*/this.avgMarketPrice;
+                amount = tradeTotalBtc * leverage * /*this.ticker.last*/this.getStopPriceForType();
         }
 
         // TODO tradeTotalBtc is the value from config. compare with this.holdingCoins to ensure we don't "close" too much if config changed (or manual trade)
@@ -96,7 +96,7 @@ export default class StopLossTurnPartial extends StopLossTurn {
 
     protected closeLongPosition() {
         if (this.enabled) {
-            this.log("emitting sell because price dropped to", this.avgMarketPrice, "stop", this.getStopSell());
+            this.log("emitting sell because price dropped to", this.getStopPriceForType(), "stop", this.getStopSell());
             this.emitSell(Number.MAX_VALUE, "price dropped" + (this.profitTriggerReached ? ", profit triggered" : ""));
         }
         this.done = true;
@@ -104,7 +104,7 @@ export default class StopLossTurnPartial extends StopLossTurn {
 
     protected closeShortPosition() {
         if (this.enabled) {
-            this.log("emitting buy because price rose to", this.avgMarketPrice, "stop", this.getStopBuy());
+            this.log("emitting buy because price rose to", this.getStopPriceForType(), "stop", this.getStopBuy());
             this.emitBuy(Number.MAX_VALUE, "price rose" + (this.profitTriggerReached ? ", profit triggered" : ""));
         }
         this.done = true;

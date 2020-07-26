@@ -33,6 +33,7 @@
                     "reduceTimeByVolatility": false,
                     "keepTrendOpen": true,
                     "minRate": 0.0,
+                    "stopPriceType": "avg",
                     "candleSize": 5,
                     "pair": "USD_BTC",
                     "enableLog": false
@@ -47,6 +48,7 @@
                     "keepTrendOpen": false,
                     "alwaysIncreaseStop": true,
                     "ensureProfit": true,
+                    "stopPriceType": "avg",
                     "candleSize": 60,
                     "orderStrategy": "TriggerOrder",
                     "minOpenTicks": 12,

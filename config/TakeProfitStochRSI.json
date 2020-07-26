@@ -20,6 +20,7 @@
           "alwaysIncreaseStop": false,
           "ensureProfit": true,
           "minOpenTicks": 12,
+          "stopPriceType": "avg",
           "candleSize": 60,
           "orderStrategy": "TriggerOrder",
           "pair": "USD_BTC",

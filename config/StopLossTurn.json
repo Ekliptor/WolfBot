@@ -18,6 +18,7 @@
                     "triggerProfit": 4.3,
                     "timeProfit": 120,
                     "notifyBeforeStopSec": 0,
+                    "stopPriceType": "avg",
                     "reduceTimeByVolatility": false,
                     "keepTrendOpen": true,
                     "minOpenTime": 0,

@@ -39,6 +39,8 @@
           "setbackLong": 3.5,
           "time": 300,
           "reduceTimeByVolatility": false,
+          "notifyBeforeStopSec": 120,
+          "stopPriceType": "avg",
           "low": 52,
           "high": 56,
           "candleSize": 5,

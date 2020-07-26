@@ -51,6 +51,9 @@ export default class TakeProfit extends AbstractTakeProfitStrategy {
         if (!this.action.minRate)
             this.action.minRate = 0.0;
 
+        this.addInfoFunction("stopPriceForType", () => {
+            return this.getStopPriceForType();
+        });
         this.addInfo("highestPrice", "highestPrice");
         this.addInfo("lowestPrice", "lowestPrice");
         this.addInfoFunction("stop", () => {
@@ -88,15 +91,15 @@ export default class TakeProfit extends AbstractTakeProfitStrategy {
                     //if (this.entryPrice === -1) // causes buggy/late reset
                         //this.entryPrice = this.avgMarketPrice;
                     if (this.highestPrice === 0.0 || this.action.updateTrailingStop === true) {
-                        if (this.avgMarketPrice > this.highestPrice) {
-                            this.highestPrice = this.avgMarketPrice;
+                        if (this.getStopPriceForType() > this.highestPrice) {
+                            this.highestPrice = this.getStopPriceForType();
                             this.updateStopCount();
                             log = true;
                         }
                     }
                     if (this.lowestPrice === Number.MAX_VALUE || this.action.updateTrailingStop === true) {
-                        if (this.avgMarketPrice < this.lowestPrice) { // on first call both conditions are true
-                            this.lowestPrice = this.avgMarketPrice;
+                        if (this.getStopPriceForType() < this.lowestPrice) { // on first call both conditions are true
+                            this.lowestPrice = this.getStopPriceForType();
                             this.updateStopCount();
                             log = true;
                         }
@@ -145,9 +148,9 @@ export default class TakeProfit extends AbstractTakeProfitStrategy {
     }
 
     protected checkStopSell() {
-        if (this.action.minRate && this.avgMarketPrice < this.action.minRate)
+        if (this.action.minRate && this.getStopPriceForType() < this.action.minRate)
             return;
-        if (this.avgMarketPrice < this.getStopSell() || !this.hasProfit(this.avgMarketPrice)) { // < is opposite to StopLoss
+        if (this.getStopPriceForType() < this.getStopSell() || !this.hasProfit(this.getStopPriceForType())) { // < is opposite to StopLoss
             if (this.action.time)
                 this.stopCountStart = new Date(this.marketTime.getTime() + 365*utils.constants.DAY_IN_SECONDS*1000); // reset it
             return;
@@ -159,9 +162,9 @@ export default class TakeProfit extends AbstractTakeProfitStrategy {
     }
 
     protected checkStopBuy() {
-        if (this.action.minRate && this.avgMarketPrice > this.action.minRate)
+        if (this.action.minRate && this.getStopPriceForType() > this.action.minRate)
             return;
-        if (this.avgMarketPrice > this.getStopBuy() || !this.hasProfit(this.avgMarketPrice)) { // > is opposite to StopLoss
+        if (this.getStopPriceForType() > this.getStopBuy() || !this.hasProfit(this.getStopPriceForType())) { // > is opposite to StopLoss
             if (this.action.time)
                 this.stopCountStart = new Date(this.marketTime.getTime() + 365*utils.constants.DAY_IN_SECONDS*1000); // reset it
             return;
@@ -174,13 +177,13 @@ export default class TakeProfit extends AbstractTakeProfitStrategy {
 
     protected closeLongPosition() {
         if (this.action.trailingStopPerc > 0.0) {
-            this.log("placing trailing stop sell because price is high with profit", this.avgMarketPrice, "entry", this.entryPrice,
+            this.log("placing trailing stop sell because price is high with profit", this.getStopPriceForType(), "entry", this.entryPrice,
                 "stop", this.getStopSell(), "increase %", this.getPriceDiffPercent(this.getStopSell()));
             this.updateStop(true);
             this.done = true;
             return;
         }
-        this.log("emitting sell because price is high with profit", this.avgMarketPrice, "entry", this.entryPrice,
+        this.log("emitting sell because price is high with profit", this.getStopPriceForType(), "entry", this.entryPrice,
             "stop", this.getStopSell(), "increase %", this.getPriceDiffPercent(this.getStopSell()));
         this.emitSellClose(Number.MAX_VALUE, "price high with profit");
         this.done = true;
@@ -188,13 +191,13 @@ export default class TakeProfit extends AbstractTakeProfitStrategy {
 
     protected closeShortPosition() {
         if (this.action.trailingStopPerc > 0.0) {
-            this.log("placing trailing stop buy because price is low with profit", this.avgMarketPrice, "entry", this.entryPrice,
+            this.log("placing trailing stop buy because price is low with profit", this.getStopPriceForType(), "entry", this.entryPrice,
                 "stop", this.getStopBuy(), "decrease %", this.getPriceDiffPercent(this.getStopBuy()));
             this.updateStop(true);
             this.done = true;
             return;
         }
-        this.log("emitting buy because price is low with profit", this.avgMarketPrice, "entry", this.entryPrice,
+        this.log("emitting buy because price is low with profit", this.getStopPriceForType(), "entry", this.entryPrice,
             "stop", this.getStopBuy(), "decrease %", this.getPriceDiffPercent(this.getStopBuy()));
         this.emitBuyClose(Number.MAX_VALUE, "price low with profit");
         this.done = true;
@@ -241,7 +244,7 @@ export default class TakeProfit extends AbstractTakeProfitStrategy {
         if (!force && this.lastLoggedStop === stop)
             return
         this.lastLoggedStop = stop;
-        this.log("market price", this.avgMarketPrice.toFixed(8), "lowest", this.lowestPrice.toFixed(8), "highest", this.highestPrice.toFixed(8))
+        this.log("market price", this.getStopPriceForType().toFixed(8), "lowest", this.lowestPrice.toFixed(8), "highest", this.highestPrice.toFixed(8))
         if (long)
             this.log("new stop sell", stop)
         else

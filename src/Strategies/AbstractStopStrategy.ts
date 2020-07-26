@@ -16,6 +16,7 @@ import {TradeInfo} from "../Trade/AbstractTrader";
 import * as helper from "../utils/helper";
 
 export type ClosePositionState = "always" | "profit" | "loss";
+export type StopPriceType = "last" | "avg";
 
 export interface AbstractStopStrategyAction extends TechnicalStrategyAction {
     time: number; // in seconds, optional
@@ -23,6 +24,8 @@ export interface AbstractStopStrategyAction extends TechnicalStrategyAction {
     increaseTimeByVolatility: boolean; // optional, default false. increase the stop time during volatile markets. takes precedence over reduceTimeByVolatility
     reduceTimeByVolatility: boolean; // optional, default true. reduce the stop time during high volatility market moments
     notifyBeforeStopSec: number; // optional, notify seconds before the stop executes
+    stopPriceType: StopPriceType; // optional, default avg - Chose price that must be reached for the stop to get executed.
+    // 'last' means last trade price, 'avg' means volume-weighted average price of the latest batch of received trades (1-5 sec time window depending on exchange).
 
     // optional, for defaults see BolloingerBandsParams
     N: number; // time period for MA
@@ -56,6 +59,8 @@ export abstract class AbstractStopStrategy extends /*AbstractStrategy*/Technical
             this.action.reduceTimeByVolatility = true;
         if (!this.action.notifyBeforeStopSec)
             this.action.notifyBeforeStopSec = 0;
+        if (typeof this.action.stopPriceType !== "string")
+            this.action.stopPriceType = "avg";
         this.initialOrder = this.action.order;
         this.openOppositePositions = true; // sell on long position, buy on short position
 
@@ -252,8 +257,14 @@ export abstract class AbstractStopStrategy extends /*AbstractStrategy*/Technical
         return stopMs > 0 ? Math.floor(stopMs/1000) : 0;
     }
 
+    protected getStopPriceForType(): number {
+        if (this.action.stopPriceType === "last")
+            return this.lastTradePrice;
+        return this.avgMarketPrice; // avg
+    }
+
     protected getCloseReason(closeLong: boolean) {
-        let priceDiff = Math.round(helper.getDiffPercent(this.avgMarketPrice, this.entryPrice) * 100.0) / 100.0;
+        let priceDiff = Math.round(helper.getDiffPercent(this.getStopPriceForType(), this.entryPrice) * 100.0) / 100.0;
         const direction = closeLong ? "dropped" : "rose";
         let reason = "price " + direction + " " + priceDiff + "%";
         let rsi = this.indicators.get("RSI");
@@ -283,7 +294,7 @@ export abstract class AbstractStopStrategy extends /*AbstractStrategy*/Technical
         let message = utils.sprintf("remaining time %s min, entry price %s, current price %s, %sstop %s, position %s",
             //Math.floor(this.action.notifyBeforeStopSec / 60),
             Math.floor(this.getTimeUntilStopSec() / 60), // use the actual time because this function might be called later
-            this.entryPrice.toFixed(8), this.avgMarketPrice.toFixed(8),
+            this.entryPrice.toFixed(8), this.getStopPriceForType().toFixed(8),
             (this.useProfitStop() ? "profit " : ""), this.getStopPrice().toFixed(8), this.strategyPosition);
         if (this.position)
             message += ", p/l: " + this.position.pl.toFixed(8) + " " + this.action.pair.getBase();

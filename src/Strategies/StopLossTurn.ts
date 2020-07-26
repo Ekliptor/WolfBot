@@ -2,7 +2,12 @@ import * as utils from "@ekliptor/apputils";
 const logger = utils.logger
     , nconf = utils.nconf;
 import {AbstractStrategy, StrategyAction, TradeAction} from "./AbstractStrategy";
-import {AbstractStopStrategy, AbstractStopStrategyAction, ClosePositionState} from "./AbstractStopStrategy";
+import {
+    AbstractStopStrategy,
+    AbstractStopStrategyAction,
+    ClosePositionState,
+    StopPriceType
+} from "./AbstractStopStrategy";
 import {Currency, Trade, Order, Candle} from "@ekliptor/bit-models";
 import {TradeInfo} from "../Trade/AbstractTrader";
 import * as helper from "../utils/helper";
@@ -32,6 +37,8 @@ interface StopLossTurnAction extends AbstractStopStrategyAction {
     forceMaker: boolean; // optional false, force the order to be a maker order
     //protectProfit: number; // optional, default 0 = disabled. close a a position immediately before a profit turns into a loss once this profit % is reached
     notifyBeforeStopSec: number; // optional, Send a push notification x seconds before the stop executes.
+    stopPriceType: StopPriceType; // optional, default avg - Chose price that must be reached for the stop to get executed.
+    // 'last' means last trade price, 'avg' means volume-weighted average price of the latest batch of received trades (1-5 sec time window depending on exchange).
 
     // optional: Use a higher stop after a certain profit has been reached.
     setbackProfit: number; // 2.5% // How much loss we allow once 'triggerProfit' is reached (same value for long and short positions).
@@ -97,6 +104,9 @@ export default class StopLossTurn extends AbstractStopStrategy {
         if (this.action.low > 0 && this.action.high > 0)
             this.addIndicator("RSI", "RSI", this.action);
 
+        this.addInfoFunction("stopPriceForType", () => {
+            return this.getStopPriceForType();
+        });
         this.addInfo("highestPrice", "highestPrice");
         this.addInfo("lowestPrice", "lowestPrice");
         this.addInfo("marketTime", "marketTime");
@@ -146,25 +156,25 @@ export default class StopLossTurn extends AbstractStopStrategy {
             let log = false;
             if (this.strategyPosition !== "none" && (!this.action.candleSize || this.highestPrice === 0)) { // first init exception
                 if (this.highestPrice === 0.0 || this.action.updateTrailingStop === true) {
-                    if (this.avgMarketPrice > this.highestPrice) {
-                        this.highestPrice = this.avgMarketPrice;
+                    if (this.getStopPriceForType() > this.highestPrice) {
+                        this.highestPrice = this.getStopPriceForType();
                         log = true;
                     }
                 }
                 if (this.lowestPrice === Number.MAX_VALUE || this.action.updateTrailingStop === true) {
-                    if (this.avgMarketPrice < this.lowestPrice) { // on first call both conditions are true
-                        this.lowestPrice = this.avgMarketPrice;
+                    if (this.getStopPriceForType() < this.lowestPrice) { // on first call both conditions are true
+                        this.lowestPrice = this.getStopPriceForType();
                         log = true;
                     }
                 }
                 if (!this.profitTriggerReached) {
-                    if (this.strategyPosition === "long" && this.avgMarketPrice >= this.getTriggerPriceLong()) {
+                    if (this.strategyPosition === "long" && this.getStopPriceForType() >= this.getTriggerPriceLong()) {
                         this.profitTriggerReached = true;
-                        this.log("LONG profit price reaced at:", this.avgMarketPrice);
+                        this.log("LONG profit price reaced at:", this.getStopPriceForType());
                     }
-                    if (this.strategyPosition === "short" && this.avgMarketPrice <= this.getTriggerPriceShort()) {
+                    if (this.strategyPosition === "short" && this.getStopPriceForType() <= this.getTriggerPriceShort()) {
                         this.profitTriggerReached = true;
-                        this.log("SHORT profit price reaced at:", this.avgMarketPrice);
+                        this.log("SHORT profit price reaced at:", this.getStopPriceForType());
                     }
                 }
             }
@@ -213,11 +223,11 @@ export default class StopLossTurn extends AbstractStopStrategy {
             if (!this.profitTriggerReached) {
                 if (this.strategyPosition === "long" && candle.close >= this.getTriggerPriceLong()) {
                     this.profitTriggerReached = true;
-                    this.log("LONG profit price reaced at:", this.avgMarketPrice);
+                    this.log("LONG profit price reaced at:", this.getStopPriceForType());
                 }
                 if (this.strategyPosition === "short" && candle.close <= this.getTriggerPriceShort()) {
                     this.profitTriggerReached = true;
-                    this.log("SHORT profit price reaced at:", this.avgMarketPrice);
+                    this.log("SHORT profit price reaced at:", this.getStopPriceForType());
                 }
             }
             if (log)
@@ -248,7 +258,7 @@ export default class StopLossTurn extends AbstractStopStrategy {
     }
 
     protected checkStopSell() {
-        if (this.avgMarketPrice > this.getStopSell()) {
+        if (this.getStopPriceForType() > this.getStopSell()) {
             if (this.action.time)
                 this.stopCountStart = null;
             this.stopNotificationSent = false;
@@ -272,7 +282,7 @@ export default class StopLossTurn extends AbstractStopStrategy {
     }
 
     protected checkStopBuy() {
-        if (this.avgMarketPrice < this.getStopBuy()) {
+        if (this.getStopPriceForType() < this.getStopBuy()) {
             if (this.action.time)
                 this.stopCountStart = null;
             this.stopNotificationSent = false;
@@ -296,13 +306,13 @@ export default class StopLossTurn extends AbstractStopStrategy {
     }
 
     protected closeLongPosition() {
-        this.log("emitting sell because price dropped to", this.avgMarketPrice, "stop", this.getStopSell());
+        this.log("emitting sell because price dropped to", this.getStopPriceForType(), "stop", this.getStopSell());
         this.emitSellClose(Number.MAX_VALUE, this.getCloseReason(true) + (this.profitTriggerReached ? ", profit triggered" : ""));
         this.done = true;
     }
 
     protected closeShortPosition() {
-        this.log("emitting buy because price rose to", this.avgMarketPrice, "stop", this.getStopBuy());
+        this.log("emitting buy because price rose to", this.getStopPriceForType(), "stop", this.getStopBuy());
         this.emitBuyClose(Number.MAX_VALUE, this.getCloseReason(false) + (this.profitTriggerReached ? ", profit triggered" : ""));
         this.done = true;
     }
@@ -374,7 +384,7 @@ export default class StopLossTurn extends AbstractStopStrategy {
         if (!force && this.lastLoggedStop === stop)
             return
         this.lastLoggedStop = stop;
-        this.log("market price", this.avgMarketPrice.toFixed(8), "lowest", this.lowestPrice.toFixed(8), "highest", this.highestPrice.toFixed(8))
+        this.log("market price", this.getStopPriceForType().toFixed(8), "lowest", this.lowestPrice.toFixed(8), "highest", this.highestPrice.toFixed(8))
         if (long)
             this.log("new stop sell", stop)
         else
