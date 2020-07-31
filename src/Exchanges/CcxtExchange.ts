@@ -303,9 +303,10 @@ export abstract class CcxtExchange extends AbstractExchange {
     }
 
     public async buy(currencyPair: Currency.CurrencyPair, rate: number, amount: number, params: CcxtOrderParameters = {}): Promise<OrderResult> {
+        let outParams = await this.verifyTradeRequest(currencyPair, rate, amount, params)
         if (this.currencies.isSwitchedCurrencyPair() === true)
             amount *= rate;
-        let outParams = await this.verifyTradeRequest(currencyPair, rate, amount, params)
+        amount = parseFloat(utils.calc.round(amount, 8) + ""); // remove trailing 0
         try {
             let result = await this.apiClient.createOrder(outParams.pairStr as string, outParams.orderType as any, "buy", amount, outParams.rate as number, params as any);
             this.verifyTradeResponse(result, null, "buy");
@@ -317,9 +318,11 @@ export abstract class CcxtExchange extends AbstractExchange {
     }
 
     public async sell(currencyPair: Currency.CurrencyPair, rate: number, amount: number, params: CcxtOrderParameters = {}): Promise<OrderResult> {
-        if (this.currencies.isSwitchedCurrencyPair() === true)
-            amount /= rate;
         let outParams = await this.verifyTradeRequest(currencyPair, rate, amount, params)
+        if (this.currencies.isSwitchedCurrencyPair() === true)
+            //amount /= rate;
+            amount *= rate;
+        amount = parseFloat(utils.calc.round(amount, 8) + ""); // remove trailing 0
         try {
             let result = await this.apiClient.createOrder(outParams.pairStr as string, outParams.orderType as any, "sell", amount, outParams.rate as number, params as any);
             this.verifyTradeResponse(result, null, "sell");

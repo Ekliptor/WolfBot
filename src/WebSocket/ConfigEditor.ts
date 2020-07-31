@@ -888,6 +888,10 @@ export class ConfigEditor extends AppPublisher {
                 }
 
                 let pairs = configs[i].listConfigCurrencyPairs();
+                if (!pairs || Array.isArray(pairs) === false) {
+                    logger.error("Your config contains invalid or no currencies: %s", pairs);
+                    return jsonStr;
+                }
                 pairs.forEach((pair) => {
                     let strategyList = strategies.get(pair); // get values from all strategies for this config-currency pair
                     strategyList.forEach((strat) => {
@@ -925,6 +929,10 @@ export class ConfigEditor extends AppPublisher {
                 }
 
                 let currencies = configs[i].listConfigCurrencies();
+                if (!currencies || Array.isArray(currencies) === false) {
+                    logger.error("Your config contains invalid or no currencies: %s", currencies);
+                    return jsonStr;
+                }
                 // we don't have to update currency values when loading data here, because unlike strategy actions they can't change by themselves
                 // values of all strategy instances should be the same
                 currencies.forEach((currency) => {
