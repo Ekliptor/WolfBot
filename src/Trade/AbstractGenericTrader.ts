@@ -138,7 +138,7 @@ export abstract class AbstractGenericTrader extends EventEmitter {
     }
 
     protected sendApiErrorNotification(message: string, exchange: AbstractExchange) {
-        if (AbstractGenericTrader.notifiedApiErrorExchanges.has(exchange.getClassName()) === true || nconf.get("debug") === true)
+        if (nconf.get("notifyApiErrors") !== true || AbstractGenericTrader.notifiedApiErrorExchanges.has(exchange.getClassName()) === true || nconf.get("debug") === true)
             return;
         AbstractGenericTrader.notifiedApiErrorExchanges.add(exchange.getClassName());
         let notifier = AbstractNotification.getInstance();
