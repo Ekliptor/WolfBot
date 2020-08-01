@@ -917,11 +917,14 @@ export abstract class PortfolioTrader extends AbstractTrader {
             else
                 logger.warn("No margin trading portfolio found for exchange %s. Closing with config coin amount")
         }
-        else {
+        else if (this.config.checkCoinBalances === true) {
             let holdingCoinsList = PortfolioTrader.coinBalances.get(exchange.getClassName());
             let holdingCoins = holdingCoinsList[coinPair.to]; // always positive
-            if (holdingCoins)
+            if (holdingCoins) {
+                if (holdingCoins > coinAmount) // TODO add config ignoreCoinBalance to always try to sell the config amount?
+                    logger.warn("Can not %s %s > %s %s, reducing amount", trade.toUpperCase(), holdingCoins.toFixed(8), coinAmount.toFixed(8), coinPair.toString());
                 return Math.min(coinAmount, holdingCoins * maxClosePartialFactor);
+            }
             else if (!holdingCoinsList)
                 logger.warn("No trading portfolio found for exchange %s. Closing with config coin amount")
         }

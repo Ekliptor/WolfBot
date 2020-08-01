@@ -1006,6 +1006,7 @@ export class ConfigEditor extends AppPublisher {
                     let conf = json.data[i]
                     let update = {
                         marginTrading: conf.marginTrading,
+                        checkCoinBalances: conf.checkCoinBalances,
                         tradeTotalBtc: conf.tradeTotalBtc,
                         maxLeverage: conf.maxLeverage ? parseFloat(conf.maxLeverage) : 1.0,
                         tradeDirection: conf.tradeDirection,

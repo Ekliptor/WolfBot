@@ -570,6 +570,7 @@
   "confDesc": {
     "exchanges": "Here you have to select the exchange you want to trade on. For arbitrage you must choose 2 exchanges.",
     "marginTrading": "Do you want to do margin (leveraged) trading on this exchange? This setting must be enabled for futures trading.",
+    "checkCoinBalances": "Verify we don't buy/sell more than our portfolio balance has availble (for non-margin trading) to avoid API errors.",
     "tradeTotalBtc": "Enter the total amount you want to trade in your base currency (USD when trading USD_BTC, BTC when trading BTC_ETH,...). If you enable margin trading this amount will be leveraged (multiplied).",
     "updateIndicatorsOnTrade": "If enabled all technical indicators will be updated on every trade that happens on the exchange. This means indicator values on the latest candle will always change. The default behaviour is to only update indicator values once the candle is complete.",
     "flipPosition": "By enabling this WolfBot will trade with 2x \"tradeTotalBtc\" if there already is an open position. This means you can always switch between a long and short short position with a single trade.<br>This only applies to buy an sell signals (close signals will still close the position).",

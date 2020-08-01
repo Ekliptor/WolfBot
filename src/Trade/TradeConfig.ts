@@ -11,6 +11,7 @@ export type TradingMode = "ai" | "lending" | "arbitrage" | "social" | "trading";
 
 export interface ConfigRuntimeUpdate {
     marginTrading: boolean;
+    checkCoinBalances: boolean;
     tradeTotalBtc: number;
     maxLeverage: number;
     tradeDirection: TradeDirection;
@@ -29,6 +30,7 @@ export class TradeConfig extends AbstractConfig {
     public readonly exchangeFeeds: string[] = null; // some of the specified exchanges can be used as read-only (no trades submitted). useful to debug arbitrage
     public readonly markets: Currency.CurrencyPair[] = [];
     public readonly marginTrading: boolean = true;
+    public readonly checkCoinBalances: boolean = true; // verify we don't buy/sell more than our portfolio balance has (for non-margin trading) to avoid API errors
     public readonly tradeTotalBtc = 0.0; // will be leveraged 2.5 if marginTrading is enabled
     public readonly maxLeverage = 0.0; // in AbstractExchange default is 0.0 too
     public readonly tradeDirection: TradeDirection = "both";
@@ -73,6 +75,8 @@ export class TradeConfig extends AbstractConfig {
         */
         if (typeof json.marginTrading === "boolean")
             this.marginTrading = json.marginTrading;
+        if (typeof json.checkCoinBalances === "boolean")
+            this.checkCoinBalances = json.checkCoinBalances;
         this.tradeTotalBtc = json.tradeTotalBtc;
         if (json.tradeDirection === "up" || json.tradeDirection === "down" || json.tradeDirection === "both")
             this.tradeDirection = json.tradeDirection;
