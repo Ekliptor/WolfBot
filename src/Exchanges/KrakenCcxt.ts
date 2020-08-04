@@ -15,7 +15,10 @@ export default class KrakenCcxt extends CcxtExchange {
         this.minTradingValue = 0.001;
         this.fee = 0.0026; // https://www.kraken.com/en-us/features/fee-schedule
         this.currencies.setSwitchCurrencyPair(true);
-        this.apiClient = new ccxt.kraken(this.getExchangeConfig());
+        let opts = this.getExchangeConfig();
+        opts.enableRateLimit = true;
+        //opts.fetchMinOrderAmounts = true; https://github.com/ccxt/ccxt/issues/6700
+        this.apiClient = new ccxt.kraken(opts);
         this.apiClient.loadMarkets().then(() => {
             this.onExchangeReady();
         }).catch((err) => {
