@@ -68,6 +68,11 @@ class ServerConfig {
                 secret: "",
                 marginNotification: 0.5
             }],
+            BinanceUS: [{
+                key: "",
+                secret: "",
+                marginNotification: 0.5
+            }],
             BitMEX: [{
                 key: "",
                 secret: "",
