@@ -81,6 +81,13 @@ export class TristarParams implements IntervalIndicatorParams {
     constructor() {
     }
 }
+export class ESSIndicatorParams implements IntervalIndicatorParams {
+    enableLog: boolean;
+    interval: number;
+    numberOfPoles: number = 2;
+    constructor() {
+    }
+}
 export class STCIndicatorParams implements IndicatorParams {
     fast: number = 23; // number of fast EMA candles
     slow: number = 50; // number of slow EMA candles
