@@ -201,7 +201,7 @@ export class Controller extends AbstractController { // TODO implement graceful 
         }
         db.connectAll({
             url: connectUrl,
-            searchHosts: nconf.get('searchHosts')
+            searchHosts: nconf.get('searchHosts'),
         }, logger, (err) => {
             if (err) {
                 logger.error("Error connecting to MongoDB", err);

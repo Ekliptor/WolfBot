@@ -42,7 +42,7 @@ The full strategy documentation: https://wolfbot.org/strategy-docs/
 ### Requirements
 ```
 NodeJS >= 12
-MongoDB >= 3.4
+MongoDB >= 4.0
 TypeScript >= 3.5
 yarn >= 1.9.4 (npm should work too, but no support given if you run into errors)
 Webpack >= 4 (only for UI modifications)

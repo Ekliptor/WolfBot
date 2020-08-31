@@ -6,10 +6,11 @@ import * as crypto from "crypto";
 
 
 const SEARCH_LOG_VERBOSE = false
-const ELASTIC_API_VER = '5.0'
+const ELASTIC_API_VER = '7.6' // 7.6, 7.5, 7.4, 7.3, 7.2, 7.1, 7.0, 6.8, 5.6, 7.7, 7.x, master
 const REDIS_DEFAULT_TTL_MIN: number = 5 // set to 0 to disable TTL and only use LRU to free memory if redis memory limit is reached
 
 export class DatbaseState {
+    public mongoClient: MongoClient.MongoClient = null; // mongodb driver v3
     public db: MongoClient.Db = null;
     public searchClient: elasticsearch.Client = null;
     public redisClient: redis.RedisClient = null;
@@ -78,10 +79,11 @@ export function connectAll(options: DatabaseOptions, logger: DatabaseLogger, don
 export function connect(url: string, done: DoneCallback) {
     if (state.db !== null)
         return done();
-    MongoClient.connect(url, (err, db) => {
+    MongoClient.connect(url, {useUnifiedTopology: true, useNewUrlParser: true}, (err, db) => {
         if (err)
             return done(err);
-        state.db = db;
+        state.mongoClient = db;
+        state.db = db.db();
         done();
     })
 }
@@ -196,7 +198,8 @@ export function close(done: DoneCallback) {
     }
     if (state.db === null)
         return done(); // already closed
-    state.db.close((err, result) => {
+    state.mongoClient.close((err, result) => {
+        state.mongoClient = null;
         state.db = null;
         done(err);
     })
@@ -225,13 +228,20 @@ let skipCache = (callback: DoneCallback = null) => {
 export function addToCache(key: any, value: any, expirationMin: number = 0, callback: DoneCallback = null) {
     if (skipCache(callback))
         return;
-    let args = [getStringKey(key)] // SET key value [EX seconds] [PX milliseconds] [NX|XX]
-    args.push(JSON.stringify(value))
+    const keyStr = getStringKey(key);
+    const valueStr = JSON.stringify(value);
+    let args = [undefined, undefined];
     if (expirationMin > 0)
-        args.push('EX', expirationMin*60 + "")
+        args = ["EX", expirationMin*60 + ""];
     else if (REDIS_DEFAULT_TTL_MIN !== 0)
-        args.push('EX', REDIS_DEFAULT_TTL_MIN*60 + "")
-    getRedis().set(args, (err) => {
+        args = ["EX", REDIS_DEFAULT_TTL_MIN*60 + ""];
+    if (args[0] == undefined) {
+        getRedis().set(keyStr, valueStr, (err) => {
+            callback && callback(err)
+        })
+        return;
+    }
+    getRedis().set(keyStr, valueStr, args[0], args[1], (err) => {
         callback && callback(err)
     })
 }
