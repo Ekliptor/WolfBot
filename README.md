@@ -77,7 +77,7 @@ There is documentation available here: https://forum.wolfbot.org/forums/strategy
 
 Look into the `/src/Strategies` folder for more examples.
 
-[Incoming trades flow diagram](https://raw.githubusercontent.com/Ekliptor/WolfBot/master/tests/docs/diagram-incomgin.png)
+[Incoming trades flow diagram](https://raw.githubusercontent.com/Ekliptor/WolfBot/master/tests/docs/diagram-incoming.png)
 [Outgoing trades flow diagram](https://raw.githubusercontent.com/Ekliptor/WolfBot/master/tests/docs/diagram-outgoing.png)
 
 
