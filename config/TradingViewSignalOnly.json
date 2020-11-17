@@ -4,6 +4,7 @@
             "exchanges": ["OKEX"],
             "marginTrading": true,
             "tradeTotalBtc": 150.0,
+            "reduceTradeAmountPercent": 0.0,
             "warmUpMin": 0,
             "notifyTrades": false,
             "updateIndicatorsOnTrade": false,

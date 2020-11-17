@@ -139,7 +139,7 @@ export default class Binance extends AbstractExchange implements ExternalTickerE
         });
         this.binanceCCxt = new BinanceCcxt(options);
         this.binanceCCxt.setPollTrades(false);
-        this.binanceCCxtMargin = new BinanceCcxt(Object.assign({defaultMarket: "margin"}, options));
+        this.binanceCCxtMargin = new BinanceCcxt(Object.assign({defaultType: "spot"}, options));
         this.binanceCCxtMargin.setPollTrades(false);
     }
 
@@ -373,6 +373,7 @@ export default class Binance extends AbstractExchange implements ExternalTickerE
     }
 
     public async cancelOrder(currencyPair: Currency.CurrencyPair, orderNumber: number | string): Promise<CancelOrderResult> {
+        /*
         const marketPair = this.currencies.getExchangePair(currencyPair);
         const successResult = {exchangeName: this.className, orderNumber: orderNumber, cancelled: true};
         try {
@@ -392,6 +393,8 @@ export default class Binance extends AbstractExchange implements ExternalTickerE
             }
             throw this.formatInvalidExchangeApiResponse(err);
         }
+         */
+        return this.binanceCCxt.cancelOrder(currencyPair, orderNumber);
     }
 
     public async getOpenOrders(currencyPair: Currency.CurrencyPair): Promise<OpenOrders> {

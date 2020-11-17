@@ -24,6 +24,8 @@ export default class KrakenCcxt extends CcxtExchange {
         }).catch((err) => {
             logger.error("Error loading %s markets", this.className, err);
         });
+
+        // leverage see: https://github.com/ccxt/ccxt/blob/master/examples/py/margin-leverage-order-kraken.py
     }
 
     // ################################################################

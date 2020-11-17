@@ -32,7 +32,7 @@
         },
         "StopLossTurn": {
           "order": "closeLong",
-          "setback": 3.0,
+          "setback": 3,
           "setbackLong": 4.5,
           "time": 7200,
           "reduceTimeByVolatility": false,

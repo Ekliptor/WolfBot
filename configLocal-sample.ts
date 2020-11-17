@@ -194,6 +194,11 @@ class ServerConfig {
                 secret: "",
                 marginNotification: 0.5
             }],
+            FTX: [{
+                key: "",
+                secret: "",
+                marginNotification: 0.5
+            }],
             Peatio: [{
                 key: "",
                 secret: "",

@@ -881,7 +881,7 @@ export abstract class PortfolioTrader extends AbstractTrader {
                 if (coinAmount > curSellBalance)
                     coinAmount = curSellBalance * maxTradeFactor; // no short selling, we can trade with at most the coins we have to sell on one exchange
             }
-            return Math.abs(coinAmount); // the checks below are for trading, not arbitrage
+            return this.getFinalAdjustedPositionAmount(coinAmount); // the checks below are for trading, not arbitrage
         }
 
         if (this.config.flipPosition === true && strategy.getStrategyPosition() !== "none") {
@@ -897,11 +897,11 @@ export abstract class PortfolioTrader extends AbstractTrader {
             // don't use the strategy order - for StopLossTurnPartial it might always contain "close"
             //if (!(strategy instanceof AbstractStopStrategy) || /*strategy.getAction().order*/trade.indexOf("close") !== -1)
             if (this.isStopStrategy(strategy) === false || /*strategy.getAction().order*/trade.indexOf("close") !== -1)
-                return Math.abs(coinAmount);
+                return Math.abs(coinAmount); // don't reduce amount for stop strategies
             // TODO AbstractOrderer for takeprofit
         }
         else if (strategy.isMainStrategy())
-            return Math.abs(coinAmount);
+            return this.getFinalAdjustedPositionAmount(coinAmount);
 
         const coinPair = strategy.getAction().pair;
         const maxClosePartialFactor = nconf.get("serverConfig:maxClosePartialPercentage") / 100.0;
@@ -911,7 +911,7 @@ export abstract class PortfolioTrader extends AbstractTrader {
                 let position = holdingCoinsList.get(coinPair.toString());
                 if (position) {
                     let holdingCoins = Math.abs(position.amount);
-                    return Math.min(Math.abs(coinAmount), Math.abs(holdingCoins * maxClosePartialFactor)); // TODO option to close x% of position (instead of %x of config value)
+                    return this.getFinalAdjustedPositionAmount(Math.min(Math.abs(coinAmount), Math.abs(holdingCoins * maxClosePartialFactor))); // TODO option to close x% of position (instead of %x of config value)
                 }
             }
             else
@@ -923,12 +923,19 @@ export abstract class PortfolioTrader extends AbstractTrader {
             if (holdingCoins) {
                 if (holdingCoins > coinAmount) // TODO add config ignoreCoinBalance to always try to sell the config amount?
                     logger.warn("Can not %s %s > %s %s, reducing amount", trade.toUpperCase(), holdingCoins.toFixed(8), coinAmount.toFixed(8), coinPair.toString());
-                return Math.min(coinAmount, holdingCoins * maxClosePartialFactor);
+                return this.getFinalAdjustedPositionAmount(Math.min(coinAmount, holdingCoins * maxClosePartialFactor));
             }
             else if (!holdingCoinsList)
                 logger.warn("No trading portfolio found for exchange %s. Closing with config coin amount")
         }
-        return Math.abs(coinAmount);
+        return this.getFinalAdjustedPositionAmount(coinAmount);
+    }
+
+    protected getFinalAdjustedPositionAmount(coinAmount: number): number {
+        coinAmount = Math.abs(coinAmount);
+        if (this.config.reduceTradeAmountPercent > 0.0)
+            coinAmount -= coinAmount / 100.0 * this.config.reduceTradeAmountPercent;
+        return coinAmount;
     }
 
     protected getMarginPositionOrderAmount(strategy: AbstractStrategy) {

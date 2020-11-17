@@ -449,6 +449,8 @@ export abstract class CcxtExchange extends AbstractExchange {
     }
 
     public getAllMarginPositions() {
+        // TODO https://github.com/ccxt/ccxt/issues/4834#issuecomment-474329654
+        // https://github.com/ccxt/ccxt/issues/4834
         return new Promise<MarginPositionList>((resolve, reject) => {
             reject({txt: "Margin trading is not supported/implemented.", exchange: this.className})
         })

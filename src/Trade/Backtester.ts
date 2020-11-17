@@ -737,7 +737,7 @@ export default class Backtester extends PortfolioTrader {
                 }
                 resolve()
             }).catch((err) => {
-                logger.error("Error cancelling orders in %s", this.className, err)
+                logger.error("Error cancelling unfilled orders in %s", this.className, err)
                 resolve() // continue
             })
         })

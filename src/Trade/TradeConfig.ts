@@ -13,6 +13,7 @@ export interface ConfigRuntimeUpdate {
     marginTrading: boolean;
     checkCoinBalances: boolean;
     tradeTotalBtc: number;
+    reduceTradeAmountPercent: number;
     maxLeverage: number;
     tradeDirection: TradeDirection;
     warmUpMin: number;
@@ -36,6 +37,7 @@ export class TradeConfig extends AbstractConfig {
     public readonly tradeDirection: TradeDirection = "both";
     public readonly warmUpMin: number = 0;
     public readonly updateIndicatorsOnTrade: boolean = false;
+    public readonly reduceTradeAmountPercent: number = 0.0; // reduce the final calculated amount to BUY/SELL by this percentage
     public readonly flipPosition: boolean = false; // trade twice the amount on a buy/sell signal if we have an existing position to flip the position direction
     public readonly closePositionFirst: boolean = false; // close a position on a buy/sell signal opposite to our existing position
     public readonly closePositionAndTrade: boolean = false; // close a position on a buy/sell signal opposite to our existing position first and then trade
@@ -78,6 +80,8 @@ export class TradeConfig extends AbstractConfig {
         if (typeof json.checkCoinBalances === "boolean")
             this.checkCoinBalances = json.checkCoinBalances;
         this.tradeTotalBtc = json.tradeTotalBtc;
+        if (typeof json.reduceTradeAmountPercent === "number" && json.reduceTradeAmountPercent > 0.0)
+            this.reduceTradeAmountPercent = json.reduceTradeAmountPercent;
         if (json.tradeDirection === "up" || json.tradeDirection === "down" || json.tradeDirection === "both")
             this.tradeDirection = json.tradeDirection;
         if (json.warmUpMin)

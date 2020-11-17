@@ -372,13 +372,14 @@ let testCcxt = async () => {
     await utils.promiseDelay(800); // wait til we are connected
 
     //coinbase.getTicker().then((test) => {
-    coinbase.fetchOrderBook(pair, 10).then((test) => {
+    //coinbase.fetchOrderBook(pair, 10).then((test) => {
     //coinbase.importHistory(pair, new Date(Date.now()-9*utils.constants.HOUR_IN_SECONDS*1000), new Date()).then((test) => {
     //coinbase.sell(pair, 3990, 0.08, params).then((test) => {
     //coinbase.sell(pair, 410, 0.08, params).then((test) => {
     //coinbase.cancelOrder(pair, 11054256).then((test) => {
     //coinbase.getOpenOrders(pair).then((test) => {
     //bx.moveOrder(pair, 11054309, 2600, 0.088, params).then((test) => {
+    coinbase.getAllMarginPositions(pair).then((test) => {
         console.log(test)
     }).catch((err) => {
         logger.error("Error trading", err)
@@ -433,12 +434,12 @@ Controller.loadServerConfig(() => {
         //testBitfinex()
         //testPolo();
         //testBittrex();
-        testBinance();
+        //testBinance();
         //testBitmex();
         //testBitmexLiquidations();
         //testDeribit();
         //testBx();
-        //testCcxt();
+        testCcxt();
         //testPaetio();
         //updateHistory();
     })

@@ -4201,6 +4201,8 @@ class Config extends TableController_1.TableController {
         this.showEditExchangeApiKeys($("#exchanges").val());
         this.showNotificationKeyInput($("#notificationMethod").val());
         //$("#saveKey").click((event) => { // we want to use the browser to validate the form
+        if ($("#apiPassphrase2").is(":visible") !== true)
+            $("#apiPassphrase2").remove(); // workaround for exception below
         $("#configExchangeForm").submit((event) => {
             event.preventDefault();
             let saveReq = {};
@@ -4213,10 +4215,15 @@ class Config extends TableController_1.TableController {
                 secret2: "",
                 passphrase2: undefined
             };
-            if ($("#key2Panel").is(":visible") === true) {
-                saveReq[exchangeName].key2 = $("#apiKey2").val();
-                saveReq[exchangeName].secret2 = $("#apiSecret2").val();
-                saveReq[exchangeName].passphrase2 = $("#apiPassphrase2").val() ? $("#apiPassphrase2").val() : undefined;
+            try {
+                if ($("#key2Panel").is(":visible") === true) {
+                    saveReq[exchangeName].key2 = $("#apiKey2").val();
+                    saveReq[exchangeName].secret2 = $("#apiSecret2").val();
+                    saveReq[exchangeName].passphrase2 = $("#apiPassphrase2").val() ? $("#apiPassphrase2").val() : undefined;
+                }
+            }
+            catch (err) { // some browsers (Chrome 65) throw errors when reading from invisible elements
+                console.log("Error reading 2nd keys", err);
             }
             this.send({
                 saveKey: saveReq

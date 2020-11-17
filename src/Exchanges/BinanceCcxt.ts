@@ -16,8 +16,8 @@ export default class BinanceCcxt extends CcxtExchange {
         this.fee = 0.001;
         this.currencies.setSwitchCurrencyPair(true);
         let opts = this.getExchangeConfig();
-        if (opts.defaultMarket !== undefined)
-            opts.options= {defaultMarket: "margin"} // also "futures"
+        if (opts.defaultType !== undefined) // TODO read from config and allow switch (we need multiple instances then)
+            opts.defaultType = {defaultType: opts.defaultType} // 'spot', 'future', 'margin', 'delivery'
         opts.parseOrderToPrecision = true;
         this.apiClient = new ccxt.binance(opts);
         this.apiClient.loadMarkets().then(() => {
@@ -26,6 +26,22 @@ export default class BinanceCcxt extends CcxtExchange {
             logger.error("Error loading %s markets", this.className, err);
         });
     }
+
+    /*
+    public async buy(currencyPair: Currency.CurrencyPair, rate: number, amount: number, params: CcxtOrderParameters = {}): Promise<OrderResult> {
+        if (this.currencies.isSwitchedCurrencyPair() === true)
+            amount *= rate; // re-added 2020-10-30
+        let outParams = await this.verifyTradeRequest(currencyPair, rate, amount, params)
+        try {
+            amount = parseFloat(utils.calc.round(amount, 8) + ""); // remove trailing 0 // TODO should be fixed inside CCXT
+            let result = await this.apiClient.createOrder(outParams.pairStr as string, outParams.orderType as any, "buy", amount, outParams.rate as number, params as any);
+            this.verifyTradeResponse(result, null, "buy");
+            return OrderResult.fromJson(result, currencyPair, this)
+        }
+        catch (err) {
+            throw this.formatInvalidExchangeApiResponse(err);
+        }
+    }*/
 
     // ################################################################
     // ###################### PRIVATE FUNCTIONS #######################

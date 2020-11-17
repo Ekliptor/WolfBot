@@ -1008,6 +1008,7 @@ export class ConfigEditor extends AppPublisher {
                         marginTrading: conf.marginTrading,
                         checkCoinBalances: conf.checkCoinBalances,
                         tradeTotalBtc: conf.tradeTotalBtc,
+                        reduceTradeAmountPercent: conf.reduceTradeAmountPercent,
                         maxLeverage: conf.maxLeverage ? parseFloat(conf.maxLeverage) : 1.0,
                         tradeDirection: conf.tradeDirection,
                         warmUpMin: conf.warmUpMin,
