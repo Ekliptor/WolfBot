@@ -25,7 +25,7 @@
     "async": "^2.6.0",
     "autobahn": "^17.5.1",
     "binance-api-node": "^0.8.18",
-    "ccxt": "^1.33.1",
+    "ccxt": "^1.39.33",
     "chart.js": "^2.7.1",
     "cheerio": "^0.22.0",
     "currencies-exchange-rates": "^1.0.2",
@@ -95,7 +95,7 @@
     "gulp-typedoc": "^2.2.0",
     "source-map-loader": "^0.2.3",
     "typedoc": "^0.11.1",
-    "typescript": "3.6.3"
+    "typescript": "4.0.3"
   },
   "workspaces": [
     "packages/*"

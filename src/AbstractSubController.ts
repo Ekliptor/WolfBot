@@ -5,7 +5,7 @@ import * as fs from "fs";
 import * as path from "path";
 
 export abstract class AbstractSubController {
-    protected className: string;
+    protected readonly className: string;
 
     constructor() {
         this.className = this.constructor.name;
