@@ -17,27 +17,19 @@ COPY . .
 RUN yarn install
 
 WORKDIR /app/node_modules/@ekliptor/apputils
-#Disable Typescript watch mode
-RUN sed -i '/^[[:space:]]*"watch":/ s/:.*/: false/' tsconfig.json
 #Needs a exit 0 because of build errors
-RUN tsc; exit 0
+RUN tsc --watch false; exit 0
 
 WORKDIR /app/node_modules/@ekliptor/bit-models
-#Disable Typescript watch mode
-RUN sed -i '/^[[:space:]]*"watch":/ s/:.*/: false/' tsconfig.json
 #Needs a exit 0 because of build errors
-RUN tsc; exit 0
+RUN tsc --watch false; exit 0
 
 WORKDIR /app/node_modules/@ekliptor/browserutils
-#Disable Typescript watch mode
-RUN sed -i '/^[[:space:]]*"watch":/ s/:.*/: false/' tsconfig.json
-RUN tsc
+RUN tsc --watch false
 
 WORKDIR /app
 
-#Disable Typescript watch mode
-RUN sed -i '/^[[:space:]]*"watch":/ s/:.*/: false/' tsconfig.json
-RUN tsc; exit 0
+RUN tsc --watch false; exit 0
 
 RUN chown -R node:node /app
 
