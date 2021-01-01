@@ -1,0 +1,6 @@
+.git
+.gitignore
+.dockerignore
+Dockerfile
+docker-compose.yml
+mongodb

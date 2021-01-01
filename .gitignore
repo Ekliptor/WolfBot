@@ -118,3 +118,6 @@ public/js/libs/tv
 
 # to prevent uploading local/private module dependencies
 package.json
+
+#docker mongodb
+mongodb
