@@ -71,6 +71,12 @@ node app.js --debug --config=Noop --trader=RealTimeTrader --noUpdate --noBrowser
 ```
 The `config` parameter must be a JSON file from the `config` directory. For a list of all parameters look at the top of the `app.ts` file.
 
+### Docker support
+To you can install WolfBot with all its dependencies using Docker:
+```
+docker-compose up
+```
+
 
 ### Writing your own trading strategies
 There is documentation available here: https://forum.wolfbot.org/forums/strategy-development.17/

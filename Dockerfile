@@ -8,12 +8,19 @@ RUN set -x && \
           python
 
 #Install Typescript
-RUN npm install typescript@3.6.5 -g
-ENV NODE_ENV=production
+RUN npm install typescript@4.1.3 -g
 
 WORKDIR /app
 
 COPY . .
+RUN chown -R node:node /app
+
+# yarn and tsc shouldn't be run as root
+USER node
+
+# shouldn't be needed
+ENV NODE_ENV=production
+
 RUN yarn install
 
 WORKDIR /app/node_modules/@ekliptor/apputils
@@ -31,10 +38,9 @@ WORKDIR /app
 
 RUN tsc --watch false; exit 0
 
-RUN chown -R node:node /app
-
-USER node
-
 WORKDIR /app/build
+
+# let WolfBot know it's running in a VM
+ENV WOLF_CONTAINER=docker
 
 CMD [ "node", "app.js", "--debug", "--config=Noop" ,"--trader=RealTimeTrader" ,"--noUpdate" ,"--noBrowser" ]

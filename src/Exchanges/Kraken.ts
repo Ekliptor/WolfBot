@@ -167,7 +167,7 @@ export default class Kraken extends AbstractExchange {
         this.exchangeLabel = Currency.Exchange.KRAKEN;
         this.minTradingValue = 0.02; // 0.04 // different per currency: https://support.kraken.com/hc/en-us/articles/205893708-What-is-the-minimum-order-size-
         this.fee = 0.0026; // TODO find API call to get actual fees (if we trade higher volumes)
-        this.maxLeverage = 5.0;
+        this.maxLeverage = 5.0; // https://support.kraken.com/hc/en-us/articles/227876608-Margin-trading-pairs-and-their-maximum-leverage
         this.currencies = new KrakenCurrencies(this);
 
         this.krakenCcxt = new KrakenCcxt(options);
@@ -480,6 +480,7 @@ export default class Kraken extends AbstractExchange {
     public marginBuy(currencyPair: Currency.CurrencyPair, rate: number, amount: number, params: MarginOrderParameters) {
         return new Promise<OrderResult>((resolve, reject) => { // TODO add ccxt support for margin trading
             this.verifyTradeRequest(currencyPair, rate, amount, params).then((outParams) => {
+                // https://www.kraken.com/features/api#private-user-trading
                 outParams.type = "buy"
                 outParams.leverage = this.maxLeverage + ":1";
                 return this.privateReq("AddOrder", outParams)

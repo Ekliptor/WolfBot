@@ -1,6 +1,10 @@
 .git
 .gitignore
 .dockerignore
+build
+docs
+node_modules
+packages
 Dockerfile
 docker-compose.yml
 mongodb
