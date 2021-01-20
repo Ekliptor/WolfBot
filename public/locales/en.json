@@ -363,6 +363,7 @@
   "disconnectedTxt": "The connection to the application has been lost. Please reload this page.",
   "unauthorized": "Unauthorized",
   "unauthorizedTxt": "You are not authorized to access this application. Please contact the administrator for an API-Key.",
+  "setupDiscount": "***DISCOUNT*** Having trouble setting up WolfBot on your local machine? Try the cloud version at https://wolfbot.org with a 30% discount with this code: gitsource7393",
   "showLogs": "Show Logs",
   "hideLogs": "Hide Logs",
   "app": "App",

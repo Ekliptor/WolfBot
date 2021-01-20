@@ -22,7 +22,7 @@ interface TradingViewCallbacks {
 }
 class CallbackMap extends Map<string, TradingViewCallbacks> { // (request function name, callback functions)
     constructor() {
-        super()
+        super() // TODO throws error in WebPack 5 https://github.com/facebook/hermes/issues/86
     }
 }
 

@@ -62,8 +62,10 @@ let completeHistoryImport = () => {
 
     let pair = new Currency.CurrencyPair(Currency.Currency.USDT, Currency.Currency.BTC)
 
-    let start = utils.date.parseAsGmt0(nconf.get("serverConfig:backtest:from"))
-    let end = utils.date.parseAsGmt0(nconf.get("serverConfig:backtest:to"))
+    //let start = utils.date.parseAsGmt0(nconf.get("serverConfig:backtest:from"))
+    //let end = utils.date.parseAsGmt0(nconf.get("serverConfig:backtest:to"))
+    let start = utils.date.parseAsGmt0("2020-06-01 00:00:00")
+    let end = utils.date.parseAsGmt0("2021-01-05 00:00:00")
     ex.subscribeToMarkets([pair])
 
     let history = new TradeHistory.TradeHistory(pair, ex.getExchangeLabel(), start, end);
@@ -169,6 +171,7 @@ Controller.loadServerConfig(() => {
         //completeHistoryImport()
 
         // node --use_strict --max-old-space-size=2096 app.js --config=Noop --exchange=Poloniex --days=2 -p=3849
+        // BitMEX imports on the same machine (with social Crawler)
         importMultipleCurrencyTrades(argv.exchange ? argv.exchange : "Poloniex");
 
         //replay()

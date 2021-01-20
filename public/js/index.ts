@@ -113,6 +113,8 @@ export class AppClass {
                         title: i18next.t('unauthorized'),
                         text: i18next.t('unauthorizedTxt')
                     }
+                    //if (window.location.hostname.indexOf("wolfbot.org") === -1)
+                        vars.text += "<br><br>" + i18next.t('setupDiscount');
                     if (AppF.getCookie("apiKey"))
                         AppF.setCookie("apiKey", "", -1); // delete it if existing
                     break;
@@ -122,7 +124,7 @@ export class AppClass {
                     break;
             }
             if (vars !== null) {
-                let disconnected = AppF.translate(pageData.html.misc.disablePage, vars);
+                let disconnected = AppF.translate(pageData.html.misc.disablePage, vars, true);
                 $(AppClass.cfg.appSel).append(disconnected);
             }
         });

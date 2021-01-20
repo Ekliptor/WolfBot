@@ -1,14 +1,16 @@
 {
     "data": [
         {
-            "exchanges": ["BitMEX"],
+            "exchanges": [
+                "BitMEX"
+            ],
             "marginTrading": true,
-            "tradeTotalBtc": 500.0,
+            "tradeTotalBtc": 500,
             "warmUpMin": 0,
             "strategies": {
                 "FishingNet": {
                     "fishingMode": "trend",
-                    "percentage": 15.0,
+                    "percentage": 15,
                     "maxPosIncreases": 7,
                     "tradingAmountIncreaseFactor": 1.1,
                     "profitPercent": 4.1,
@@ -29,10 +31,12 @@
                     "K": 2,
                     "MAType": 0,
                     "feed": "BitmexMarketData",
-                    "currencyPairs": ["USD_BTC"],
+                    "currencyPairs": [
+                        "USD_BTC"
+                    ],
                     "supportLines": [],
                     "resistanceLines": [],
-                    "expirationPercent": 3.0,
+                    "expirationPercent": 3,
                     "pair": "USD_BTC",
                     "candleSize": 30,
                     "tradeStrategy": "RSIScalpOrderer",
@@ -48,8 +52,8 @@
                 },
                 "StopLossTurn": {
                     "order": "closeLong",
-                    "stop": 0.0,
-                    "stopLong": 0.0,
+                    "stop": 0,
+                    "stopLong": 0,
                     "setback": 5.5,
                     "setbackLong": 5.5,
                     "time": 300,

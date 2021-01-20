@@ -32,7 +32,7 @@ module.exports = {
                 //loader: "awesome-typescript-loader?presets[]=configFileName!tsconfig.json" // file not found
                 // use babel if we want to compile to ES5: https://gist.github.com/c9s/8e2e621d6cfc4e7f8e778d9a592e7f1b
                 //loader: "awesome-typescript-loader"
-                loader: "awesome-typescript-loader?configFileName=./public/js/tsconfig.json"
+                loader: "awesome-typescript-loader?configFileName=./public/js/tsconfig.json",
                 /*
                 include: [
                     path.resolve(__dirname, "public")

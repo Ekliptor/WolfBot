@@ -894,6 +894,10 @@ export class ConfigEditor extends AppPublisher {
                 }
                 pairs.forEach((pair) => {
                     let strategyList = strategies.get(pair); // get values from all strategies for this config-currency pair
+                    if (strategyList === undefined) {
+                        logger.error("Invalid config: No strategies for pair %s", pairs);
+                        return jsonStr;
+                    }
                     strategyList.forEach((strat) => {
                         let action = strat.getAction();
                         if (firstLoad === true)

@@ -1,82 +1,86 @@
 {
-  "data": [
-    {
-      "exchanges": ["OKEX"],
-      "marginTrading": true,
-      "tradeTotalBtc": 0.06,
-      "warmUpMin": 0,
-      "strategies": {
-        "WaveSurferLeverage": {
-          "minSurfCandles": 6,
-          "pair": "USD_BTC",
-          "candleSize": 126,
-          "enableLog": true
+    "data": [
+        {
+            "exchanges": [
+                "OKEX"
+            ],
+            "marginTrading": true,
+            "tradeTotalBtc": 0.06,
+            "warmUpMin": 0,
+            "strategies": {
+                "WaveSurferLeverage": {
+                    "minSurfCandles": 6,
+                    "pair": "USD_BTC",
+                    "candleSize": 126,
+                    "enableLog": true
+                },
+                "StopLossTurn": {
+                    "order": "closeLong",
+                    "setback": 3.1,
+                    "time": 900,
+                    "candleSize": 6,
+                    "pair": "USD_BTC",
+                    "enableLog": false
+                },
+                "TakeProfit": {
+                    "order": "closeLong",
+                    "profit": 3.4,
+                    "time": 5028,
+                    "candleSize": 12,
+                    "pair": "USD_BTC",
+                    "enableLog": false
+                },
+                "TakeProfitPartial": {
+                    "order": "closeLong",
+                    "profit": 3,
+                    "percentage": 41,
+                    "time": 1411,
+                    "candleSize": 12,
+                    "pair": "USD_BTC",
+                    "enableLog": false
+                }
+            }
         },
-        "StopLossTurn": {
-          "order": "closeLong",
-          "setback": 3.1,
-          "time": 900,
-          "candleSize": 6,
-          "pair": "USD_BTC",
-          "enableLog": false
-        },
-        "TakeProfit": {
-          "order": "closeLong",
-          "profit": 3.4,
-          "time": 5028,
-          "candleSize": 12,
-          "pair": "USD_BTC",
-          "enableLog": false
-        },
-        "TakeProfitPartial": {
-          "order": "closeLong",
-          "profit": 3,
-          "percentage": 41,
-          "time": 1411,
-          "candleSize": 12,
-          "pair": "USD_BTC",
-          "enableLog": false
+        {
+            "exchanges": [
+                "OKEX"
+            ],
+            "marginTrading": true,
+            "tradeTotalBtc": 1.5,
+            "warmUpMin": 0,
+            "strategies": {
+                "WaveSurferLeverage": {
+                    "minSurfCandles": 6,
+                    "pair": "USD_LTC",
+                    "candleSize": 133,
+                    "enableLog": true
+                },
+                "StopLossTurn": {
+                    "order": "closeLong",
+                    "setback": 2.2,
+                    "time": 900,
+                    "candleSize": 6,
+                    "pair": "USD_LTC",
+                    "enableLog": false
+                },
+                "TakeProfit": {
+                    "order": "closeLong",
+                    "profit": 9,
+                    "time": 3604,
+                    "candleSize": 9,
+                    "pair": "USD_LTC",
+                    "enableLog": false
+                },
+                "TakeProfitPartial": {
+                    "order": "closeLong",
+                    "profit": 5.5,
+                    "percentage": 40,
+                    "time": 1032,
+                    "candleSize": 5,
+                    "pair": "USD_LTC",
+                    "enableLog": false
+                }
+            }
         }
-      }
-    },
-    {
-      "exchanges": ["OKEX"],
-      "marginTrading": true,
-      "tradeTotalBtc": 1.5,
-      "warmUpMin": 0,
-      "strategies": {
-        "WaveSurferLeverage": {
-          "minSurfCandles": 6,
-          "pair": "USD_LTC",
-          "candleSize": 133,
-          "enableLog": true
-        },
-        "StopLossTurn": {
-          "order": "closeLong",
-          "setback": 2.2,
-          "time": 900,
-          "candleSize": 6,
-          "pair": "USD_LTC",
-          "enableLog": false
-        },
-        "TakeProfit": {
-          "order": "closeLong",
-          "profit": 9,
-          "time": 3604,
-          "candleSize": 9,
-          "pair": "USD_LTC",
-          "enableLog": false
-        },
-        "TakeProfitPartial": {
-          "order": "closeLong",
-          "profit": 5.5,
-          "percentage": 40,
-          "time": 1032,
-          "candleSize": 5,
-          "pair": "USD_LTC",
-          "enableLog": false
-        }
-      }
-    }
-  ]
+    ]
 }

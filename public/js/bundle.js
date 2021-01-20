@@ -2562,6 +2562,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;//     Underscor
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.AbstractWidget = void 0;
 class AbstractWidget {
     /*
     protected t: TranslationFunction = (key: string) => {
@@ -2599,6 +2600,7 @@ exports.AbstractWidget = AbstractWidget;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.HistoryRouter = void 0;
 const eventemitter2_1 = __webpack_require__(/*! eventemitter2 */ "eventemitter2");
 /**
  * A simple router that listens to changes of the window.history object.
@@ -2677,6 +2679,7 @@ exports.HistoryRouter = HistoryRouter;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.ClientSocket = exports.ClientSocketReceiver = void 0;
 //import * as WebSocket from "ws"; // only works on server Side, Browsers have a native WebSocket object
 const opcodes_1 = __webpack_require__(/*! ../../../../src/WebSocket/opcodes */ "./src/WebSocket/opcodes.ts");
 const AbstractWidget_1 = __webpack_require__(/*! ../AbstractWidget */ "./public/js/classes/AbstractWidget.ts");
@@ -2860,6 +2863,7 @@ exports.ClientSocket = ClientSocket;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.LogReceiver = void 0;
 const ClientSocket_1 = __webpack_require__(/*! ./ClientSocket */ "./public/js/classes/WebSocket/ClientSocket.ts");
 class LogReceiver extends ClientSocket_1.ClientSocketReceiver {
     constructor(socket) {
@@ -2981,6 +2985,7 @@ exports.LogReceiver = LogReceiver;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.LoginManager = void 0;
 const index_1 = __webpack_require__(/*! ../../index */ "./public/js/index.ts");
 const $ = __webpack_require__(/*! jquery */ "jquery");
 const i18next = __webpack_require__(/*! i18next */ "i18next");
@@ -3064,6 +3069,7 @@ exports.LoginManager = LoginManager;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.TradingViewDatafeed = void 0;
 const ClientSocket_1 = __webpack_require__(/*! ./ClientSocket */ "./public/js/classes/WebSocket/ClientSocket.ts");
 class CallbackMap extends Map {
     constructor() {
@@ -3304,6 +3310,7 @@ exports.TradingViewDatafeed = TradingViewDatafeed;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.Backtesting = void 0;
 const JsonEditor_1 = __webpack_require__(/*! ./base/JsonEditor */ "./public/js/controllers/base/JsonEditor.ts");
 const $ = __webpack_require__(/*! jquery */ "jquery");
 const i18next = __webpack_require__(/*! i18next */ "i18next");
@@ -3529,6 +3536,7 @@ exports.Backtesting = Backtesting;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.CoinMarket = void 0;
 const ChartController_1 = __webpack_require__(/*! ./base/ChartController */ "./public/js/controllers/base/ChartController.ts");
 class CoinMarket extends ChartController_1.ChartController {
     constructor(socket) {
@@ -3675,6 +3683,7 @@ exports.CoinMarket = CoinMarket;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.Config = void 0;
 const index_1 = __webpack_require__(/*! ../index */ "./public/js/index.ts");
 const $ = __webpack_require__(/*! jquery */ "jquery");
 const i18next = __webpack_require__(/*! i18next */ "i18next");
@@ -4545,6 +4554,7 @@ exports.Config = Config;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.Home = void 0;
 const AbstractController_1 = __webpack_require__(/*! ./base/AbstractController */ "./public/js/controllers/base/AbstractController.ts");
 const $ = __webpack_require__(/*! jquery */ "jquery");
 class Home extends AbstractController_1.AbstractController {
@@ -4611,6 +4621,7 @@ Home.STRATEGY_TOPLIST_URL = "https://wolfbot.org/wp-json/tradebot/v1/popular-str
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.Lending = void 0;
 const AbstractController_1 = __webpack_require__(/*! ./base/AbstractController */ "./public/js/controllers/base/AbstractController.ts");
 class Lending extends AbstractController_1.AbstractController {
     constructor(socket) {
@@ -4745,6 +4756,7 @@ exports.Lending = Lending;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.Oracle = void 0;
 const AbstractController_1 = __webpack_require__(/*! ./base/AbstractController */ "./public/js/controllers/base/AbstractController.ts");
 const helper = __webpack_require__(/*! ../utils/helper */ "./public/js/utils/helper.ts");
 class Oracle extends AbstractController_1.AbstractController {
@@ -4826,6 +4838,7 @@ exports.Oracle = Oracle;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.Scripts = void 0;
 const AbstractController_1 = __webpack_require__(/*! ./base/AbstractController */ "./public/js/controllers/base/AbstractController.ts");
 class Scripts extends AbstractController_1.AbstractController {
     constructor(socket) {
@@ -4863,6 +4876,7 @@ exports.Scripts = Scripts;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.Social = void 0;
 const ChartController_1 = __webpack_require__(/*! ./base/ChartController */ "./public/js/controllers/base/ChartController.ts");
 class Social extends ChartController_1.ChartController {
     constructor(socket) {
@@ -5029,6 +5043,7 @@ exports.Social = Social;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.Status = void 0;
 const AbstractController_1 = __webpack_require__(/*! ./base/AbstractController */ "./public/js/controllers/base/AbstractController.ts");
 class Status extends AbstractController_1.AbstractController {
     constructor(socket) {
@@ -5102,6 +5117,7 @@ exports.Status = Status;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.Strategies = void 0;
 const AbstractController_1 = __webpack_require__(/*! ./base/AbstractController */ "./public/js/controllers/base/AbstractController.ts");
 const browserutils_1 = __webpack_require__(/*! @ekliptor/browserutils */ "../../../NodeJS/Packets/browserutils/build/utils.js");
 const $ = __webpack_require__(/*! jquery */ "jquery");
@@ -5468,6 +5484,7 @@ exports.Strategies = Strategies;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.TradeHistory = void 0;
 const TableController_1 = __webpack_require__(/*! ./base/TableController */ "./public/js/controllers/base/TableController.ts");
 const $ = __webpack_require__(/*! jquery */ "jquery");
 const i18next = __webpack_require__(/*! i18next */ "i18next");
@@ -5688,6 +5705,7 @@ exports.TradeHistory = TradeHistory;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.AbstractController = void 0;
 //import {AbstractWidget} from "../classes/AbstractWidget";
 const ClientSocket_1 = __webpack_require__(/*! ../../classes/WebSocket/ClientSocket */ "./public/js/classes/WebSocket/ClientSocket.ts");
 const $ = __webpack_require__(/*! jquery */ "jquery");
@@ -5826,6 +5844,7 @@ exports.AbstractController = AbstractController;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.ChartController = exports.PlotChartOptions = void 0;
 const chart_js_1 = __webpack_require__(/*! chart.js */ "chart.js");
 const AbstractController_1 = __webpack_require__(/*! ./AbstractController */ "./public/js/controllers/base/AbstractController.ts");
 class PlotChartOptions {
@@ -5950,6 +5969,7 @@ exports.ChartController = ChartController;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.JsonEditor = void 0;
 const AbstractController_1 = __webpack_require__(/*! ./AbstractController */ "./public/js/controllers/base/AbstractController.ts");
 class JsonEditor extends AbstractController_1.AbstractController {
     constructor(socket) {
@@ -5971,6 +5991,7 @@ exports.JsonEditor = JsonEditor;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.TableController = void 0;
 const $ = __webpack_require__(/*! jquery */ "jquery");
 const i18next = __webpack_require__(/*! i18next */ "i18next");
 const AbstractController_1 = __webpack_require__(/*! ./AbstractController */ "./public/js/controllers/base/AbstractController.ts");
@@ -6143,6 +6164,7 @@ exports.TableController = TableController;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.App = exports.AppClass = void 0;
 const $ = __webpack_require__(/*! jquery */ "jquery");
 const i18next = __webpack_require__(/*! i18next */ "i18next");
 const ClientSocket_1 = __webpack_require__(/*! ./classes/WebSocket/ClientSocket */ "./public/js/classes/WebSocket/ClientSocket.ts");
@@ -6222,6 +6244,8 @@ class AppClass {
                         title: i18next.t('unauthorized'),
                         text: i18next.t('unauthorizedTxt')
                     };
+                    //if (window.location.hostname.indexOf("wolfbot.org") === -1)
+                    vars.text += "<br><br>" + i18next.t('setupDiscount');
                     if (AppF.getCookie("apiKey"))
                         AppF.setCookie("apiKey", "", -1); // delete it if existing
                     break;
@@ -6231,7 +6255,7 @@ class AppClass {
                     break;
             }
             if (vars !== null) {
-                let disconnected = AppF.translate(pageData.html.misc.disablePage, vars);
+                let disconnected = AppF.translate(pageData.html.misc.disablePage, vars, true);
                 $(AppClass.cfg.appSel).append(disconnected);
             }
         });
@@ -6452,6 +6476,7 @@ exports.App = App;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.getDiffPercent = void 0;
 /**
  * Returns the % difference between value1 and value2
  * @param value1
@@ -6476,6 +6501,7 @@ exports.getDiffPercent = getDiffPercent;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.AppJSONFormat = void 0;
 exports.AppJSONFormat = "EJSON";
 
 
