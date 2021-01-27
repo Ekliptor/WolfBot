@@ -165,7 +165,7 @@ export abstract class TechnicalStrategy extends AbstractStrategy implements Tech
     public getMinWarumCandles() {
         let numbers = [this.action.interval, this.action.long, this.action.short].filter(n => n !== undefined);
         let maxCandles = Math.max(...numbers);
-        return maxCandles + Math.ceil(maxCandles / 100 + nconf.get("serverConfig:importWarmupAddPercent"));
+        return maxCandles + Math.ceil(maxCandles / 100 * nconf.get("serverConfig:importWarmupAddPercent"));
     }
 
     // ################################################################

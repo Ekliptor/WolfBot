@@ -799,6 +799,7 @@ export abstract class PortfolioTrader extends AbstractTrader {
                     continue; // happens on startup
                 }
                 let coins = coinBalance[pair.to] || 0.0; // from is BTC
+                marginPos.setCoins(coins); // set coins to make getAvailableBalance() inside strategy possible
                 if (isBacktest === true || isSimulation === true) // otherwise we get the actual profit/loss value from the exchange
                     marginPos.computePl(this.marketRates.get(pair.toString()));
                 this.emitSyncExchangePortfolio(exchange.getClassName(), pair, coins, marginPos);
@@ -813,6 +814,7 @@ export abstract class PortfolioTrader extends AbstractTrader {
                 logger.error("Unable to get %s %s coins to sync porftfolio", exchange.getClassName(), pairStr)
             else
                 coins = coinBalance[pair.to] || 0.0; // from is BTC
+                emptyPosition.setCoins(coins); // set coins to make getAvailableBalance() inside strategy possible
             this.emitSyncExchangePortfolio(exchange.getClassName(), pair, coins, emptyPosition)
         }
     }
