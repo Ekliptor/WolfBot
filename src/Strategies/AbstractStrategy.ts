@@ -477,9 +477,9 @@ export abstract class AbstractStrategy extends AbstractGenericStrategy {
         if (this.action.priceTolerancePercent > 0.0 && this.avgMarketPrice !== -1) {
             // we can not use this for close because the close() API call of most exchanges doesn't accept a price
             if (action === "buy")
-                rate = this.avgMarketPrice - this.avgMarketPrice / 100.0 * this.action.priceTolerancePercent;
+                rate = this.avgMarketPrice + this.avgMarketPrice / 100.0 * this.action.priceTolerancePercent; // limit order buy is greater than avgMarketPrice
             else
-                rate = this.avgMarketPrice + this.avgMarketPrice / 100.0 * this.action.priceTolerancePercent; // sell
+                rate = this.avgMarketPrice - this.avgMarketPrice / 100.0 * this.action.priceTolerancePercent; // sell
         }
         else
             rate = this.rate;
@@ -1318,6 +1318,12 @@ export abstract class AbstractStrategy extends AbstractGenericStrategy {
         if (this.ticker && this.ticker.last > 0.0) // ticker is not available during backtesting
             return this.ticker.last;
         return this.avgMarketPrice;
+    }
+
+    public getAvailableBalance(): number {
+        if (this.position === null)
+            return -1;
+        return this.position.coins;
     }
 
     protected getCurrentRate(): number {

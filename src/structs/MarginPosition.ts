@@ -30,7 +30,7 @@ export class MarginPosition {
     lendingFees: number = 0;
     type: StrategyPosition = "none"; // none means no open margin position
     leverage = 2.5;
-
+    coins: number = 0; // the available balance on exchange
     trades: MarginTrade[] = [];
 
     constructor(leverage: number) {
@@ -72,6 +72,10 @@ export class MarginPosition {
             trades.push(new MarginTrade(trade.amount, trade.rate));
         });
         this.trades = trades;
+    }
+
+    public setCoins(coins: number) {
+        this.coins = coins;
     }
 
     public computePl(closePrice: number) {

@@ -255,7 +255,8 @@ export default class Bitfinex extends AbstractLendingExchange implements Externa
     }
 
     public getBalances() {
-        return this.getBalancesForWallet("exchange")
+        //return this.getBalancesForWallet("exchange")
+        return this.getBalancesForWallet("trading")
     }
 
     public getMarginAccountSummary() {
