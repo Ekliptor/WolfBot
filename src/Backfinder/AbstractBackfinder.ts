@@ -149,6 +149,12 @@ export abstract class AbstractBackfinder {
             case 'error':
                 logger.error('Backfinder child process error', message.error)
                 break;
+
+            case 'importTick':
+            case 'autoImportNotSupported':
+                // ignore these events in Backfinder
+                break;
+
             default:
                 if (message.type === undefined && message.cmd && message.cmd === 'log')
                     break; // child process logs

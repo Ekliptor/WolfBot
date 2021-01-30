@@ -14,10 +14,15 @@ const argv = require('minimist')(process.argv.slice(2))
 if (argv.debug === true)
     nconf.set('debug', true)
 import {controller as Controller} from './src/Controller';
+import * as http from "http";
 import {AbstractBackfinder} from "./src/Backfinder/AbstractBackfinder";
 
+// add a server because Controller requires it
+let dummyServer = http.createServer( (request, response) => {});
+dummyServer.setTimeout(nconf.get("httpTimeoutSec") * 1000, null);
+dummyServer.listen(nconf.get('port'), () => {})
 
-Controller.start(null, false).then(() => {
+Controller.start(dummyServer, false).then(() => {
     setTimeout(() => { // ensure we are connected
         Controller.loadServerConfig(() => {
             let options: any = {}
