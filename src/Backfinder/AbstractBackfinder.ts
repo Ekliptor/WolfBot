@@ -151,6 +151,7 @@ export abstract class AbstractBackfinder {
                 break;
 
             case 'importTick':
+            case 'tick':
             case 'autoImportNotSupported':
                 // ignore these events in Backfinder
                 break;
