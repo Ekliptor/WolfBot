@@ -59,14 +59,16 @@ export abstract class AbstractOrderTracker {
     }
 
     protected sendOpenOrders(pendingOrder: PendingOrder, orders: OpenOrders) {
-        let strategies = pendingOrder.strategy.getStrategyGroup();
-        if (!strategies) { // should always be present
-            pendingOrder.strategy.onSyncOpenOrders(orders); // just send it to this one
-            return;
+        const strategyGroup = pendingOrder.strategy.getStrategyGroup();
+        if (strategyGroup) {
+            const strategies = strategyGroup.getAllStrategies()
+            if (strategies.length) {
+                for (let i = 0; i < strategies.length; i++)
+                    strategies[i].onSyncOpenOrders(orders);
+                return
         }
-        const allStrategies = strategies.getAllStrategies();
-        for (let i = 0; i < allStrategies.length; i++)
-            allStrategies[i].onSyncOpenOrders(orders);
+        }
+        pendingOrder.strategy.onSyncOpenOrders(orders);
     }
 
     /**
