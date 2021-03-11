@@ -62,12 +62,14 @@ export abstract class AbstractOrderTracker {
         const strategyGroup = pendingOrder.strategy.getStrategyGroup();
         if (strategyGroup) {
             const strategies = strategyGroup.getAllStrategies()
-            if (strategies.length) {
+            if (strategies.length !== 0) {
                 for (let i = 0; i < strategies.length; i++)
                     strategies[i].onSyncOpenOrders(orders);
                 return
+            }
         }
-        }
+
+        // otherwise (if we didn't return above) just send it to this one strategy
         pendingOrder.strategy.onSyncOpenOrders(orders);
     }
 
