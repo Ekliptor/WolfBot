@@ -43,7 +43,7 @@
     "i18next": "^8.4.1",
     "i18next-xhr-backend": "^1.4.2",
     "imap-simple": "^4.3.0",
-    "lodash": "^4.17.4",
+    "lodash": "^4.17.21",
     "minimist": "^1.2.2",
     "mongodb": "^3.6.0",
     "node-gyp": "^3.8.0",
