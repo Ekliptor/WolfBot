@@ -26,7 +26,7 @@
     "autobahn": "^17.5.1",
     "binance-api-node": "^0.8.18",
     "ccxt": "^1.39.33",
-    "chart.js": "^2.7.1",
+    "chart.js": "^2.9.4",
     "cheerio": "^0.22.0",
     "currencies-exchange-rates": "^1.0.2",
     "d3-dsv": "^1.0.10",
