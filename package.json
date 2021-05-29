@@ -58,7 +58,7 @@
     "technicalindicators": "^1.1.1",
     "tradingview-scraper": "^0.2.4",
     "twitter": "^1.7.1",
-    "ws": "^5.1.1"
+    "ws": "^7.4.6"
   },
   "devDependencies": {
     "@types/ace": "0.0.33",
