@@ -1,10 +1,12 @@
 {
     "data": [
         {
-            "exchanges": ["OKEX"],
+            "exchanges": [
+                "OKEX"
+            ],
             "marginTrading": true,
-            "tradeTotalBtc": 150.0,
-            "reduceTradeAmountPercent": 0.0,
+            "tradeTotalBtc": 150,
+            "reduceTradeAmountPercent": 0,
             "warmUpMin": 0,
             "notifyTrades": false,
             "updateIndicatorsOnTrade": false,
