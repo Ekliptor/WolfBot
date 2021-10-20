@@ -1705,10 +1705,10 @@ catharsis@~0.8.8:
     bignumber.js "^9.0.0"
     nofilter "^1.0.3"
 
-ccxt@^1.53.30:
-  version "1.53.31"
-  resolved "https://registry.yarnpkg.com/ccxt/-/ccxt-1.53.31.tgz#5f240ceda812e8f577186d8926ff3458d74c47c6"
-  integrity sha512-TunBeCDNpDqljyJMEvgDNdzigK+1b5GBGEf017FefyZlRiPgcJJwDK4ZmaQ0j3SbrLUiDk1fztal3fo0iMoIhw==
+ccxt@^1.58.70:
+  version "1.58.70"
+  resolved "https://registry.yarnpkg.com/ccxt/-/ccxt-1.58.70.tgz#06dd2518292443b0d2e7ffb853e68baba397380b"
+  integrity sha512-2wAtncjx7rFM6eqEwHmum3pEnfo+3OQWBgPrCwuKsHmv6x4l2WmNqY1774oewymUnnGVHAoQ01BIEU1vYGX5Jg==
 
 center-align@^0.1.1:
   version "0.1.3"

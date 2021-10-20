@@ -14,7 +14,7 @@
   "dependencies": {
     "@ekliptor/apputils": "^0.1.5",
     "@ekliptor/bintrees-local": "^1.0.6",
-    "@ekliptor/bit-models": "^1.0.35",
+    "@ekliptor/bit-models": "^1.0.92",
     "@ekliptor/bitfinex-api-node-seq": "^1.1.1",
     "@ekliptor/bitmex-realtime-api-fix": "^0.4.8",
     "@ekliptor/browserutils": "^0.0.3",
@@ -25,7 +25,7 @@
     "async": "^2.6.0",
     "autobahn": "^17.5.1",
     "binance-api-node": "^0.8.18",
-    "ccxt": "^1.53.30",
+    "ccxt": "^1.58.70",
     "chart.js": "^2.7.1",
     "cheerio": "^0.22.0",
     "currencies-exchange-rates": "^1.0.2",
