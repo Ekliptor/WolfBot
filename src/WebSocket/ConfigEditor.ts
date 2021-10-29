@@ -722,7 +722,8 @@ export class ConfigEditor extends AppPublisher {
                 let strategyData = curData.strategies[strategyName];
                 if (typeof strategyData.pair !== "string")
                     strategyData.pair = this.ensureCurrencyPairString(strategyData.pair);
-                else if (this.initialPairs.has(strategyData.pair) === false)
+                strategyData.pair = this.fixCurrencyPair(strategyData.pair);
+                if (this.initialPairs.has(strategyData.pair) === false)
                     this.pairChangePendingRestart = true;
             }
         });
@@ -745,6 +746,20 @@ export class ConfigEditor extends AppPublisher {
         if (this.initialPairs.has(pairStr) === false)
             this.pairChangePendingRestart = true;
         return pairStr;
+    }
+
+    protected fixCurrencyPair(pair: string): string {
+        pair = pair.toUpperCase().trim();
+        let pairsInverted = ["BTC_USD", "ETH_USD"]; // common mistakes
+        pairsInverted.forEach((pairInverted) => {
+            if (pair === pairInverted) {
+                let pairFixed = pairInverted.split("_", 2).reverse().join("_");
+                logger.warn("fixing reversed currency pair '%s' to 'USD_BTC'", pairInverted, pairFixed);
+                pair = pairFixed;
+            }
+        });
+
+        return pair;
     }
 
     protected async readConfigFileParsed(name: string, updateStrategyValues: boolean = true) {
@@ -861,6 +876,7 @@ export class ConfigEditor extends AppPublisher {
                 conf.pair = firstCurrencyPair;
                 this.pairChangePendingRestart = true;
             }
+            firstCurrencyPair = this.fixCurrencyPair(firstCurrencyPair);
         }
         if (missingPair === true && firstCurrencyPair !== null)
             return this.copyFirstStrategyCurrencyPair(json, firstCurrencyPair);
