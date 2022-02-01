@@ -15,6 +15,11 @@ import * as config from "../configLocal";
 export interface NodeConfigFile {
     id: number;
     url: string;
+
+    // for white label products managing their own VMs with hard-coded login credentials below
+    skipLogin?: boolean;
+    username?: string;
+    password?: string;
 }
 export class BotSubscription {
     id: number;
@@ -191,6 +196,24 @@ export class LoginController extends AbstractSubController {
      */
     public checkLogin() {
         return new Promise<void>((resolve, reject) => {
+            // if it's a white label product it's up to the reseller
+            if (this.nodeConfig.skipLogin === true) {
+                // TODO add custom username + password check here if needed
+                if (nconf.get("serverConfig:username") !== this.nodeConfig.username || nconf.get("serverConfig:password") !== this.nodeConfig.password) {
+                    this.loginValid = false;
+                    this.subscriptionValid = false;
+                    logger.info("Login with local credentials is not valid. User: %s - Password: %s", nconf.get("serverConfig:username"),
+                        (nconf.get("serverConfig:password") ? "yes" : "no"));
+                }
+                else {
+                    this.loginValid = true;
+                    this.subscriptionValid = true;
+                    nconf.set("serverConfig:lastUsername", nconf.get("serverConfig:username"));
+                    this.setLoggedIn();
+                }
+                return resolve();
+            }
+
             let data = {
                 botID: this.nodeConfig.id,
                 botApiKey: helper.getFirstApiKey(), // easier to just send the key every time
