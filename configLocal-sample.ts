@@ -10,7 +10,7 @@ const root = {
     "updateUrl": "",
     "mongoUrl": process.env.WOLF_CONTAINER === "docker" ? "mongodb://mongodb:27017/wolfbot" :
         // put your MongoDB connection URL in here: mongodb://user:password@host:port/database
-        "",
+        process.env.WOLF_MONGO,
     "searchHosts": [], // elasticsearch host:port - currently not used
 
     // proxy config. only needed if the exchange you want to trade on isn't accessible from your IP
