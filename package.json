@@ -30,7 +30,7 @@
     "cheerio": "^0.22.0",
     "currencies-exchange-rates": "^1.0.2",
     "d3-dsv": "^1.0.10",
-    "datatables.net": "^1.10.16",
+    "datatables.net": "^1.11.3",
     "datatables.net-bs": "^1.10.16",
     "deribit-v2-ws": "1.0.3",
     "elasticsearch": "^16.7.1",
