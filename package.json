@@ -22,7 +22,7 @@
     "@ekliptor/okex-node-fix": "^0.0.53",
     "@ekliptor/packed-updater": "^1.0.13",
     "@ekliptor/reddit-snooper": "^1.0.1",
-    "async": "^2.6.0",
+    "async": "^3.2.2",
     "autobahn": "^17.5.1",
     "binance-api-node": "^0.8.18",
     "ccxt": "^1.58.70",
