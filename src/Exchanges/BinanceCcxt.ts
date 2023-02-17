@@ -17,7 +17,7 @@ export default class BinanceCcxt extends CcxtExchange {
         this.currencies.setSwitchCurrencyPair(true);
         let opts = this.getExchangeConfig();
         if (opts.defaultType !== undefined) // TODO read from config and allow switch (we need multiple instances then)
-            opts.defaultType = {defaultType: opts.defaultType} // 'spot', 'future', 'margin', 'delivery'
+            opts.options.defaultType = opts.defaultType; // 'spot', 'future', 'margin', 'delivery'
         opts.parseOrderToPrecision = true;
         this.apiClient = new ccxt.binance(opts);
         this.apiClient.loadMarkets().then(() => {

@@ -477,7 +477,7 @@ export abstract class AbstractGenericStrategy extends EventEmitter {
             return;
         const now = Date.now();
         let clearMessages = () => {
-            for (let log of this.logMap) // clear old logs of  messages
+            for (let log of this.logMap) // clear old logs of messages
             {
                 if (log[1] + this.logOnceTimeoutMin*utils.constants.MINUTE_IN_SECONDS*1000 < now)
                     this.logMap.delete(log[0]);

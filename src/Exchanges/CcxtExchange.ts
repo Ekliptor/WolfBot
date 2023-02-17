@@ -604,6 +604,7 @@ export abstract class CcxtExchange extends AbstractExchange {
             enableRateLimit: true,
             apiKey: this.apiKey.key,
             secret: this.apiKey.secret,
+            options: {},
         }
     }
 

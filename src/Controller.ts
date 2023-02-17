@@ -369,7 +369,7 @@ export class Controller extends AbstractController { // TODO implement graceful 
             // don't run updater too often because of RealTime trader. bot will lose its state. only update on restart
             if (updateHandler !== null) {
                 updateHandler.runUpdater(() => { // will restart the app or fire this callback
-                    logger.info("Checking for updates");
+                    logger.info("Done checking for updates");
                     load();
                 })
             }
