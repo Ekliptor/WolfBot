@@ -47,7 +47,7 @@
     "minimist": "^1.2.2",
     "mongodb": "^3.6.0",
     "node-gyp": "^3.8.0",
-    "nodemailer": "^4.0.1",
+    "nodemailer": "^6.4.16",
     "qheap": "^1.4.0",
     "redis": "^3.0.2",
     "seedrandom": "^2.4.4",
